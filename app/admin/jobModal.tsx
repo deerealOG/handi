@@ -80,21 +80,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontSize: THEME.typography.sizes.title,
+    fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
     color: THEME.colors.text,
     textAlign: "center",
     marginBottom: THEME.spacing.lg,
   },
   card: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.lg,
   },
   jobTitle: {
     fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
-    color: THEME.colors.admin,
+    color: THEME.colors.secondary,
     marginBottom: THEME.spacing.sm,
   },
   detail: {
@@ -112,13 +112,13 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   active: {
-    color: THEME.colors.warning,
+    color: THEME.colors.error,
   },
   completed: {
     color: THEME.colors.success,
   },
   dispute: {
-    color: THEME.colors.danger,
+    color: THEME.colors.error,
   },
   actionButton: {
     borderRadius: THEME.radius.md,
@@ -127,24 +127,24 @@ const styles = StyleSheet.create({
     marginTop: THEME.spacing.lg,
   },
   resolveBtn: {
-    backgroundColor: THEME.colors.danger,
+    backgroundColor: THEME.colors.error,
   },
   completeBtn: {
     backgroundColor: THEME.colors.success,
   },
   actionText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontWeight: "700",
   },
   closeButton: {
     marginTop: THEME.spacing.lg,
-    backgroundColor: THEME.colors.admin,
+    backgroundColor: THEME.colors.secondary,
     borderRadius: THEME.radius.md,
     paddingVertical: 10,
     alignItems: "center",
   },
   closeText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontWeight: "700",
   },
   shadow: {

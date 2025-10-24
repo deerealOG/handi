@@ -3,13 +3,13 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   saveText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },

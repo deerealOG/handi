@@ -1,81 +1,92 @@
-// constants/theme.ts
-
-
-
-const COLORS = {
-  // Role-based branding
-  client: "#3B82F6",   // Blue
-  artisan: "#10B981",  // Green
-  admin: "#9333EA",    // Purple
-
-  // Core palette
-  primary: "#1C8C4B",
-  secondary: "#5856D6",
-
-  // Neutrals & UI
-  background: "#FFFFFF",
-  surface: "#F2F2F2",
-  text: "#000000",
-  muted: "#8E8E93",
-
-  // Status
-  success: "#34C759",
-  danger: "#FF3B30",
-  warning: "#FF9500",
-
-  // Basics
-  white: "#FFFFFF",
-  black: "#000000",
-};
-
 export const THEME = {
-  colors: COLORS,
+  // ================================
+  // 🎨 COLOR PALETTE
+  // ================================
+  colors: {
+    primary: "#1C8C4B",          // Brand emerald green — main identity color
+    primaryDark: "#146e3bff",      // Darker shade for pressed buttons or focus
+    secondary: "#FFC857",        // Warm gold accent — highlights, CTA contrast
 
+    background: "#F9FAFB",       // App background (light gray)
+    surface: "#FFFFFF",          // Cards, modals, containers
+    text: "#1F2937",             // Primary text (dark neutral)
+    muted: "#6B7280",            // Secondary text, placeholders, captions
+    border: "#E5E7EB",           // Dividers, input borders
+    overlay: "rgba(0,0,0,0.45)", // Semi-transparent modal overlay
+
+    error: "#DC2626",            // Error & alert color
+    success: "#16A34A",          // Success state (used for confirmations)
+  },
+
+  // ================================
+  // TYPOGRAPHY 
+  // ================================
   typography: {
-    fontFamily: 'Inter',
-    sizes: {
-      xs: 12,
-      sm: 14,
-      base: 16,
-      lg: 18,
-      xl: 22,
-      title: 26,
+    fontFamily: {
+      heading: "Urbanist-Bold",       // Used for major headers & buttons
+      subheading: "Urbanist-SemiBold",// Used for section titles, tab headers
+      body: "Inter-Regular",          // Used for paragraphs, labels, inputs
+      bodyMedium: "Inter-Medium",     // Slightly heavier body text (like names, prices)
+      bodyLight: "Inter-Light",       // Subtle text, timestamps, captions
     },
-  
-  weights: {
-  regular: "400" as const,
-  medium: "500" as const,
-  bold: "700" as const,
-},
 
+    // Font Sizes 
+    sizes: {
+      xs: 11,    // Captions, timestamps
+      sm: 13,    // Small labels, chip text
+      base: 15,  // Default readable text
+      md: 17,    // Section subtitles
+      lg: 20,    // Card titles or modal headers
+      xl: 24,    // Page headers
+      "2xl": 30, // Splash / Hero titles
+    },
+
+    // 📏 Line Heights — spacing within text blocks
+    lineHeights: {
+      compact: 1.1,  // For buttons, tight labels
+      normal: 1.4,   // Default paragraph spacing
+      relaxed: 1.6,  // Long-form content or modal descriptions
+    },
   },
 
+  // ================================
+  // SPACING
+  // ================================
   spacing: {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
+    xs: 4,   // Micro padding
+    sm: 8,   // Small spacing (chips, labels)
+    md: 12,  // Form field gaps
+    lg: 20,  // Section gaps, card padding
+    xl: 32,  // Screen padding or hero areas
   },
 
+  // ================================
+  // CORNER RADII
+  // ================================
   radius: {
-    sm: 6,
-    md: 10,
-    lg: 16,
-    xl: 24,
+    sm: 6,       // Inputs & chips
+    md: 12,      // Cards, modals
+    lg: 20,      // Bottom sheets, large buttons
+    pill: 9999,  // Fully rounded (toggles, badges)
   },
 
+  // ================================
+  // ELEVATION SHADOWS
+  // ================================
   shadow: {
     base: {
-      shadowColor: "rgba(28,140,75,0.60)",
+      shadowColor: "#1C8C4B",
       shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 3.84,
-      elevation: 3,
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
+      elevation: 3, // Android shadow
     },
-    ArtisanCardShadow: {
-      shadowColor: "rgba(28,140,75,0.50)",
-      shadowOffset: { width: 0, height: 2 },      
-      elevation: 3, 
+    card: {
+      shadowColor: "#1C8C4B",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.06,
+      shadowRadius: 3,
+      elevation: 2,
+    },
   },
-}};
+};

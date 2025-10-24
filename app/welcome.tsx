@@ -9,89 +9,131 @@ export default function WelcomeScreen() {
 
   return (
     <View style={styles.container}>
+      {/* ===============================
+          🖼 Header Image
+      =============================== */}
       <Image
         source={require("../assets/images/client-onboarding1.png")}
         style={styles.image}
         resizeMode="contain"
       />
 
+      {/* ===============================
+          🏷 Title & Subtitle
+      =============================== */}
       <Text style={styles.title}>Welcome to FixItPro</Text>
       <Text style={styles.subtitle}>
         Get professional artisans or offer your skills to clients in your area.
       </Text>
 
+      {/* ===============================
+          🔘 Action Buttons
+      =============================== */}
       <View style={styles.buttonContainer}>
+        {/* Continue as Client */}
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: THEME.colors.primary }]}
+          style={[styles.button, styles.primaryButton]}
           onPress={() => router.push("../client/(tabs)/home")}
         >
-          <Text style={styles.buttonText}>Continue as Client</Text>
+          <Text style={styles.primaryButtonText}>Continue as Client</Text>
         </TouchableOpacity>
 
+        {/* Continue as Artisan */}
         <TouchableOpacity
           style={[styles.button, styles.outlinedButton]}
           onPress={() => router.push("../artisan/(tabs)/home")}
         >
-          <Text style={[styles.buttonText, { color: THEME.colors.primary }]}>
-            Continue as Artisan
-          </Text>
+          <Text style={styles.outlinedButtonText}>Continue as Artisan</Text>
         </TouchableOpacity>
       </View>
 
+      {/* ===============================
+          ⚙️ Footer Text
+      =============================== */}
       <Text style={styles.footerText}>Powered by FixItPro © 2025</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // 🌿 Page container
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.background,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 24,
+    paddingHorizontal: THEME.spacing.lg,
   },
+
+  // 🖼 Top image
   image: {
     width: "90%",
     height: 260,
-    marginBottom: 30,
+    marginBottom: THEME.spacing.xl,
   },
+
+  // 🏷 Title text
   title: {
-    fontSize: 26,
-    fontWeight: "700",
+    fontSize: THEME.typography.sizes.xl,
+    fontFamily: THEME.typography.fontFamily.heading,
     color: THEME.colors.text,
     textAlign: "center",
   },
+
+  // 💬 Subtitle text
   subtitle: {
-    fontSize: 14,
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.body,
     color: THEME.colors.muted,
     textAlign: "center",
-    marginTop: 10,
-    marginBottom: 30,
+    marginTop: THEME.spacing.sm,
+    marginBottom: THEME.spacing.xl,
+    lineHeight: THEME.typography.sizes.base * THEME.typography.lineHeights.relaxed,
+    maxWidth: 320,
   },
+
+  // 🔘 Button group
   buttonContainer: {
     width: "100%",
-    gap: 16,
+    gap: THEME.spacing.md,
   },
+
+  // 🧱 Base button style
   button: {
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingVertical: THEME.spacing.md,
+    borderRadius: THEME.radius.lg,
     alignItems: "center",
   },
+
+  // 🌊 Primary (filled) button
+  primaryButton: {
+    backgroundColor: THEME.colors.primary,
+    ...THEME.shadow.card,
+  },
+  primaryButtonText: {
+    color: THEME.colors.surface,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    fontSize: THEME.typography.sizes.base,
+  },
+
+  // ⚪ Outlined (secondary) button
   outlinedButton: {
     borderWidth: 1.5,
     borderColor: THEME.colors.primary,
     backgroundColor: "transparent",
   },
-  buttonText: {
-    color: THEME.colors.white,
-    fontWeight: "600",
-    fontSize: 16,
+  outlinedButtonText: {
+    color: THEME.colors.primary,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    fontSize: THEME.typography.sizes.base,
   },
+
+  // ⚙️ Footer
   footerText: {
     position: "absolute",
-    bottom: 20,
-    fontSize: 12,
+    bottom: THEME.spacing.lg,
+    fontSize: THEME.typography.sizes.sm,
     color: THEME.colors.muted,
+    fontFamily: THEME.typography.fontFamily.body,
   },
 });

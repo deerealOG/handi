@@ -4,14 +4,14 @@ import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
@@ -113,7 +113,7 @@ export default function EditProfile() {
             <MaterialCommunityIcons
               name="pencil"
               size={16}
-              color={THEME.colors.white}
+              color={THEME.colors.surface}
             />
           </View>
         </TouchableOpacity>
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   saveText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },

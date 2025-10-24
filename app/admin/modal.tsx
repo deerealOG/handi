@@ -53,21 +53,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontSize: THEME.typography.sizes.title,
+    fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
     color: THEME.colors.text,
     marginBottom: THEME.spacing.lg,
     textAlign: "center",
   },
   card: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.lg,
   },
   name: {
     fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
-    color: THEME.colors.admin,
+    color: THEME.colors.secondary,
     marginBottom: THEME.spacing.sm,
   },
   detail: {
@@ -79,17 +79,17 @@ const styles = StyleSheet.create({
     color: THEME.colors.success,
   },
   suspended: {
-    color: THEME.colors.danger,
+    color: THEME.colors.error,
   },
   closeButton: {
     marginTop: THEME.spacing.xl,
-    backgroundColor: THEME.colors.admin,
+    backgroundColor: THEME.colors.secondary,
     borderRadius: THEME.radius.md,
     paddingVertical: 10,
     alignItems: "center",
   },
   closeText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontWeight: "700",
   },
   shadow: {

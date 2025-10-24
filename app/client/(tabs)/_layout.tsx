@@ -1,3 +1,4 @@
+// app/client/(tabs)/_layout.tsx
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { THEME } from "../../../constants/theme";
@@ -5,23 +6,28 @@ import { THEME } from "../../../constants/theme";
 export default function ClientTabs() {
   return (
     <Tabs
+      // ⚙️ General Tab Navigator Configuration
       screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: true,
-        tabBarActiveTintColor: THEME.colors.primary,
-        tabBarInactiveTintColor: THEME.colors.muted,
+        headerShown: false, // Hide headers on all tab screens
+        tabBarShowLabel: true, // Show labels under icons
+        tabBarActiveTintColor: THEME.colors.primary, // Active tab color from theme
+        tabBarInactiveTintColor: THEME.colors.muted, // Inactive tab color
         tabBarStyle: {
-          backgroundColor: THEME.colors.white,
-          borderTopColor: "#eee",
+          backgroundColor: THEME.colors.surface, // Use themed surface color
+          borderTopColor: THEME.colors.border, // Subtle divider line
           height: 60,
-          paddingBottom: 5,
+          paddingBottom: THEME.spacing.xs,
+          paddingTop: THEME.spacing.xs,
+          ...THEME.shadow.card, // Light shadow for elevation
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "500",
+          fontSize: THEME.typography.sizes.sm, // Label font size from theme
+          fontFamily: THEME.typography.fontFamily.bodyMedium, // Consistent font
+          lineHeight: THEME.typography.sizes.sm * THEME.typography.lineHeights.normal,
         },
       }}
     >
+      {/* 🏠 HOME TAB */}
       <Tabs.Screen
         name="index"
         options={{
@@ -35,6 +41,8 @@ export default function ClientTabs() {
           ),
         }}
       />
+
+      {/* 🔍 EXPLORE TAB */}
       <Tabs.Screen
         name="explore"
         options={{
@@ -48,6 +56,8 @@ export default function ClientTabs() {
           ),
         }}
       />
+
+      {/* 📅 BOOKINGS TAB */}
       <Tabs.Screen
         name="bookings"
         options={{
@@ -61,6 +71,8 @@ export default function ClientTabs() {
           ),
         }}
       />
+
+      {/* 💳 WALLET TAB */}
       <Tabs.Screen
         name="wallet"
         options={{
@@ -74,6 +86,8 @@ export default function ClientTabs() {
           ),
         }}
       />
+
+      {/* 👤 PROFILE TAB */}
       <Tabs.Screen
         name="profile"
         options={{

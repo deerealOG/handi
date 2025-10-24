@@ -1,5 +1,6 @@
 // app/artisan/(tabs)/wallet.tsx
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   FlatList,
@@ -11,6 +12,7 @@ import {
 import { THEME } from "../../../constants/theme";
 
 export default function ArtisanWallet() {
+  const router = useRouter();
   const balance = 24500;
   const transactions = [
     {
@@ -42,7 +44,7 @@ export default function ArtisanWallet() {
           <MaterialCommunityIcons
             name="bank-transfer-out"
             size={18}
-            color={THEME.colors.white}
+            color={THEME.colors.surface}
           />
           <Text style={styles.withdrawText}>Withdraw Funds</Text>
         </TouchableOpacity>
@@ -54,6 +56,7 @@ export default function ArtisanWallet() {
         data={transactions}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
+          
           <View style={styles.transactionItem}>
             <View>
               <Text style={styles.transactionTitle}>{item.title}</Text>
@@ -66,7 +69,7 @@ export default function ArtisanWallet() {
                   color:
                     item.type === "credit"
                       ? THEME.colors.primary
-                      : THEME.colors.warning,
+                      : THEME.colors.error,
                 },
               ]}
             >
@@ -98,13 +101,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   balanceLabel: {
-    color: "rgba(255,255,255,0.8)",
+    color: THEME.colors.surface,
     fontSize: 14,
   },
   balanceValue: {
     fontSize: 32,
     fontWeight: "700",
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     marginVertical: 8,
   },
   withdrawButton: {
@@ -116,7 +119,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   withdrawText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontWeight: "600",
     fontSize: 14,
     marginLeft: 6,
@@ -128,7 +131,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   transactionItem: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     padding: 14,
     borderRadius: 10,
     flexDirection: "row",
@@ -149,5 +152,21 @@ const styles = StyleSheet.create({
   transactionAmount: {
     fontSize: 15,
     fontWeight: "700",
+  },
+    viewButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: THEME.colors.surface,
+    borderColor: THEME.colors.primary,
+    borderWidth: 0.8,
+    borderRadius: 8,
+    marginTop: 12,
+    paddingVertical: 8,
+    justifyContent: "center",
+  },
+  viewButtonText: {
+    color: THEME.colors.primary,
+    fontWeight: "600",
+    fontSize: 13,
   },
 });

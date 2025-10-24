@@ -21,20 +21,28 @@ import {
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
+/**
+ * BookArtisan screen
+ * - Uses THEME tokens for consistent design
+ * - Shows a form, file upload, datepicker and animated summary modal
+ */
 export default function BookArtisan() {
   const router = useRouter();
 
-  const [serviceType, setServiceType] = useState("Plumbing");
-  const [jobTitle, setJobTitle] = useState("");
-  const [jobDescription, setJobDescription] = useState("");
-  const [date, setDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [location, setLocation] = useState("Lekki Phase 1, Lagos");
-  const [urgent, setUrgent] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<any>(null);
-  const [showSummary, setShowSummary] = useState(false);
+  // ---------- form state ----------
+  const [serviceType, setServiceType] = useState<string>("Plumbing");
+  const [jobTitle, setJobTitle] = useState<string>("");
+  const [jobDescription, setJobDescription] = useState<string>("");
+  const [date, setDate] = useState<Date>(new Date());
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+  const [location, setLocation] = useState<string>("Lekki Phase 1, Lagos");
+  const [urgent, setUrgent] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<any | null>(null);
 
-  // --- File Upload ---
+  // ---------- summary modal ----------
+  const [showSummary, setShowSummary] = useState<boolean>(false);
+
+  // ---------- document picker ----------
   const handleFileUpload = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -42,88 +50,89 @@ export default function BookArtisan() {
         copyToCacheDirectory: true,
       });
 
-      if (!result.canceled && result.assets && result.assets.length > 0) {
+      // Expo DocumentPicker on newer SDKs returns .canceled or .uri depending on options
+      if (!("canceled" in result) && (result as any).uri) {
+        setSelectedFile(result as any);
+      } else if (!result.canceled && result.assets && result.assets.length > 0) {
         setSelectedFile(result.assets[0]);
       }
-    } catch (error) {
-      console.log("File upload error:", error);
+    } catch (err) {
+      console.log("File upload error:", err);
     }
   };
 
-  const onChangeDate = (_: any, selectedDate?: Date) => {
+  // ---------- date picker handler ----------
+  const onChangeDate = (_: any, selected?: Date) => {
     setShowDatePicker(false);
-    if (selectedDate) setDate(selectedDate);
+    if (selected) setDate(selected);
   };
 
+  // ---------- submit / navigate ----------
   const handleSubmit = () => setShowSummary(true);
   const handleEditDetails = () => setShowSummary(false);
   const handleProceedToPayment = () => {
     setShowSummary(false);
     router.push({
-  pathname: "/client/proceed-payment",
-  params: {
-    serviceType,
-    jobTitle,
-    jobDescription,
-    location,
-    date: date.toISOString(),
-    urgent: urgent ? "true" : "false",
-  },
-});
-}
-  
+      pathname: "/client/proceed-payment",
+      params: {
+        serviceType,
+        jobTitle,
+        jobDescription,
+        location,
+        date: date.toISOString(),
+        urgent: urgent ? "true" : "false",
+      },
+    });
+  };
 
- // --- Modal Slide Animation ---
-const slideAnim = useRef(new Animated.Value(0)).current; // For slide-up card
-const fadeAnim = useRef(new Animated.Value(0)).current;  // For background fade
+  // ---------- animation for modal (slide + fade) ----------
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
-useEffect(() => {
-  if (showSummary) {
-    // Animate fade-in and slide-up together
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 1,
-        duration: 350,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]).start();
-  } else {
-    // Animate fade-out and slide-down
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 250,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }
-}, [showSummary, slideAnim, fadeAnim]);
+  useEffect(() => {
+    if (showSummary) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 1,
+          duration: 350,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 250,
+          easing: Easing.in(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [showSummary, fadeAnim, slideAnim]);
 
-const slideUp = slideAnim.interpolate({
-  inputRange: [0, 1],
-  outputRange: [300, 0], // slides up from bottom
-});
-
+  const slideUp = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [300, 0],
+  });
 
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={{ paddingBottom: 60 }}
+      contentContainerStyle={{ paddingBottom: THEME.spacing.xl * 2 }}
       showsVerticalScrollIndicator={false}
     >
-      {/* Header */}
+      {/* Header: back icon + centered title */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <MaterialCommunityIcons
@@ -132,16 +141,17 @@ const slideUp = slideAnim.interpolate({
             color={THEME.colors.primary}
           />
         </TouchableOpacity>
+
         <Text style={styles.headerTitle}>Request Service</Text>
       </View>
 
-      {/* Service Type */}
+      {/* Service type (picker) */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Service type</Text>
         <View style={styles.pickerWrapper}>
           <Picker
             selectedValue={serviceType}
-            onValueChange={(itemValue) => setServiceType(itemValue)}
+            onValueChange={(v) => setServiceType(v as string)}
             style={styles.picker}
             dropdownIconColor={THEME.colors.primary}
             mode={Platform.OS === "android" ? "dialog" : "dropdown"}
@@ -155,29 +165,29 @@ const slideUp = slideAnim.interpolate({
         </View>
       </View>
 
-      {/* Job Title */}
+      {/* Job title */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Job Title</Text>
         <TextInput
           placeholder="Fix leaking sink"
+          placeholderTextColor={THEME.colors.muted}
           value={jobTitle}
           onChangeText={setJobTitle}
           style={styles.input}
-          placeholderTextColor={THEME.colors.muted}
         />
       </View>
 
-      {/* Job Description */}
+      {/* Job description */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Job Description</Text>
         <TextInput
           placeholder="Describe the work you need done..."
+          placeholderTextColor={THEME.colors.muted}
           value={jobDescription}
           onChangeText={setJobDescription}
           style={styles.textArea}
           multiline
           numberOfLines={4}
-          placeholderTextColor={THEME.colors.muted}
         />
       </View>
 
@@ -186,9 +196,10 @@ const slideUp = slideAnim.interpolate({
         <Text style={styles.label}>
           Date & Time{" "}
           <Text style={{ color: THEME.colors.muted, fontSize: 12 }}>
-            (Pick a date and time)
+            (pick date & time)
           </Text>
         </Text>
+
         <TouchableOpacity
           style={styles.dateButton}
           onPress={() => setShowDatePicker(true)}
@@ -208,6 +219,7 @@ const slideUp = slideAnim.interpolate({
             })}
           </Text>
         </TouchableOpacity>
+
         {showDatePicker && (
           <DateTimePicker
             value={date}
@@ -223,14 +235,14 @@ const slideUp = slideAnim.interpolate({
         <Text style={styles.label}>Location</Text>
         <TextInput
           placeholder="Enter address"
+          placeholderTextColor={THEME.colors.muted}
           value={location}
           onChangeText={setLocation}
           style={styles.input}
-          placeholderTextColor={THEME.colors.muted}
         />
       </View>
 
-      {/* File Upload */}
+      {/* File upload */}
       <View style={styles.fieldContainer}>
         <TouchableOpacity
           style={styles.uploadBox}
@@ -240,7 +252,7 @@ const slideUp = slideAnim.interpolate({
           {selectedFile ? (
             <Image
               source={{ uri: selectedFile.uri }}
-              style={{ width: 80, height: 80, borderRadius: 10 }}
+              style={{ width: 80, height: 80, borderRadius: THEME.radius.sm }}
             />
           ) : (
             <>
@@ -250,14 +262,14 @@ const slideUp = slideAnim.interpolate({
                 color={THEME.colors.primary}
               />
               <Text style={styles.uploadText}>
-                Size must be less than 1mb. JPG, PNG
+                Size must be less than 1MB — JPG / PNG
               </Text>
             </>
           )}
         </TouchableOpacity>
       </View>
 
-      {/* Urgent Toggle */}
+      {/* Urgent toggle */}
       <View style={styles.toggleRow}>
         <Switch
           value={urgent}
@@ -267,439 +279,420 @@ const slideUp = slideAnim.interpolate({
         <Text style={styles.toggleLabel}>Urgent Request</Text>
       </View>
 
-      {/* Continue Button */}
+      {/* Continue to summary */}
       <TouchableOpacity style={styles.continueButton} onPress={handleSubmit}>
         <Text style={styles.continueText}>Continue to Summary</Text>
       </TouchableOpacity>
 
-      
-{/* --- Booking Summary Modal --- */}
-{/* --- Booking Summary Modal --- */}
-<Modal
-  animationType="none"
-  transparent
-  visible={showSummary}
-  onRequestClose={() => setShowSummary(false)}
->
-  <Animated.View
-    style={[
-      styles.modalOverlay,
-      { opacity: fadeAnim },
-    ]}
-  >
-    <Animated.View
-      style={[
-        styles.summaryCard,
-        { transform: [{ translateY: slideUp }] },
-      ]}
-    >
-      {/* Header Handle */}
-      <View style={styles.modalHeader}>
-        <View style={styles.modalHandle} />
-        <Text style={styles.modalTitle}>Booking Summary</Text>
-      </View>
+      {/* -----------------------------
+          Booking Summary Modal (animated)
+         ----------------------------- */}
+      <Modal transparent visible={showSummary} animationType="none">
+        <Animated.View style={[styles.modalOverlay, { opacity: fadeAnim }]}>
+          <Animated.View
+            style={[styles.summaryCard, { transform: [{ translateY: slideUp }] }]}
+          >
+            {/* handle + title */}
+            <View style={styles.modalHeader}>
+              <View style={styles.modalHandle} />
+              <Text style={styles.modalTitle}>Booking Summary</Text>
+            </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 120 }}
-      >
-        {/* Artisan Info */}
-        <View style={styles.artisanInfo}>
-          <Image
-            source={require("../../assets/images/profileavatar.png")}
-            style={styles.avatar}
-          />
-          <View>
-            <Text style={styles.artisanName}>Emeka Johnson</Text>
-            <Text style={styles.artisanSkill}>{serviceType}</Text>
-          </View>
-        </View>
-
-        {/* Divider */}
-        <View style={styles.divider} />
-
-        {/* Job Details */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Job Details</Text>
-
-          <View style={styles.detailRow}>
-            <MaterialCommunityIcons
-              name="briefcase-outline"
-              size={18}
-              color={THEME.colors.primary}
-            />
-            <Text style={styles.detailText}>
-              {jobTitle.trim() ? jobTitle : "No title provided"}
-            </Text>
-          </View>
-
-          <View style={styles.detailRow}>
-            <MaterialCommunityIcons
-              name="file-document-outline"
-              size={18}
-              color={THEME.colors.primary}
-            />
-            <Text
-              style={[styles.detailText, { flex: 1}]}
-              numberOfLines={3}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 140 }}
             >
-              {jobDescription.trim()
-                ? jobDescription
-                : "No description provided"}
-            </Text>
-          </View>
+              {/* Artisan info */}
+              <View style={styles.artisanInfo}>
+                <Image
+                  source={require("../../assets/images/profileavatar.png")}
+                  style={styles.avatar}
+                />
+                <View>
+                  <Text style={styles.artisanName}>Emeka Johnson</Text>
+                  <Text style={styles.artisanSkill}>{serviceType}</Text>
+                </View>
+              </View>
 
-          <View style={styles.detailRow}>
-            <MaterialCommunityIcons
-              name="calendar-outline"
-              size={18}
-              color={THEME.colors.primary}
-            />
-            <Text style={styles.detailText}>
-              {date.toLocaleString("en-NG", {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </Text>
-          </View>
+              <View style={styles.divider} />
 
-          <View style={styles.detailRow}>
-            <MaterialCommunityIcons
-              name="map-marker-outline"
-              size={18}
-              color={THEME.colors.primary}
-            />
-            <Text style={styles.detailText}>
-              {location.trim() ? location : "No location specified"}
-            </Text>
-          </View>
+              {/* Job details */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Job Details</Text>
 
-          <View style={styles.detailRow}>
-            <MaterialCommunityIcons
-              name="alert-circle-outline"
-              size={18}
-              color={urgent ? THEME.colors.primary : THEME.colors.muted}
-            />
-            <Text style={styles.detailText}>
-              {urgent ? "Urgent Request" : "Normal Request"}
-            </Text>
-          </View>
-        </View>
+                <View style={styles.detailRow}>
+                  <MaterialCommunityIcons
+                    name="briefcase-outline"
+                    size={18}
+                    color={THEME.colors.primary}
+                  />
+                  <Text style={styles.detailText}>
+                    {jobTitle.trim() ? jobTitle : "No title provided"}
+                  </Text>
+                </View>
 
-        {/* Divider */}
-        <View style={styles.divider} />
+                <View style={styles.detailRow}>
+                  <MaterialCommunityIcons
+                    name="file-document-outline"
+                    size={18}
+                    color={THEME.colors.primary}
+                  />
+                  <Text style={[styles.detailText, { flex: 1 }]} numberOfLines={3}>
+                    {jobDescription.trim()
+                      ? jobDescription
+                      : "No description provided"}
+                  </Text>
+                </View>
 
-        {/* Payment Breakdown */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Payment Breakdown</Text>
-          <View style={styles.breakdownRow}>
-            <Text style={styles.detailText}>Service Fee:</Text>
-            <Text style={styles.boldText}>₦5,000</Text>
-          </View>
-          <View style={styles.breakdownRow}>
-            <Text style={styles.detailText}>Platform Fee:</Text>
-            <Text style={styles.boldText}>₦50</Text>
-          </View>
-        </View>
-      </ScrollView>
+                <View style={styles.detailRow}>
+                  <MaterialCommunityIcons
+                    name="calendar-outline"
+                    size={18}
+                    color={THEME.colors.primary}
+                  />
+                  <Text style={styles.detailText}>
+                    {date.toLocaleString("en-NG", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </Text>
+                </View>
 
-      {/* Sticky Footer */}
-      <View style={styles.footer}>
-        <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Total:</Text>
-          <Text style={styles.totalValue}>₦5,050</Text>
-        </View>
+                <View style={styles.detailRow}>
+                  <MaterialCommunityIcons
+                    name="map-marker-outline"
+                    size={18}
+                    color={THEME.colors.primary}
+                  />
+                  <Text style={styles.detailText}>
+                    {location.trim() ? location : "No location specified"}
+                  </Text>
+                </View>
 
-        <View style={styles.modalButtonsRow}>
-          <TouchableOpacity
-            style={[styles.modalButton, { backgroundColor: THEME.colors.primary }]}
-            onPress={handleProceedToPayment}
-          >
-            <Text style={[styles.modalButtonText, { color: THEME.colors.white }]}>
-              Proceed to Payment
-            </Text>
-          </TouchableOpacity>
+                <View style={styles.detailRow}>
+                  <MaterialCommunityIcons
+                    name="alert-circle-outline"
+                    size={18}
+                    color={urgent ? THEME.colors.primary : THEME.colors.muted}
+                  />
+                  <Text style={styles.detailText}>
+                    {urgent ? "Urgent Request" : "Normal Request"}
+                  </Text>
+                </View>
+              </View>
 
-          <TouchableOpacity
-            style={[styles.modalButton, styles.editButton]}
-            onPress={handleEditDetails}
-          >
-            <Text style={[styles.modalButtonText, { color: THEME.colors.primary }]}>
-              Edit Details
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Animated.View>
-  </Animated.View>
-</Modal>
-</ScrollView>
+              <View style={styles.divider} />
+
+              {/* Payment breakdown */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Payment Breakdown</Text>
+                <View style={styles.breakdownRow}>
+                  <Text style={styles.detailText}>Service Fee:</Text>
+                  <Text style={styles.boldText}>₦5,000</Text>
+                </View>
+                <View style={styles.breakdownRow}>
+                  <Text style={styles.detailText}>Platform Fee:</Text>
+                  <Text style={styles.boldText}>₦50</Text>
+                </View>
+              </View>
+            </ScrollView>
+
+            {/* Sticky footer */}
+            <View style={styles.footer}>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Total:</Text>
+                <Text style={styles.totalValue}>₦5,050</Text>
+              </View>
+
+              <View style={styles.modalButtonsRow}>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: THEME.colors.primary }]}
+                  onPress={handleProceedToPayment}
+                >
+                  <Text style={[styles.modalButtonText, { color: THEME.colors.surface }]}>
+                    Proceed to Payment
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.editButton]}
+                  onPress={handleEditDetails}
+                >
+                  <Text style={[styles.modalButtonText, { color: THEME.colors.primary }]}>
+                    Edit Details
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Animated.View>
+        </Animated.View>
+      </Modal>
+    </ScrollView>
   );
 }
 
-
-
-
+/* ========================
+   THEMED STYLES
+   ======================== */
 const styles = StyleSheet.create({
-  // ===== Container & Layout =====
+  // container
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-    paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingHorizontal: THEME.spacing.lg,
+    paddingTop: THEME.spacing.lg,
   },
 
-  // ===== Header =====
+  // header
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 30,
-    marginTop: 30,
+    marginBottom: THEME.spacing.lg,
   },
   headerTitle: {
     flex: 1,
     textAlign: "center",
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: THEME.typography.sizes.lg,
+    fontFamily: THEME.typography.fontFamily.subheading,
     color: THEME.colors.text,
     marginRight: 22,
   },
 
-  // ===== Form Fields =====
+  // fields
   fieldContainer: {
-    marginBottom: 20,
+    marginBottom: THEME.spacing.md,
   },
   label: {
     fontSize: THEME.typography.sizes.sm,
     color: THEME.colors.text,
-    marginBottom: 8,
+    marginBottom: THEME.spacing.xs,
+    fontFamily: THEME.typography.fontFamily.body,
   },
   pickerWrapper: {
-    backgroundColor: "rgba(28,140,75,0.05)",
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.md,
+    overflow: "hidden",
   },
   picker: {
     color: THEME.colors.text,
   },
   input: {
-    backgroundColor: "rgba(28,140,75,0.05)",
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.md,
-    padding: 12,
+    padding: THEME.spacing.md,
     color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.body,
   },
   textArea: {
-    backgroundColor: "rgba(28,140,75,0.05)",
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.md,
-    padding: 12,
+    padding: THEME.spacing.md,
     textAlignVertical: "top",
-    color: THEME.colors.text,
     minHeight: 100,
+    color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.body,
   },
 
-  // ===== Date & Time =====
+  // date
   dateButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(28,140,75,0.05)",
-    padding: 12,
+    backgroundColor: THEME.colors.surface,
+    padding: THEME.spacing.md,
     borderRadius: THEME.radius.md,
   },
   dateText: {
-    marginLeft: 8,
+    marginLeft: THEME.spacing.sm,
     color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.bodyLight,
   },
 
-  // ===== Upload Box =====
+  // upload
   uploadBox: {
-    backgroundColor: "rgba(28,140,75,0.05)",
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.md,
     borderStyle: "dashed",
     borderWidth: 1,
     borderColor: THEME.colors.primary,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 30,
+    paddingVertical: THEME.spacing.lg,
   },
   uploadText: {
     color: THEME.colors.muted,
-    marginTop: 6,
-    fontSize: 12,
+    marginTop: THEME.spacing.sm,
+    fontSize: THEME.typography.sizes.xs,
+    fontFamily: THEME.typography.fontFamily.bodyLight,
   },
 
-  // ===== Urgent Toggle =====
+  // toggle
   toggleRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: THEME.spacing.lg,
   },
   toggleLabel: {
-    marginLeft: 8,
+    marginLeft: THEME.spacing.sm,
     color: THEME.colors.text,
     fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
   },
 
-  // ===== Continue Button =====
+  // continue button
   continueButton: {
     backgroundColor: THEME.colors.primary,
     borderRadius: THEME.radius.lg,
-    paddingVertical: 14,
+    paddingVertical: THEME.spacing.md,
     alignItems: "center",
+    marginBottom: THEME.spacing.xl,
   },
   continueText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontSize: THEME.typography.sizes.base,
-    fontWeight: "600",
+    fontFamily: THEME.typography.fontFamily.subheading,
   },
 
- modalOverlay: {
-  flex: 1,
-  backgroundColor: "rgba(0, 0, 0, 0.45)",
-  justifyContent: "flex-end",
-  alignItems: "center",
-},
-summaryCard: {
-  backgroundColor: THEME.colors.white,
-  borderTopLeftRadius: 24,
-  borderTopRightRadius: 24,
-  padding: 20,
-  width: "100%",
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: -3 },
-  shadowOpacity: 0.2,
-  shadowRadius: 6,
-  elevation: 8,
-},
-modalHeader: {
-  alignItems: "center",
-  marginBottom: 12,
-},
-modalHandle: {
-  width: 50,
-  height: 5,
-  borderRadius: 2.5,
-  backgroundColor: "#ddd",
-  marginBottom: 10,
-},
-modalTitle: {
-  fontSize: 18,
-  fontWeight: "700",
-  color: THEME.colors.text,
-},
-artisanInfo: {
-  flexDirection: "row",
-  alignItems: "center",
-  marginBottom: 16,
-},
-avatar: {
-  width: 50,
-  height: 50,
-  borderRadius: 25,
-  marginRight: 12,
-},
-artisanName: {
-  fontWeight: "600",
-  color: THEME.colors.text,
-  fontSize: 16,
-},
-artisanSkill: {
-  color: THEME.colors.muted,
-  fontSize: 13,
-},
-section: {
-  marginBottom: 16,
-},
-sectionTitle: {
-  fontWeight: "700",
-  color: THEME.colors.text,
-  fontSize: 15,
-  marginBottom: 6,
-},
-detailText: {
-  fontSize: 13,
-  color: THEME.colors.text,
-  marginBottom: 3,
-  lineHeight: 18,
-},
-boldText: {
-  fontWeight: "600",
-},
-breakdownRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  marginBottom: 4,
-},
-modalButtonsRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  marginTop: 18,
-},
-modalButton: {
-  flex: 1,
-  paddingVertical: 14,
-  borderRadius: 10,
-  alignItems: "center",
-  marginHorizontal: 5,
-},
-editButton: {
-  backgroundColor: "transparent",
-  borderWidth: 0.5,
-  borderColor: THEME.colors.primary,
-},
-modalButtonText: {
-  fontSize: THEME.typography.sizes.base,
-  fontWeight: "600",
-},
-divider: {
-  height: 1,
-  backgroundColor: "#eee",
-  marginVertical: 12,
-},
+  // modal overlay + card
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: THEME.colors.overlay,
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  summaryCard: {
+    backgroundColor: THEME.colors.surface,
+    width: "100%",
+    borderTopLeftRadius: THEME.radius.lg,
+    borderTopRightRadius: THEME.radius.lg,
+    paddingHorizontal: THEME.spacing.lg,
+    paddingTop: THEME.spacing.lg,
+    paddingBottom: THEME.spacing.xl,
+    ...THEME.shadow.base,
+  },
+  modalHeader: {
+    alignItems: "center",
+    marginBottom: THEME.spacing.md,
+  },
+  modalHandle: {
+    width: 50,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: THEME.colors.border,
+    marginBottom: THEME.spacing.sm,
+  },
+  modalTitle: {
+    fontSize: THEME.typography.sizes.md,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    color: THEME.colors.text,
+  },
 
-detailRow: {
-  flexDirection: "row",
-  alignItems: "flex-start",
-  marginBottom: 6,
-  gap: 8,
-},
+  // artisan info
+  artisanInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: THEME.spacing.md,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: THEME.spacing.md,
+  },
+  artisanName: {
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: THEME.colors.text,
+  },
+  artisanSkill: {
+    color: THEME.colors.muted,
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+  },
 
-footer: {
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  right: 0,
-  backgroundColor: THEME.colors.white,
-  borderTopWidth: 1,
-  borderColor: "#eee",
-  paddingHorizontal: 16,
-  paddingTop: 12,
-  paddingBottom: 20,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: -2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 6,
-},
+  // details + payment
+  section: {
+    marginBottom: THEME.spacing.md,
+  },
+  sectionTitle: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    color: THEME.colors.text,
+    marginBottom: THEME.spacing.xs,
+  },
+  detailRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: THEME.spacing.sm,
+    gap: THEME.spacing.sm,
+  },
+  detailText: {
+    fontSize: THEME.typography.sizes.sm,
+    color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.body,
+    lineHeight: 20,
+  },
+  boldText: {
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+  },
+  breakdownRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: THEME.spacing.xs,
+  },
 
-totalRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: 10,
-},
+  // divider
+  divider: {
+    height: 1,
+    backgroundColor: THEME.colors.border,
+    marginVertical: THEME.spacing.md,
+  },
 
-totalLabel: {
-  fontSize: THEME.typography.sizes.base,
-  fontWeight: "600",
-  color: THEME.colors.text,
-},
+  // footer (sticky)
+  footer: {
+    backgroundColor: THEME.colors.surface,
+    borderTopWidth: 1,
+    borderColor: THEME.colors.border,
+    paddingTop: THEME.spacing.md,
+    paddingBottom: THEME.spacing.lg,
+  },
+  totalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: THEME.spacing.sm,
+  },
+  totalLabel: {
+    fontSize: THEME.typography.sizes.base,
+    color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+  },
+  totalValue: {
+    fontSize: THEME.typography.sizes.md,
+    color: THEME.colors.primary,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+  },
 
-totalValue: {
-  fontSize: 18,
-  fontWeight: "700",
-  color: THEME.colors.primary,
-},
-
+  modalButtonsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: THEME.spacing.md,
+    borderRadius: THEME.radius.md,
+    alignItems: "center",
+    marginHorizontal: THEME.spacing.xs,
+  },
+  editButton: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: THEME.colors.primary,
+  },
+  modalButtonText: {
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.subheading,
+  },
 });

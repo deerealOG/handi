@@ -99,13 +99,13 @@ const styles = StyleSheet.create({
     padding: THEME.spacing.md,
   },
   header: {
-    fontSize: THEME.typography.sizes.title,
+    fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
     color: THEME.colors.text,
     marginBottom: THEME.spacing.md,
   },
   card: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.md,
     marginBottom: THEME.spacing.md,
@@ -130,23 +130,23 @@ const styles = StyleSheet.create({
     marginTop: THEME.spacing.sm,
   },
   active: {
-    color: THEME.colors.warning,
+    color: THEME.colors.error,
   },
   completed: {
     color: THEME.colors.success,
   },
   dispute: {
-    color: THEME.colors.danger,
+    color: THEME.colors.error,
   },
   button: {
-    backgroundColor: THEME.colors.admin,
+    backgroundColor: THEME.colors.secondary,
     borderRadius: THEME.radius.md,
     paddingVertical: 6,
     marginTop: THEME.spacing.sm,
   },
   buttonText: {
     textAlign: "center",
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontWeight: "600",
   },
   shadow: {

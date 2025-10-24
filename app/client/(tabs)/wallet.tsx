@@ -15,7 +15,10 @@ export default function WalletScreen() {
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState<any[]>([]);
 
-  // Load wallet data
+  /**
+   * Load wallet data from AsyncStorage
+   * and compute current balance when the screen mounts.
+   */
   useEffect(() => {
     const loadWalletData = async () => {
       try {
@@ -23,22 +26,24 @@ export default function WalletScreen() {
         const parsed = stored ? JSON.parse(stored) : [];
         setTransactions(parsed);
 
-        // Calculate balance
+        // Calculate wallet balance (credits - debits)
         const total = parsed.reduce(
           (sum: number, t: any) =>
-          t.type === "credit" ? sum + t.amount : sum - t.amount,
+            t.type === "credit" ? sum + t.amount : sum - t.amount,
           0
-          );
+        );
         setBalance(total);
-
-          } catch (err) {
-            console.log("Error loading wallet data:", err);
-          }
-        };
-        loadWalletData();
+      } catch (err) {
+        console.log("Error loading wallet data:", err);
+      }
+    };
+    loadWalletData();
   }, []);
 
-  // Dummy Add Funds
+  /**
+   * 💰 Dummy "Add Funds" action
+   * Adds ₦5000 to wallet and persists in AsyncStorage.
+   */
   const handleAddFunds = async () => {
     const newTransaction = {
       id: Date.now().toString(),
@@ -56,6 +61,7 @@ export default function WalletScreen() {
 
   return (
     <ScrollView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>My Wallet</Text>
       </View>
@@ -64,6 +70,8 @@ export default function WalletScreen() {
       <View style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>Current Balance</Text>
         <Text style={styles.balanceAmount}>₦{balance.toLocaleString()}</Text>
+
+        {/* Add Funds Button */}
         <TouchableOpacity style={styles.addButton} onPress={handleAddFunds}>
           <MaterialCommunityIcons
             name="plus-circle"
@@ -74,10 +82,12 @@ export default function WalletScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Transactions */}
+      {/* Transactions Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Recent Transactions</Text>
+
         {transactions.length === 0 ? (
+          // 🕊 Empty state (no transactions yet)
           <View style={styles.emptyState}>
             <MaterialCommunityIcons
               name="file-document-outline"
@@ -86,10 +96,11 @@ export default function WalletScreen() {
             />
             <Text style={styles.emptyText}>No transactions yet</Text>
             <Text style={styles.emptySubtext}>
-              Top up your wallet or make a booking to see transactions here.
+              Top up your wallet or make a booking to see your activity here.
             </Text>
           </View>
         ) : (
+          // Transaction list rendering
           transactions.map((tx) => (
             <View key={tx.id} style={styles.transactionCard}>
               <View style={styles.row}>
@@ -102,11 +113,11 @@ export default function WalletScreen() {
                   size={28}
                   color={
                     tx.type === "credit"
-                      ? THEME.colors.primary
-                      : THEME.colors.danger
+                      ? THEME.colors.success
+                      : THEME.colors.error
                   }
                 />
-                <View style={{ marginLeft: 10 }}>
+                <View style={{ marginLeft: THEME.spacing.sm }}>
                   <Text style={styles.txDescription}>{tx.description}</Text>
                   <Text style={styles.txDate}>{tx.date}</Text>
                 </View>
@@ -118,8 +129,8 @@ export default function WalletScreen() {
                   {
                     color:
                       tx.type === "credit"
-                        ? THEME.colors.primary
-                        : THEME.colors.danger,
+                        ? THEME.colors.success
+                        : THEME.colors.error,
                   },
                 ]}
               >
@@ -134,89 +145,113 @@ export default function WalletScreen() {
   );
 }
 
+/**
+ *  Styles — strictly following THEME tokens
+ */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
   },
+
+  // Header
   header: {
-    marginTop:20,
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 10,
+    fontFamily: THEME.typography.fontFamily.heading,
+    fontSize: THEME.typography.sizes.xl,
+    color: THEME.colors.text,
+    marginTop: THEME.spacing.xl,
+    textAlign: "center",
   },
   title: {
-    fontSize: THEME.typography.sizes.lg,
-    fontWeight: THEME.typography.weights.bold as any,
+   fontFamily: THEME.typography.fontFamily.heading,
+    fontSize: THEME.typography.sizes.xl,
     color: THEME.colors.text,
+    marginTop: THEME.spacing.xl,
+    textAlign: "center",
   },
+
+  // Balance Card
   balanceCard: {
     backgroundColor: THEME.colors.primary,
-    margin: 16,
+    margin: THEME.spacing.lg,
     borderRadius: THEME.radius.lg,
-    padding: 20,
+    padding: THEME.spacing.xl,
     alignItems: "center",
+    ...THEME.shadow.base,
   },
   balanceLabel: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
   },
   balanceAmount: {
-    color: THEME.colors.white,
-    fontSize: 32,
-    fontWeight: "bold",
-    marginVertical: 10,
+    color: THEME.colors.surface,
+    fontSize: THEME.typography.sizes["2xl"],
+    fontFamily: THEME.typography.fontFamily.heading,
+    marginVertical: THEME.spacing.sm,
   },
   addButton: {
     flexDirection: "row",
-    backgroundColor: THEME.colors.white,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 50,
+    backgroundColor: THEME.colors.surface,
+    paddingVertical: THEME.spacing.sm,
+    paddingHorizontal: THEME.spacing.lg,
+    borderRadius: THEME.radius.pill,
     alignItems: "center",
+    marginTop: THEME.spacing.md,
+    ...THEME.shadow.card,
   },
   addButtonText: {
     color: THEME.colors.primary,
-    marginLeft: 8,
-    fontWeight: "600",
+    marginLeft: THEME.spacing.xs,
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.subheading,
   },
+
+  // 📄 Transactions Section
   section: {
-    paddingHorizontal: 16,
-    marginTop: 20,
+    paddingHorizontal: THEME.spacing.lg,
+    marginTop: THEME.spacing.lg,
   },
   sectionTitle: {
-    fontSize: THEME.typography.sizes.base,
-    fontWeight: "600",
+    fontSize: THEME.typography.sizes.md,
     color: THEME.colors.text,
-    marginBottom: 10,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    marginBottom: THEME.spacing.sm,
   },
+
+  // 🕊 Empty state display
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 50,
+    marginTop: THEME.spacing.xl,
   },
   emptyText: {
-    fontWeight: "600",
+    fontFamily: THEME.typography.fontFamily.subheading,
     fontSize: THEME.typography.sizes.base,
     color: THEME.colors.text,
-    marginTop: 8,
+    marginTop: THEME.spacing.xs,
   },
   emptySubtext: {
     color: THEME.colors.muted,
     fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
     textAlign: "center",
-    paddingHorizontal: 20,
-    marginTop: 4,
+    paddingHorizontal: THEME.spacing.lg,
+    marginTop: THEME.spacing.xs,
   },
+
+  // 💵 Transaction list
   transactionCard: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.md,
-    padding: 14,
-    marginBottom: 12,
+    padding: THEME.spacing.md,
+    marginBottom: THEME.spacing.md,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    ...THEME.shadow.base,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+    ...THEME.shadow.card,
   },
   row: {
     flexDirection: "row",
@@ -224,14 +259,16 @@ const styles = StyleSheet.create({
   },
   txDescription: {
     color: THEME.colors.text,
-    fontWeight: "500",
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    fontSize: THEME.typography.sizes.base,
   },
   txDate: {
     color: THEME.colors.muted,
-    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.bodyLight,
+    fontSize: THEME.typography.sizes.xs,
   },
   txAmount: {
-    fontWeight: "600",
+    fontFamily: THEME.typography.fontFamily.subheading,
     fontSize: THEME.typography.sizes.base,
   },
 });

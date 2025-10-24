@@ -51,7 +51,7 @@ export default function ArtisanProfile() {
         <ProfileButton
           icon="logout"
           label="Logout"
-          color={THEME.colors.danger}
+          color={THEME.colors.error}
           onPress={() => console.log("Logging out...")}
         />
       </View>
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   profileCard: {
     alignItems: "center",
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: 16,
     paddingVertical: 24,
     marginBottom: 30,
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     padding: 14,
     borderRadius: 12,
     marginBottom: 12,

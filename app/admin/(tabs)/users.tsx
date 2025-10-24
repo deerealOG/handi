@@ -38,8 +38,8 @@ export default function AdminUsers() {
           style={{
             color:
               item.role === "Artisan"
-                ? THEME.colors.artisan
-                : THEME.colors.client,
+                ? THEME.colors.primary
+                : THEME.colors.primary,
           }}
         >
           {item.role}
@@ -86,13 +86,13 @@ const styles = StyleSheet.create({
     padding: THEME.spacing.md,
   },
   title: {
-    fontSize: THEME.typography.sizes.title,
+    fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
     color: THEME.colors.text,
     marginBottom: THEME.spacing.md,
   },
   card: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.md,
     marginBottom: THEME.spacing.md,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     color: THEME.colors.success,
   },
   suspended: {
-    color: THEME.colors.danger,
+    color: THEME.colors.error,
   },
   role: {
     color: THEME.colors.muted,
@@ -123,14 +123,14 @@ const styles = StyleSheet.create({
     fontSize: THEME.typography.sizes.base,
   },
   button: {
-    backgroundColor: THEME.colors.admin,
+    backgroundColor: THEME.colors.secondary,
     borderRadius: THEME.radius.md,
     paddingVertical: 6,
     marginTop: THEME.spacing.sm,
   },
   buttonText: {
     textAlign: "center",
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontWeight: "600",
   },
   shadow: {

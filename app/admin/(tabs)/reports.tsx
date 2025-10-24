@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     padding: THEME.spacing.md,
   },
   title: {
-    fontSize: THEME.typography.sizes.title,
+    fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
     color: THEME.colors.text,
     marginBottom: THEME.spacing.md,
@@ -81,11 +81,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: THEME.typography.sizes.lg,
     fontWeight: "700",
-    color: THEME.colors.admin,
+    color: THEME.colors.secondary,
     marginBottom: THEME.spacing.sm,
   },
   card: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.md,
     marginBottom: THEME.spacing.lg,
@@ -113,13 +113,13 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   primary: {
-    color: THEME.colors.admin,
+    color: THEME.colors.secondary,
   },
   success: {
     color: THEME.colors.success,
   },
   warning: {
-    color: THEME.colors.warning,
+    color: THEME.colors.error,
   },
   shadow: {
     shadowColor: "rgba(147,51,234,0.5)",

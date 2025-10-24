@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 14,
     paddingHorizontal: 16,
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
     ...THEME.shadow.base,
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: THEME.typography.sizes.lg,
-    fontWeight: THEME.typography.weights.bold as any,
+    fontWeight: THEME.typography.fontFamily.heading as any,
     color: THEME.colors.text,
     marginLeft: 16,
 

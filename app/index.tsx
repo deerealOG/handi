@@ -1,3 +1,10 @@
+// app/LoginScreen.tsx
+// ===========================================
+// 🔐 LOGIN SCREEN
+// Allows users to log in and select their role (Client, Artisan, or Admin).
+// Uses theme-driven styling, animated role buttons, and clean layout structure.
+// ===========================================
+
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
@@ -14,22 +21,26 @@ import { THEME } from "../constants/theme";
 
 export default function LoginScreen() {
   const router = useRouter();
+
+  // --- 🧭 State management ---
   const [role, setRole] = useState<"client" | "artisan" | "admin" | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // --- 🚀 Handle Login Navigation ---
   const handleLogin = () => {
     if (!role) return alert("Please select a role first!");
-    router.push(`/${role}/(tabs)` as any); // simple direct navigation
+    router.push(`/${role}/(tabs)` as any); // Simple direct navigation based on role
   };
 
-  // Animated scale values for buttons
+  // --- 🎞 Animated button scaling values ---
   const scales = {
     client: useRef(new Animated.Value(1)).current,
     artisan: useRef(new Animated.Value(1)).current,
     admin: useRef(new Animated.Value(1)).current,
   };
 
+  // --- ⚡ Button animation (press in/out feedback) ---
   const animatePress = (key: "client" | "artisan" | "admin") => {
     Animated.sequence([
       Animated.timing(scales[key], {
@@ -50,8 +61,10 @@ export default function LoginScreen() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
+      {/* 🧱 App Title */}
       <Text style={styles.title}>FIXIT</Text>
 
+      {/* ✉️ Email Input */}
       <TextInput
         placeholder="Email"
         placeholderTextColor={THEME.colors.muted}
@@ -59,6 +72,8 @@ export default function LoginScreen() {
         value={email}
         onChangeText={setEmail}
       />
+
+      {/* 🔒 Password Input */}
       <TextInput
         placeholder="Password"
         placeholderTextColor={THEME.colors.muted}
@@ -68,13 +83,19 @@ export default function LoginScreen() {
         onChangeText={setPassword}
       />
 
+      {/* 👥 Role Selection Section */}
       <Text style={styles.label}>Select Role</Text>
 
       <View style={styles.roles}>
         {(["client", "artisan", "admin"] as const).map((r) => {
           const isSelected = role === r;
-          const roleColor = THEME.colors[r];
           const scale = scales[r];
+          const color =
+            r === "client"
+              ? THEME.colors.primary
+              : r === "artisan"
+              ? THEME.colors.secondary
+              : THEME.colors.text; // fallback for admin
 
           return (
             <TouchableWithoutFeedback
@@ -89,17 +110,15 @@ export default function LoginScreen() {
                   styles.roleBtn,
                   {
                     transform: [{ scale }],
-                    backgroundColor: isSelected
-                      ? roleColor
-                      : `${roleColor}20`,
-                    borderColor: roleColor,
+                    backgroundColor: isSelected ? color : `${color}15`, // light tint for inactive
+                    borderColor: color,
                   },
                 ]}
               >
                 <Text
                   style={[
                     styles.roleText,
-                    { color: isSelected ? THEME.colors.white : roleColor },
+                    { color: isSelected ? THEME.colors.surface : color },
                   ]}
                 >
                   {r.charAt(0).toUpperCase() + r.slice(1)}
@@ -110,6 +129,7 @@ export default function LoginScreen() {
         })}
       </View>
 
+      {/* 🟢 Login Button */}
       <TouchableWithoutFeedback onPress={handleLogin}>
         <View style={styles.loginBtn}>
           <Text style={styles.loginText}>Login</Text>
@@ -119,41 +139,58 @@ export default function LoginScreen() {
   );
 }
 
+// ===========================================
+// 🎨 STYLES — All follow THEME constants
+// ===========================================
 const styles = StyleSheet.create({
+  // --- Main screen layout ---
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: THEME.colors.background,
     justifyContent: "center",
     alignItems: "center",
     padding: THEME.spacing.lg,
   },
+
+  // --- Title ---
   title: {
-    fontSize: THEME.typography.sizes.title,
-    fontWeight: "700",
+    fontFamily: THEME.typography.fontFamily.heading,
+    fontSize: THEME.typography.sizes["2xl"],
     color: THEME.colors.primary,
-    marginBottom: THEME.spacing.lg,
+    marginBottom: THEME.spacing.xl,
   },
+
+  // --- Text Inputs ---
   input: {
     width: "100%",
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.md,
     padding: THEME.spacing.md,
     marginBottom: THEME.spacing.sm,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: THEME.colors.border,
     color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.body,
+    fontSize: THEME.typography.sizes.base,
   },
+
+  // --- Label above roles ---
   label: {
+    fontFamily: THEME.typography.fontFamily.subheading,
     fontSize: THEME.typography.sizes.sm,
     color: THEME.colors.muted,
     marginVertical: THEME.spacing.sm,
   },
+
+  // --- Roles container ---
   roles: {
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",
-    marginBottom: THEME.spacing.lg,
+    marginBottom: THEME.spacing.xl,
   },
+
+  // --- Role selection button ---
   roleBtn: {
     borderWidth: 1,
     borderRadius: THEME.radius.md,
@@ -161,17 +198,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: THEME.spacing.lg,
   },
   roleText: {
-    fontWeight: "600",
+    fontFamily: THEME.typography.fontFamily.subheading,
     fontSize: THEME.typography.sizes.base,
   },
+
+  // --- Login Button ---
   loginBtn: {
     backgroundColor: THEME.colors.primary,
-    borderRadius: THEME.radius.md,
+    borderRadius: THEME.radius.lg,
     paddingVertical: THEME.spacing.md,
     paddingHorizontal: THEME.spacing.xl,
+    ...THEME.shadow.base,
   },
   loginText: {
-    color: THEME.colors.white,
-    fontWeight: "700",
+    color: THEME.colors.surface,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    fontSize: THEME.typography.sizes.base,
   },
 });

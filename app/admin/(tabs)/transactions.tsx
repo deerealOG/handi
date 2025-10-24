@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     padding: THEME.spacing.md,
   },
   title: {
-    fontSize: THEME.typography.sizes.title,
+    fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
     color: THEME.colors.text,
     marginBottom: THEME.spacing.md,
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   summaryCard: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     width: "48%",
     padding: THEME.spacing.md,
@@ -110,10 +110,10 @@ const styles = StyleSheet.create({
     color: THEME.colors.success,
   },
   debit: {
-    color: THEME.colors.danger,
+    color: THEME.colors.error,
   },
   card: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.md,
     marginBottom: THEME.spacing.sm,

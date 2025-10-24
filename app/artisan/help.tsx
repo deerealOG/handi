@@ -3,12 +3,12 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-    Linking,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   optionCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     padding: 14,
     borderRadius: THEME.radius.md,
     marginBottom: 12,

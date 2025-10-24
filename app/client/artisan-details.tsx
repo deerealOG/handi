@@ -1,4 +1,9 @@
 // app/client/artisan-details.tsx
+// ======================================
+// 🧑‍🔧 Artisan Details Screen
+// Displays a detailed profile of a specific artisan — including bio, stats,
+// work samples, and customer reviews. Users can also book the artisan.
+// ======================================
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -22,7 +27,7 @@ export default function ArtisanDetails() {
   const scrollRef = useRef<ScrollView | null>(null);
   const [index, setIndex] = useState(0);
 
-  // --- Dummy artisan data (replace later with dynamic data) ---
+  // --- 🧩 Dummy artisan data (temporary; replace later with backend data) ---
   const artisan = {
     name: "Golden Amadi",
     skill: "Electrician",
@@ -33,6 +38,7 @@ export default function ArtisanDetails() {
       "Golden is a certified electrician specializing in home wiring, appliance repair, and smart home installations. Known for reliability, speed, and professionalism.",
   };
 
+  // --- ⚙️ Quick stats section (dynamic details like experience, jobs, etc.) ---
   const QUICKSTATS = [
     { id: "1", name: "Experience: 8 years", icon: "timer-sand" },
     { id: "2", name: "Location: Lekki Phase 1", icon: "map-marker" },
@@ -40,6 +46,7 @@ export default function ArtisanDetails() {
     { id: "4", name: "Response time: 30 mins", icon: "clock-outline" },
   ];
 
+  // --- 💬 Customer reviews (temporary static data) ---
   const reviews = [
     {
       id: 1,
@@ -61,17 +68,18 @@ export default function ArtisanDetails() {
     },
   ];
 
-
   return (
-    <ScrollView style={styles.bigContainer}
+    <ScrollView
+      style={styles.bigContainer}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: 60 }}
     >
+      {/* 🔝 Header with back navigation */}
       <Header title="Profile" />
 
+      {/* 👤 Profile Image */}
       <View style={styles.headerImageContainer}>
         <View style={styles.profileWrapper}>
-          {/* Header Image */}
           <Image
             source={require("../../assets/images/profilepicture2.jpeg")}
             style={styles.profileImage}
@@ -79,11 +87,12 @@ export default function ArtisanDetails() {
         </View>
       </View>
 
-      {/* Basic Info */}
+      {/* 🧾 Basic Info */}
       <View style={styles.infoContainer}>
         <Text style={styles.name}>{artisan.name}</Text>
         <Text style={styles.skill}>{artisan.skill}</Text>
 
+        {/* ⭐ Rating & Experience */}
         <View style={styles.ratingRow}>
           <MaterialCommunityIcons name="star" size={18} color="#facc15" />
           <Text style={styles.ratingText}>{artisan.rating}</Text>
@@ -93,7 +102,7 @@ export default function ArtisanDetails() {
         <Text style={styles.price}>{artisan.price}</Text>
       </View>
 
-      {/* Quick Stats */}
+      {/* 📊 Quick Stats */}
       <Text style={styles.quickStatsSectionTitle}>Quick Stats</Text>
       <View style={styles.quickStatsContainer}>
         {QUICKSTATS.map((item) => (
@@ -108,13 +117,13 @@ export default function ArtisanDetails() {
         ))}
       </View>
 
-      {/* About */}
+      {/* 🧠 About Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>About</Text>
         <Text style={styles.description}>{artisan.description}</Text>
       </View>
 
-      {/* Work Samples */}
+      {/* 🖼 Work Samples */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Work Samples</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -128,7 +137,7 @@ export default function ArtisanDetails() {
         </ScrollView>
       </View>
 
-      {/* Customer Reviews */}
+      {/* 💬 Customer Reviews */}
       <Text style={styles.customerReviewSectionTitle}>Customer Reviews</Text>
       <ScrollView
         ref={scrollRef}
@@ -141,7 +150,7 @@ export default function ArtisanDetails() {
         ))}
       </ScrollView>
 
-      {/* Book Button */}
+      {/* 🟢 Book Now Button */}
       <TouchableOpacity
         style={styles.bookButton}
         onPress={() => router.push("/client/book-artisan")}
@@ -152,7 +161,10 @@ export default function ArtisanDetails() {
   );
 }
 
-// --- Reusable Review Card ---
+// ======================================
+// 💬 Reusable Customer Review Card
+// Displays a single customer review with toggle to expand/collapse text
+// ======================================
 function CustomerReviewCard({ review }: any) {
   const [expanded, setExpanded] = useState(false);
   return (
@@ -179,61 +191,64 @@ function CustomerReviewCard({ review }: any) {
 
       <View style={styles.customerRatingRow}>
         {[1, 2, 3, 4, 5].map((star) => (
-          <MaterialCommunityIcons key={star} name="star" size={16} color="#facc15" />
+          <MaterialCommunityIcons
+            key={star}
+            name="star"
+            size={16}
+            color="#facc15"
+          />
         ))}
       </View>
     </View>
   );
 }
 
-// --- Styles ---
+// ======================================
+// 🎨 Styles (using THEME constants)
+// All colors, spacing, radius, and shadows follow THEME.ts configuration
+// ======================================
 const styles = StyleSheet.create({
   bigContainer: {
     flex: 1,
     backgroundColor: THEME.colors.background,
   },
+
+  // --- Profile Image Wrapper ---
   headerImageContainer: {
-  alignItems: "center",
-  marginTop: 40,
-  marginBottom: 16,
-},
-
-profileWrapper: {
-  width: 170,
-  height: 170,
-  alignSelf: "center",
-  justifyContent: "center",
-  alignItems: "center",
-  borderWidth: 3,
-  borderColor: THEME.colors.primary, // your app's theme color
-  borderRadius: 85, // make it fully circular
-  backgroundColor: THEME.colors.white, // inner background color
-  shadowColor: THEME.shadow.base.shadowColor,
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.2,
-  shadowRadius: 3,
-  elevation: 4, // Android shadow
-},
-
-profileImage: {
-  width: 150,
-  height: 150,
-  borderRadius: 75, // must be half of width/height for perfect circle
-  alignSelf: "center",
-  justifyContent: "center",
-  alignItems: "center",
-},
-  infoContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
     alignItems: "center",
+    marginTop: THEME.spacing.xl,
+    marginBottom: THEME.spacing.md,
+  },
+  profileWrapper: {
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    borderWidth: 3,
+    borderColor: THEME.colors.primary,
+    backgroundColor: THEME.colors.surface,
+    justifyContent: "center",
+    alignItems: "center",
+    ...THEME.shadow.base,
+  },
+  profileImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+  },
+
+  // --- Basic Info ---
+  infoContainer: {
+    alignItems: "center",
+    paddingHorizontal: THEME.spacing.lg,
+    paddingTop: THEME.spacing.md,
   },
   name: {
+    fontFamily: THEME.typography.fontFamily.heading,
     fontSize: THEME.typography.sizes.xl,
-    fontWeight: "bold",
     color: THEME.colors.text,
   },
   skill: {
+    fontFamily: THEME.typography.fontFamily.body,
     fontSize: THEME.typography.sizes.base,
     color: THEME.colors.muted,
     marginTop: 4,
@@ -241,62 +256,65 @@ profileImage: {
   ratingRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 8,
+    marginTop: THEME.spacing.sm,
   },
   ratingText: {
     marginLeft: 4,
-    fontWeight: "600",
     color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
   },
-
   experience: {
     marginLeft: 4,
     color: THEME.colors.muted,
   },
   price: {
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
     fontSize: THEME.typography.sizes.base,
     color: THEME.colors.primary,
     marginTop: 6,
-    fontWeight: "600",
   },
 
+  // --- Quick Stats Section ---
   quickStatsSectionTitle: {
+    fontFamily: THEME.typography.fontFamily.subheading,
     fontSize: THEME.typography.sizes.lg,
-    fontWeight: "bold",
     color: THEME.colors.text,
-    marginTop: 24,
-    marginBottom: 12,
-    paddingHorizontal: 20,
+    marginTop: THEME.spacing.xl,
+    marginBottom: THEME.spacing.md,
+    paddingHorizontal: THEME.spacing.lg,
   },
   quickStatsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingHorizontal: THEME.spacing.lg,
+    marginBottom: THEME.spacing.lg,
   },
   quickStatCard: {
-    backgroundColor: THEME.colors.white,
-    borderRadius: THEME.radius.lg,
-    padding: 12,
+    backgroundColor: THEME.colors.surface,
+    borderRadius: THEME.radius.md,
+    padding: THEME.spacing.md,
     alignItems: "center",
     width: "47%",
-    marginBottom: 12,
-    ...THEME.shadow.base,
+    marginBottom: THEME.spacing.md,
+    ...THEME.shadow.card,
   },
   quickStatText: {
-    marginTop: 6,
     fontSize: THEME.typography.sizes.sm,
+    color: THEME.colors.text,
+    marginTop: 6,
   },
+
+  // --- About & Samples Sections ---
   section: {
-    marginTop: 24,
-    paddingHorizontal: 20,
+    marginTop: THEME.spacing.xl,
+    paddingHorizontal: THEME.spacing.lg,
   },
   sectionTitle: {
+    fontFamily: THEME.typography.fontFamily.subheading,
     fontSize: THEME.typography.sizes.lg,
-    fontWeight: "bold",
     color: THEME.colors.text,
-    marginBottom: 8,
+    marginBottom: THEME.spacing.sm,
   },
   description: {
     color: THEME.colors.muted,
@@ -305,63 +323,67 @@ profileImage: {
   sampleImage: {
     width: 120,
     height: 120,
-    borderRadius: 10,
-    marginRight: 10,
-    marginBottom: 20,
+    borderRadius: THEME.radius.md,
+    marginRight: THEME.spacing.sm,
+    marginBottom: THEME.spacing.lg,
   },
+
+  // --- Customer Reviews ---
   customerReviewSectionTitle: {
+    fontFamily: THEME.typography.fontFamily.subheading,
     fontSize: THEME.typography.sizes.lg,
-    fontWeight: "bold",
     color: THEME.colors.text,
-    marginTop: 24,
-    marginBottom: 12,
-    paddingHorizontal: 20,
+    marginTop: THEME.spacing.xl,
+    marginBottom: THEME.spacing.md,
+    paddingHorizontal: THEME.spacing.lg,
   },
   customerReviewCard: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
-    padding: 20,
+    padding: THEME.spacing.lg,
     justifyContent: "center",
     alignItems: "center",
     ...THEME.shadow.base,
-    marginRight: 12,
-    marginBottom: 20,
+    marginRight: THEME.spacing.md,
+    marginBottom: THEME.spacing.lg,
   },
   avatar: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    marginBottom: 10,
+    marginBottom: THEME.spacing.sm,
   },
   customerName: {
-    fontWeight: "600",
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    fontSize: THEME.typography.sizes.md,
     color: THEME.colors.text,
-    fontSize: 16,
   },
   customerComment: {
     color: THEME.colors.muted,
-    marginVertical: 10,
+    marginVertical: THEME.spacing.sm,
     textAlign: "center",
   },
   seeMoreText: {
     color: THEME.colors.primary,
-    fontWeight: "600",
-    marginBottom: 8,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    marginBottom: THEME.spacing.sm,
   },
   customerRatingRow: {
     flexDirection: "row",
     justifyContent: "center",
   },
+
+  // --- Book Button ---
   bookButton: {
     backgroundColor: THEME.colors.primary,
-    margin: 20,
-    paddingVertical: 14,
+    margin: THEME.spacing.lg,
+    paddingVertical: THEME.spacing.lg,
     borderRadius: THEME.radius.lg,
     alignItems: "center",
   },
   bookButtonText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontSize: THEME.typography.sizes.base,
-    fontWeight: "600",
+    fontFamily: THEME.typography.fontFamily.subheading,
   },
 });

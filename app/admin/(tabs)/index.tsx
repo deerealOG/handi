@@ -29,7 +29,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={THEME.colors.admin} />
+        <ActivityIndicator size="large" color={THEME.colors.secondary} />
         <Text style={styles.loaderText}>Loading dashboard...</Text>
       </View>
     );
@@ -43,7 +43,7 @@ export default function AdminDashboard() {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          colors={[THEME.colors.admin]}
+          colors={[THEME.colors.secondary]}
         />
       }
     >
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     marginTop: THEME.spacing.sm,
   },
   title: {
-    fontSize: THEME.typography.sizes.title,
+    fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
     color: THEME.colors.text,
     marginBottom: THEME.spacing.md,
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   card: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     width: "48%",
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.md,
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   cardValue: {
-    color: THEME.colors.admin,
+    color: THEME.colors.secondary,
     fontWeight: "700",
     fontSize: THEME.typography.sizes.xl,
     textAlign: "center",
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   overviewBox: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.lg,
     marginTop: THEME.spacing.lg,

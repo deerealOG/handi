@@ -1,16 +1,30 @@
-// app/client/index.tsx
+// app/client/home.tsx
+
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React from "react";
-import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { THEME } from "../../../constants/theme";
 
-// this creates the top navigation icons displayed on the client
+// ================================
+// 🔝 Top Navigation Icons
+// ================================
 const TOPNAVIGATION = [
   { id: "7", name: "Profile", icon: "account-outline" },
   { id: "8", name: "Notifications", icon: "bell-outline" },
 ];
 
-// this creates the list of categories displayed on the client 
+// ================================
+// Categories
+// ================================
 const CATEGORIES = [
   { id: "1", name: "Electrician", icon: "flash-outline" },
   { id: "2", name: "Plumber", icon: "pipe" },
@@ -20,30 +34,42 @@ const CATEGORIES = [
   { id: "6", name: "Gardener", icon: "leaf" },
 ];
 
-// the main function that renders the client home screen
+// ================================
+// Main Component
+// ================================
 export default function ClientHome() {
+  const router = useRouter();
+
   return (
-    // This is the main content area
-    <ScrollView 
+    <ScrollView
       style={styles.container}
-      contentContainerStyle={{ paddingBottom: 100 }}
+      contentContainerStyle={{ paddingBottom: THEME.spacing.xl * 3 }}
       showsVerticalScrollIndicator={false}
     >
-      {/* Top Navigation*/}
+      {/* --- Top Navigation --- */}
       <View style={styles.topNav}>
         {TOPNAVIGATION.map((item) => (
-          <TouchableOpacity key={item.id} style={styles.navItem}>
-            <MaterialCommunityIcons name={item.icon as any} size={28} color={THEME.colors.primary} />
+          <TouchableOpacity
+            key={item.id}
+            style={styles.navItem}
+            onPress={() => router.push(`./client/${item.name.toLowerCase()}`)}
+          >
+            <MaterialCommunityIcons
+              name={item.icon as any}
+              size={28}
+              color={THEME.colors.primary}
+            />
           </TouchableOpacity>
         ))}
       </View>
-      {/* Header */}
+
+      {/* --- Header Greeting --- */}
       <View style={styles.header}>
-        <Text style={styles.greeting}>Hi, Golden</Text>        
+        <Text style={styles.greeting}>Hi, Golden</Text>
         <Text style={styles.subText}>What do you need fixed today?</Text>
       </View>
 
-      {/* Search Bar */}
+      {/* --- Search Bar --- */}
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={20} color={THEME.colors.muted} />
         <TextInput
@@ -54,259 +80,310 @@ export default function ClientHome() {
         />
       </View>
 
-      {/* Categories */}
+      {/* --- Categories --- */}
       <Text style={styles.sectionTitle}>Popular Categories</Text>
       <View style={styles.categoriesContainer}>
         {CATEGORIES.map((item) => (
-          <TouchableOpacity key={item.id} style={styles.categoryCard}>
-            <MaterialCommunityIcons name={item.icon as any} size={28} color={THEME.colors.primary} />
+          <TouchableOpacity
+            key={item.id}
+            style={styles.categoryCard}
+            onPress={() =>
+              router.push({
+                pathname: "./client/artisan", // I will come back here
+                params: { category: item.name },
+              })
+            }
+          >
+            <MaterialCommunityIcons
+              name={item.icon as any}
+              size={28}
+              color={THEME.colors.primary}
+            />
             <Text style={styles.categoryText}>{item.name}</Text>
           </TouchableOpacity>
         ))}
       </View>
-      {/* Featured Card*/}
+
+      {/* --- Featured Section --- */}
       <Text style={styles.sectionTitle}>Featured</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: THEME.spacing.lg }}
+      >
         {[1, 2, 3, 4].map((id) => (
           <View key={id} style={styles.featuredCardContainer}>
-            <View style={styles.featuredCardFirstChild}> 
+            <View style={styles.featuredCardFirstChild}>
               <Image
-                source={require('C:\\FIXIT\\assets\\images\\featured2.png')}
-                style={{ width: 73, height: 73 , marginBottom: 10 }}
+                source={require("../../../assets/images/featured2.png")}
+                style={{ width: 73, height: 73, marginBottom: 10 }}
               />
-              <Text>20% Off First Booking</Text>
-              <TouchableOpacity key={id} style={styles.hireButton}>
+              <Text style={styles.featureText}>20% Off First Booking</Text>
+              <TouchableOpacity
+                style={styles.hireButton}
+                onPress={() =>
+                  router.push({
+                    pathname: "./client/book-artisan",
+                    params: { promo: "first" },
+                  })
+                }
+              >
                 <Text style={styles.hireButtonText}>Book now</Text>
               </TouchableOpacity>
             </View>
-
-            <View>
-              <Image
-                source={require('C:\\FIXIT\\assets\\images\\featured.png')}
-                style={{ width: 117.45, height: 156 }}
-              />
-            </View>
+            <Image
+              source={require("../../../assets/images/featured.png")}
+              style={{ width: 117, height: 156 }}
+            />
           </View>
         ))}
       </ScrollView>
 
-      {/* Top Rated Artisans */}
+      {/* --- Top Rated Artisans --- */}
       <Text style={styles.sectionTitle}>Top Rated Artisans</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingRight: 16 }}
-        style={{ marginBottom: 16 }}
+        contentContainerStyle={{ paddingHorizontal: THEME.spacing.lg }}
+        style={{ marginBottom: THEME.spacing.md }}
       >
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((id) => (
+        {[1, 2, 3, 4, 5].map((id) => (
           <View key={id} style={styles.artisanCard}>
             <Image
-              source={require('C:\\FIXIT\\assets\\images\\profileavatar.png')}
+              source={require("../../../assets/images/profileavatar.png")}
               style={styles.avatar}
             />
             <Text style={styles.artisanName}>Golden Amadi</Text>
             <Text style={styles.artisanSkill}>Electrician</Text>
-            <Text style={styles.artisanPrice}>Price hint: From ₦5,000</Text>
+            <Text style={styles.artisanPrice}>From ₦5,000</Text>
             <View style={styles.ratingRow}>
-              <MaterialCommunityIcons name="star" size={16} color="#facc15" />
+              <MaterialCommunityIcons name="star" size={16} color="#FACC15" />
               <Text style={styles.ratingText}>4.{id}</Text>
             </View>
-            <TouchableOpacity key={id} style={styles.hireButton}>
+            <TouchableOpacity
+              style={styles.hireButton}
+              onPress={() =>
+                router.push({
+                  pathname: "/client/book-artisan",
+                  params: { artisan: "Golden Amadi", skill: "Electrician" },
+                })
+              }
+            >
               <Text style={styles.hireButtonText}>Book now</Text>
             </TouchableOpacity>
           </View>
         ))}
       </ScrollView>
 
-      {/* Nearby Artisans */}
+      {/* --- Nearby Artisans --- */}
       <Text style={styles.sectionTitle}>Nearby Artisans</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingRight: 16 }}
+        contentContainerStyle={{ paddingHorizontal: THEME.spacing.lg }}
       >
-        {[9, 10, 11, 12, 13, 14, 15].map((id) => (
+        {[9, 10, 11, 12, 13].map((id) => (
           <View key={id} style={styles.artisanCard}>
             <Image
-              source={require('C:\\FIXIT\\assets\\images\\profileavatar.png')}
+              source={require("../../../assets/images/profileavatar.png")}
               style={styles.avatar}
             />
             <Text style={styles.artisanName}>Golden Amadi</Text>
             <Text style={styles.artisanSkill}>Plumber</Text>
-            <Text style={styles.artisanPrice}>Price hint: From ₦5,000</Text>
+            <Text style={styles.artisanPrice}>From ₦5,000</Text>
             <View style={styles.ratingRow}>
-              <MaterialCommunityIcons name="star" size={16} color="#facc15" />
+              <MaterialCommunityIcons name="star" size={16} color="#FACC15" />
               <Text style={styles.ratingText}>4.{id}</Text>
             </View>
-            <TouchableOpacity key={id} style={styles.hireButton}>
+            <TouchableOpacity
+              style={styles.hireButton}
+              onPress={() =>
+                router.push({
+                  pathname: "/client/book-artisan",
+                  params: { artisan: "Golden Amadi", skill: "Plumber" },
+                })
+              }
+            >
               <Text style={styles.hireButtonText}>Book now</Text>
             </TouchableOpacity>
           </View>
         ))}
       </ScrollView>
-
-
-
     </ScrollView>
   );
 }
 
+// ================================
+// STYLES
+// ================================
 const styles = StyleSheet.create({
+  // --- Base Screen Layout ---
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-    paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingHorizontal: THEME.spacing.lg,
+    paddingTop: THEME.spacing.sm,
   },
+
+  // --- Top Navigation ---
   topNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-    marginTop: 40,
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: THEME.spacing.lg,
+    marginTop: THEME.spacing.xl,
   },
   navItem: {
-    alignItems: 'center',
+    alignItems: "center",
   },
+
+  // --- Header ---
   header: {
-    marginBottom: 7,
-    alignItems: 'center', // center children horizontally
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(28,140,75,0.05)', // 5% opacity for #1C8C4B
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: THEME.radius.md,
-    marginTop: 8,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#fff',
-    height: 48,
-    width: '100%',
-    justifyContent: 'center',
+    alignItems: "center",
+    marginBottom: THEME.spacing.sm,
   },
   greeting: {
     fontSize: THEME.typography.sizes.xl,
-    fontWeight: THEME.typography.weights.bold as any,
+    fontFamily: THEME.typography.fontFamily.heading,
     color: THEME.colors.text,
-    textAlign: 'center', // ensure the text itself is centered
+  },
+  subText: {
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.muted,
+    marginTop: THEME.spacing.xs,
+    marginBottom: THEME.spacing.lg,
+    textAlign: "center",
+  },
+
+  // --- Search Bar ---
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(28,140,75,0.05)",
+    paddingHorizontal: THEME.spacing.md,
+    paddingVertical: THEME.spacing.xs,
+    borderRadius: THEME.radius.md,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+    height: 48,
+    marginBottom: THEME.spacing.lg,
   },
   searchInput: {
     flex: 1,
-    marginLeft: 8,
-    paddingVertical: 0,
-    color: '#666666',
-    fontSize: THEME.typography.sizes.sm,
+    marginLeft: THEME.spacing.sm,
+    color: THEME.colors.text,
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.body,
   },
-  subText: {
-    color: THEME.colors.muted,
-    marginTop: 4, marginBottom: 20,
-    textAlign: 'center',
-  },
+
+  // --- Section Titles ---
   sectionTitle: {
     fontSize: THEME.typography.sizes.lg,
-    fontWeight: THEME.typography.weights.bold as any,
+    fontFamily: THEME.typography.fontFamily.subheading,
     color: THEME.colors.text,
-    marginVertical: 12,
+    marginVertical: THEME.spacing.md,
   },
+
+  // --- Categories ---
   categoriesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: THEME.spacing.lg,
   },
   categoryCard: {
     height: 100,
     width: "30%",
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.md,
-    paddingVertical: 14,
+    paddingVertical: THEME.spacing.xl,
     alignItems: "center",
-    marginBottom: 12,
-    ...THEME.shadow.base,
+    marginBottom: THEME.spacing.md,
+    ...THEME.shadow.card,
   },
   categoryText: {
     fontSize: THEME.typography.sizes.sm,
-    marginTop: 6,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    marginTop: THEME.spacing.xs,
     color: THEME.colors.text,
   },
+
+  // --- Featured Section ---
   featuredCardContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    backgroundColor: 'rgba(28, 140, 75, 0.10)',
+    backgroundColor: "rgba(28,140,75,0.10)",
     borderRadius: THEME.radius.lg,
-    marginRight: 12, marginBottom: 20,
+    marginRight: THEME.spacing.md,
+    marginBottom:THEME.spacing.md,
     alignItems: "center",
-    width: 300.81, height: 'auto',
-    paddingHorizontal: 10,
+    width: 300,
+    padding: THEME.spacing.md,
   },
   featuredCardFirstChild: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignContent: 'center',
-    alignItems: 'center',
-    fontSize:10, fontWeight:'regular',
+    alignItems: "center",
   },
+  featureText: {
+    color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    marginBottom: THEME.spacing.xs,
+  },
+
+  // --- Buttons ---
   hireButton: {
-    alignContent: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: "#1C8C4B",
-    paddingHorizontal: 5.36,
-    paddingVertical: 7.8,
-    borderRadius: 3.9,
-    width: '70%',
-    height: 30,
-    marginTop:10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: THEME.colors.primary,
+    paddingHorizontal: THEME.spacing.sm,
+    paddingVertical: THEME.spacing.sm,
+    borderRadius: THEME.radius.sm,
+    marginTop: THEME.spacing.sm,
   },
   hireButtonText: {
-    color:THEME.colors.white,
-    fontWeight: "bold",
-    fontSize: 12,
+    color: THEME.colors.surface,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    fontSize: THEME.typography.sizes.sm,
   },
-  artisansGrid: {
-  flexDirection: "row",
-  flexWrap: "wrap",
-  justifyContent: "space-between",
-},
+
+  // --- Artisan Cards ---
   artisanCard: {
-  backgroundColor: THEME.colors.white,
-  borderRadius: THEME.radius.lg,
-  padding: 12,
-  marginRight: 12,
-  marginBottom: 16,
-  alignItems: "center",
-  ...THEME.shadow.base,
-},
-avatar: {
-  width: 60,
-  height: 60,
-  borderRadius: 30,
-  marginBottom: 8,
-},
+    backgroundColor: THEME.colors.surface,
+    borderRadius: THEME.radius.lg,
+    padding: THEME.spacing.md,
+    marginRight: THEME.spacing.md,
+    alignItems: "center",
+    marginBottom: THEME.spacing.md,
+    ...THEME.shadow.card,
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginBottom: THEME.spacing.sm,
+  },
   artisanName: {
     fontSize: THEME.typography.sizes.base,
-    fontWeight: THEME.typography.weights.bold as any,
+    fontFamily: THEME.typography.fontFamily.subheading,
     color: THEME.colors.text,
   },
   artisanSkill: {
     fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
     color: THEME.colors.muted,
   },
   artisanPrice: {
     fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
     color: THEME.colors.text,
-    marginTop: 4,
+    marginTop: THEME.spacing.xs,
   },
   ratingRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
+    marginTop: THEME.spacing.xs,
   },
   ratingText: {
-    marginLeft: 4,
+    marginLeft: THEME.spacing.xs,
     color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.body,
   },
 });

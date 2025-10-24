@@ -2,19 +2,20 @@
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-    Animated,
-    Dimensions,
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Animated,
+  Dimensions,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { THEME } from "../constants/theme";
 
 const { width } = Dimensions.get("window");
 
+// 🖼 Onboarding slides content
 const slides = [
   {
     id: "1",
@@ -42,12 +43,14 @@ export default function OnboardingScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const slidesRef = useRef<FlatList>(null);
 
+  // 🎯 Track the current visible slide index
   const viewableItemsChanged = useRef(({ viewableItems }: any) => {
     if (viewableItems.length > 0) setCurrentIndex(viewableItems[0].index);
   }).current;
 
   const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
+  // ⏭ Move to the next slide or go to welcome screen
   const scrollToNext = () => {
     if (currentIndex < slides.length - 1) {
       slidesRef.current?.scrollToIndex({ index: currentIndex + 1 });
@@ -58,12 +61,18 @@ export default function OnboardingScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Slides */}
+      {/* ===============================
+          🖼 Onboarding Slides
+      =============================== */}
       <FlatList
         data={slides}
         renderItem={({ item }) => (
           <View style={[styles.slide, { width }]}>
-            <Image source={item.image} style={styles.image} resizeMode="contain" />
+            <Image
+              source={item.image}
+              style={styles.image}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>{item.title}</Text>
             <Text style={styles.subtitle}>{item.subtitle}</Text>
           </View>
@@ -82,7 +91,9 @@ export default function OnboardingScreen() {
         ref={slidesRef}
       />
 
-      {/* Pagination Dots */}
+      {/* ===============================
+          ⚪ Pagination Dots
+      =============================== */}
       <View style={styles.dotsContainer}>
         {slides.map((_, i) => {
           const inputRange = [(i - 1) * width, i * width, (i + 1) * width];
@@ -105,7 +116,9 @@ export default function OnboardingScreen() {
         })}
       </View>
 
-      {/* Buttons */}
+      {/* ===============================
+          🔘 Skip & Next Buttons
+      =============================== */}
       <View style={styles.buttonsRow}>
         <TouchableOpacity
           onPress={() => router.push("/welcome")}
@@ -125,70 +138,90 @@ export default function OnboardingScreen() {
 }
 
 const styles = StyleSheet.create({
+  // 🌿 Main container
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.background,
     alignItems: "center",
     justifyContent: "center",
   },
+
+  // 🎞 Each onboarding slide
   slide: {
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: THEME.spacing.lg,
   },
+
+  // 🖼 Slide image
   image: {
     width: "80%",
     height: 300,
-    marginBottom: 30,
+    marginBottom: THEME.spacing.lg,
   },
+
+  // 🏷 Slide title
   title: {
-    fontSize: 22,
-    fontWeight: "700",
+    fontSize: THEME.typography.sizes.lg,
+    fontFamily: THEME.typography.fontFamily.heading,
     color: THEME.colors.text,
     textAlign: "center",
   },
+
+  // 💬 Slide subtitle
   subtitle: {
-    fontSize: 14,
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.body,
     color: THEME.colors.muted,
     textAlign: "center",
-    marginTop: 8,
-    lineHeight: 20,
-    maxWidth: 300,
+    marginTop: THEME.spacing.sm,
+    lineHeight: THEME.typography.sizes.base * THEME.typography.lineHeights.relaxed,
+    maxWidth: 320,
   },
+
+  // ⚪ Pagination dots
   dotsContainer: {
     flexDirection: "row",
     height: 20,
-    marginVertical: 20,
+    marginVertical: THEME.spacing.md,
   },
   dot: {
     height: 8,
-    borderRadius: 4,
+    borderRadius: THEME.radius.pill,
     backgroundColor: THEME.colors.primary,
     marginHorizontal: 4,
   },
+
+  // 🔘 Bottom buttons
   buttonsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "85%",
-    marginBottom: 40,
+    marginBottom: THEME.spacing.xl,
   },
+
+  // ⏭ Skip button
   skipButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: THEME.spacing.sm,
+    paddingHorizontal: THEME.spacing.lg,
   },
   skipText: {
     color: THEME.colors.muted,
-    fontSize: 14,
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
   },
+
+  // 🚀 Next / Get Started button
   nextButton: {
     backgroundColor: THEME.colors.primary,
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    borderRadius: 25,
+    paddingVertical: THEME.spacing.sm,
+    paddingHorizontal: THEME.spacing.xl,
+    borderRadius: THEME.radius.pill,
+    ...THEME.shadow.card,
   },
   nextText: {
-    color: THEME.colors.white,
-    fontWeight: "600",
-    fontSize: 14,
+    color: THEME.colors.surface,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    fontSize: THEME.typography.sizes.base,
   },
 });

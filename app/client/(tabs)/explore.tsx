@@ -2,28 +2,48 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { THEME } from "../../../constants/theme";
-import { Header } from "..//../../components/Header";
 
-const FILTERS = ["All", "Electrician", "Plumber", "Carpenter", "Painter", "Barber", "Gardener"];
+// Available artisan filters
+const FILTERS = [
+  "All",
+  "Electrician",
+  "Plumber",
+  "Carpenter",
+  "Painter",
+  "Barber",
+  "Gardener",
+];
 
 export default function ExploreScreen() {
-  const [activeFilter, setActiveFilter] = useState("All");// State to track the active filter
-  const router = useRouter(); // Initialize the router
+  const [activeFilter, setActiveFilter] = useState("All"); // Track active category filter
+  const router = useRouter(); // Navigation hook
+
   return (
     <ScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: 80 }}
     >
+      {/* Page Header */}
+      <Text style={styles.title}>Explore Artisans</Text>
 
-      {/* Header */}
-      <Header title="Explore Artisans" showBack={false}/>
-      
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <MaterialCommunityIcons name="magnify" size={22} color={THEME.colors.muted} />
+        <MaterialCommunityIcons
+          name="magnify"
+          size={22}
+          color={THEME.colors.muted}
+        />
         <TextInput
           placeholder="Search for artisans..."
           placeholderTextColor={THEME.colors.muted}
@@ -32,8 +52,12 @@ export default function ExploreScreen() {
         />
       </View>
 
-      {/* Filter Tabs */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
+      {/* 🏷️ Filter Tabs */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterScroll}
+      >
         {FILTERS.map((filter) => (
           <TouchableOpacity
             key={filter}
@@ -42,13 +66,17 @@ export default function ExploreScreen() {
               styles.filterButton,
               activeFilter === filter && {
                 backgroundColor: THEME.colors.primary,
+                borderColor: THEME.colors.primaryDark,
               },
             ]}
           >
             <Text
               style={[
                 styles.filterText,
-                activeFilter === filter && { color: THEME.colors.white },
+                activeFilter === filter && {
+                  color: THEME.colors.surface,
+                  fontFamily: THEME.typography.fontFamily.subheading,
+                },
               ]}
             >
               {filter}
@@ -57,26 +85,42 @@ export default function ExploreScreen() {
         ))}
       </ScrollView>
 
-      {/* Artisan List */}
+      {/* 👷‍♂️ Artisan List */}
       <View style={styles.artisanGrid}>
         {[1, 2, 3, 4, 5, 6].map((id) => (
           <View key={id} style={styles.artisanCard}>
-            <TouchableOpacity onPress={() => router.push("/client/artisan-details")}>
-            <Image
-              source={require("C:\\FIXIT\\assets\\images\\profileavatar.png")}
-              style={styles.avatar}
-            />
-            <Text style={styles.artisanName}>Golden Amadi</Text>
-            <Text style={styles.artisanSkill}>Electrician</Text>
-            <Text style={styles.artisanPrice}>From ₦5,000</Text>
-            <Text style={styles.artisanLocation}>2km away</Text>
-            <View style={styles.ratingRow}>
-              <MaterialCommunityIcons name="star" size={16} color="#facc15" />
-              <Text style={styles.ratingText}>4.{id}</Text>
-            </View>
-            <TouchableOpacity style={styles.viewProfileButton} onPress={() => router.push("/client/artisan-details")}>
-              <Text style={styles.viewProfileButtonText}>View Profile</Text>
-            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/client/artisan-details")}
+            >
+              {/* 🖼 Profile Avatar */}
+              <Image
+                source={require("C:\\FIXIT\\assets\\images\\profileavatar.png")}
+                style={styles.avatar}
+              />
+
+              {/* 👤 Artisan Details */}
+              <Text style={styles.artisanName}>Golden Amadi</Text>
+              <Text style={styles.artisanSkill}>Electrician</Text>
+              <Text style={styles.artisanPrice}>From ₦5,000</Text>
+              <Text style={styles.artisanLocation}>2km away</Text>
+
+              {/* ⭐ Rating */}
+              <View style={styles.ratingRow}>
+                <MaterialCommunityIcons
+                  name="star"
+                  size={16}
+                  color={THEME.colors.secondary}
+                />
+                <Text style={styles.ratingText}>4.{id}</Text>
+              </View>
+
+              {/* 🔗 View Profile Button */}
+              <TouchableOpacity
+                style={styles.viewProfileButton}
+                onPress={() => router.push("/client/artisan-details")}
+              >
+                <Text style={styles.viewProfileButtonText}>View Profile</Text>
+              </TouchableOpacity>
             </TouchableOpacity>
           </View>
         ))}
@@ -85,117 +129,134 @@ export default function ExploreScreen() {
   );
 }
 
-// Style for the Explore Screen
+// 💅 STYLES (THEME-BASED)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingHorizontal: THEME.spacing.lg,
+    paddingTop: THEME.spacing.lg,
   },
-  header: {// Header container
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  title: {// Title text
-    fontSize: THEME.typography.sizes.title,
-    fontWeight: THEME.typography.weights.bold as any,
+  // --- Page Header ---
+  title: {
+    fontFamily: THEME.typography.fontFamily.heading,
+    fontSize: THEME.typography.sizes.xl,
     color: THEME.colors.text,
-    marginTop: 53,
+    marginTop: THEME.spacing.xl,
+    textAlign: "center",
   },
-  searchContainer: {// Search bar container
+
+  // Search Bar
+  searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.primary + "10",
-    borderRadius: THEME.radius.xl,
-    marginBottom: 16,
-    borderWidth: 0,
+    backgroundColor: "rgba(28,140,75,0.05)",
+    paddingHorizontal: THEME.spacing.md,
+    paddingVertical: THEME.spacing.xs,
+    borderRadius: THEME.radius.md,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
     height: 48,
-    width: "100%",
-    paddingHorizontal: 12,
-    marginTop: 25,
+    marginBottom: THEME.spacing.lg,
+    marginTop: THEME.spacing.lg,
   },
-  searchInput: {// Search input field
+  searchInput: {
     flex: 1,
-    marginLeft: 20,
-    fontSize: THEME.typography.sizes.sm,
+    marginLeft: THEME.spacing.sm,
+    fontSize: THEME.typography.sizes.base,
     color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.body,
   },
-  filterScroll: {// Filter tabs container
-    marginBottom: 20,
+
+  // 🏷️ Filter Section
+  filterScroll: {
+    marginBottom: THEME.spacing.lg,
   },
-  filterButton: {// Individual filter button
+  filterButton: {
     borderWidth: 1,
     borderColor: THEME.colors.primary,
-    borderRadius:THEME.radius.xl,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    marginRight: 10,
+    borderRadius: THEME.radius.pill,
+    paddingHorizontal: THEME.spacing.md,
+    paddingVertical: THEME.spacing.sm,
+    marginRight: THEME.spacing.sm,
+    backgroundColor: THEME.colors.surface,
   },
-  filterText: {// Filter button text
+  filterText: {
     color: THEME.colors.primary,
     fontSize: THEME.typography.sizes.sm,
-    fontWeight: "500",
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
   },
-  artisanGrid: {// Grid container for artisan cards
+
+  // 👷‍♂️ Artisan Grid
+  artisanGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-  artisanCard: {// Individual artisan card
+  artisanCard: {
     width: "47%",
-    backgroundColor: THEME.colors.white,
-    borderRadius: THEME.radius.lg,
-    padding: 12,
-    marginBottom: 16,
+    backgroundColor: THEME.colors.surface,
+    borderRadius: THEME.radius.md,
+    padding: THEME.spacing.md,
+    marginBottom: THEME.spacing.lg,
     alignItems: "center",
     ...THEME.shadow.base,
   },
-  avatar: {// Artisan avatar image
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 8,
+  avatar: {
+    width: 64,
+    height: 64,
+    borderRadius: THEME.radius.lg,
+    marginBottom: THEME.spacing.sm,
   },
-  artisanName: {// Artisan name text
-    fontSize: THEME.typography.sizes.base,
-    fontWeight: THEME.typography.weights.bold as any,
+
+  // 👤 Text Styles
+  artisanName: {
+    fontSize: THEME.typography.sizes.md,
     color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.subheading,
   },
-  artisanSkill: {// Artisan skill text
+  artisanSkill: {
     fontSize: THEME.typography.sizes.sm,
     color: THEME.colors.muted,
+    fontFamily: THEME.typography.fontFamily.body,
   },
-  artisanPrice: {// Artisan price text
+  artisanPrice: {
     fontSize: THEME.typography.sizes.sm,
     color: THEME.colors.text,
-    marginTop: 4,
+    marginTop: THEME.spacing.xs,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
   },
-  artisanLocation: { // Artisan location text
+  artisanLocation: {
     fontSize: THEME.typography.sizes.xs,
-    color: THEME.colors.text,
+    color: THEME.colors.muted,
     marginTop: 2,
+    fontFamily: THEME.typography.fontFamily.bodyLight,
   },
-  viewProfileButton: {// View Profile button style
-    backgroundColor: THEME.colors.primary,
-    borderRadius: THEME.radius.sm,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  viewProfileButtonText: {// View Profile button text style
-    color: THEME.colors.white,
-    fontSize: THEME.typography.sizes.sm,
-    fontWeight: "600",
-  },
-  ratingRow: {// Rating row style
+
+  // ⭐ Rating Row
+  ratingRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 6,
+    marginTop: THEME.spacing.xs,
   },
-  ratingText: {// Rating text style
+  ratingText: {
     marginLeft: 4,
     color: THEME.colors.text,
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+  },
+
+  // 🔗 View Profile Button
+  viewProfileButton: {
+    backgroundColor: THEME.colors.primary,
+    borderRadius: THEME.radius.md,
+    paddingVertical: THEME.spacing.sm,
+    paddingHorizontal: THEME.spacing.lg,
+    marginTop: THEME.spacing.sm,
+  },
+  viewProfileButtonText: {
+    color: THEME.colors.surface,
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.subheading,
   },
 });

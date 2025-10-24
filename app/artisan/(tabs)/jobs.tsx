@@ -53,10 +53,8 @@ export default function ArtisanJobs() {
     <View style={styles.container}>
       {/* --- Header Section --- */}
       <View style={styles.headerContainer}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.greeting}>Welcome back,</Text>
-          <Text style={styles.nameText}>Emeka Johnson 👋</Text>
-        </View>
+        
+        <Text style={styles.greeting}>Welcome back, Golden</Text>
         <Image
           source={require("../../../assets/images/profileavatar.png")}
           style={styles.profileImage}
@@ -120,8 +118,8 @@ export default function ArtisanJobs() {
       <Animated.View
         style={{
           flex: 1,
-          opacity: fadeAnim,
-          transform: [{ translateY: translateAnim }],
+          //opacity: fadeAnim,
+          //transform: [{ translateY: translateAnim }],
         }}
       >
         {activeTab === "ongoing" ? <OngoingJobs /> : <CompletedJobs />}
@@ -197,7 +195,7 @@ function OngoingJobs() {
             <MaterialCommunityIcons
               name="eye"
               size={18}
-              color={THEME.colors.white}
+              color={THEME.colors.surface}
             />
             <Text style={styles.viewButtonText}>View Details</Text>
           </TouchableOpacity>
@@ -254,21 +252,28 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.colors.background,
   },
   headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: "column",
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingTop: 10,
+    alignItems: "center",
+    marginBottom: THEME.spacing.sm,
+    marginTop: THEME.spacing.xl,
   },
-  headerLeft: { flexDirection: "column" },
-  greeting: { color: THEME.colors.muted, fontSize: 13 },
-  nameText: {
-    color: THEME.colors.text,
-    fontWeight: "700",
-    fontSize: 18,
-    marginTop: 2,
+  
+  greeting: {
+  justifyContent: "space-between",
+  fontFamily: THEME.typography.fontFamily.heading,
+  fontSize: THEME.typography.sizes.xl,
+  color: THEME.colors.text,
+  marginTop: THEME.spacing.xl,
+},
+ 
+  profileImage: { 
+    width: 45, 
+    height: 45, 
+    borderRadius: 22.5 
   },
-  profileImage: { width: 45, height: 45, borderRadius: 22.5 },
 
   statsRow: {
     flexDirection: "row",
@@ -283,8 +288,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 5,
   },
-  statNumber: { fontWeight: "700", fontSize: 16, color: THEME.colors.text },
-  statLabel: { fontSize: 12, color: THEME.colors.muted, marginTop: 2 },
+  statNumber: { 
+    fontWeight: "700",
+    fontSize: 16, color: THEME.colors.text 
+  },
+  statLabel: { 
+    fontSize: 12, 
+    color: THEME.colors.muted, 
+    marginTop: 2 },
 
   tabHeader: {
     flexDirection: "row",
@@ -293,28 +304,55 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     paddingVertical: 8,
-    paddingHorizontal: 24,
-    borderRadius: 20,
+    paddingHorizontal: THEME.spacing.xl,
+    borderRadius: THEME.radius.lg,
     backgroundColor: "#f2f2f2",
-    marginHorizontal: 5,
+    marginHorizontal: THEME.spacing.xs,
   },
-  activeTabButton: { backgroundColor: THEME.colors.primary },
-  tabText: { color: THEME.colors.muted, fontWeight: "600" },
-  activeTabText: { color: THEME.colors.white },
+  activeTabButton: { 
+    backgroundColor: THEME.colors.primary 
+  },
+  tabText: { 
+  
+    color: THEME.colors.muted,
+    fontWeight: "600" },
+  activeTabText: { 
+    color: THEME.colors.surface 
+  },
 
-  tabContainer: { flex: 1, padding: 12 },
+  tabContainer: { 
+    flex: 1, 
+    padding: 12 
+  },
   jobCard: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 14,
     ...THEME.shadow.base,
   },
-  jobHeader: { flexDirection: "row", alignItems: "center" },
-  avatar: { width: 50, height: 50, borderRadius: 25, marginRight: 12 },
-  jobTitle: { fontSize: 15, fontWeight: "600", color: THEME.colors.text },
-  clientName: { fontSize: 13, color: THEME.colors.muted, marginVertical: 2 },
-  dateText: { fontSize: 12, color: THEME.colors.muted },
+  jobHeader: { 
+    flexDirection: "row", 
+    alignItems: "center" },
+  avatar: { 
+    width: 50, 
+    height: 50, 
+    borderRadius: 25, 
+    marginRight: 12 
+  },
+  jobTitle: { 
+    fontSize: 15, 
+    fontWeight: "600", 
+    color: THEME.colors.text },
+  clientName: { 
+    fontSize: 13, 
+    color: THEME.colors.muted, 
+    marginVertical: 2 
+  },
+  dateText: { 
+    fontSize: 12, 
+    color: THEME.colors.muted 
+  },
   statusBadge: {
     borderRadius: 20,
     paddingHorizontal: 10,
@@ -323,16 +361,17 @@ const styles = StyleSheet.create({
   viewButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.primary,
+    backgroundColor: THEME.colors.surface,
+    borderColor: THEME.colors.primary,
+    borderWidth: 0.8,
     borderRadius: 8,
     marginTop: 12,
     paddingVertical: 8,
     justifyContent: "center",
   },
   viewButtonText: {
-    color: THEME.colors.white,
+    color: THEME.colors.primary,
     fontWeight: "600",
     fontSize: 13,
-    marginLeft: 6,
   },
 });

@@ -288,19 +288,23 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   availableJobTitle: {
-    fontSize: 15,
-    fontWeight: "700",
+    fontSize: THEME.typography.sizes.lg,
+    fontFamily: THEME.typography.fontFamily.subheading,
     color: THEME.colors.text,
-    marginBottom: 16,
+    marginVertical: THEME.spacing.md,
   },
   welcomeText: {
-    fontSize: 14,
+    fontFamily: THEME.typography.fontFamily.body,
     color: THEME.colors.muted,
+    marginTop: THEME.spacing.xs,
+    marginBottom: THEME.spacing.sm,
+    textAlign: "center",
   },
   nameText: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: THEME.typography.sizes.xl,
+    fontFamily: THEME.typography.fontFamily.heading,
     color: THEME.colors.text,
+    marginBottom: THEME.spacing.md,
   },
   avatar: {
     width: 30,
@@ -321,9 +325,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   statusText: {
-    fontSize: 16,
-    fontWeight: "600",
     color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    fontSize: THEME.typography.sizes.base,
+    marginBottom: THEME.spacing.xs,
   },
   statusSubText: {
     fontSize: 13,
@@ -359,10 +364,10 @@ const styles = StyleSheet.create({
     marginBottom: 22,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: THEME.typography.sizes.lg,
+    fontFamily: THEME.typography.fontFamily.subheading,
     color: THEME.colors.text,
-    marginBottom: 10,
+    marginVertical: THEME.spacing.md,
   },
   activeJobCard: {
     backgroundColor: "#fff",
@@ -374,8 +379,9 @@ const styles = StyleSheet.create({
     ...THEME.shadow.base,
   },
   activeJobTitle: {
-    fontSize: 15,
-    fontWeight: "700",
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    marginTop: THEME.spacing.xs,
     color: THEME.colors.text,
   },
   activeJobLocation: {
@@ -390,17 +396,14 @@ const styles = StyleSheet.create({
 
   jobCard: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: THEME.colors.background,
     borderRadius: 16,
     padding: 14,
     marginBottom: 14,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
+    ...THEME.shadow.card,
   },
+
   jobIconContainer: {
     backgroundColor: "rgba(28,140,75,0.08)",
     borderRadius: 12,
@@ -408,12 +411,12 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   jobTitle: {
-    fontSize: 15,
-    fontWeight: "600",
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
     color: THEME.colors.text,
   },
   jobLocation: {
-    fontSize: 13,
+    fontSize: THEME.typography.sizes.sm,
     color: THEME.colors.muted,
     marginTop: 2,
   },
@@ -433,7 +436,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   acceptButtonText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontSize: 12,
     fontWeight: "600",
   },
@@ -497,12 +500,12 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.colors.primary,
   },
   cancelButton: {
-    backgroundColor: "#fff",
+    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
     borderColor: THEME.colors.primary,
   },
   modalButtonText: {
     fontWeight: "600",
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
   },
 })

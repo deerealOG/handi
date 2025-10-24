@@ -8,16 +8,17 @@ import { THEME } from "../../constants/theme";
 export default function BookingSuccess() {
   const router = useRouter();
 
-  // Optional: auto-redirect after a few seconds
+  // ⏱ Auto redirect to bookings after 4 seconds
   useEffect(() => {
     const timeout = setTimeout(() => {
       router.replace("/client/(tabs)/bookings");
     }, 4000);
     return () => clearTimeout(timeout);
-  },);
+  }, []);
 
   return (
     <View style={styles.container}>
+      {/* ✅ Success Icon */}
       <View style={styles.iconWrapper}>
         <MaterialCommunityIcons
           name="check-circle-outline"
@@ -26,12 +27,16 @@ export default function BookingSuccess() {
         />
       </View>
 
+      {/* 🏁 Success Message */}
       <Text style={styles.title}>Booking Confirmed!</Text>
+
+      {/* 📝 Description */}
       <Text style={styles.subtitle}>
         Your booking request has been sent successfully.{"\n"}
         You’ll be notified once the artisan responds.
       </Text>
 
+      {/* 🔘 Button to go to Bookings */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => router.replace("/client/(tabs)/bookings")}
@@ -42,39 +47,48 @@ export default function BookingSuccess() {
   );
 }
 
+// 🎨 THEME-BASED STYLES
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: THEME.spacing.lg,
   },
+
   iconWrapper: {
-    marginBottom: 30,
+    marginBottom: THEME.spacing.xl,
   },
+
   title: {
+    fontFamily: THEME.typography.fontFamily.heading,
     fontSize: THEME.typography.sizes.xl,
-    fontWeight: THEME.typography.weights.bold as any,
     color: THEME.colors.text,
-    marginBottom: 10,
+    marginBottom: THEME.spacing.sm,
     textAlign: "center",
   },
+
   subtitle: {
+    fontFamily: THEME.typography.fontFamily.body,
     color: THEME.colors.muted,
     textAlign: "center",
-    lineHeight: 22,
-    marginBottom: 30,
+    lineHeight: THEME.typography.lineHeights.relaxed * 14, // converts relative to px
+    marginBottom: THEME.spacing.xl,
   },
+
   button: {
     backgroundColor: THEME.colors.primary,
     borderRadius: THEME.radius.lg,
-    paddingVertical: 14,
-    paddingHorizontal: 40,
+    paddingVertical: THEME.spacing.md,
+    paddingHorizontal: THEME.spacing.xl * 1.5,
+    ...THEME.shadow.base,
   },
+
   buttonText: {
-    color: THEME.colors.white,
-    fontWeight: "600",
+    fontFamily: THEME.typography.fontFamily.subheading,
+    color: THEME.colors.surface,
     fontSize: THEME.typography.sizes.base,
+    textAlign: "center",
   },
 });

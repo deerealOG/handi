@@ -50,7 +50,7 @@ export default function JobSuccess() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 30,

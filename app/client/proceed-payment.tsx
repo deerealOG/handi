@@ -4,15 +4,15 @@ import * as Clipboard from "expo-clipboard";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Animated,
-    Easing,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Animated,
+  Easing,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
@@ -176,14 +176,14 @@ export default function ProceedPayment() {
               size={22}
               color={
                 selectedMethod === method.id
-                  ? THEME.colors.white
+                  ? THEME.colors.surface
                   : THEME.colors.primary
               }
             />
             <Text
               style={[
                 styles.paymentText,
-                selectedMethod === method.id && { color: THEME.colors.white },
+                selectedMethod === method.id && { color: THEME.colors.surface },
               ]}
             >
               {method.label}
@@ -216,7 +216,7 @@ export default function ProceedPayment() {
         disabled={!selectedMethod}
       >
         {loading ? (
-          <ActivityIndicator color={THEME.colors.white} />
+          <ActivityIndicator color={THEME.colors.surface} />
         ) : (
           <Text style={styles.payText}>Pay ₦5,050</Text>
         )}
@@ -266,7 +266,7 @@ export default function ProceedPayment() {
               <MaterialCommunityIcons
                 name="content-copy"
                 size={18}
-                color={THEME.colors.white}
+                color={THEME.colors.surface}
               />
               <Text style={styles.copyText}>Copy Account Number</Text>
             </TouchableOpacity>
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     marginRight: 22,
   },
   summaryCard: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   payText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontSize: 16,
     fontWeight: "700",
   },
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: 16,
     padding: 30,
     alignItems: "center",
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   transferSheet: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     padding: 20,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   copyText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     marginLeft: 8,
     fontWeight: "600",
   },
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   confirmText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontWeight: "700",
   },
   cancelText: {

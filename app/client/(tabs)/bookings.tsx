@@ -1,3 +1,8 @@
+// app/client/(tabs)/bookings.tsx
+
+// ========================================
+// IMPORTS
+// ========================================
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
@@ -13,11 +18,15 @@ import {
 } from "react-native";
 import { THEME } from "../../../constants/theme";
 
+// ========================================
+// BOOKINGS SCREEN
+// ========================================
 export default function BookingsScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("Upcoming");
   const [bookings, setBookings] = useState<any[]>([]);
 
+  // --- Default placeholder data ---
   const defaultBookings = [
     {
       id: "1",
@@ -29,7 +38,7 @@ export default function BookingsScreen() {
     },
     {
       id: "2",
-      artisan: "Chika Obi",
+      artisan: "Golden Amadi",
       skill: "Plumber",
       date: "Oct 10, 2025 - 3:00 PM",
       status: "Completed",
@@ -45,6 +54,7 @@ export default function BookingsScreen() {
     },
   ];
 
+  // --- Load stored bookings or initialize defaults ---
   useEffect(() => {
     const loadBookings = async () => {
       try {
@@ -60,17 +70,18 @@ export default function BookingsScreen() {
       }
     };
     loadBookings();
-  },);
+  }, []);
 
+  // --- Save bookings to local storage ---
   const saveBookings = async (newBookings: any[]) => {
     setBookings(newBookings);
     await AsyncStorage.setItem("bookings", JSON.stringify(newBookings));
   };
 
-  const filteredBookings = bookings.filter(
-    (b) => b.status === activeTab
-  );
+  // --- Filter bookings by selected tab ---
+  const filteredBookings = bookings.filter((b) => b.status === activeTab);
 
+  // --- Cancel booking handler ---
   const handleCancelBooking = (id: string) => {
     Alert.alert("Cancel Booking", "Are you sure you want to cancel this booking?", [
       { text: "No" },
@@ -87,6 +98,7 @@ export default function BookingsScreen() {
     ]);
   };
 
+  // --- Mark booking as completed ---
   const handleCompleteBooking = async (id: string) => {
     const updated = bookings.map((b) =>
       b.id === id ? { ...b, status: "Completed" } : b
@@ -94,7 +106,7 @@ export default function BookingsScreen() {
     await saveBookings(updated);
   };
 
-  // NEW 🔥 Book Again button handler
+  // --- Rebook the same artisan ---
   const handleBookAgain = (booking: any) => {
     router.push({
       pathname: "/client/book-artisan",
@@ -105,17 +117,20 @@ export default function BookingsScreen() {
     });
   };
 
+  // ========================================
+  // RENDER
+  // ========================================
   return (
     <ScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 100 }}
+      contentContainerStyle={{ paddingBottom: THEME.spacing.xl * 3 }}
     >
-      {/* Header */}
+      {/* --- Page Header --- */}
       <Text style={styles.title}>My Bookings</Text>
       <Text style={styles.subtitle}>View and manage your artisan bookings.</Text>
 
-      {/* Tabs */}
+      {/* --- Tabs for filtering bookings --- */}
       <View style={styles.tabRow}>
         {["Upcoming", "Completed", "Cancelled"].map((tab) => (
           <TouchableOpacity
@@ -138,12 +153,13 @@ export default function BookingsScreen() {
         ))}
       </View>
 
-      {/* Booking List */}
+      {/* --- Booking Cards --- */}
       {filteredBookings.length > 0 ? (
         filteredBookings.map((booking) => (
           <View key={booking.id} style={styles.card}>
+            {/* --- Booking Header (Artisan Info) --- */}
             <TouchableOpacity
-              style={{ flexDirection: "row", flex: 1 }}
+              style={styles.cardHeader}
               onPress={() => router.push("/client/artisan-details")}
             >
               <Image source={booking.image} style={styles.avatar} />
@@ -162,17 +178,18 @@ export default function BookingsScreen() {
               <Text style={styles.bookService}>Book a Service</Text>
             </TouchableOpacity>
 
-            {/* --- Booking Actions --- */}
+            {/* --- Action Buttons --- */}
             {booking.status === "Upcoming" && (
               <View style={styles.actionRow}>
                 <TouchableOpacity
-                  style={[styles.actionButton, { backgroundColor: "#e11d48" }]}
+                  style={[styles.actionButton, { backgroundColor: THEME.colors.error }]}
                   onPress={() => handleCancelBooking(booking.id)}
                 >
                   <Text style={styles.actionText}>Cancel</Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
-                  style={[styles.actionButton, { backgroundColor: "#16a34a" }]}
+                  style={[styles.actionButton, { backgroundColor: THEME.colors.success }]}
                   onPress={() => handleCompleteBooking(booking.id)}
                 >
                   <Text style={styles.actionText}>Mark Done</Text>
@@ -180,11 +197,16 @@ export default function BookingsScreen() {
               </View>
             )}
 
-            {/* --- Completed: Now with Book Again --- */}
+            {/* --- Completed State --- */}
             {booking.status === "Completed" && (
               <View style={styles.completedRow}>
-                <View style={[styles.statusBadge, { backgroundColor: "#DCFCE7" }]}>
-                  <Text style={[styles.statusText, { color: "#166534" }]}>
+                <View
+                  style={[
+                    styles.statusBadge,
+                    { backgroundColor: "#DCFCE7" },
+                  ]}
+                >
+                  <Text style={[styles.statusText, { color: THEME.colors.success }]}>
                     Completed
                   </Text>
                 </View>
@@ -198,9 +220,15 @@ export default function BookingsScreen() {
               </View>
             )}
 
+            {/* --- Cancelled State --- */}
             {booking.status === "Cancelled" && (
-              <View style={[styles.statusBadge, { backgroundColor: "#FEE2E2" }]}>
-                <Text style={[styles.statusText, { color: "#991B1B" }]}>
+              <View
+                style={[
+                  styles.statusBadge,
+                  { backgroundColor: "#FEE2E2" },
+                ]}
+              >
+                <Text style={[styles.statusText, { color: THEME.colors.error }]}>
                   Cancelled
                 </Text>
               </View>
@@ -208,6 +236,7 @@ export default function BookingsScreen() {
           </View>
         ))
       ) : (
+        // --- Empty State ---
         <View style={styles.emptyContainer}>
           <MaterialCommunityIcons
             name="calendar-blank-outline"
@@ -223,57 +252,151 @@ export default function BookingsScreen() {
   );
 }
 
-// --- Styles ---
+// ========================================
+// STYLES 
+// ========================================
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: THEME.colors.background, padding: 20 },
+  container: {
+    flex: 1,
+    backgroundColor: THEME.colors.background,
+    padding: THEME.spacing.lg,
+  },
+
+  // --- Page Header ---
   title: {
-    fontSize: THEME.typography.sizes.title,
-    fontWeight: THEME.typography.weights.bold as any,
+    fontFamily: THEME.typography.fontFamily.heading,
+    fontSize: THEME.typography.sizes.xl,
     color: THEME.colors.text,
-    marginTop: 40,
+    marginTop: THEME.spacing.xl,
     textAlign: "center",
   },
-  subtitle: { textAlign: "center", color: THEME.colors.muted, marginBottom: 20, marginTop: 6 },
+  subtitle: {
+    fontFamily: THEME.typography.fontFamily.body,
+    textAlign: "center",
+    color: THEME.colors.muted,
+    marginVertical: THEME.spacing.sm,
+  },
+
+  // --- Tabs ---
   tabRow: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#F3F4F6",
-    borderRadius: 12,
-    marginBottom: 20,
-    paddingVertical: 6,
+    backgroundColor: THEME.colors.surface,
+    borderRadius: THEME.radius.md,
+    marginBottom: THEME.spacing.lg,
+    paddingVertical: THEME.spacing.xs,
+    ...THEME.shadow.card,
   },
-  tabButton: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8 },
-  activeTabButton: { backgroundColor: THEME.colors.primary },
-  tabText: { color: THEME.colors.muted, fontWeight: "500" },
-  activeTabText: { color: THEME.colors.white },
+  tabButton: {
+    paddingVertical: THEME.spacing.sm,
+    paddingHorizontal: THEME.spacing.md,
+    borderRadius: THEME.radius.sm,
+  },
+  activeTabButton: {
+    backgroundColor: THEME.colors.primary,
+  },
+  tabText: {
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: THEME.colors.muted,
+  },
+  activeTabText: {
+    color: THEME.colors.surface,
+  },
+
+  // --- Booking Card ---
   card: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
-    padding: 14,
-    marginBottom: 14,
-    ...THEME.shadow.base,
+    padding: THEME.spacing.md,
+    marginBottom: THEME.spacing.md,
+    ...THEME.shadow.card,
   },
-  avatar: { width: 60, height: 60, borderRadius: 30, marginRight: 14 },
-  artisanName: { fontWeight: "600", color: THEME.colors.text, fontSize: 16 },
-  artisanSkill: { color: THEME.colors.muted, marginBottom: 6 },
-  row: { flexDirection: "row", alignItems: "center" },
-  dateText: { marginLeft: 4, color: THEME.colors.text, fontSize: 13 },
-  actionRow: { flexDirection: "row", justifyContent: "flex-end", marginTop: 10, gap: 10 },
-  completedRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 10 },
-  actionButton: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8 },
-  actionText: { color: THEME.colors.white, fontSize: 13, fontWeight: "600" },
-  statusBadge: {
-    marginTop: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    alignSelf: "flex-start",
-    paddingHorizontal: 10,
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
   },
-  statusText: { fontWeight: "600", fontSize: 13 },
-  emptyContainer: { alignItems: "center", marginTop: 80 },
-  emptyText: { color: THEME.colors.muted, marginTop: 8, fontSize: 15 },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: THEME.radius.lg,
+    marginRight: THEME.spacing.md,
+  },
+  artisanName: {
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: THEME.colors.text,
+    fontSize: THEME.typography.sizes.md,
+  },
+  artisanSkill: {
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.muted,
+    marginBottom: THEME.spacing.xs,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  dateText: {
+    marginLeft: THEME.spacing.xs,
+    color: THEME.colors.text,
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+  },
   bookService: {
     backgroundColor: THEME.colors.primary,
-    
-  }
+    color: THEME.colors.surface,
+    paddingVertical: THEME.spacing.xs,
+    paddingHorizontal: THEME.spacing.sm,
+    borderRadius: THEME.radius.sm,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    fontSize: THEME.typography.sizes.sm,
+  },
+
+  // --- Actions ---
+  actionRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: THEME.spacing.sm,
+    gap: THEME.spacing.sm,
+  },
+  completedRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: THEME.spacing.sm,
+  },
+  actionButton: {
+    paddingVertical: THEME.spacing.xs,
+    paddingHorizontal: THEME.spacing.md,
+    borderRadius: THEME.radius.sm,
+  },
+  actionText: {
+    color: THEME.colors.surface,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    fontSize: THEME.typography.sizes.sm,
+  },
+
+  // --- Status Labels ---
+  statusBadge: {
+    marginTop: THEME.spacing.sm,
+    paddingVertical: THEME.spacing.xs,
+    paddingHorizontal: THEME.spacing.sm,
+    borderRadius: THEME.radius.sm,
+    alignSelf: "flex-start",
+  },
+  statusText: {
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    fontSize: THEME.typography.sizes.sm,
+  },
+
+  // --- Empty State ---
+  emptyContainer: {
+    alignItems: "center",
+    marginTop: THEME.spacing.xl * 2,
+  },
+  emptyText: {
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.muted,
+    marginTop: THEME.spacing.sm,
+    fontSize: THEME.typography.sizes.base,
+  },
 });

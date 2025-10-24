@@ -2,15 +2,15 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Animated,
-    Easing,
-    Image,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Animated,
+  Easing,
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   clientCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: 12,
     padding: 14,
     marginBottom: 16,
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalCard: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     width: "100%",
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   modalButtonText: {
-    color: THEME.colors.white,
+    color: THEME.colors.surface,
     fontWeight: "600",
     fontSize: 14,
   },

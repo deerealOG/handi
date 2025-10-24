@@ -30,7 +30,7 @@ export const Button = ({
       ? (THEME.colors as any)[roleColor]
       : "transparent";
 
-  const textColor = variant === "outline" ? THEME.colors.text : THEME.colors.white;
+  const textColor = variant === "outline" ? THEME.colors.text : THEME.colors.surface;
   const borderColor = variant === "outline" ? THEME.colors.muted : "transparent";
 
   return (
@@ -64,6 +64,6 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: THEME.typography.sizes.base,
-    fontWeight: THEME.typography.weights.bold as any,
+    fontWeight: THEME.typography.fontFamily.bodyMedium as any,
   },
 });

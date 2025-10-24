@@ -1,4 +1,7 @@
 // constants/theme.ts
+
+
+
 const COLORS = {
   // Role-based branding
   client: "#3B82F6",   // Blue

@@ -1,14 +1,14 @@
 // app/artisan/help.tsx
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  Linking,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Linking,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
@@ -28,14 +28,11 @@ export default function HelpScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={22}
-            color={THEME.colors.primary}
-          />
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={THEME.colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Help & Support</Text>
+        <View style={{ width: 40 }} />
       </View>
 
       <Text style={styles.intro}>
@@ -94,16 +91,21 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 25,
   },
+  backButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: THEME.colors.surface,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+  },
   headerTitle: {
-    flex: 1,
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 20,
+    fontFamily: THEME.typography.fontFamily.heading,
     color: THEME.colors.text,
-    marginRight: 22,
   },
   intro: {
     fontSize: 14,

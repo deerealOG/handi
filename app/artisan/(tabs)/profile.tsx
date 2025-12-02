@@ -39,6 +39,16 @@ export default function ArtisanProfile() {
           onPress={() => router.push("../edit-profile")}
         />
         <ProfileButton
+          icon="briefcase-outline"
+          label="Portfolio"
+          onPress={() => router.push("../portfolio")}
+        />
+        <ProfileButton
+          icon="star-outline"
+          label="Reviews"
+          onPress={() => router.push("../reviews")}
+        />
+        <ProfileButton
           icon="key-outline"
           label="Change Password"
           onPress={() => router.push("../change-password")}
@@ -52,7 +62,7 @@ export default function ArtisanProfile() {
           icon="logout"
           label="Logout"
           color={THEME.colors.error}
-          onPress={() => console.log("Logging out...")}
+          onPress={() => router.replace("/auth/login")}
         />
       </View>
     </View>

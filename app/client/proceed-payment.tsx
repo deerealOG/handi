@@ -1,290 +1,373 @@
 // app/client/proceed-payment.tsx
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Animated,
-  Easing,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
+const BANKS = [
+  { id: "1", name: "GTBank", logo: "bank" },
+  { id: "2", name: "Zenith Bank", logo: "bank" },
+  { id: "3", name: "First Bank", logo: "bank" },
+  { id: "4", name: "UBA", logo: "bank" },
+  { id: "5", name: "Access Bank", logo: "bank" },
+];
+
 export default function ProceedPayment() {
   const router = useRouter();
-  const { serviceType, jobTitle, location, date, urgent } =
-    useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const { serviceType, jobTitle, location, date, urgent, price } = params;
 
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [step, setStep] = useState<"selection" | "bank_selection" | "confirmation" | "pin" | "otp" | "success">("selection");
+  
+  // Bank Transfer State
+  const [selectedBank, setSelectedBank] = useState<any>(null);
+  const [showBankDropdown, setShowBankDropdown] = useState(false);
+  
+  // PIN & OTP State
+  const [pin, setPin] = useState("");
+  const [otp, setOtp] = useState("");
 
-  // --- Bottom sheet animation for transfer ---
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  // Animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  const openTransferModal = () => {
-    setShowTransferModal(true);
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 1,
-        duration: 300,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]).start();
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, [step]);
+
+  const handleMethodSelect = (method: string) => {
+    setSelectedMethod(method);
+    if (method === "transfer") {
+      setStep("bank_selection");
+    } else {
+      setStep("confirmation");
+    }
   };
 
-  const closeTransferModal = () => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 250,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]).start(() => setShowTransferModal(false));
+  const handleBankSelect = (bank: any) => {
+    setSelectedBank(bank);
+    setShowBankDropdown(false);
   };
 
-  const slideUp = slideAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [300, 0],
-  });
-
-  const handlePay = async () => {
-    if (!selectedMethod) {
-      alert("Please select a payment method first.");
+  const handleProceedToPin = () => {
+    if (selectedMethod === "transfer" && !selectedBank) {
+      Alert.alert("Select Bank", "Please select a bank to proceed.");
       return;
     }
+    setStep("pin");
+  };
 
-    if (selectedMethod === "transfer") {
-      openTransferModal();
+  const handlePinSubmit = () => {
+    if (pin.length < 4) {
+      Alert.alert("Invalid PIN", "Please enter a 4-digit PIN.");
       return;
     }
-
-    // Simulate loading for wallet or card
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      setShowSuccess(true);
-
-      setTimeout(() => {
-        setShowSuccess(false);
-        router.push("/client/(tabs)/bookings");
-      }, 2000);
-    }, 2000);
+      setStep("otp");
+    }, 1500);
   };
 
-  const handleCopyAccount = async () => {
-    await Clipboard.setStringAsync("0123456789");
-    alert("Account number copied!");
-  };
-
-  const handleConfirmTransfer = () => {
-    closeTransferModal();
+  const handleOtpSubmit = () => {
+    if (otp.length < 4) {
+      Alert.alert("Invalid OTP", "Please enter the OTP sent to your phone.");
+      return;
+    }
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      setShowSuccess(true);
-      setTimeout(() => {
-        setShowSuccess(false);
-        router.push("/client/(tabs)/bookings");
-      }, 2000);
+      setStep("success");
     }, 2000);
   };
 
-  return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={22}
-            color={THEME.colors.primary}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Proceed to Payment</Text>
-      </View>
+  const handleFinish = () => {
+    router.push("/client/bookings" as any);
+  };
 
-      {/* Booking Summary */}
+  const renderHeader = (title: string, backAction?: () => void) => (
+    <View style={styles.header}>
+      <TouchableOpacity onPress={backAction || (() => router.back())}>
+        <Ionicons name="arrow-back" size={24} color={THEME.colors.text} />
+      </TouchableOpacity>
+      <Text style={styles.headerTitle}>{title}</Text>
+    </View>
+  );
+
+  const renderPaymentSelection = () => (
+    <View>
+      {renderHeader("Select Payment Method")}
       <View style={styles.summaryCard}>
-        <Text style={styles.sectionTitle}>Booking Summary</Text>
-        <Text style={styles.detailText}>
-          <Text style={styles.bold}>Service:</Text> {serviceType}
-        </Text>
-        <Text style={styles.detailText}>
-          <Text style={styles.bold}>Job Title:</Text> {jobTitle}
-        </Text>
-        <Text style={styles.detailText}>
-          <Text style={styles.bold}>Location:</Text> {location}
-        </Text>
-        <Text style={styles.detailText}>
-          <Text style={styles.bold}>Date:</Text>{" "}
-          {date
-            ? new Date(date as string).toLocaleString("en-NG", {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "N/A"}
-        </Text>
-        <Text style={styles.detailText}>
-          <Text style={styles.bold}>Urgent:</Text>{" "}
-          {urgent === "true" ? "Yes" : "No"}
-        </Text>
+        <Text style={styles.summaryTitle}>Total to Pay</Text>
+        <Text style={styles.summaryAmount}>₦{price || "5,050"}</Text>
+        <Text style={styles.summarySubtitle}>Includes service & platform fees</Text>
       </View>
 
-      {/* Payment Methods */}
-      <View style={styles.paymentMethods}>
-        <Text style={styles.sectionTitle}>Choose Payment Method</Text>
-
+      <Text style={styles.sectionTitle}>Payment Methods</Text>
+      <View style={styles.methodsContainer}>
         {[
-          { id: "wallet", icon: "wallet", label: "Wallet Balance" },
-          { id: "card", icon: "credit-card", label: "Credit / Debit Card" },
-          { id: "transfer", icon: "bank-transfer", label: "Bank Transfer" },
+          { id: "wallet", icon: "wallet-outline", label: "Wallet Balance", balance: "₦25,000" },
+          { id: "card", icon: "card-outline", label: "Credit / Debit Card" },
+          { id: "transfer", icon: "swap-horizontal-outline", label: "Bank Transfer" },
         ].map((method) => (
           <TouchableOpacity
             key={method.id}
             style={[
-              styles.paymentOption,
-              selectedMethod === method.id && styles.activeOption,
+              styles.methodCard,
+              selectedMethod === method.id && styles.methodCardSelected
             ]}
-            onPress={() => setSelectedMethod(method.id)}
+            onPress={() => handleMethodSelect(method.id)}
           >
-            <MaterialCommunityIcons
-              name={method.icon as any}
-              size={22}
-              color={
-                selectedMethod === method.id
-                  ? THEME.colors.surface
-                  : THEME.colors.primary
-              }
+            <View style={[
+              styles.iconContainer,
+              selectedMethod === method.id && styles.iconContainerSelected
+            ]}>
+              <Ionicons 
+                name={method.icon as any} 
+                size={24} 
+                color={selectedMethod === method.id ? THEME.colors.surface : THEME.colors.primary} 
+              />
+            </View>
+            <View style={styles.methodInfo}>
+              <Text style={styles.methodLabel}>{method.label}</Text>
+              {method.balance && (
+                <Text style={styles.methodBalance}>Balance: {method.balance}</Text>
+              )}
+            </View>
+            <Ionicons 
+              name={selectedMethod === method.id ? "radio-button-on" : "radio-button-off"} 
+              size={24} 
+              color={selectedMethod === method.id ? THEME.colors.primary : THEME.colors.muted} 
             />
-            <Text
-              style={[
-                styles.paymentText,
-                selectedMethod === method.id && { color: THEME.colors.surface },
-              ]}
-            >
-              {method.label}
-            </Text>
           </TouchableOpacity>
         ))}
       </View>
+    </View>
+  );
 
-      {/* Payment Summary */}
-      <View style={styles.summaryCard}>
-        <Text style={styles.sectionTitle}>Payment Summary</Text>
-        <View style={styles.rowBetween}>
-          <Text style={styles.detailText}>Service Fee</Text>
-          <Text style={styles.bold}>₦5,000</Text>
-        </View>
-        <View style={styles.rowBetween}>
-          <Text style={styles.detailText}>Platform Fee</Text>
-          <Text style={styles.bold}>₦50</Text>
-        </View>
-        <View style={styles.rowBetween}>
-          <Text style={[styles.detailText, { fontWeight: "700" }]}>Total</Text>
-          <Text style={[styles.bold, { fontSize: 15 }]}>₦5,050</Text>
-        </View>
-      </View>
+  const renderBankSelection = () => (
+    <View>
+      {renderHeader("Bank Transfer", () => setStep("selection"))}
+      <View style={styles.contentContainer}>
+        <Text style={styles.label}>Select Your Bank</Text>
+        <TouchableOpacity
+          style={styles.dropdownButton}
+          onPress={() => setShowBankDropdown(!showBankDropdown)}
+        >
+          <Text style={styles.dropdownText}>
+            {selectedBank ? selectedBank.name : "Choose a bank"}
+          </Text>
+          <Ionicons name="chevron-down" size={20} color={THEME.colors.muted} />
+        </TouchableOpacity>
 
-      {/* Proceed Button */}
-      <TouchableOpacity
-        style={[styles.payButton, !selectedMethod && { opacity: 0.5 }]}
-        onPress={handlePay}
-        disabled={!selectedMethod}
-      >
-        {loading ? (
-          <ActivityIndicator color={THEME.colors.surface} />
-        ) : (
-          <Text style={styles.payText}>Pay ₦5,050</Text>
+        {showBankDropdown && (
+          <View style={styles.dropdownList}>
+            {BANKS.map((bank) => (
+              <TouchableOpacity
+                key={bank.id}
+                style={styles.dropdownItem}
+                onPress={() => handleBankSelect(bank)}
+              >
+                <View style={styles.bankRow}>
+                  <MaterialCommunityIcons name={bank.logo as any} size={20} color={THEME.colors.primary} />
+                  <Text style={styles.dropdownItemText}>{bank.name}</Text>
+                </View>
+                {selectedBank?.id === bank.id && (
+                  <Ionicons name="checkmark" size={18} color={THEME.colors.primary} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
         )}
-      </TouchableOpacity>
 
-      {/* Success Modal */}
-      <Modal transparent animationType="fade" visible={showSuccess}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <MaterialCommunityIcons
-              name="check-circle"
-              size={60}
-              color={THEME.colors.primary}
-            />
-            <Text style={styles.successTitle}>Payment Successful!</Text>
-            <Text style={styles.successText}>
-              Your booking has been confirmed.
-            </Text>
+        {selectedBank && (
+          <View style={styles.bankDetailsCard}>
+            <Text style={styles.bankDetailsTitle}>Transfer Details</Text>
+            <View style={styles.bankDetailRow}>
+              <Text style={styles.bankDetailLabel}>Bank Name</Text>
+              <Text style={styles.bankDetailValue}>{selectedBank.name}</Text>
+            </View>
+            <View style={styles.bankDetailRow}>
+              <Text style={styles.bankDetailLabel}>Account Number</Text>
+              <View style={styles.copyRow}>
+                <Text style={styles.bankDetailValue}>1234567890</Text>
+                <TouchableOpacity onPress={() => Clipboard.setStringAsync("1234567890")}>
+                  <Ionicons name="copy-outline" size={16} color={THEME.colors.primary} />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.bankDetailRow}>
+              <Text style={styles.bankDetailLabel}>Account Name</Text>
+              <Text style={styles.bankDetailValue}>Handi App Ltd</Text>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.bankDetailRow}>
+              <Text style={styles.bankDetailLabel}>Amount</Text>
+              <Text style={[styles.bankDetailValue, { color: THEME.colors.primary, fontWeight: '700' }]}>
+                ₦{price || "5,050"}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        <TouchableOpacity 
+          style={[styles.primaryButton, !selectedBank && styles.disabledButton]}
+          onPress={handleProceedToPin}
+          disabled={!selectedBank}
+        >
+          <Text style={styles.primaryButtonText}>I have made the transfer</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderConfirmation = () => (
+    <View>
+      {renderHeader("Confirm Payment", () => setStep("selection"))}
+      <View style={styles.contentContainer}>
+        <View style={styles.confirmCard}>
+          <View style={styles.confirmIconContainer}>
+            <Ionicons name="shield-checkmark-outline" size={40} color={THEME.colors.primary} />
+          </View>
+          <Text style={styles.confirmTitle}>Secure Payment</Text>
+          <Text style={styles.confirmText}>
+            You are about to pay <Text style={styles.boldAmount}>₦{price || "5,050"}</Text> via {selectedMethod === "wallet" ? "Wallet" : "Card"}.
+          </Text>
+          
+          <View style={styles.divider} />
+          
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Service</Text>
+            <Text style={styles.detailValue}>{serviceType}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Provider</Text>
+            <Text style={styles.detailValue}>Emeka Johnson</Text>
           </View>
         </View>
-      </Modal>
 
-      {/* --- Bank Transfer Bottom Sheet --- */}
-      {showTransferModal && (
-        <Animated.View
-          style={[
-            styles.overlay,
-            { opacity: fadeAnim },
-          ]}
+        <TouchableOpacity 
+          style={styles.primaryButton}
+          onPress={() => setStep("pin")}
         >
-          <Animated.View
-            style={[styles.transferSheet, { transform: [{ translateY: slideUp }] }]}
-          >
-            <View style={styles.sheetHandle} />
-            <Text style={styles.sheetTitle}>Bank Transfer Details</Text>
+          <Text style={styles.primaryButtonText}>Confirm & Pay</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
-            <Text style={styles.detailText}>Send exactly:</Text>
-            <Text style={styles.transferAmount}>₦5,050</Text>
+  const renderPin = () => (
+    <View>
+      {renderHeader("Enter PIN", () => setStep(selectedMethod === "transfer" ? "bank_selection" : "confirmation"))}
+      <View style={styles.contentContainer}>
+        <Text style={styles.pinTitle}>Enter Transaction PIN</Text>
+        <Text style={styles.pinSubtitle}>Please enter your 4-digit PIN to authorize this transaction.</Text>
+        
+        <TextInput
+          style={styles.pinInput}
+          keyboardType="numeric"
+          maxLength={4}
+          secureTextEntry
+          value={pin}
+          onChangeText={setPin}
+          placeholder="****"
+          placeholderTextColor={THEME.colors.muted}
+        />
 
-            <View style={styles.accountBox}>
-              <Text style={styles.accountText}>Account Number: 0123456789</Text>
-              <Text style={styles.accountText}>Bank: Zenith Bank</Text>
-              <Text style={styles.accountText}>Account Name: HandyFix Ltd</Text>
-            </View>
+        <TouchableOpacity 
+          style={styles.primaryButton}
+          onPress={handlePinSubmit}
+        >
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.primaryButtonText}>Authorize</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
-            <TouchableOpacity style={styles.copyButton} onPress={handleCopyAccount}>
-              <MaterialCommunityIcons
-                name="content-copy"
-                size={18}
-                color={THEME.colors.surface}
-              />
-              <Text style={styles.copyText}>Copy Account Number</Text>
-            </TouchableOpacity>
+  const renderOtp = () => (
+    <View>
+      {renderHeader("Verification", () => setStep("pin"))}
+      <View style={styles.contentContainer}>
+        <Text style={styles.pinTitle}>Enter OTP</Text>
+        <Text style={styles.pinSubtitle}>We sent a 4-digit code to your phone number ending in **89.</Text>
+        
+        <TextInput
+          style={styles.pinInput}
+          keyboardType="numeric"
+          maxLength={4}
+          value={otp}
+          onChangeText={setOtp}
+          placeholder="0000"
+          placeholderTextColor={THEME.colors.muted}
+        />
 
-            <TouchableOpacity
-              style={[styles.confirmButton]}
-              onPress={handleConfirmTransfer}
-            >
-              <Text style={styles.confirmText}>I’ve Sent the Payment</Text>
-            </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.primaryButton}
+          onPress={handleOtpSubmit}
+        >
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.primaryButtonText}>Verify & Complete</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
-            <TouchableOpacity onPress={closeTransferModal}>
-              <Text style={styles.cancelText}>Cancel</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </Animated.View>
-      )}
-    </ScrollView>
+  const renderSuccess = () => (
+    <View style={styles.successContainer}>
+      <Animated.View style={{ opacity: fadeAnim, alignItems: 'center' }}>
+        <View style={styles.successIconContainer}>
+          <Ionicons name="checkmark" size={50} color="white" />
+        </View>
+        <Text style={styles.successTitle}>Payment Successful!</Text>
+        <Text style={styles.successMessage}>
+          Your booking has been confirmed successfully. You can track your artisan now.
+        </Text>
+        
+        <TouchableOpacity 
+          style={styles.primaryButton}
+          onPress={handleFinish}
+        >
+          <Text style={styles.primaryButtonText}>View Booking</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {step === "selection" && renderPaymentSelection()}
+        {step === "bank_selection" && renderBankSelection()}
+        {step === "confirmation" && renderConfirmation()}
+        {step === "pin" && renderPin()}
+        {step === "otp" && renderOtp()}
+        {step === "success" && renderSuccess()}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -292,178 +375,321 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-    paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingTop: 50,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
+    paddingHorizontal: THEME.spacing.lg,
     marginBottom: 24,
-    marginTop: 20,
   },
   headerTitle: {
-    flex: 1,
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: THEME.typography.sizes.xl,
+    fontFamily: THEME.typography.fontFamily.heading,
     color: THEME.colors.text,
-    marginRight: 22,
+    marginLeft: 16,
   },
+  contentContainer: {
+    paddingHorizontal: THEME.spacing.lg,
+  },
+  
+  // Summary Card
   summaryCard: {
+    backgroundColor: THEME.colors.primary,
+    marginHorizontal: THEME.spacing.lg,
+    borderRadius: 20,
+    padding: 24,
+    alignItems: "center",
+    marginBottom: 32,
+    ...THEME.shadow.card,
+  },
+  summaryTitle: {
+    color: "rgba(255,255,255,0.8)",
+    fontSize: 14,
+    fontFamily: THEME.typography.fontFamily.body,
+    marginBottom: 8,
+  },
+  summaryAmount: {
+    color: "white",
+    fontSize: 36,
+    fontFamily: THEME.typography.fontFamily.heading,
+    marginBottom: 8,
+  },
+  summarySubtitle: {
+    color: "rgba(255,255,255,0.6)",
+    fontSize: 12,
+    fontFamily: THEME.typography.fontFamily.body,
+  },
+
+  // Methods
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    color: THEME.colors.text,
+    marginLeft: THEME.spacing.lg,
+    marginBottom: 16,
+  },
+  methodsContainer: {
+    paddingHorizontal: THEME.spacing.lg,
+  },
+  methodCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: THEME.colors.surface,
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+  },
+  methodCardSelected: {
+    borderColor: THEME.colors.primary,
+    backgroundColor: "#F0FDF4",
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  iconContainerSelected: {
+    backgroundColor: THEME.colors.primary,
+  },
+  methodInfo: {
+    flex: 1,
+  },
+  methodLabel: {
+    fontSize: 16,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    color: THEME.colors.text,
+  },
+  methodBalance: {
+    fontSize: 12,
+    color: THEME.colors.muted,
+    marginTop: 2,
+  },
+
+  // Dropdown
+  label: {
+    fontSize: 14,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    color: THEME.colors.text,
+    marginBottom: 8,
+  },
+  dropdownButton: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     backgroundColor: THEME.colors.surface,
     borderRadius: 12,
     padding: 16,
-    marginBottom: 20,
-    ...THEME.shadow.base,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: THEME.colors.text,
-    marginBottom: 10,
-  },
-  detailText: {
-    fontSize: 13,
-    color: THEME.colors.text,
-    marginBottom: 4,
-  },
-  bold: {
-    fontWeight: "600",
-  },
-  paymentMethods: {
-    marginBottom: 20,
-  },
-  paymentOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-    borderRadius: 10,
-    backgroundColor: "rgba(28,140,75,0.05)",
-    marginBottom: 10,
-  },
-  activeOption: {
-    backgroundColor: THEME.colors.primary,
-  },
-  paymentText: {
-    marginLeft: 10,
-    color: THEME.colors.text,
-    fontSize: 14,
-  },
-  rowBetween: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 6,
-  },
-  payButton: {
-    backgroundColor: THEME.colors.primary,
-    borderRadius: THEME.radius.lg,
-    paddingVertical: 14,
-    alignItems: "center",
-    marginTop: 10,
-    marginBottom: 40,
-  },
-  payText: {
-    color: THEME.colors.surface,
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    backgroundColor: THEME.colors.surface,
-    borderRadius: 16,
-    padding: 30,
-    alignItems: "center",
-    ...THEME.shadow.base,
-  },
-  successTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: THEME.colors.text,
-    marginTop: 10,
-  },
-  successText: {
-    fontSize: 14,
-    color: THEME.colors.muted,
-    marginTop: 6,
-    textAlign: "center",
-  },
-
-  // Transfer bottom sheet
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "flex-end",
-  },
-  transferSheet: {
-    backgroundColor: THEME.colors.surface,
-    padding: 20,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
-  sheetHandle: {
-    width: 50,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: "#ddd",
-    alignSelf: "center",
-    marginBottom: 10,
-  },
-  sheetTitle: {
-    textAlign: "center",
-    fontWeight: "700",
-    fontSize: 16,
-    marginBottom: 15,
-  },
-  transferAmount: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: THEME.colors.primary,
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  accountBox: {
-    backgroundColor: "rgba(28,140,75,0.05)",
-    borderRadius: 10,
-    padding: 12,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
     marginBottom: 16,
   },
-  accountText: {
-    fontSize: 13,
+  dropdownText: {
+    fontSize: 16,
     color: THEME.colors.text,
-    marginBottom: 3,
   },
-  copyButton: {
+  dropdownList: {
+    backgroundColor: THEME.colors.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+    marginBottom: 16,
+    ...THEME.shadow.card,
+  },
+  dropdownItem: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: THEME.colors.primary,
-    paddingVertical: 12,
-    borderRadius: 10,
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  bankRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: THEME.colors.text,
+  },
+
+  // Bank Details
+  bankDetailsCard: {
+    backgroundColor: "#F9FAFB",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+  },
+  bankDetailsTitle: {
+    fontSize: 14,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    color: THEME.colors.muted,
+    marginBottom: 16,
+    textTransform: "uppercase",
+  },
+  bankDetailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 12,
   },
-  copyText: {
-    color: THEME.colors.surface,
-    marginLeft: 8,
-    fontWeight: "600",
+  bankDetailLabel: {
+    fontSize: 14,
+    color: THEME.colors.muted,
   },
-  confirmButton: {
-    backgroundColor: THEME.colors.primary,
-    borderRadius: 10,
-    paddingVertical: 14,
+  bankDetailValue: {
+    fontSize: 14,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    color: THEME.colors.text,
+  },
+  copyRow: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: 8,
+  },
+
+  // Buttons
+  primaryButton: {
+    backgroundColor: THEME.colors.primary,
+    padding: 18,
+    borderRadius: 16,
+    alignItems: "center",
+    width: "100%",
+    marginTop: 16,
+  },
+  disabledButton: {
+    backgroundColor: THEME.colors.muted,
+    opacity: 0.5,
+  },
+  primaryButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontFamily: THEME.typography.fontFamily.subheading,
+  },
+
+  // Confirmation
+  confirmCard: {
+    backgroundColor: THEME.colors.surface,
+    borderRadius: 20,
+    padding: 24,
+    alignItems: "center",
+    marginBottom: 24,
+    ...THEME.shadow.card,
+  },
+  confirmIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#F0FDF4",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  confirmTitle: {
+    fontSize: 20,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.text,
+    marginBottom: 8,
   },
   confirmText: {
-    color: THEME.colors.surface,
-    fontWeight: "700",
-  },
-  cancelText: {
-    textAlign: "center",
+    fontSize: 14,
     color: THEME.colors.muted,
-    marginTop: 10,
+    textAlign: "center",
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  boldAmount: {
+    color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.subheading,
+  },
+  divider: {
+    width: "100%",
+    height: 1,
+    backgroundColor: THEME.colors.border,
+    marginVertical: 16,
+  },
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 12,
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: THEME.colors.muted,
+  },
+  detailValue: {
+    fontSize: 14,
+    color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.subheading,
+  },
+
+  // PIN & OTP
+  pinTitle: {
+    fontSize: 24,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.text,
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  pinSubtitle: {
+    fontSize: 14,
+    color: THEME.colors.muted,
+    textAlign: "center",
+    marginBottom: 32,
+    paddingHorizontal: 20,
+  },
+  pinInput: {
+    backgroundColor: THEME.colors.surface,
+    borderRadius: 16,
+    padding: 20,
+    fontSize: 24,
+    textAlign: "center",
+    letterSpacing: 8,
+    borderWidth: 1,
+    borderColor: THEME.colors.primary,
+    marginBottom: 32,
+    color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.heading,
+  },
+
+  // Success
+  successContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+    minHeight: 600,
+  },
+  successIconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: THEME.colors.success,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+    ...THEME.shadow.card,
+  },
+  successTitle: {
+    fontSize: 24,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.text,
+    marginBottom: 12,
+  },
+  successMessage: {
+    fontSize: 16,
+    color: THEME.colors.muted,
+    textAlign: "center",
+    marginBottom: 40,
+    lineHeight: 24,
   },
 });

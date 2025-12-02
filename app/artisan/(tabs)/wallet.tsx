@@ -1,19 +1,27 @@
-// app/artisan/(tabs)/wallet.tsx
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    FlatList,
+    Modal,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { THEME } from "../../../constants/theme";
 
 export default function ArtisanWallet() {
-  const router = useRouter();
-  const balance = 24500;
+  const [balance, setBalance] = useState(24500);
+  const [modalVisible, setModalVisible] = useState(false); // Withdraw Modal
+  const [topUpModalVisible, setTopUpModalVisible] = useState(false);
+  const [transferModalVisible, setTransferModalVisible] = useState(false);
+  
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [topUpAmount, setTopUpAmount] = useState("");
+  const [transferAmount, setTransferAmount] = useState("");
+  const [recipient, setRecipient] = useState("");
+
   const transactions = [
     {
       id: "1",
@@ -29,7 +37,65 @@ export default function ArtisanWallet() {
       date: "Oct 15, 2025",
       type: "debit",
     },
+    {
+      id: "3",
+      title: "Data Purchase",
+      amount: "-₦1,500",
+      date: "Oct 12, 2025",
+      type: "debit",
+    },
   ];
+
+  const handleWithdraw = () => {
+    const amount = parseInt(withdrawAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+    if (amount > balance) {
+      alert("Insufficient funds");
+      return;
+    }
+    
+    setBalance(prev => prev - amount);
+    setModalVisible(false);
+    setWithdrawAmount("");
+    alert(`Successfully withdrew ₦${amount.toLocaleString()}`);
+  };
+
+  const handleTopUp = () => {
+    const amount = parseInt(topUpAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+    setBalance(prev => prev + amount);
+    setTopUpModalVisible(false);
+    setTopUpAmount("");
+    alert(`Successfully topped up ₦${amount.toLocaleString()}`);
+  }
+
+  const handleTransfer = () => {
+    const amount = parseInt(transferAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+    if (amount > balance) {
+      alert("Insufficient funds");
+      return;
+    }
+    if (!recipient.trim()) {
+        alert("Please enter a recipient");
+        return;
+    }
+
+    setBalance(prev => prev - amount);
+    setTransferModalVisible(false);
+    setTransferAmount("");
+    setRecipient("");
+    alert(`Successfully transferred ₦${amount.toLocaleString()} to ${recipient}`);
+  }
 
   return (
     <View style={styles.container}>
@@ -40,13 +106,29 @@ export default function ArtisanWallet() {
       <View style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>Available Balance</Text>
         <Text style={styles.balanceValue}>₦{balance.toLocaleString()}</Text>
-        <TouchableOpacity style={styles.withdrawButton}>
-          <MaterialCommunityIcons
-            name="bank-transfer-out"
-            size={18}
-            color={THEME.colors.surface}
-          />
-          <Text style={styles.withdrawText}>Withdraw Funds</Text>
+      </View>
+
+      {/* Quick Actions */}
+      <View style={styles.actionsRow}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => setTopUpModalVisible(true)}>
+            <View style={[styles.actionIcon, { backgroundColor: "#E8F5E9" }]}>
+                <MaterialCommunityIcons name="plus" size={24} color={THEME.colors.primary} />
+            </View>
+            <Text style={styles.actionText}>Top Up</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionButton} onPress={() => setModalVisible(true)}>
+            <View style={[styles.actionIcon, { backgroundColor: "#FFEBEE" }]}>
+                <MaterialCommunityIcons name="bank-transfer-out" size={24} color={THEME.colors.error} />
+            </View>
+            <Text style={styles.actionText}>Withdraw</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionButton} onPress={() => setTransferModalVisible(true)}>
+            <View style={[styles.actionIcon, { backgroundColor: "#E3F2FD" }]}>
+                <MaterialCommunityIcons name="send" size={24} color="#2196F3" />
+            </View>
+            <Text style={styles.actionText}>Transfer</Text>
         </TouchableOpacity>
       </View>
 
@@ -55,10 +137,17 @@ export default function ArtisanWallet() {
       <FlatList
         data={transactions}
         keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          
           <View style={styles.transactionItem}>
-            <View>
+            <View style={styles.transactionIcon}>
+                <MaterialCommunityIcons 
+                    name={item.type === 'credit' ? "arrow-down-left" : "arrow-up-right"} 
+                    size={20} 
+                    color={item.type === 'credit' ? THEME.colors.primary : THEME.colors.error} 
+                />
+            </View>
+            <View style={{ flex: 1 }}>
               <Text style={styles.transactionTitle}>{item.title}</Text>
               <Text style={styles.transactionDate}>{item.date}</Text>
             </View>
@@ -78,6 +167,130 @@ export default function ArtisanWallet() {
           </View>
         )}
       />
+
+      {/* Withdraw Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Withdraw Funds</Text>
+            <Text style={styles.modalSubtitle}>Enter amount to withdraw</Text>
+            
+            <TextInput
+              style={styles.input}
+              placeholder="Amount (₦)"
+              keyboardType="numeric"
+              value={withdrawAmount}
+              onChangeText={setWithdrawAmount}
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={handleWithdraw}
+              >
+                <Text style={styles.confirmButtonText}>Withdraw</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Top Up Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={topUpModalVisible}
+        onRequestClose={() => setTopUpModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Top Up Wallet</Text>
+            <Text style={styles.modalSubtitle}>Enter amount to add</Text>
+            
+            <TextInput
+              style={styles.input}
+              placeholder="Amount (₦)"
+              keyboardType="numeric"
+              value={topUpAmount}
+              onChangeText={setTopUpAmount}
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setTopUpModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={handleTopUp}
+              >
+                <Text style={styles.confirmButtonText}>Top Up</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Transfer Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={transferModalVisible}
+        onRequestClose={() => setTransferModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Transfer Funds</Text>
+            <Text style={styles.modalSubtitle}>Send money to another user</Text>
+            
+            <TextInput
+              style={styles.input}
+              placeholder="Recipient Email / ID"
+              value={recipient}
+              onChangeText={setRecipient}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Amount (₦)"
+              keyboardType="numeric"
+              value={transferAmount}
+              onChangeText={setTransferAmount}
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setTransferModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={handleTransfer}
+              >
+                <Text style={styles.confirmButtonText}>Transfer</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -93,57 +306,78 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: THEME.colors.text,
     marginBottom: 20,
+    marginTop: 20,
   },
   balanceCard: {
     backgroundColor: THEME.colors.primary,
     borderRadius: 16,
-    padding: 20,
+    padding: 24,
     marginBottom: 24,
+    alignItems: "center",
+    ...THEME.shadow.card,
   },
   balanceLabel: {
-    color: THEME.colors.surface,
+    color: "rgba(255,255,255,0.8)",
     fontSize: 14,
+    marginBottom: 4,
   },
   balanceValue: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: "700",
-    color: THEME.colors.surface,
-    marginVertical: 8,
+    color: "#fff",
   },
-  withdrawButton: {
+  actionsRow: {
     flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.2)",
-    borderRadius: 8,
-    paddingVertical: 8,
-    justifyContent: "center",
+    justifyContent: "space-around",
+    marginBottom: 30,
   },
-  withdrawText: {
-    color: THEME.colors.surface,
-    fontWeight: "600",
-    fontSize: 14,
-    marginLeft: 6,
+  actionButton: {
+    alignItems: "center",
+    gap: 8,
+  },
+  actionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    ...THEME.shadow.base,
+  },
+  actionText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: THEME.colors.text,
   },
   sectionTitle: {
     fontWeight: "700",
     fontSize: 16,
     color: THEME.colors.text,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   transactionItem: {
     backgroundColor: THEME.colors.surface,
-    padding: 14,
-    borderRadius: 10,
+    padding: 16,
+    borderRadius: 12,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
-    ...THEME.shadow.base,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#f0f0f0",
+  },
+  transactionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#f5f5f5",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
   },
   transactionTitle: {
     fontSize: 14,
     color: THEME.colors.text,
-    fontWeight: "500",
+    fontWeight: "600",
+    marginBottom: 2,
   },
   transactionDate: {
     fontSize: 12,
@@ -153,20 +387,69 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
   },
-    viewButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: THEME.colors.surface,
-    borderColor: THEME.colors.primary,
-    borderWidth: 0.8,
-    borderRadius: 8,
-    marginTop: 12,
-    paddingVertical: 8,
+  
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
+    alignItems: "center",
   },
-  viewButtonText: {
-    color: THEME.colors.primary,
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 24,
+    width: "85%",
+    alignItems: "center",
+    ...THEME.shadow.card,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: THEME.colors.text,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: THEME.colors.muted,
+    marginBottom: 20,
+  },
+  input: {
+    width: "100%",
+    height: 50,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    marginBottom: 16,
+    backgroundColor: "#FAFAFA",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+    marginTop: 8,
+  },
+  modalButton: {
+    flex: 1,
+    height: 48,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cancelButton: {
+    backgroundColor: "#f5f5f5",
+  },
+  confirmButton: {
+    backgroundColor: THEME.colors.primary,
+  },
+  cancelButtonText: {
+    color: THEME.colors.text,
     fontWeight: "600",
-    fontSize: 13,
+  },
+  confirmButtonText: {
+    color: "white",
+    fontWeight: "600",
   },
 });

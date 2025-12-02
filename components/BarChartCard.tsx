@@ -34,9 +34,9 @@ export default function BarChartCard({ data }: BarChartCardProps) {
           yAxisLabel=""
           yAxisSuffix=""
           chartConfig={{
-            backgroundColor: THEME.colors.white,
-            backgroundGradientFrom: THEME.colors.white,
-            backgroundGradientTo: THEME.colors.white,
+            backgroundColor: THEME.colors.surface,
+            backgroundGradientFrom: THEME.colors.surface,
+            backgroundGradientTo: THEME.colors.surface,
             decimalPlaces: 0,
             color: (opacity = 1) =>
               `rgba(147, 51, 234, ${opacity})`, // admin purple
@@ -57,7 +57,7 @@ export default function BarChartCard({ data }: BarChartCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: THEME.colors.white,
+    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.lg,
     marginTop: THEME.spacing.lg,

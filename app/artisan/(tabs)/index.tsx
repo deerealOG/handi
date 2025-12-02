@@ -1,4 +1,5 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -13,13 +14,15 @@ import {
   View,
 } from "react-native";
 import { THEME } from "../../../constants/theme";
+import { Job } from "../types";
 
 export default function ArtisanHomeScreen() {
+  const router = useRouter();
   const [isOnline, setIsOnline] = useState(true);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
-  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showModal, setShowModal] = useState(false);
   const modalSlide = useRef(new Animated.Value(0)).current;
 
@@ -54,7 +57,7 @@ export default function ArtisanHomeScreen() {
     outputRange: [250, 0],
   });
 
-  const handleAcceptPress = (job: any) => {
+  const handleAcceptPress = (job: Job) => {
     setSelectedJob(job);
     setShowModal(true);
   };
@@ -62,55 +65,51 @@ export default function ArtisanHomeScreen() {
   const handleConfirm = () => {
     setShowModal(false);
     setTimeout(() => {
-      alert(`✅ You’ve successfully accepted the job: "${selectedJob.title}"`);
+      alert(`✅ You’ve successfully accepted the job: "${selectedJob?.title}"`);
+      // In a real app, this would move the job to the active jobs list
     }, 300);
   };
 
-  const renderJobCard = ({ item }: any) => (
+  const renderJobCard = ({ item }: { item: Job }) => (
     <Animated.View
       style={[
-        styles.jobCard,
         {
           opacity: fadeAnim,
           transform: [{ translateY: slideAnim }],
         },
       ]}
     >
-      <View style={styles.jobIconContainer}>
-        <MaterialCommunityIcons
-          name={item.icon}
-          size={28}
-          color={THEME.colors.primary}
-        />
-      </View>
+      <TouchableOpacity 
+        style={styles.jobCard}
+        onPress={() => router.push({ pathname: "/artisan/job-details", params: { id: item.id } })}
+      >
+        <View style={styles.jobIconContainer}>
+          <MaterialCommunityIcons
+            name={item.icon}
+            size={24}
+            color={THEME.colors.primary}
+          />
+        </View>
 
-      <View style={{ flex: 1 }}>
-        <Text style={styles.jobTitle}>{item.title}</Text>
-        <Text style={styles.jobLocation}>{item.location}</Text>
-      </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.jobTitle}>{item.title}</Text>
+          <Text style={styles.jobLocation}>{item.location}</Text>
+        </View>
 
-      <View style={styles.jobAmountContainer}>
-        <Text style={styles.jobAmount}>{item.amount}</Text>
-        <TouchableOpacity
-          style={styles.acceptButton}
-          onPress={() => handleAcceptPress(item)}
-        >
-          <Text style={styles.acceptButtonText}>Accept</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.jobAmountContainer}>
+          <Text style={styles.jobAmount}>{item.amount}</Text>
+          <TouchableOpacity
+            style={styles.acceptButton}
+            onPress={() => handleAcceptPress(item)}
+          >
+            <Text style={styles.acceptButtonText}>Accept</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
     </Animated.View>
   )
 
-  type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
-
-  const availableJobs: {
-    id: string;
-    title: string;
-    location: string;
-    amount: string;
-    icon: IconName;
-  }[] = [
-
+  const availableJobs: Job[] = [
       {
       id: "1",
       title: "Fix leaking kitchen sink",
@@ -138,49 +137,65 @@ export default function ArtisanHomeScreen() {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={{ paddingBottom: 60 }}
+      contentContainerStyle={{ paddingBottom: 100 }}
       showsVerticalScrollIndicator={false}
     >
       {/* Header */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.welcomeText}>Welcome back</Text>
-          <Text style={styles.nameText}>Golden Amadi</Text>
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={styles.welcomeText}>Welcome back,</Text>
+            <Text style={styles.nameText}>Golden Amadi</Text>
+          </View>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity 
+              style={styles.iconButton}
+              onPress={() => router.push("/artisan/notifications")}
+            >
+              <Ionicons name="notifications-outline" size={22} color={THEME.colors.text} />
+              <View style={styles.badge} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.iconButton}
+              onPress={() => router.push("/artisan/messages")}
+            >
+              <Ionicons name="chatbubble-ellipses-outline" size={22} color={THEME.colors.text} />
+              <View style={styles.badge} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/artisan/profile")}>
+              <Image
+                source={require("../../../assets/images/profileavatar.png")}
+                style={styles.avatar}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-        <Image
-          source={require("../../../assets/images/profileavatar.png")}
-          style={styles.avatar}
-        />
       </View>
 
       {/* Online Toggle */}
       <View style={styles.statusCard}>
         <View style={styles.statusRow}>
-          <Text style={styles.statusText}>
-            {isOnline ? "You're Online" : "You're Offline"}
-          </Text>
+          <View style={styles.statusInfo}>
+            <View style={[styles.statusDot, { backgroundColor: isOnline ? THEME.colors.primary : "#ccc" }]} />
+            <Text style={styles.statusText}>
+              {isOnline ? "You're Online" : "You're Offline"}
+            </Text>
+          </View>
           <Switch
             value={isOnline}
             onValueChange={setIsOnline}
             thumbColor={isOnline ? THEME.colors.primary : "#ccc"}
-            trackColor={{ false: "#ccc", true: "rgba(28,140,75,0.4)" }}
+            trackColor={{ false: "#ccc", true: "rgba(28,140,75,0.2)" }}
           />
         </View>
-        <Text style={styles.statusSubText}>
-          {isOnline
-            ? "Clients can now see your profile and send requests."
-            : "You are currently invisible to clients."}
-        </Text>
       </View>
 
-      {/* Earnings Summary */}
-      <View style={styles.summaryRow}>
+      {/* Stats Summary */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsScroll} contentContainerStyle={styles.statsContainer}>
         <View style={[styles.summaryCard, { backgroundColor: "#E8F5E9" }]}>
-          <MaterialCommunityIcons
-            name="wallet-outline"
-            size={28}
-            color={THEME.colors.primary}
-          />
+          <View style={styles.summaryIconBg}>
+            <MaterialCommunityIcons name="wallet-outline" size={24} color={THEME.colors.primary} />
+          </View>
           <View>
             <Text style={styles.summaryLabel}>Earnings</Text>
             <Text style={styles.summaryValue}>₦35,000</Text>
@@ -188,74 +203,150 @@ export default function ArtisanHomeScreen() {
         </View>
 
         <View style={[styles.summaryCard, { backgroundColor: "#FFF4E5" }]}>
-          <MaterialCommunityIcons
-            name="check-circle-outline"
-            size={28}
-            color="#F57C00"
-          />
+          <View style={[styles.summaryIconBg, { backgroundColor: "rgba(245, 124, 0, 0.1)" }]}>
+            <MaterialCommunityIcons name="briefcase-check-outline" size={24} color="#F57C00" />
+          </View>
           <View>
-            <Text style={styles.summaryLabel}>Jobs Completed</Text>
+            <Text style={styles.summaryLabel}>Jobs Done</Text>
             <Text style={styles.summaryValue}>12</Text>
           </View>
         </View>
+
+        <View style={[styles.summaryCard, { backgroundColor: "#E3F2FD" }]}>
+          <View style={[styles.summaryIconBg, { backgroundColor: "rgba(33, 150, 243, 0.1)" }]}>
+            <MaterialCommunityIcons name="star-outline" size={24} color="#2196F3" />
+          </View>
+          <View>
+            <Text style={styles.summaryLabel}>Rating</Text>
+            <Text style={styles.summaryValue}>4.8</Text>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Quick Actions */}
+      <View style={styles.quickActionsContainer}>
+        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionsScroll}>
+          <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push("/artisan/calendar")}>
+            <View style={[styles.quickActionIcon, { backgroundColor: "#F3E5F5" }]}>
+              <MaterialCommunityIcons name="calendar-month-outline" size={24} color="#9C27B0" />
+            </View>
+            <Text style={styles.quickActionText}>Calendar</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push("/artisan/promote")}>
+            <View style={[styles.quickActionIcon, { backgroundColor: "#E0F7FA" }]}>
+              <MaterialCommunityIcons name="bullhorn-outline" size={24} color="#00BCD4" />
+            </View>
+            <Text style={styles.quickActionText}>Promote</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push("/artisan/help")}>
+            <View style={[styles.quickActionIcon, { backgroundColor: "#FFEBEE" }]}>
+              <MaterialCommunityIcons name="headset" size={24} color="#E91E63" />
+            </View>
+            <Text style={styles.quickActionText}>Support</Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
 
-      {/* Active Jobs */}
+      {/* Active Job */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Active Job</Text>
-        <View style={styles.activeJobCard}>
-          <View>
-            <Text style={styles.activeJobTitle}>Bathroom Pipe Repair</Text>
+        <TouchableOpacity 
+          style={styles.activeJobCard}
+          onPress={() => router.push("/artisan/job-details?id=active1")}
+        >
+          <View style={styles.activeJobHeader}>
+            <View style={styles.activeJobBadge}>
+              <Text style={styles.activeJobBadgeText}>IN PROGRESS</Text>
+            </View>
+            <Text style={styles.activeJobTime}>Due: 2:00 PM</Text>
+          </View>
+          
+          <Text style={styles.activeJobTitle}>Bathroom Pipe Repair</Text>
+          <View style={styles.activeJobLocationRow}>
+            <Ionicons name="location-outline" size={16} color="rgba(255,255,255,0.8)" />
             <Text style={styles.activeJobLocation}>Lekki Phase 1, Lagos</Text>
           </View>
-          <Text style={styles.activeJobAmount}>₦8,000</Text>
-        </View>
+          
+          <View style={styles.activeJobFooter}>
+            <View style={styles.activeJobClient}>
+              <Image source={require("../../../assets/images/profileavatar.png")} style={styles.activeJobAvatar} />
+              <Text style={styles.activeJobClientName}>Golden Amadi</Text>
+            </View>
+            <Text style={styles.activeJobAmount}>₦8,000</Text>
+          </View>
+        </TouchableOpacity>
       </View>
 
       {/* Available Jobs */}
       <View style={styles.availableJobContainer}>
-        <Text style={styles.availableJobTitle}>Available Jobs</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.availableJobTitle}>Available Jobs</Text>
+          <TouchableOpacity onPress={() => router.push("/artisan/jobs")}>
+            <Text style={styles.seeAllText}>See All</Text>
+          </TouchableOpacity>
+        </View>
 
         <FlatList
           data={availableJobs}
           keyExtractor={(item) => item.id}
           renderItem={renderJobCard}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 40 }}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          scrollEnabled={false} 
         />
       </View>
+
+      {/* Accept Job Modal */}
       <Modal transparent visible={showModal} animationType="none">
         <View style={styles.modalOverlay}>
           <Animated.View
             style={[styles.modalContainer, { transform: [{ translateY: slideUp }] }]}
           >
-            <Text style={styles.modalTitle}>Accept Job?</Text>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Accept Job Request</Text>
+              <TouchableOpacity onPress={() => setShowModal(false)}>
+                <Ionicons name="close" size={24} color={THEME.colors.muted} />
+              </TouchableOpacity>
+            </View>
+            
             <Text style={styles.modalText}>
-              Do you want to accept this job request?
+              Are you sure you want to accept this job? This will notify the client immediately.
             </Text>
 
             {selectedJob && (
               <View style={styles.modalJobDetails}>
-                <Text style={styles.modalJobTitle}>{selectedJob.title}</Text>
+                <View style={styles.modalJobRow}>
+                  <MaterialCommunityIcons name={selectedJob.icon} size={20} color={THEME.colors.primary} />
+                  <Text style={styles.modalJobTitle}>{selectedJob.title}</Text>
+                </View>
                 <Text style={styles.modalJobInfo}>{selectedJob.location}</Text>
-                <Text style={styles.modalJobAmount}>{selectedJob.amount}</Text>
+                <View style={styles.modalDivider} />
+                <View style={styles.modalPriceRow}>
+                  <Text style={styles.modalPriceLabel}>Estimated Earnings</Text>
+                  <Text style={styles.modalJobAmount}>{selectedJob.amount}</Text>
+                </View>
               </View>
             )}
 
             <View style={styles.modalButtonsRow}>
               <TouchableOpacity
-                style={[styles.modalButton, styles.confirmButton]}
-                onPress={handleConfirm}
-              >
-                <Text style={styles.modalButtonText}>Yes, Accept</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => setShowModal(false)}
               >
-                <Text style={[styles.modalButtonText, { color: THEME.colors.primary }]}>
+                <Text style={[styles.modalButtonText, { color: THEME.colors.text }]}>
                   Cancel
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={handleConfirm}
+              >
+                <Text style={[styles.modalButtonText, { color: "#fff" }]}>
+                  Accept Job
                 </Text>
               </TouchableOpacity>
             </View>
@@ -269,54 +360,76 @@ export default function ArtisanHomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.background,
+    backgroundColor: "#FAFAFA", // Slightly off-white for better contrast
     paddingHorizontal: 16,
     paddingTop: 20,
   },
 
+  // Header
   header: {
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
+    marginBottom: 20,
     marginTop: 20,
     paddingTop: 20,
   },
-  availableJobContainer: {
-    flex: 1,
-    backgroundColor: THEME.colors.background,
-    paddingTop: 20,
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  availableJobTitle: {
-    fontSize: THEME.typography.sizes.lg,
-    fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.text,
-    marginVertical: THEME.spacing.md,
+  headerIcons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#eee",
+    position: "relative",
+  },
+  badge: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: THEME.colors.error,
+    borderWidth: 1,
+    borderColor: "#fff",
   },
   welcomeText: {
     fontFamily: THEME.typography.fontFamily.body,
     color: THEME.colors.muted,
-    marginTop: THEME.spacing.xs,
-    marginBottom: THEME.spacing.sm,
-    textAlign: "center",
+    fontSize: 14,
   },
   nameText: {
-    fontSize: THEME.typography.sizes.xl,
+    fontSize: 22,
     fontFamily: THEME.typography.fontFamily.heading,
     color: THEME.colors.text,
-    marginBottom: THEME.spacing.md,
   },
   avatar: {
-    width: 30,
-    height: 30,
-    borderRadius:15,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "#fff",
   },
 
+  // Status Card
   statusCard: {
     backgroundColor: "#fff",
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderRadius: 16,
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#eee",
     ...THEME.shadow.base,
   },
   statusRow: {
@@ -324,101 +437,217 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  statusInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
   statusText: {
     color: THEME.colors.text,
     fontFamily: THEME.typography.fontFamily.bodyMedium,
-    fontSize: THEME.typography.sizes.base,
-    marginBottom: THEME.spacing.xs,
-  },
-  statusSubText: {
-    fontSize: 13,
-    color: THEME.colors.muted,
-    marginTop: 6,
+    fontSize: 14,
   },
 
-  summaryRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  // Stats
+  statsScroll: {
     marginBottom: 24,
+    overflow: "visible",
+  },
+  statsContainer: {
+    paddingRight: 16,
+    gap: 12,
   },
   summaryCard: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    padding: 14,
-    borderRadius: 14,
-    marginHorizontal: 4,
-    gap: 10,
+    padding: 16,
+    borderRadius: 16,
+    width: 150,
+    gap: 12,
+  },
+  summaryIconBg: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   summaryLabel: {
     color: THEME.colors.muted,
-    fontSize: 13,
+    fontSize: 12,
+    marginBottom: 2,
   },
   summaryValue: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
     color: THEME.colors.text,
   },
 
-  section: {
-    marginBottom: 22,
+  // Quick Actions
+  quickActionsContainer: {
+    marginBottom: 24,
   },
-  sectionTitle: {
-    fontSize: THEME.typography.sizes.lg,
-    fontFamily: THEME.typography.fontFamily.subheading,
+  quickActionsScroll: {
+    gap: 16,
+  },
+  quickActionButton: {
+    alignItems: "center",
+    gap: 8,
+  },
+  quickActionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  quickActionText: {
+    fontSize: 12,
     color: THEME.colors.text,
-    marginVertical: THEME.spacing.md,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
   },
-  activeJobCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
+
+  // Section
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    ...THEME.shadow.base,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.text,
+    marginBottom: 12,
+  },
+  seeAllText: {
+    color: THEME.colors.primary,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  // Active Job Card (Premium)
+  activeJobCard: {
+    backgroundColor: THEME.colors.primary,
+    borderRadius: 20,
+    padding: 20,
+    ...THEME.shadow.card,
+  },
+  activeJobHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  activeJobBadge: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  activeJobBadgeText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  activeJobTime: {
+    color: "rgba(255,255,255,0.8)",
+    fontSize: 12,
   },
   activeJobTitle: {
-    fontSize: THEME.typography.sizes.base,
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
-    marginTop: THEME.spacing.xs,
-    color: THEME.colors.text,
+    fontSize: 18,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: "#fff",
+    marginBottom: 4,
+  },
+  activeJobLocationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: 16,
   },
   activeJobLocation: {
     fontSize: 13,
-    color: THEME.colors.muted,
+    color: "rgba(255,255,255,0.8)",
+  },
+  activeJobFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.2)",
+    paddingTop: 16,
+  },
+  activeJobClient: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  activeJobAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#fff",
+  },
+  activeJobClientName: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
   },
   activeJobAmount: {
+    color: "#fff",
+    fontSize: 18,
     fontWeight: "700",
-    color: THEME.colors.primary,
-    fontSize: 15,
   },
 
-  jobCard: {
-    flexDirection: "row",
-    backgroundColor: THEME.colors.background,
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 14,
-    alignItems: "center",
-    ...THEME.shadow.card,
+  // Available Jobs
+  availableJobContainer: {
+    flex: 1,
   },
-
-  jobIconContainer: {
-    backgroundColor: "rgba(28,140,75,0.08)",
-    borderRadius: 12,
-    padding: 10,
-    marginRight: 12,
-  },
-  jobTitle: {
-    fontSize: THEME.typography.sizes.base,
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
+  availableJobTitle: {
+    fontSize: 18,
+    fontFamily: THEME.typography.fontFamily.heading,
     color: THEME.colors.text,
   },
+  jobCard: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#eee",
+    ...THEME.shadow.base,
+  },
+  jobIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: "rgba(28,140,75,0.08)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  jobTitle: {
+    fontSize: 16,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: THEME.colors.text,
+    marginBottom: 2,
+  },
   jobLocation: {
-    fontSize: THEME.typography.sizes.sm,
+    fontSize: 13,
     color: THEME.colors.muted,
-    marginTop: 2,
   },
   jobAmountContainer: {
     alignItems: "flex-end",
@@ -426,86 +655,110 @@ const styles = StyleSheet.create({
   jobAmount: {
     fontWeight: "700",
     color: THEME.colors.primary,
-    fontSize: 15,
-    marginBottom: 6,
+    fontSize: 16,
+    marginBottom: 8,
   },
   acceptButton: {
     backgroundColor: THEME.colors.primary,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   acceptButtonText: {
-    color: THEME.colors.surface,
+    color: "#fff",
     fontSize: 12,
     fontWeight: "600",
   },
-   // Modal styles
+
+  // Modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "flex-end",
   },
   modalContainer: {
     backgroundColor: "#fff",
-    padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    padding: 24,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
     color: THEME.colors.text,
-    marginBottom: 8,
-    textAlign: "center",
   },
   modalText: {
-    textAlign: "center",
     color: THEME.colors.muted,
-    marginBottom: 15,
+    marginBottom: 20,
+    lineHeight: 20,
   },
   modalJobDetails: {
-    backgroundColor: "rgba(28,140,75,0.05)",
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 15,
+    backgroundColor: "#F9FAFB",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "#eee",
+  },
+  modalJobRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 4,
   },
   modalJobTitle: {
     fontWeight: "600",
-    fontSize: 15,
+    fontSize: 16,
     color: THEME.colors.text,
   },
   modalJobInfo: {
     color: THEME.colors.muted,
     fontSize: 13,
-    marginTop: 2,
+    marginLeft: 28,
+  },
+  modalDivider: {
+    height: 1,
+    backgroundColor: "#eee",
+    marginVertical: 12,
+  },
+  modalPriceRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  modalPriceLabel: {
+    color: THEME.colors.muted,
+    fontSize: 13,
   },
   modalJobAmount: {
     color: THEME.colors.primary,
     fontWeight: "700",
-    marginTop: 4,
+    fontSize: 18,
   },
   modalButtonsRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    gap: 12,
   },
   modalButton: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 10,
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: "center",
-    marginHorizontal: 5,
   },
   confirmButton: {
     backgroundColor: THEME.colors.primary,
   },
   cancelButton: {
-    backgroundColor: THEME.colors.surface,
-    borderWidth: 1,
-    borderColor: THEME.colors.primary,
+    backgroundColor: "#F3F4F6",
   },
   modalButtonText: {
     fontWeight: "600",
-    color: THEME.colors.surface,
+    fontSize: 16,
   },
-})
+});

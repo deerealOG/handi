@@ -38,7 +38,7 @@ export const Input = ({
           styles.inputContainer as ViewStyle,
           {
             borderColor: error
-              ? THEME.colors.danger
+              ? THEME.colors.error
               : isFocused
               ? THEME.colors.primary
               : THEME.colors.surface,
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     margin: 0,
   },
   error: {
-    color: THEME.colors.danger,
+    color: THEME.colors.error,
     marginTop: 6,
     fontSize: THEME.typography.sizes.sm,
   },

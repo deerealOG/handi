@@ -11,10 +11,10 @@ export default function BookingSuccess() {
   // ⏱ Auto redirect to bookings after 4 seconds
   useEffect(() => {
     const timeout = setTimeout(() => {
-      router.replace("/client/(tabs)/bookings");
+      router.replace("/client/bookings");
     }, 4000);
     return () => clearTimeout(timeout);
-  }, []);
+  }, [router]);
 
   return (
     <View style={styles.container}>
@@ -39,7 +39,7 @@ export default function BookingSuccess() {
       {/* 🔘 Button to go to Bookings */}
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.replace("/client/(tabs)/bookings")}
+        onPress={() => router.replace("/client/bookings")}
       >
         <Text style={styles.buttonText}>Go to Bookings</Text>
       </TouchableOpacity>

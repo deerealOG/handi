@@ -27,8 +27,12 @@ export default function ArtisanTabsLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="home-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <MaterialCommunityIcons 
+              name={focused ? "home" : "home-outline"} 
+              size={size} 
+              color={color} 
+            />
           ),
         }}
       />
@@ -38,8 +42,12 @@ export default function ArtisanTabsLayout() {
         name="jobs"
         options={{
           title: "Jobs",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="briefcase-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <MaterialCommunityIcons 
+              name={focused ? "briefcase" : "briefcase-outline"} 
+              size={size} 
+              color={color} 
+            />
           ),
         }}
       />
@@ -49,8 +57,12 @@ export default function ArtisanTabsLayout() {
         name="wallet"
         options={{
           title: "Wallet",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="wallet-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <MaterialCommunityIcons 
+              name={focused ? "wallet" : "wallet-outline"} 
+              size={size} 
+              color={color} 
+            />
           ),
         }}
       />
@@ -60,8 +72,12 @@ export default function ArtisanTabsLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <MaterialCommunityIcons 
+              name={focused ? "account" : "account-outline"} 
+              size={size} 
+              color={color} 
+            />
           ),
         }}
       />

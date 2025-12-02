@@ -1,8 +1,10 @@
 // app/welcome.tsx
 import { useRouter } from "expo-router";
 import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { THEME } from "../constants/theme";
+
+const { width, height } = Dimensions.get("window");
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -10,30 +12,48 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       {/* ===============================
-          🖼 Header Image
+          🏷 HANDI Logo Header
       =============================== */}
-      <Image
-        source={require("../assets/images/client-onboarding1.png")}
-        style={styles.image}
-        resizeMode="contain"
-      />
+      <View style={styles.header}>
+        <View style={styles.logoContainer}>
+          <Image
+            source={require("../assets/images/handi-hand-logo.png")}
+            style={styles.handIcon}
+            resizeMode="contain"
+          />
+          <Text style={styles.logoText}>HANDI</Text>
+        </View>
+      </View>
 
       {/* ===============================
-          🏷 Title & Subtitle
+          🖼 Main Hero Image
       =============================== */}
-      <Text style={styles.title}>Welcome to FixItPro</Text>
-      <Text style={styles.subtitle}>
-        Get professional artisans or offer your skills to clients in your area.
-      </Text>
+      <View style={styles.heroContainer}>
+        <Image
+          source={require("../assets/images/welcome-hero.png")}
+          style={styles.heroImage}
+          resizeMode="contain"
+        />
+      </View>
 
       {/* ===============================
-          🔘 Action Buttons
+          📝 Title & Subtitle
+      =============================== */}
+      <View style={styles.textContainer}>
+        <Text style={styles.title}>Welcome to HANDI</Text>
+        <Text style={styles.subtitle}>
+          Nigeria&apos;s trusted platform connecting clients with skilled artisans
+        </Text>
+      </View>
+
+      {/* ===============================
+        Action Buttons
       =============================== */}
       <View style={styles.buttonContainer}>
         {/* Continue as Client */}
         <TouchableOpacity
           style={[styles.button, styles.primaryButton]}
-          onPress={() => router.push("../client/(tabs)/home")}
+          onPress={() => router.push({ pathname: "/auth/login", params: { type: "client" } } as any)}
         >
           <Text style={styles.primaryButtonText}>Continue as Client</Text>
         </TouchableOpacity>
@@ -41,7 +61,7 @@ export default function WelcomeScreen() {
         {/* Continue as Artisan */}
         <TouchableOpacity
           style={[styles.button, styles.outlinedButton]}
-          onPress={() => router.push("../artisan/(tabs)/home")}
+          onPress={() => router.push({ pathname: "/auth/login", params: { type: "artisan" } } as any)}
         >
           <Text style={styles.outlinedButtonText}>Continue as Artisan</Text>
         </TouchableOpacity>
@@ -50,7 +70,7 @@ export default function WelcomeScreen() {
       {/* ===============================
           ⚙️ Footer Text
       =============================== */}
-      <Text style={styles.footerText}>Powered by FixItPro © 2025</Text>
+      <Text style={styles.footerText}>Powered by HANDI © 2025</Text>
     </View>
   );
 }
@@ -59,50 +79,81 @@ const styles = StyleSheet.create({
   // 🌿 Page container
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.background,
+    backgroundColor: THEME.colors.surface,
+    paddingTop: 60,
+    paddingBottom: 40,
+    paddingHorizontal: THEME.spacing.lg,
+    alignItems: "center",
+  },
+
+  // 🏷 Header with logo
+  header: {
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  logoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  handIcon: {
+    width: 60,
+    height: 60,
+  },
+  logoText: {
+    fontSize: THEME.typography.sizes["2xl"],
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.primary,
+    letterSpacing: 1.5,
+  },
+
+  // 🖼 Hero Image Container
+  heroContainer: {
+    width: width - 40,
+    height: height * 0.35, // 35% of screen height
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: THEME.spacing.lg,
+    marginBottom: 24,
+  },
+  heroImage: {
+    width: "100%",
+    height: "100%",
   },
 
-  // 🖼 Top image
-  image: {
-    width: "90%",
-    height: 260,
-    marginBottom: THEME.spacing.xl,
+  // 📝 Text Styles
+  textContainer: {
+    alignItems: "center",
+    marginBottom: 40,
+    paddingHorizontal: 20,
   },
-
-  // 🏷 Title text
   title: {
     fontSize: THEME.typography.sizes.xl,
     fontFamily: THEME.typography.fontFamily.heading,
     color: THEME.colors.text,
     textAlign: "center",
+    marginBottom: 12,
   },
-
-  // 💬 Subtitle text
   subtitle: {
     fontSize: THEME.typography.sizes.base,
     fontFamily: THEME.typography.fontFamily.body,
     color: THEME.colors.muted,
     textAlign: "center",
-    marginTop: THEME.spacing.sm,
-    marginBottom: THEME.spacing.xl,
-    lineHeight: THEME.typography.sizes.base * THEME.typography.lineHeights.relaxed,
-    maxWidth: 320,
+    lineHeight: THEME.typography.sizes.base * 1.5,
   },
 
   // 🔘 Button group
   buttonContainer: {
     width: "100%",
-    gap: THEME.spacing.md,
+    gap: 16,
+    paddingHorizontal: 10,
   },
 
   // 🧱 Base button style
   button: {
-    paddingVertical: THEME.spacing.md,
-    borderRadius: THEME.radius.lg,
+    paddingVertical: 16,
+    borderRadius: 50, // Pill shape
     alignItems: "center",
+    width: "100%",
   },
 
   // 🌊 Primary (filled) button
@@ -113,7 +164,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: THEME.colors.surface,
     fontFamily: THEME.typography.fontFamily.subheading,
-    fontSize: THEME.typography.sizes.base,
+    fontSize: THEME.typography.sizes.md,
   },
 
   // ⚪ Outlined (secondary) button
@@ -125,14 +176,14 @@ const styles = StyleSheet.create({
   outlinedButtonText: {
     color: THEME.colors.primary,
     fontFamily: THEME.typography.fontFamily.subheading,
-    fontSize: THEME.typography.sizes.base,
+    fontSize: THEME.typography.sizes.md,
   },
 
   // ⚙️ Footer
   footerText: {
     position: "absolute",
-    bottom: THEME.spacing.lg,
-    fontSize: THEME.typography.sizes.sm,
+    bottom: 20,
+    fontSize: THEME.typography.sizes.xs,
     color: THEME.colors.muted,
     fontFamily: THEME.typography.fontFamily.body,
   },

@@ -1,14 +1,14 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { router, useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-  Animated,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Animated,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { THEME } from "../../../constants/theme";
 
@@ -53,12 +53,7 @@ export default function ArtisanJobs() {
     <View style={styles.container}>
       {/* --- Header Section --- */}
       <View style={styles.headerContainer}>
-        
-        <Text style={styles.greeting}>Welcome back, Golden</Text>
-        <Image
-          source={require("../../../assets/images/profileavatar.png")}
-          style={styles.profileImage}
-        />
+        <Text style={styles.headerTitle}>My Jobs</Text>
       </View>
 
       {/* --- Job Stats --- */}
@@ -223,7 +218,11 @@ function CompletedJobs() {
   return (
     <ScrollView style={styles.tabContainer}>
       {jobs.map((job) => (
-        <View key={job.id} style={styles.jobCard}>
+        <TouchableOpacity 
+          key={job.id} 
+          style={styles.jobCard}
+          onPress={() => router.push({ pathname: "/artisan/job-details", params: { id: job.id } })}
+        >
           <View style={styles.jobHeader}>
             <Image source={job.avatar} style={styles.avatar} />
             <View style={{ flex: 1 }}>
@@ -237,7 +236,7 @@ function CompletedJobs() {
               </Text>
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
       ))}
     </ScrollView>
   );
@@ -252,27 +251,16 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.colors.background,
   },
   headerContainer: {
-    flexDirection: "column",
-    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingTop: 10,
-    alignItems: "center",
     marginBottom: THEME.spacing.sm,
     marginTop: THEME.spacing.xl,
   },
-  
-  greeting: {
-  justifyContent: "space-between",
-  fontFamily: THEME.typography.fontFamily.heading,
-  fontSize: THEME.typography.sizes.xl,
-  color: THEME.colors.text,
-  marginTop: THEME.spacing.xl,
-},
- 
-  profileImage: { 
-    width: 45, 
-    height: 45, 
-    borderRadius: 22.5 
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: THEME.colors.text,
+    marginBottom: 10,
   },
 
   statsRow: {

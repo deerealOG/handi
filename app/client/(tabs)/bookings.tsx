@@ -1,58 +1,88 @@
 // app/client/(tabs)/bookings.tsx
 
-// ========================================
-// IMPORTS
-// ========================================
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    Image,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { THEME } from "../../../constants/theme";
+
+// ========================================
+// TYPES
+// ========================================
+type BookingStatus = "Active" | "Pending" | "Completed" | "Cancelled";
+
+interface Booking {
+  id: string;
+  artisan: string;
+  skill: string;
+  date: string;
+  time: string;
+  price: string;
+  status: BookingStatus;
+  image: any;
+}
 
 // ========================================
 // BOOKINGS SCREEN
 // ========================================
 export default function BookingsScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("Upcoming");
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<BookingStatus>("Active");
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
   // --- Default placeholder data ---
-  const defaultBookings = [
+  const defaultBookings = useMemo<Booking[]>(() => [
     {
       id: "1",
       artisan: "Golden Amadi",
       skill: "Electrician",
-      date: "Oct 25, 2025 - 10:00 AM",
-      status: "Upcoming",
+      date: "Today",
+      time: "10:00 AM",
+      price: "5,000",
+      status: "Active",
       image: require("../../../assets/images/profileavatar.png"),
     },
     {
       id: "2",
-      artisan: "Golden Amadi",
+      artisan: "Sarah Jones",
       skill: "Plumber",
-      date: "Oct 10, 2025 - 3:00 PM",
-      status: "Completed",
+      date: "Oct 28, 2025",
+      time: "02:00 PM",
+      price: "4,500",
+      status: "Pending",
       image: require("../../../assets/images/profileavatar.png"),
     },
     {
       id: "3",
-      artisan: "Segun Ade",
+      artisan: "Mike Obi",
       skill: "Carpenter",
-      date: "Sept 28, 2025 - 12:00 PM",
+      date: "Oct 15, 2025",
+      time: "12:00 PM",
+      price: "6,000",
+      status: "Completed",
+      image: require("../../../assets/images/profileavatar.png"),
+    },
+    {
+      id: "4",
+      artisan: "John Doe",
+      skill: "Painter",
+      date: "Sept 28, 2025",
+      time: "09:00 AM",
+      price: "3,000",
       status: "Cancelled",
       image: require("../../../assets/images/profileavatar.png"),
     },
-  ];
+  ], []);
 
   // --- Load stored bookings or initialize defaults ---
   useEffect(() => {
@@ -70,10 +100,10 @@ export default function BookingsScreen() {
       }
     };
     loadBookings();
-  }, []);
+  }, [defaultBookings]);
 
   // --- Save bookings to local storage ---
-  const saveBookings = async (newBookings: any[]) => {
+  const saveBookings = async (newBookings: Booking[]) => {
     setBookings(newBookings);
     await AsyncStorage.setItem("bookings", JSON.stringify(newBookings));
   };
@@ -81,7 +111,7 @@ export default function BookingsScreen() {
   // --- Filter bookings by selected tab ---
   const filteredBookings = bookings.filter((b) => b.status === activeTab);
 
-  // --- Cancel booking handler ---
+  // --- Actions ---
   const handleCancelBooking = (id: string) => {
     Alert.alert("Cancel Booking", "Are you sure you want to cancel this booking?", [
       { text: "No" },
@@ -90,7 +120,7 @@ export default function BookingsScreen() {
         style: "destructive",
         onPress: async () => {
           const updated = bookings.map((b) =>
-            b.id === id ? { ...b, status: "Cancelled" } : b
+            b.id === id ? { ...b, status: "Cancelled" as BookingStatus } : b
           );
           await saveBookings(updated);
         },
@@ -98,157 +128,223 @@ export default function BookingsScreen() {
     ]);
   };
 
-  // --- Mark booking as completed ---
-  const handleCompleteBooking = async (id: string) => {
-    const updated = bookings.map((b) =>
-      b.id === id ? { ...b, status: "Completed" } : b
-    );
-    await saveBookings(updated);
-  };
-
-  // --- Rebook the same artisan ---
-  const handleBookAgain = (booking: any) => {
+  const handleBookAgain = (booking: Booking) => {
     router.push({
       pathname: "/client/book-artisan",
       params: {
         artisan: booking.artisan,
         skill: booking.skill,
       },
-    });
+    } as any);
   };
 
   // ========================================
   // RENDER
   // ========================================
   return (
-    <ScrollView
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: THEME.spacing.xl * 3 }}
-    >
-      {/* --- Page Header --- */}
-      <Text style={styles.title}>My Bookings</Text>
-      <Text style={styles.subtitle}>View and manage your artisan bookings.</Text>
-
-      {/* --- Tabs for filtering bookings --- */}
-      <View style={styles.tabRow}>
-        {["Upcoming", "Completed", "Cancelled"].map((tab) => (
-          <TouchableOpacity
-            key={tab}
-            onPress={() => setActiveTab(tab)}
-            style={[
-              styles.tabButton,
-              activeTab === tab && styles.activeTabButton,
-            ]}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === tab && styles.activeTabText,
-              ]}
-            >
-              {tab}
-            </Text>
-          </TouchableOpacity>
-        ))}
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={THEME.colors.background} />
+      
+      {/* --- Header --- */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>My Bookings</Text>
       </View>
 
-      {/* --- Booking Cards --- */}
-      {filteredBookings.length > 0 ? (
-        filteredBookings.map((booking) => (
-          <View key={booking.id} style={styles.card}>
-            {/* --- Booking Header (Artisan Info) --- */}
+      {/* --- Tabs --- */}
+      <View style={styles.tabContainer}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabScrollContent}
+        >
+          {["Active", "Pending", "Completed", "Cancelled"].map((tab) => (
             <TouchableOpacity
-              style={styles.cardHeader}
-              onPress={() => router.push("/client/artisan-details")}
+              key={tab}
+              onPress={() => setActiveTab(tab as BookingStatus)}
+              style={[
+                styles.tabButton,
+                activeTab === tab && styles.activeTabButton,
+              ]}
             >
-              <Image source={booking.image} style={styles.avatar} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.artisanName}>{booking.artisan}</Text>
-                <Text style={styles.artisanSkill}>{booking.skill}</Text>
-                <View style={styles.row}>
-                  <MaterialCommunityIcons
-                    name="calendar"
-                    size={16}
-                    color={THEME.colors.primary}
-                  />
-                  <Text style={styles.dateText}>{booking.date}</Text>
-                </View>
-              </View>
-              <Text style={styles.bookService}>Book a Service</Text>
-            </TouchableOpacity>
-
-            {/* --- Action Buttons --- */}
-            {booking.status === "Upcoming" && (
-              <View style={styles.actionRow}>
-                <TouchableOpacity
-                  style={[styles.actionButton, { backgroundColor: THEME.colors.error }]}
-                  onPress={() => handleCancelBooking(booking.id)}
-                >
-                  <Text style={styles.actionText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.actionButton, { backgroundColor: THEME.colors.success }]}
-                  onPress={() => handleCompleteBooking(booking.id)}
-                >
-                  <Text style={styles.actionText}>Mark Done</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {/* --- Completed State --- */}
-            {booking.status === "Completed" && (
-              <View style={styles.completedRow}>
-                <View
-                  style={[
-                    styles.statusBadge,
-                    { backgroundColor: "#DCFCE7" },
-                  ]}
-                >
-                  <Text style={[styles.statusText, { color: THEME.colors.success }]}>
-                    Completed
-                  </Text>
-                </View>
-
-                <TouchableOpacity
-                  style={[styles.actionButton, { backgroundColor: THEME.colors.primary }]}
-                  onPress={() => handleBookAgain(booking)}
-                >
-                  <Text style={styles.actionText}>Book Again</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {/* --- Cancelled State --- */}
-            {booking.status === "Cancelled" && (
-              <View
+              <Text
                 style={[
-                  styles.statusBadge,
-                  { backgroundColor: "#FEE2E2" },
+                  styles.tabText,
+                  activeTab === tab && styles.activeTabText,
                 ]}
               >
-                <Text style={[styles.statusText, { color: THEME.colors.error }]}>
-                  Cancelled
-                </Text>
+                {tab}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      {/* --- Booking List --- */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+      >
+        {filteredBookings.length > 0 ? (
+          filteredBookings.map((booking) => (
+            <TouchableOpacity 
+              key={booking.id} 
+              style={styles.card}
+              onPress={() => router.push({
+                pathname: "/client/booking-details",
+                params: {
+                  id: booking.id,
+                  artisan: booking.artisan,
+                  skill: booking.skill,
+                  date: booking.date,
+                  time: booking.time,
+                  price: booking.price,
+                  status: booking.status,
+                }
+              } as any)}
+              activeOpacity={0.9}
+            >
+              {/* Card Header: ID & Status */}
+              <View style={styles.cardTopRow}>
+                <Text style={styles.orderId}>Order #{booking.id}234</Text>
+                <View style={[
+                  styles.statusBadge,
+                  booking.status === "Active" && { backgroundColor: "#DCFCE7", borderColor: THEME.colors.success }, // Light Green
+                  booking.status === "Pending" && { backgroundColor: "#FEF9C3", borderColor: "#EAB308" }, // Light Yellow
+                  booking.status === "Completed" && { backgroundColor: "#F3F4F6", borderColor: THEME.colors.muted }, // Light Gray
+                  booking.status === "Cancelled" && { backgroundColor: "#FEE2E2", borderColor: THEME.colors.error }, // Light Red
+                ]}>
+                  <Text style={[
+                    styles.statusText,
+                    booking.status === "Active" && { color: THEME.colors.success },
+                    booking.status === "Pending" && { color: "#CA8A04" },
+                    booking.status === "Completed" && { color: THEME.colors.text },
+                    booking.status === "Cancelled" && { color: THEME.colors.error },
+                  ]}>{booking.status}</Text>
+                </View>
               </View>
-            )}
+
+              {/* Divider */}
+              <View style={styles.divider} />
+
+              {/* Artisan Info */}
+              <View style={styles.artisanRow}>
+                <Image source={booking.image} style={styles.avatar} />
+                <View style={styles.artisanInfo}>
+                  <Text style={styles.artisanName}>{booking.artisan}</Text>
+                  <Text style={styles.artisanSkill}>{booking.skill}</Text>
+                  <View style={styles.dateTimeRow}>
+                    <View style={styles.iconText}>
+                      <Ionicons name="calendar-outline" size={14} color={THEME.colors.muted} />
+                      <Text style={styles.metaText}>{booking.date}</Text>
+                    </View>
+                    <View style={[styles.iconText, { marginLeft: 12 }]}>
+                      <Ionicons name="time-outline" size={14} color={THEME.colors.muted} />
+                      <Text style={styles.metaText}>{booking.time}</Text>
+                    </View>
+                  </View>
+                </View>
+                <Text style={styles.priceText}>₦{booking.price}</Text>
+              </View>
+
+              {/* Action Buttons */}
+              <View style={styles.actionContainer}>
+                {booking.status === "Active" && (
+                  <>
+                    <TouchableOpacity style={[styles.actionButton, styles.outlineButton]}>
+                      <Text style={styles.outlineButtonText}>Track Artisan</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.actionButton, styles.primaryButton]}>
+                      <Ionicons name="chatbubble-ellipses-outline" size={18} color="white" style={{ marginRight: 6 }} />
+                      <Text style={styles.primaryButtonText}>Message</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+
+                {booking.status === "Pending" && (
+                  <TouchableOpacity 
+                    style={[styles.actionButton, styles.cancelButton]}
+                    onPress={() => handleCancelBooking(booking.id)}
+                  >
+                    <Text style={styles.cancelButtonText}>Cancel Booking</Text>
+                  </TouchableOpacity>
+                )}
+
+                {booking.status === "Completed" && (
+                  <>
+                    <TouchableOpacity 
+                      style={[styles.actionButton, styles.outlineButton]}
+                      onPress={() => router.push({
+                        pathname: "/client/booking-details",
+                        params: {
+                          id: booking.id,
+                          artisan: booking.artisan,
+                          skill: booking.skill,
+                          date: booking.date,
+                          time: booking.time,
+                          price: booking.price,
+                          status: booking.status,
+                        }
+                      } as any)}
+                    >
+                      <Text style={styles.outlineButtonText}>See Details</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={[styles.actionButton, styles.primaryButton]}
+                      onPress={() => handleBookAgain(booking)}
+                    >
+                      <Text style={styles.primaryButtonText}>Book Again</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+
+                {booking.status === "Cancelled" && (
+                  <TouchableOpacity 
+                    style={[styles.actionButton, styles.outlineButton]}
+                    onPress={() => router.push({
+                      pathname: "/client/booking-details",
+                      params: {
+                        id: booking.id,
+                        artisan: booking.artisan,
+                        skill: booking.skill,
+                        date: booking.date,
+                        time: booking.time,
+                        price: booking.price,
+                        status: booking.status,
+                      }
+                    } as any)}
+                  >
+                    <Text style={styles.outlineButtonText}>See Details</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          // --- Empty State ---
+          <View style={styles.emptyContainer}>
+            <View style={styles.emptyIconCircle}>
+              <MaterialCommunityIcons
+                name="clipboard-text-outline"
+                size={40}
+                color={THEME.colors.muted}
+              />
+            </View>
+            <Text style={styles.emptyTitle}>No {activeTab} Bookings</Text>
+            <Text style={styles.emptySubtitle}>
+              You don&apos;t have any {activeTab.toLowerCase()} bookings at the moment.
+            </Text>
+            <TouchableOpacity 
+              style={styles.findArtisanButton}
+              onPress={() => router.push("/client/(tabs)/explore" as any)}
+            >
+              <Text style={styles.findArtisanText}>Find an Artisan</Text>
+            </TouchableOpacity>
           </View>
-        ))
-      ) : (
-        // --- Empty State ---
-        <View style={styles.emptyContainer}>
-          <MaterialCommunityIcons
-            name="calendar-blank-outline"
-            size={60}
-            color={THEME.colors.muted}
-          />
-          <Text style={styles.emptyText}>
-            No {activeTab.toLowerCase()} bookings yet.
-          </Text>
-        </View>
-      )}
-    </ScrollView>
+        )}
+      </ScrollView>
+
+
+    </View>
   );
 }
 
@@ -259,144 +355,261 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-    padding: THEME.spacing.lg,
+    paddingTop: 50,
   },
+  
+  // Header
+ header: {
+     paddingHorizontal: THEME.spacing.lg,
+     marginBottom: THEME.spacing.md,
+   },
+   headerTitle:{
+     fontFamily: THEME.typography.fontFamily.heading,
+     fontSize: THEME.typography.sizes["2xl"],
+     color: THEME.colors.text,
+   },
 
-  // --- Page Header ---
-  title: {
-    fontFamily: THEME.typography.fontFamily.heading,
-    fontSize: THEME.typography.sizes.xl,
-    color: THEME.colors.text,
-    marginTop: THEME.spacing.xl,
-    textAlign: "center",
+  // Tabs
+  tabContainer: {
+    marginBottom: THEME.spacing.md,
   },
-  subtitle: {
-    fontFamily: THEME.typography.fontFamily.body,
-    textAlign: "center",
-    color: THEME.colors.muted,
-    marginVertical: THEME.spacing.sm,
-  },
-
-  // --- Tabs ---
-  tabRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: THEME.colors.surface,
-    borderRadius: THEME.radius.md,
-    marginBottom: THEME.spacing.lg,
-    paddingVertical: THEME.spacing.xs,
-    ...THEME.shadow.card,
+  tabScrollContent: {
+    paddingHorizontal: THEME.spacing.lg,
+    gap: 12,
   },
   tabButton: {
-    paddingVertical: THEME.spacing.sm,
-    paddingHorizontal: THEME.spacing.md,
-    borderRadius: THEME.radius.sm,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+    backgroundColor: THEME.colors.surface,
   },
   activeTabButton: {
     backgroundColor: THEME.colors.primary,
+    borderColor: THEME.colors.primary,
   },
   tabText: {
     fontFamily: THEME.typography.fontFamily.bodyMedium,
     color: THEME.colors.muted,
+    fontSize: THEME.typography.sizes.sm,
   },
   activeTabText: {
     color: THEME.colors.surface,
   },
 
-  // --- Booking Card ---
+  // List
+  listContent: {
+    paddingHorizontal: THEME.spacing.lg,
+    paddingBottom: 100,
+  },
+
+  // Card
   card: {
     backgroundColor: THEME.colors.surface,
-    borderRadius: THEME.radius.lg,
-    padding: THEME.spacing.md,
-    marginBottom: THEME.spacing.md,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
     ...THEME.shadow.card,
   },
-  cardHeader: {
+  cardTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  orderId: {
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: THEME.colors.muted,
+    fontSize: THEME.typography.sizes.xs,
+  },
+  statusBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  statusText: {
+    fontFamily: THEME.typography.fontFamily.subheading,
+    fontSize: 10,
+    textTransform: "uppercase",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: THEME.colors.border,
+    marginBottom: 12,
+  },
+  artisanRow: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: 16,
   },
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: THEME.radius.lg,
-    marginRight: THEME.spacing.md,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
+  },
+  artisanInfo: {
+    flex: 1,
   },
   artisanName: {
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
-    color: THEME.colors.text,
+    fontFamily: THEME.typography.fontFamily.heading,
     fontSize: THEME.typography.sizes.md,
+    color: THEME.colors.text,
+    marginBottom: 2,
   },
   artisanSkill: {
     fontFamily: THEME.typography.fontFamily.body,
+    fontSize: THEME.typography.sizes.sm,
     color: THEME.colors.muted,
-    marginBottom: THEME.spacing.xs,
+    marginBottom: 6,
   },
-  row: {
+  dateTimeRow: {
     flexDirection: "row",
     alignItems: "center",
   },
-  dateText: {
-    marginLeft: THEME.spacing.xs,
-    color: THEME.colors.text,
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.body,
+  iconText: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
   },
-  bookService: {
+  metaText: {
+    fontFamily: THEME.typography.fontFamily.body,
+    fontSize: 12,
+    color: THEME.colors.muted,
+  },
+  priceText: {
+    fontFamily: THEME.typography.fontFamily.heading,
+    fontSize: THEME.typography.sizes.md,
+    color: THEME.colors.primary,
+  },
+
+  // Actions
+  actionContainer: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: "row",
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  primaryButton: {
     backgroundColor: THEME.colors.primary,
+  },
+  primaryButtonText: {
     color: THEME.colors.surface,
-    paddingVertical: THEME.spacing.xs,
-    paddingHorizontal: THEME.spacing.sm,
-    borderRadius: THEME.radius.sm,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    fontSize: THEME.typography.sizes.sm,
+  },
+  outlineButton: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: THEME.colors.primary,
+  },
+  outlineButtonText: {
+    color: THEME.colors.primary,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    fontSize: THEME.typography.sizes.sm,
+  },
+  cancelButton: {
+    backgroundColor: "#FEE2E2",
+  },
+  cancelButtonText: {
+    color: THEME.colors.error,
     fontFamily: THEME.typography.fontFamily.subheading,
     fontSize: THEME.typography.sizes.sm,
   },
 
-  // --- Actions ---
-  actionRow: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: THEME.spacing.sm,
-    gap: THEME.spacing.sm,
+  // Empty State
+  emptyContainer: {
+    alignItems: "center",
+    marginTop: 60,
+    paddingHorizontal: 40,
   },
-  completedRow: {
+  emptyIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: THEME.colors.background,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+  },
+  emptyTitle: {
+    fontFamily: THEME.typography.fontFamily.heading,
+    fontSize: THEME.typography.sizes.lg,
+    color: THEME.colors.text,
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontFamily: THEME.typography.fontFamily.body,
+    fontSize: THEME.typography.sizes.sm,
+    color: THEME.colors.muted,
+    textAlign: "center",
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  findArtisanButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    backgroundColor: THEME.colors.primary,
+    borderRadius: 25,
+    ...THEME.shadow.base,
+  },
+  findArtisanText: {
+    color: THEME.colors.surface,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    fontSize: THEME.typography.sizes.md,
+  },
+
+  // Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: THEME.colors.surface,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    maxHeight: "60%",
+  },
+  modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: THEME.spacing.sm,
+    marginBottom: 24,
   },
-  actionButton: {
-    paddingVertical: THEME.spacing.xs,
-    paddingHorizontal: THEME.spacing.md,
-    borderRadius: THEME.radius.sm,
+  modalTitle: {
+    fontSize: THEME.typography.sizes.xl,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.text,
   },
-  actionText: {
-    color: THEME.colors.surface,
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
-    fontSize: THEME.typography.sizes.sm,
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: THEME.colors.border,
   },
-
-  // --- Status Labels ---
-  statusBadge: {
-    marginTop: THEME.spacing.sm,
-    paddingVertical: THEME.spacing.xs,
-    paddingHorizontal: THEME.spacing.sm,
-    borderRadius: THEME.radius.sm,
-    alignSelf: "flex-start",
-  },
-  statusText: {
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
-    fontSize: THEME.typography.sizes.sm,
-  },
-
-  // --- Empty State ---
-  emptyContainer: {
-    alignItems: "center",
-    marginTop: THEME.spacing.xl * 2,
-  },
-  emptyText: {
+  detailLabel: {
     fontFamily: THEME.typography.fontFamily.body,
     color: THEME.colors.muted,
-    marginTop: THEME.spacing.sm,
+    fontSize: THEME.typography.sizes.base,
+  },
+  detailValue: {
+    fontFamily: THEME.typography.fontFamily.subheading,
+    color: THEME.colors.text,
     fontSize: THEME.typography.sizes.base,
   },
 });

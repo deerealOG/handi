@@ -48,10 +48,10 @@ export default function SplashScreen() {
         />
 
         {/* App Title */}
-        <Text style={styles.title}>FixItPro</Text>
+        <Text style={styles.title}>HANDI</Text>
 
         {/* Subtitle */}
-        <Text style={styles.subtitle}>Connecting Clients with Skilled Artisans</Text>
+        <Text style={styles.subtitle}>Nigeria&apos;s trusted platform connecting clients with skilled artisans</Text>
       </Animated.View>
     </View>
   );
@@ -82,7 +82,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: THEME.typography.sizes.xl,
     fontFamily: THEME.typography.fontFamily.heading,
-    fontWeight: "700",
     color: THEME.colors.surface,
   },
 

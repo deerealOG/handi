@@ -9,13 +9,13 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-  Dimensions,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { Header } from "../../components/Header";
 import { THEME } from "../../constants/theme";
@@ -25,7 +25,6 @@ const { width } = Dimensions.get("window");
 export default function ArtisanDetails() {
   const router = useRouter();
   const scrollRef = useRef<ScrollView | null>(null);
-  const [index, setIndex] = useState(0);
 
   // --- 🧩 Dummy artisan data (temporary; replace later with backend data) ---
   const artisan = {

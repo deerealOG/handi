@@ -1,274 +1,407 @@
 // app/client/(tabs)/wallet.tsx
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useState } from "react";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { THEME } from "../../../constants/theme";
 
+// ========================================
+// MOCK DATA
+// ========================================
+const TRANSACTIONS = [
+  {
+    id: "1",
+    title: "Top Up via Paystack",
+    date: "Today, 10:23 AM",
+    amount: "+ ₦20,000",
+    type: "credit",
+    status: "Success",
+  },
+  {
+    id: "2",
+    title: "Payment to Golden Amadi",
+    date: "Yesterday, 4:15 PM",
+    amount: "- ₦5,000",
+    type: "debit",
+    status: "Success",
+  },
+  {
+    id: "3",
+    title: "Withdrawal to Bank",
+    date: "Oct 20, 2025",
+    amount: "- ₦10,000",
+    type: "debit",
+    status: "Pending",
+  },
+  {
+    id: "4",
+    title: "Refund for Cancelled Job",
+    date: "Oct 18, 2025",
+    amount: "+ ₦3,000",
+    type: "credit",
+    status: "Success",
+  },
+];
+
+// ========================================
+// WALLET SCREEN
+// ========================================
 export default function WalletScreen() {
-  const [balance, setBalance] = useState(0);
-  const [transactions, setTransactions] = useState<any[]>([]);
-
-  /**
-   * Load wallet data from AsyncStorage
-   * and compute current balance when the screen mounts.
-   */
-  useEffect(() => {
-    const loadWalletData = async () => {
-      try {
-        const stored = await AsyncStorage.getItem("transactions");
-        const parsed = stored ? JSON.parse(stored) : [];
-        setTransactions(parsed);
-
-        // Calculate wallet balance (credits - debits)
-        const total = parsed.reduce(
-          (sum: number, t: any) =>
-            t.type === "credit" ? sum + t.amount : sum - t.amount,
-          0
-        );
-        setBalance(total);
-      } catch (err) {
-        console.log("Error loading wallet data:", err);
-      }
-    };
-    loadWalletData();
-  }, []);
-
-  /**
-   * 💰 Dummy "Add Funds" action
-   * Adds ₦5000 to wallet and persists in AsyncStorage.
-   */
-  const handleAddFunds = async () => {
-    const newTransaction = {
-      id: Date.now().toString(),
-      type: "credit",
-      description: "Wallet top-up",
-      amount: 5000,
-      date: new Date().toLocaleString(),
-    };
-
-    const updated = [newTransaction, ...transactions];
-    setTransactions(updated);
-    setBalance(balance + newTransaction.amount);
-    await AsyncStorage.setItem("transactions", JSON.stringify(updated));
-  };
+  const router = useRouter();
+  const [balanceVisible, setBalanceVisible] = useState(true);
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={THEME.colors.background} />
+
+      {/* --- Header --- */}
       <View style={styles.header}>
-        <Text style={styles.title}>My Wallet</Text>
-      </View>
-
-      {/* Balance Card */}
-      <View style={styles.balanceCard}>
-        <Text style={styles.balanceLabel}>Current Balance</Text>
-        <Text style={styles.balanceAmount}>₦{balance.toLocaleString()}</Text>
-
-        {/* Add Funds Button */}
-        <TouchableOpacity style={styles.addButton} onPress={handleAddFunds}>
-          <MaterialCommunityIcons
-            name="plus-circle"
-            size={22}
-            color={THEME.colors.primary}
-          />
-          <Text style={styles.addButtonText}>Add Funds</Text>
+        <Text style={styles.headerTitle}>My Wallet</Text>
+        <TouchableOpacity 
+          style={styles.historyBtn}
+          onPress={() => router.push("/client/wallet/history")}
+        >
+          <MaterialCommunityIcons name="history" size={24} color={THEME.colors.text} />
         </TouchableOpacity>
       </View>
 
-      {/* Transactions Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recent Transactions</Text>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* --- Virtual Card --- */}
+        <View style={styles.cardContainer}>
+          <View style={styles.cardBackground}>
+            {/* Decorative Circles */}
+            <View style={styles.circle1} />
+            <View style={styles.circle2} />
+            
+            <View style={styles.cardContent}>
+              <View style={styles.cardTop}>
+                <Text style={styles.cardLabel}>Total Balance</Text>
+                <TouchableOpacity onPress={() => setBalanceVisible(!balanceVisible)}>
+                  <Ionicons 
+                    name={balanceVisible ? "eye-outline" : "eye-off-outline"} 
+                    size={20} 
+                    color="rgba(255,255,255,0.8)" 
+                  />
+                </TouchableOpacity>
+              </View>
+              
+              <Text style={styles.balance}>
+                {balanceVisible ? "₦45,200.00" : "₦ ••••••••"}
+              </Text>
 
-        {transactions.length === 0 ? (
-          // 🕊 Empty state (no transactions yet)
-          <View style={styles.emptyState}>
-            <MaterialCommunityIcons
-              name="file-document-outline"
-              size={60}
-              color={THEME.colors.muted}
-            />
-            <Text style={styles.emptyText}>No transactions yet</Text>
-            <Text style={styles.emptySubtext}>
-              Top up your wallet or make a booking to see your activity here.
-            </Text>
-          </View>
-        ) : (
-          // Transaction list rendering
-          transactions.map((tx) => (
-            <View key={tx.id} style={styles.transactionCard}>
-              <View style={styles.row}>
-                <MaterialCommunityIcons
-                  name={
-                    tx.type === "credit"
-                      ? "arrow-down-bold-circle"
-                      : "arrow-up-bold-circle"
-                  }
-                  size={28}
-                  color={
-                    tx.type === "credit"
-                      ? THEME.colors.success
-                      : THEME.colors.error
-                  }
-                />
-                <View style={{ marginLeft: THEME.spacing.sm }}>
-                  <Text style={styles.txDescription}>{tx.description}</Text>
-                  <Text style={styles.txDate}>{tx.date}</Text>
+              <View style={styles.cardBottom}>
+                <View>
+                  <Text style={styles.cardLabel}>Card Holder</Text>
+                  <Text style={styles.cardValue}>Golden Amadi</Text>
                 </View>
+                <View style={styles.chip} />
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* --- Quick Actions --- */}
+        <View style={styles.actionsContainer}>
+          <TouchableOpacity 
+            style={styles.actionItem}
+            onPress={() => router.push("/client/wallet/top-up")}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: "#DCFCE7" }]}>
+              <Ionicons name="add" size={24} color={THEME.colors.primary} />
+            </View>
+            <Text style={styles.actionText}>Top Up</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.actionItem}
+            onPress={() => router.push("/client/wallet/withdraw")}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: "#FEE2E2" }]}>
+              <Ionicons name="arrow-up" size={24} color={THEME.colors.error} />
+            </View>
+            <Text style={styles.actionText}>Withdraw</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.actionItem}
+            onPress={() => router.push("/client/wallet/transfer")}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: "#DBEAFE" }]}>
+              <Ionicons name="swap-horizontal" size={24} color="#2563EB" />
+            </View>
+            <Text style={styles.actionText}>Transfer</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.actionItem}
+            onPress={() => router.push("/client/wallet/cards")}
+          >
+             <View style={[styles.actionIcon, { backgroundColor: "#F3F4F6" }]}>
+              <Ionicons name="card-outline" size={24} color={THEME.colors.text} />
+            </View>
+            <Text style={styles.actionText}>Cards</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* --- Transaction History --- */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Recent Transactions</Text>
+          <TouchableOpacity onPress={() => router.push("/client/wallet/history")}>
+            <Text style={styles.seeAllText}>See All</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.transactionList}>
+          {TRANSACTIONS.map((item) => (
+            <View key={item.id} style={styles.transactionItem}>
+              <View style={[
+                styles.iconBox,
+                item.type === "credit" ? styles.creditIcon : styles.debitIcon
+              ]}>
+                <MaterialCommunityIcons 
+                  name={item.type === "credit" ? "arrow-bottom-left" : "arrow-top-right"} 
+                  size={20} 
+                  color={item.type === "credit" ? THEME.colors.primary : THEME.colors.error} 
+                />
+              </View>
+              
+              <View style={styles.transactionInfo}>
+                <Text style={styles.transactionTitle}>{item.title}</Text>
+                <Text style={styles.transactionDate}>{item.date}</Text>
               </View>
 
-              <Text
-                style={[
-                  styles.txAmount,
-                  {
-                    color:
-                      tx.type === "credit"
-                        ? THEME.colors.success
-                        : THEME.colors.error,
-                  },
-                ]}
-              >
-                {tx.type === "credit" ? "+" : "-"}₦
-                {tx.amount.toLocaleString()}
-              </Text>
+              <View style={styles.amountContainer}>
+                <Text style={[
+                  styles.amountText,
+                  item.type === "credit" ? { color: THEME.colors.primary } : { color: THEME.colors.text }
+                ]}>
+                  {item.amount}
+                </Text>
+                <Text style={[
+                  styles.statusText,
+                  item.status === "Pending" && { color: "#CA8A04" }
+                ]}>
+                  {item.status}
+                </Text>
+              </View>
             </View>
-          ))
-        )}
-      </View>
-    </ScrollView>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
-/**
- *  Styles — strictly following THEME tokens
- */
+// ========================================
+// STYLES
+// ========================================
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
+    paddingTop: 50,
+  },
+  scrollContent: {
+    paddingBottom: 100,
   },
 
   // Header
   header: {
-    fontFamily: THEME.typography.fontFamily.heading,
-    fontSize: THEME.typography.sizes.xl,
-    color: THEME.colors.text,
-    marginTop: THEME.spacing.xl,
-    textAlign: "center",
-  },
-  title: {
-   fontFamily: THEME.typography.fontFamily.heading,
-    fontSize: THEME.typography.sizes.xl,
-    color: THEME.colors.text,
-    marginTop: THEME.spacing.xl,
-    textAlign: "center",
-  },
-
-  // Balance Card
-  balanceCard: {
-    backgroundColor: THEME.colors.primary,
-    margin: THEME.spacing.lg,
-    borderRadius: THEME.radius.lg,
-    padding: THEME.spacing.xl,
-    alignItems: "center",
-    ...THEME.shadow.base,
-  },
-  balanceLabel: {
-    color: THEME.colors.surface,
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.body,
-  },
-  balanceAmount: {
-    color: THEME.colors.surface,
-    fontSize: THEME.typography.sizes["2xl"],
-    fontFamily: THEME.typography.fontFamily.heading,
-    marginVertical: THEME.spacing.sm,
-  },
-  addButton: {
-    flexDirection: "row",
-    backgroundColor: THEME.colors.surface,
-    paddingVertical: THEME.spacing.sm,
-    paddingHorizontal: THEME.spacing.lg,
-    borderRadius: THEME.radius.pill,
-    alignItems: "center",
-    marginTop: THEME.spacing.md,
-    ...THEME.shadow.card,
-  },
-  addButtonText: {
-    color: THEME.colors.primary,
-    marginLeft: THEME.spacing.xs,
-    fontSize: THEME.typography.sizes.base,
-    fontFamily: THEME.typography.fontFamily.subheading,
-  },
-
-  // 📄 Transactions Section
-  section: {
-    paddingHorizontal: THEME.spacing.lg,
-    marginTop: THEME.spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: THEME.typography.sizes.md,
-    color: THEME.colors.text,
-    fontFamily: THEME.typography.fontFamily.subheading,
-    marginBottom: THEME.spacing.sm,
-  },
-
-  // 🕊 Empty state display
-  emptyState: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: THEME.spacing.xl,
-  },
-  emptyText: {
-    fontFamily: THEME.typography.fontFamily.subheading,
-    fontSize: THEME.typography.sizes.base,
-    color: THEME.colors.text,
-    marginTop: THEME.spacing.xs,
-  },
-  emptySubtext: {
-    color: THEME.colors.muted,
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.body,
-    textAlign: "center",
-    paddingHorizontal: THEME.spacing.lg,
-    marginTop: THEME.spacing.xs,
-  },
-
-  // 💵 Transaction list
-  transactionCard: {
-    backgroundColor: THEME.colors.surface,
-    borderRadius: THEME.radius.md,
-    padding: THEME.spacing.md,
-    marginBottom: THEME.spacing.md,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: THEME.spacing.lg,
+    marginBottom: THEME.spacing.lg,
+  },
+  headerTitle: {
+    fontFamily: THEME.typography.fontFamily.heading,
+    fontSize: THEME.typography.sizes["2xl"],
+    color: THEME.colors.text,
+  },
+  historyBtn: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
     borderColor: THEME.colors.border,
+  },
+
+  // Virtual Card
+  cardContainer: {
+    paddingHorizontal: THEME.spacing.lg,
+    marginBottom: 32,
+  },
+  cardBackground: {
+    height: 200,
+    backgroundColor: THEME.colors.primary,
+    borderRadius: 24,
+    overflow: "hidden",
+    position: "relative",
     ...THEME.shadow.card,
   },
-  row: {
+  circle1: {
+    position: "absolute",
+    top: -50,
+    right: -50,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: "rgba(255,255,255,0.1)",
+  },
+  circle2: {
+    position: "absolute",
+    bottom: -50,
+    left: -50,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: "rgba(255,255,255,0.1)",
+  },
+  cardContent: {
+    flex: 1,
+    padding: 24,
+    justifyContent: "space-between",
+  },
+  cardTop: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
   },
-  txDescription: {
-    color: THEME.colors.text,
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
-    fontSize: THEME.typography.sizes.base,
+  cardLabel: {
+    fontFamily: THEME.typography.fontFamily.body,
+    color: "rgba(255,255,255,0.8)",
+    fontSize: 12,
+    marginBottom: 4,
   },
-  txDate: {
-    color: THEME.colors.muted,
-    fontFamily: THEME.typography.fontFamily.bodyLight,
-    fontSize: THEME.typography.sizes.xs,
+  balance: {
+    fontFamily: THEME.typography.fontFamily.heading,
+    fontSize: 32,
+    color: "white",
+    marginVertical: 10,
   },
-  txAmount: {
+  cardBottom: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+  },
+  cardValue: {
     fontFamily: THEME.typography.fontFamily.subheading,
-    fontSize: THEME.typography.sizes.base,
+    color: "white",
+    fontSize: 16,
+  },
+  chip: {
+    width: 40,
+    height: 28,
+    borderRadius: 6,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.3)",
+  },
+
+  // Actions
+  actionsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: THEME.spacing.lg,
+    marginBottom: 32,
+  },
+  actionItem: {
+    alignItems: "center",
+    gap: 8,
+  },
+  actionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  actionText: {
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    fontSize: 12,
+    color: THEME.colors.text,
+  },
+
+  // Transactions
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: THEME.spacing.lg,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontFamily: THEME.typography.fontFamily.heading,
+    fontSize: THEME.typography.sizes.lg,
+    color: THEME.colors.text,
+  },
+  seeAllText: {
+    fontFamily: THEME.typography.fontFamily.subheading,
+    fontSize: THEME.typography.sizes.sm,
+    color: THEME.colors.primary,
+  },
+  transactionList: {
+    paddingHorizontal: THEME.spacing.lg,
+  },
+  transactionItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: THEME.colors.surface,
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+  },
+  iconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  creditIcon: {
+    backgroundColor: "#DCFCE7",
+  },
+  debitIcon: {
+    backgroundColor: "#FEE2E2",
+  },
+  transactionInfo: {
+    flex: 1,
+  },
+  transactionTitle: {
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    fontSize: 14,
+    color: THEME.colors.text,
+    marginBottom: 2,
+  },
+  transactionDate: {
+    fontFamily: THEME.typography.fontFamily.body,
+    fontSize: 12,
+    color: THEME.colors.muted,
+  },
+  amountContainer: {
+    alignItems: "flex-end",
+  },
+  amountText: {
+    fontFamily: THEME.typography.fontFamily.heading,
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  statusText: {
+    fontFamily: THEME.typography.fontFamily.body,
+    fontSize: 10,
+    color: THEME.colors.success,
   },
 });

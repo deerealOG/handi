@@ -1,16 +1,16 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Animated,
-  Easing,
-  Image,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Animated,
+    Easing,
+    Image,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
@@ -83,23 +83,33 @@ export default function JobDetails() {
     >
       {/* --- Header --- */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={22}
-            color={THEME.colors.primary}
-          />
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={THEME.colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Job Details</Text>
-        <View style={{ width: 22 }} />
+        <View style={{ width: 40 }} />
       </View>
 
       {/* --- Client Info --- */}
       <View style={styles.clientCard}>
         <Image source={job.client.avatar} style={styles.avatar} />
-        <View>
+        <View style={{ flex: 1 }}>
           <Text style={styles.clientName}>{job.client.name}</Text>
           <Text style={styles.clientContact}>{job.client.contact}</Text>
+        </View>
+        <View style={styles.clientActions}>
+          <TouchableOpacity 
+            style={styles.iconButton}
+            onPress={() => router.push({ pathname: "/artisan/chat/[id]", params: { id: "1", name: job.client.name } })}
+          >
+            <MaterialCommunityIcons name="chat-processing-outline" size={20} color={THEME.colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.iconButton}
+            onPress={() => alert("Opening Maps...")}
+          >
+            <MaterialCommunityIcons name="navigation-variant-outline" size={20} color={THEME.colors.primary} />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -247,6 +257,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 24,
     marginTop: 10,
+    paddingHorizontal: 16,
+  },
+  backButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: THEME.colors.surface,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
   },
   headerTitle: { fontSize: 18, fontWeight: "700", color: THEME.colors.text },
   clientCard: {
@@ -261,6 +279,15 @@ const styles = StyleSheet.create({
   avatar: { width: 50, height: 50, borderRadius: 25, marginRight: 12 },
   clientName: { fontWeight: "700", fontSize: 16, color: THEME.colors.text },
   clientContact: { fontSize: 13, color: THEME.colors.muted },
+  clientActions: { flexDirection: "row", gap: 8 },
+  iconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(28,140,75,0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   section: { marginBottom: 16 },
   sectionTitle: {
     fontWeight: "700",

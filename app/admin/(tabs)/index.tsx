@@ -1,17 +1,24 @@
+import { useAuth } from "@/context/AuthContext";
+import { useAppTheme } from "@/hooks/use-app-theme";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    Alert,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import BarChartCard from "../../../components/BarChartCard";
 import { THEME } from "../../../constants/theme";
 
-
 export default function AdminDashboard() {
+  const { colors } = useAppTheme();
+  const { logout } = useAuth();
+
   const stats = {
     users: 1240,
     activeJobs: 328,
@@ -26,28 +33,52 @@ export default function AdminDashboard() {
 
   const onRefresh = () => {};
 
+  const handleLogout = () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          await logout();
+        },
+      },
+    ]);
+  };
+
   if (loading) {
     return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={THEME.colors.secondary} />
-        <Text style={styles.loaderText}>Loading dashboard...</Text>
+      <View
+        style={[styles.loaderContainer, { backgroundColor: colors.background }]}
+      >
+        <ActivityIndicator size="large" color={colors.secondary} />
+        <Text style={[styles.loaderText, { color: colors.text }]}>
+          Loading dashboard...
+        </Text>
       </View>
     );
   }
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.contentContainer}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          colors={[THEME.colors.secondary]}
+          colors={[colors.secondary]}
         />
       }
     >
-      <Text style={styles.title}>Admin Dashboard 📊</Text>
+      <View style={styles.header}>
+        <Text style={[styles.title, { color: colors.text }]}>
+          Admin Dashboard 📊
+        </Text>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <Ionicons name="log-out-outline" size={24} color={colors.error} />
+        </TouchableOpacity>
+      </View>
 
       {/* Stats grid */}
       <View style={styles.statsGrid}>
@@ -58,19 +89,36 @@ export default function AdminDashboard() {
           { title: "Pending Disputes", value: stats.disputes, emoji: "⚠️" },
           { title: "Transactions", value: stats.transactions, emoji: "💳" },
         ].map((s, i) => (
-          <View key={i} style={[styles.card, styles.shadow]}>
+          <View
+            key={i}
+            style={[
+              styles.card,
+              { backgroundColor: colors.surface },
+              styles.shadow,
+            ]}
+          >
             <Text style={styles.cardEmoji}>{s.emoji}</Text>
-            <Text style={styles.cardValue}>{s.value}</Text>
-            <Text style={styles.cardTitle}>{s.title}</Text>
+            <Text style={[styles.cardValue, { color: colors.secondary }]}>
+              {s.value}
+            </Text>
+            <Text style={[styles.cardTitle, { color: colors.muted }]}>
+              {s.title}
+            </Text>
           </View>
         ))}
       </View>
 
       <BarChartCard data={stats.revenue} />
 
-      <View style={[styles.overviewBox, styles.shadow]}>
-        <Text style={styles.overviewText}>
-          FIXIT connects clients and artisans efficiently while ensuring
+      <View
+        style={[
+          styles.overviewBox,
+          { backgroundColor: colors.surface },
+          styles.shadow,
+        ]}
+      >
+        <Text style={[styles.overviewText, { color: colors.text }]}>
+          HANDI connects clients and artisans efficiently while ensuring
           transparency through admin oversight. System uptime is stable, and
           user engagement continues to grow steadily. 🚀
         </Text>
@@ -82,26 +130,31 @@ export default function AdminDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
   },
   contentContainer: {
     padding: THEME.spacing.md,
+    paddingTop: THEME.spacing.lg, // Added extra top padding for better alignment
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: THEME.spacing.md,
+  },
+  logoutButton: {
+    padding: 8,
   },
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: THEME.colors.background,
   },
   loaderText: {
-    color: THEME.colors.text,
     marginTop: THEME.spacing.sm,
   },
   title: {
     fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
-    color: THEME.colors.text,
-    marginBottom: THEME.spacing.md,
   },
   statsGrid: {
     flexDirection: "row",
@@ -109,35 +162,32 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   card: {
-    backgroundColor: THEME.colors.surface,
     width: "48%",
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.md,
     marginBottom: THEME.spacing.md,
+    alignItems: "center", // Center content aligned
   },
   cardEmoji: {
     fontSize: 30,
     textAlign: "center",
+    marginBottom: 4,
   },
   cardValue: {
-    color: THEME.colors.secondary,
     fontWeight: "700",
     fontSize: THEME.typography.sizes.xl,
     textAlign: "center",
   },
   cardTitle: {
-    color: THEME.colors.muted,
     textAlign: "center",
     marginTop: 4,
   },
   overviewBox: {
-    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.lg,
     marginTop: THEME.spacing.lg,
   },
   overviewText: {
-    color: THEME.colors.muted,
     fontSize: THEME.typography.sizes.base,
     lineHeight: 22,
   },

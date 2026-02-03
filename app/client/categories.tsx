@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -12,40 +13,41 @@ import {
 import { THEME } from "../../constants/theme";
 
 const ALL_CATEGORIES = [
-  { id: "1", name: "Electrician", icon: "flash-outline", color: "#ECFDF5", description: "Wiring, repairs, and installations" },
-  { id: "2", name: "Plumber", icon: "pipe", color: "#ECFDF5", description: "Leaks, pipes, and bathroom fittings" },
-  { id: "3", name: "Carpenter", icon: "hammer-screwdriver", color: "#ECFDF5", description: "Furniture, woodwork, and repairs" },
-  { id: "4", name: "Barber", icon: "scissors-cutting", color: "#ECFDF5", description: "Haircuts and grooming" },
-  { id: "5", name: "Painter", icon: "format-paint", color: "#ECFDF5", description: "Interior and exterior painting" },
-  { id: "6", name: "Gardener", icon: "leaf", color: "#ECFDF5", description: "Landscaping and garden maintenance" },
-  { id: "7", name: "Mechanic", icon: "car-wrench", color: "#ECFDF5", description: "Car repairs and servicing" },
-  { id: "8", name: "Cleaner", icon: "broom", color: "#ECFDF5", description: "Home and office cleaning" },
-  { id: "9", name: "AC Tech", icon: "air-conditioner", color: "#ECFDF5", description: "AC installation and repair" },
-  { id: "10", name: "Makeup Artist", icon: "face-woman-shimmer", color: "#ECFDF5", description: "Professional makeup services" },
-  { id: "11", name: "Tailor", icon: "tshirt-crew-outline", color: "#ECFDF5", description: "Custom clothing and alterations" },
-  { id: "12", name: "Photographer", icon: "camera-outline", color: "#ECFDF5", description: "Events and portrait photography" },
+  { id: "1", name: "Electrician", icon: "flash-outline", description: "Wiring, repairs, and installations" },
+  { id: "2", name: "Plumber", icon: "pipe", description: "Leaks, pipes, and bathroom fittings" },
+  { id: "3", name: "Carpenter", icon: "hammer-screwdriver", description: "Furniture, woodwork, and repairs" },
+  { id: "4", name: "Barber", icon: "scissors-cutting", description: "Haircuts and grooming" },
+  { id: "5", name: "Painter", icon: "format-paint", description: "Interior and exterior painting" },
+  { id: "6", name: "Gardener", icon: "leaf", description: "Landscaping and garden maintenance" },
+  { id: "7", name: "Mechanic", icon: "car-wrench", description: "Car repairs and servicing" },
+  { id: "8", name: "Cleaner", icon: "broom", description: "Home and office cleaning" },
+  { id: "9", name: "AC Tech", icon: "air-conditioner", description: "AC installation and repair" },
+  { id: "10", name: "Makeup Artist", icon: "face-woman-shimmer", description: "Professional makeup services" },
+  { id: "11", name: "Tailor", icon: "tshirt-crew-outline", description: "Custom clothing and alterations" },
+  { id: "12", name: "Photographer", icon: "camera-outline", description: "Events and portrait photography" },
 ];
 
 export default function CategoriesScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={THEME.colors.background} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.text === '#FAFAFA' ? "light-content" : "dark-content"} backgroundColor={colors.background} />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={THEME.colors.text} />
+        <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>All Categories</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>All Categories</Text>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <Text style={styles.subtitle}>
+        <Text style={[styles.subtitle, { color: colors.muted }]}>
           Find the right professional for your needs
         </Text>
 
@@ -53,7 +55,7 @@ export default function CategoriesScreen() {
           {ALL_CATEGORIES.map((category) => (
             <TouchableOpacity
               key={category.id}
-              style={styles.card}
+              style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
               onPress={() =>
                 router.push({
                   pathname: "/client/(tabs)/explore",
@@ -61,23 +63,23 @@ export default function CategoriesScreen() {
                 })
               }
             >
-              <View style={[styles.iconContainer, { backgroundColor: category.color }]}>
+              <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
                 <MaterialCommunityIcons
                   name={category.icon as any}
                   size={32}
-                  color={THEME.colors.primary}
+                  color={colors.primary}
                 />
               </View>
               <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{category.name}</Text>
-                <Text style={styles.cardDescription} numberOfLines={2}>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>{category.name}</Text>
+                <Text style={[styles.cardDescription, { color: colors.muted }]} numberOfLines={2}>
                   {category.description}
                 </Text>
               </View>
               <Ionicons
                 name="chevron-forward"
                 size={20}
-                color={THEME.colors.muted}
+                color={colors.muted}
                 style={styles.arrow}
               />
             </TouchableOpacity>
@@ -91,7 +93,6 @@ export default function CategoriesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.background,
     paddingTop: 50,
   },
   header: {
@@ -103,12 +104,12 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 8,
     marginRight: 16,
-    marginLeft: -8,
+    borderRadius: 20,
+    borderWidth: 1,
   },
   headerTitle: {
     fontSize: THEME.typography.sizes.xl,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
   },
   scrollContent: {
     paddingHorizontal: THEME.spacing.lg,
@@ -117,7 +118,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: THEME.typography.sizes.base,
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.muted,
     marginBottom: 24,
   },
   grid: {
@@ -126,11 +126,9 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.surface,
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
     ...THEME.shadow.card,
   },
   iconContainer: {
@@ -147,13 +145,11 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: THEME.typography.sizes.base,
     fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.text,
     marginBottom: 4,
   },
   cardDescription: {
     fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.muted,
   },
   arrow: {
     marginLeft: 8,

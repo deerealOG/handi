@@ -1,21 +1,29 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { THEME } from "../../../constants/theme";
+import { Platform } from "react-native";
+
+import { useAppTheme } from "@/hooks/use-app-theme";
 
 export default function ArtisanTabsLayout() {
+  const { colors } = useAppTheme();
+  const isWeb = Platform.OS === "web";
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: THEME.colors.primary,
-        tabBarInactiveTintColor: "#888",
-        tabBarStyle: {
-          backgroundColor: "#fff",
-          borderTopWidth: 0.5,
-          borderTopColor: "#eee",
-          height: 60,
-          paddingBottom: 8,
-        },
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.muted,
+        // Hide tab bar on web - we use sidebar navigation instead
+        tabBarStyle: isWeb
+          ? { display: "none" }
+          : {
+              backgroundColor: colors.surface,
+              borderTopWidth: 0.5,
+              borderTopColor: colors.border,
+              height: 60,
+              paddingBottom: 8,
+            },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "500",
@@ -28,10 +36,10 @@ export default function ArtisanTabsLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color, size, focused }) => (
-            <MaterialCommunityIcons 
-              name={focused ? "home" : "home-outline"} 
-              size={size} 
-              color={color} 
+            <MaterialCommunityIcons
+              name={focused ? "home" : "home-outline"}
+              size={size}
+              color={color}
             />
           ),
         }}
@@ -43,10 +51,10 @@ export default function ArtisanTabsLayout() {
         options={{
           title: "Jobs",
           tabBarIcon: ({ color, size, focused }) => (
-            <MaterialCommunityIcons 
-              name={focused ? "briefcase" : "briefcase-outline"} 
-              size={size} 
-              color={color} 
+            <MaterialCommunityIcons
+              name={focused ? "briefcase" : "briefcase-outline"}
+              size={size}
+              color={color}
             />
           ),
         }}
@@ -58,10 +66,10 @@ export default function ArtisanTabsLayout() {
         options={{
           title: "Wallet",
           tabBarIcon: ({ color, size, focused }) => (
-            <MaterialCommunityIcons 
-              name={focused ? "wallet" : "wallet-outline"} 
-              size={size} 
-              color={color} 
+            <MaterialCommunityIcons
+              name={focused ? "wallet" : "wallet-outline"}
+              size={size}
+              color={color}
             />
           ),
         }}
@@ -73,10 +81,10 @@ export default function ArtisanTabsLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size, focused }) => (
-            <MaterialCommunityIcons 
-              name={focused ? "account" : "account-outline"} 
-              size={size} 
-              color={color} 
+            <MaterialCommunityIcons
+              name={focused ? "account" : "account-outline"}
+              size={size}
+              color={color}
             />
           ),
         }}

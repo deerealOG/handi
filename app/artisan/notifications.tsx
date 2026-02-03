@@ -1,8 +1,10 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
     FlatList,
+    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -39,6 +41,7 @@ const NOTIFICATIONS = [
 
 export default function NotificationsScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -56,18 +59,24 @@ export default function NotificationsScreen() {
   const getColor = (type: string) => {
     switch (type) {
       case "job":
-        return THEME.colors.primary;
+        return colors.primary;
       case "payment":
-        return "#F57C00"; // Orange
+        return colors.secondary;
       case "alert":
-        return "#D32F2F"; // Red
+        return colors.error;
       default:
-        return THEME.colors.muted;
+        return colors.muted;
     }
   };
 
   const renderItem = ({ item }: { item: any }) => (
-    <TouchableOpacity style={[styles.notificationItem, !item.read && styles.unreadItem]}>
+    <TouchableOpacity 
+      style={[
+        styles.notificationItem, 
+        { backgroundColor: colors.surface },
+        !item.read && { backgroundColor: colors.primaryLight, borderLeftWidth: 4, borderLeftColor: colors.primary }
+      ]}
+    >
       <View style={[styles.iconContainer, { backgroundColor: getColor(item.type) + "20" }]}>
         <MaterialCommunityIcons
           name={getIcon(item.type) as any}
@@ -76,21 +85,23 @@ export default function NotificationsScreen() {
         />
       </View>
       <View style={styles.content}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.message}>{item.message}</Text>
-        <Text style={styles.time}>{item.time}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{item.title}</Text>
+        <Text style={[styles.message, { color: colors.muted }]}>{item.message}</Text>
+        <Text style={[styles.time, { color: colors.muted }]}>{item.time}</Text>
       </View>
-      {!item.read && <View style={styles.dot} />}
+      {!item.read && <View style={[styles.dot, { backgroundColor: colors.primary }]} />}
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={THEME.colors.text} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.text === '#FAFAFA' ? "light-content" : "dark-content"} backgroundColor={colors.background} />
+      
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Notifications</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Notifications</Text>
       </View>
 
       <FlatList
@@ -106,7 +117,6 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.background,
     paddingTop: 50,
   },
   header: {
@@ -115,15 +125,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
   },
   backButton: {
     marginRight: 16,
+    padding: 8,
+    borderRadius: 20,
+    borderWidth: 1,
   },
   headerTitle: {
     fontSize: 20,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
   },
   listContent: {
     padding: 16,
@@ -133,14 +144,8 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     padding: 16,
     borderRadius: 12,
-    backgroundColor: THEME.colors.surface,
     marginBottom: 12,
     ...THEME.shadow.base,
-  },
-  unreadItem: {
-    backgroundColor: "#F0F9F4", // Light green background for unread
-    borderLeftWidth: 4,
-    borderLeftColor: THEME.colors.primary,
   },
   iconContainer: {
     width: 40,
@@ -156,24 +161,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "600",
-    color: THEME.colors.text,
     marginBottom: 4,
   },
   message: {
     fontSize: 14,
-    color: THEME.colors.text,
     marginBottom: 6,
     lineHeight: 20,
   },
   time: {
     fontSize: 12,
-    color: THEME.colors.muted,
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: THEME.colors.primary,
     marginLeft: 8,
     marginTop: 6,
   },

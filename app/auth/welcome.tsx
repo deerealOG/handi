@@ -13,7 +13,7 @@ export default function WelcomeScreen() {
           🖼 Header Image
       =============================== */}
       <Image
-        source={require("../../assets/images/client-onboarding1.png")}
+        source={require("../../assets/images/client-onboarding1.jpg")}
         style={styles.image}
         resizeMode="contain"
       />

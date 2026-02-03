@@ -1,14 +1,15 @@
 // app/client/(tabs)/wallet.tsx
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { THEME } from "../../../constants/theme";
 
@@ -55,20 +56,21 @@ const TRANSACTIONS = [
 // ========================================
 export default function WalletScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
   const [balanceVisible, setBalanceVisible] = useState(true);
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={THEME.colors.background} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.text === '#1F2937' ? "dark-content" : "light-content"} backgroundColor={colors.background} />
 
       {/* --- Header --- */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Wallet</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>My Wallet</Text>
         <TouchableOpacity 
-          style={styles.historyBtn}
+          style={[styles.historyBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
           onPress={() => router.push("/client/wallet/history")}
         >
-          <MaterialCommunityIcons name="history" size={24} color={THEME.colors.text} />
+          <MaterialCommunityIcons name="history" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -78,7 +80,7 @@ export default function WalletScreen() {
       >
         {/* --- Virtual Card --- */}
         <View style={styles.cardContainer}>
-          <View style={styles.cardBackground}>
+          <View style={[styles.cardBackground, { backgroundColor: colors.primary }]}>
             {/* Decorative Circles */}
             <View style={styles.circle1} />
             <View style={styles.circle2} />
@@ -116,80 +118,80 @@ export default function WalletScreen() {
             style={styles.actionItem}
             onPress={() => router.push("/client/wallet/top-up")}
           >
-            <View style={[styles.actionIcon, { backgroundColor: "#DCFCE7" }]}>
-              <Ionicons name="add" size={24} color={THEME.colors.primary} />
+            <View style={[styles.actionIcon, { backgroundColor: colors.primaryLight }]}>
+              <Ionicons name="add" size={24} color={colors.primary} />
             </View>
-            <Text style={styles.actionText}>Top Up</Text>
+            <Text style={[styles.actionText, { color: colors.text }]}>Top Up</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.actionItem}
             onPress={() => router.push("/client/wallet/withdraw")}
           >
-            <View style={[styles.actionIcon, { backgroundColor: "#FEE2E2" }]}>
-              <Ionicons name="arrow-up" size={24} color={THEME.colors.error} />
+            <View style={[styles.actionIcon, { backgroundColor: colors.error + '15' }]}>
+              <Ionicons name="arrow-up" size={24} color={colors.error} />
             </View>
-            <Text style={styles.actionText}>Withdraw</Text>
+            <Text style={[styles.actionText, { color: colors.text }]}>Withdraw</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.actionItem}
             onPress={() => router.push("/client/wallet/transfer")}
           >
-            <View style={[styles.actionIcon, { backgroundColor: "#DBEAFE" }]}>
-              <Ionicons name="swap-horizontal" size={24} color="#2563EB" />
+            <View style={[styles.actionIcon, { backgroundColor: colors.secondary + '15' }]}>
+              <Ionicons name="swap-horizontal" size={24} color={colors.secondary} />
             </View>
-            <Text style={styles.actionText}>Transfer</Text>
+            <Text style={[styles.actionText, { color: colors.text }]}>Transfer</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
             style={styles.actionItem}
             onPress={() => router.push("/client/wallet/cards")}
           >
-             <View style={[styles.actionIcon, { backgroundColor: "#F3F4F6" }]}>
-              <Ionicons name="card-outline" size={24} color={THEME.colors.text} />
+             <View style={[styles.actionIcon, { backgroundColor: colors.surface }]}>
+              <Ionicons name="card-outline" size={24} color={colors.text} />
             </View>
-            <Text style={styles.actionText}>Cards</Text>
+            <Text style={[styles.actionText, { color: colors.text }]}>Cards</Text>
           </TouchableOpacity>
         </View>
 
         {/* --- Transaction History --- */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Recent Transactions</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Transactions</Text>
           <TouchableOpacity onPress={() => router.push("/client/wallet/history")}>
-            <Text style={styles.seeAllText}>See All</Text>
+            <Text style={[styles.seeAllText, { color: colors.primary }]}>See All</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.transactionList}>
           {TRANSACTIONS.map((item) => (
-            <View key={item.id} style={styles.transactionItem}>
+            <View key={item.id} style={[styles.transactionItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <View style={[
                 styles.iconBox,
-                item.type === "credit" ? styles.creditIcon : styles.debitIcon
+                { backgroundColor: item.type === "credit" ? colors.primaryLight : colors.errorLight }
               ]}>
                 <MaterialCommunityIcons 
                   name={item.type === "credit" ? "arrow-bottom-left" : "arrow-top-right"} 
                   size={20} 
-                  color={item.type === "credit" ? THEME.colors.primary : THEME.colors.error} 
+                  color={item.type === "credit" ? colors.primary : colors.error} 
                 />
               </View>
               
               <View style={styles.transactionInfo}>
-                <Text style={styles.transactionTitle}>{item.title}</Text>
-                <Text style={styles.transactionDate}>{item.date}</Text>
+                <Text style={[styles.transactionTitle, { color: colors.text }]}>{item.title}</Text>
+                <Text style={[styles.transactionDate, { color: colors.muted }]}>{item.date}</Text>
               </View>
 
               <View style={styles.amountContainer}>
                 <Text style={[
                   styles.amountText,
-                  item.type === "credit" ? { color: THEME.colors.primary } : { color: THEME.colors.text }
+                  { color: item.type === "credit" ? colors.primary : colors.text }
                 ]}>
                   {item.amount}
                 </Text>
                 <Text style={[
                   styles.statusText,
-                  item.status === "Pending" && { color: "#CA8A04" }
+                  { color: item.status === "Pending" ? colors.secondary : colors.success }
                 ]}>
                   {item.status}
                 </Text>

@@ -1,0 +1,28 @@
+# Ignore unused assets to reduce APK size
+
+assets/images/onboarding1.jpg
+assets/images/onboarding2.png
+assets/images/onboarding3.png
+assets/images/welcome-hero.jpg
+assets/images/react-logo.png
+assets/images/react-logo@2x.png
+assets/images/react-logo@3x.png
+assets/images/partial-react-logo.png
+
+# Development files
+
+.expo/
+.git/
+node_modules/.cache/
+
+# Test files
+
+**tests**/
+_.test.ts
+_.test.tsx
+_.spec.ts
+_.spec.tsx
+
+# Source maps (not needed for release)
+
+\*.map

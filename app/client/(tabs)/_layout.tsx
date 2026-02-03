@@ -3,18 +3,22 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { THEME } from "../../../constants/theme";
 
+import { useAppTheme } from "@/hooks/use-app-theme";
+
 export default function ClientTabs() {
+  const { colors } = useAppTheme();
+
   return (
     <Tabs
       // ⚙️ General Tab Navigator Configuration
       screenOptions={{
         headerShown: false, // Hide headers on all tab screens
         tabBarShowLabel: true, // Show labels under icons
-        tabBarActiveTintColor: THEME.colors.primary, // Active tab color from theme
-        tabBarInactiveTintColor: THEME.colors.muted, // Inactive tab color
+        tabBarActiveTintColor: colors.primary, // Active tab color from theme
+        tabBarInactiveTintColor: colors.muted, // Inactive tab color
         tabBarStyle: {
-          backgroundColor: THEME.colors.surface, // Use themed surface color
-          borderTopColor: THEME.colors.border, // Subtle divider line
+          backgroundColor: colors.surface, // Use themed surface color
+          borderTopColor: colors.border, // Subtle divider line
           height: 60,
           paddingBottom: THEME.spacing.xs,
           paddingTop: THEME.spacing.xs,
@@ -42,11 +46,11 @@ export default function ClientTabs() {
         }}
       />
 
-      {/* 🔍 EXPLORE TAB */}
+      {/* 🔍 FIND PROS TAB */}
       <Tabs.Screen
         name="explore"
         options={{
-          title: "Explore",
+          title: "Find Pros",
           tabBarIcon: ({ focused, color }) => (
             <MaterialCommunityIcons
               name={focused ? "magnify-plus" : "magnify"}

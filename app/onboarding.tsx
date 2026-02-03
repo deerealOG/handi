@@ -1,16 +1,26 @@
 // app/onboarding.tsx
+import { Button } from "@/components/Button";
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
     Dimensions,
     FlatList,
     Image,
+    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
     ViewToken,
 } from "react-native";
+import Animated, {
+    FadeIn,
+    FadeInDown,
+    interpolate,
+    useAnimatedStyle,
+    useSharedValue,
+} from "react-native-reanimated";
 import { THEME } from "../constants/theme";
 
 const { width } = Dimensions.get("window");
@@ -19,28 +29,97 @@ const { width } = Dimensions.get("window");
 const SLIDES = [
   {
     id: 1,
-    title: "Get More Jobs",
-    description: "Join thousands of trusted professionals delivering services to homes daily.",
-    image: require("../assets/images/onboarding-1.png"),
+    title: "Find Professionals Near You",
+    description:
+      "Discover, book, and schedule trusted service providers in your area.",
+    image: require("../assets/images/onboarding-2.jpg"), // Swapped image to match context if needed, assuming 2 is user facing? Original 1 was "Get More Jobs" (provider focused). Let's keep images as is but reorder or rename?
+    // Actually, Slide 1 was Provider focused ("Get More Jobs"). Slide 2 was User focused ("Find Trusted Artisans").
+    // Let's make Slide 1 User focused first? Or follow the flow?
+    // "HANDI connects people... and helps professionals". People first.
+    // So Slide 1: User focused.
+    // Original Slide 2 is User focused.
+    // Let's swap the content effectively.
   },
   {
     id: 2,
-    title: "Find Trusted Artisans",
-    description: "Connect with verified, skilled professionals ready to help with any task.",
-    image: require("../assets/images/onboarding-2.png"),
+    title: "Reach Customers Around You",
+    description:
+      "List your services, set prices, and connect with clients nearby.",
+    image: require("../assets/images/onboarding-1.jpg"), // Original 1 was Provider
   },
   {
     id: 3,
-    title: "Secure & Safe Payments",
-    description: "Safe and secure payment system protecting both clients and artisans.",
-    image: require("../assets/images/onboarding-3.png"),
+    title: "Simple & Secure",
+    description: "Chat, book, and pay securely in one place.",
+    image: require("../assets/images/onboarding-3.jpg"),
   },
 ];
 
+interface PaginationDotProps {
+  index: number;
+  scrollX: any;
+  color: string;
+}
+
+function PaginationDot({ index, scrollX, color }: PaginationDotProps) {
+  const dotStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollX.value,
+      [(index - 1) * width, index * width, (index + 1) * width],
+      [0.3, 1, 0.3],
+      "clamp",
+    );
+    const scale = interpolate(
+      scrollX.value,
+      [(index - 1) * width, index * width, (index + 1) * width],
+      [0.8, 1.2, 0.8],
+      "clamp",
+    );
+    const dotWidth = interpolate(
+      scrollX.value,
+      [(index - 1) * width, index * width, (index + 1) * width],
+      [10, 24, 10],
+      "clamp",
+    );
+
+    return {
+      opacity,
+      transform: [{ scale }],
+      width: dotWidth,
+    };
+  });
+
+  return (
+    <Animated.View style={[styles.dot, { backgroundColor: color }, dotStyle]} />
+  );
+}
+
+interface PaginationDotsProps {
+  scrollX: any;
+  color: string;
+}
+
+function PaginationDots({ scrollX, color }: PaginationDotsProps) {
+  return (
+    <View style={styles.pagination}>
+      {SLIDES.map((_, index) => (
+        <PaginationDot
+          key={index}
+          index={index}
+          scrollX={scrollX}
+          color={color}
+        />
+      ))}
+    </View>
+  );
+}
+
 export default function OnboardingScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
+  const scrollX = useSharedValue(0);
 
   const handleNext = () => {
     if (currentIndex < SLIDES.length - 1) {
@@ -49,7 +128,6 @@ export default function OnboardingScreen() {
         animated: true,
       });
     } else {
-      // Navigate to welcome screen after last slide
       router.push("/welcome" as any);
     }
   };
@@ -67,26 +145,43 @@ export default function OnboardingScreen() {
     router.push("/welcome" as any);
   };
 
-  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    if (viewableItems.length > 0 && viewableItems[0].index !== null) {
-      setCurrentIndex(viewableItems[0].index);
-    }
-  }).current;
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      if (viewableItems.length > 0 && viewableItems[0].index !== null) {
+        setCurrentIndex(viewableItems[0].index);
+      }
+    },
+  ).current;
 
   const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
   const isFirstSlide = currentIndex === 0;
   const isLastSlide = currentIndex === SLIDES.length - 1;
 
-  const renderItem = ({ item }: { item: typeof SLIDES[0] }) => (
+  const renderItem = ({ item }: { item: (typeof SLIDES)[0] }) => (
     <View style={styles.slideContainer}>
-      <View style={styles.cardContainer}>
+      <Animated.View
+        entering={FadeIn.duration(800)}
+        style={styles.cardContainer}
+      >
         {/* Background decorative cards */}
-        <View style={[styles.cardShadow, styles.cardShadow1]} />
-        <View style={[styles.cardShadow, styles.cardShadow2]} />
+        <View
+          style={[
+            styles.cardShadow,
+            styles.cardShadow1,
+            { backgroundColor: colors.primary },
+          ]}
+        />
+        <View
+          style={[
+            styles.cardShadow,
+            styles.cardShadow2,
+            { backgroundColor: colors.primary },
+          ]}
+        />
 
         {/* Main content card */}
-        <View style={styles.mainCard}>
+        <View style={[styles.mainCard, { backgroundColor: colors.surface }]}>
           <Image
             source={item.image}
             style={styles.cardImage}
@@ -97,134 +192,93 @@ export default function OnboardingScreen() {
             <Text style={styles.cardDescription}>{item.description}</Text>
           </View>
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      {/* ===============================
-          🏷 HANDI Logo Header with Skip Button
-      =============================== */}
-      <View style={styles.header}>
-        <View style={styles.logoContainer}>
-          <Image
-            source={require("../assets/images/handi-hand-logo.png")}
-            style={styles.handIcon}
-            resizeMode="contain"
-          />
-          <Text style={styles.logoText}>HANDI</Text>
-        </View>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <StatusBar
+        barStyle={colors.text === "#FAFAFA" ? "light-content" : "dark-content"}
+        backgroundColor={colors.surface}
+      />
 
-        {/* Skip Button */}
+      {/* Header */}
+      <Animated.View entering={FadeInDown.duration(800)} style={styles.header}>
+        <Image
+          source={require("../assets/images/handi-logo-light.png")}
+          style={styles.handIcon}
+          resizeMode="contain"
+        />
+
         {!isLastSlide && (
           <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-            <Text style={styles.skipButtonText}>Skip</Text>
+            <Text style={[styles.skipButtonText, { color: colors.muted }]}>
+              Skip
+            </Text>
           </TouchableOpacity>
         )}
-      </View>
+      </Animated.View>
 
-      {/* ===============================
-          🎴 Carousel
-      =============================== */}
+      {/* Carousel */}
       <FlatList
         ref={flatListRef}
         data={SLIDES}
         renderItem={renderItem}
         horizontal
         pagingEnabled
+        onScroll={(event) => {
+          scrollX.value = event.nativeEvent.contentOffset.x;
+        }}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item) => item.id.toString()}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewConfig}
-        scrollEventThrottle={32}
+        scrollEventThrottle={16}
         contentContainerStyle={styles.flatListContent}
       />
 
-      {/* ===============================
-          📍 Pagination Dots
-      =============================== */}
-      <View style={styles.pagination}>
-        {SLIDES.map((_, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => {
-              flatListRef.current?.scrollToIndex({
-                index,
-                animated: true,
-              });
-            }}
-            style={[
-              styles.dot,
-              index === currentIndex ? styles.activeDot : styles.inactiveDot,
-            ]}
-          />
-        ))}
-      </View>
+      {/* Pagination */}
+      <PaginationDots scrollX={scrollX} color={colors.primary} />
 
-      {/* ===============================
-          🔘 Navigation Buttons
-      =============================== */}
+      {/* Navigation */}
       <View style={styles.navigationContainer}>
-        {/* Back Button */}
-        {!isFirstSlide && (
-          <TouchableOpacity
-            style={[styles.navButton, styles.backButton]}
-            onPress={handlePrevious}
-          >
-            <Text style={styles.backButtonText}>Back</Text>
-          </TouchableOpacity>
+        {!isFirstSlide ? (
+          <View style={{ flex: 1 }}>
+            <Button label="Back" onPress={handlePrevious} variant="outline" />
+          </View>
+        ) : (
+          <View style={{ flex: 1 }} />
         )}
 
-        {/* Next/Get Started Button */}
-        <TouchableOpacity
-          style={[
-            styles.navButton,
-            styles.nextButton,
-            isFirstSlide && styles.nextButtonFull,
-          ]}
-          onPress={handleNext}
-        >
-          <Text style={styles.nextButtonText}>
-            {isLastSlide ? "Get Started" : "Next"}
-          </Text>
-        </TouchableOpacity>
+        <View style={{ flex: 2, marginLeft: THEME.spacing.md }}>
+          <Button
+            label={isLastSlide ? "Get Started" : "Next"}
+            onPress={handleNext}
+            variant="primary"
+          />
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // 🌿 Page container
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
     paddingTop: 60,
     paddingBottom: 40,
   },
-
-  // 🏷 Header with logo and skip
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: THEME.spacing.md,
     paddingHorizontal: THEME.spacing.lg,
   },
-  logoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
   handIcon: {
-    width: 60,
-    height: 60,
-  },
-  logoText: {
-    fontSize: THEME.typography.sizes["2xl"],
-    fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.primary,
-    letterSpacing: 1.5,
+    width: 80,
+    height: 80,
   },
   skipButton: {
     paddingHorizontal: 16,
@@ -233,10 +287,7 @@ const styles = StyleSheet.create({
   skipButtonText: {
     fontSize: THEME.typography.sizes.base,
     fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.muted,
   },
-
-  // 🎴 Carousel
   flatListContent: {
     alignItems: "center",
   },
@@ -247,35 +298,29 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     position: "relative",
-    width: width - 80,
-    height: 480,
+    width: width - 60,
+    height: 440,
     justifyContent: "center",
     alignItems: "center",
   },
-
-  // 🎨 Decorative shadow cards (layered effect)
   cardShadow: {
     position: "absolute",
     width: "100%",
     height: "100%",
-    backgroundColor: THEME.colors.primary,
-    borderRadius: 24,
-    opacity: 0.15,
+    borderRadius: THEME.radius.lg,
+    opacity: 0.1,
   },
   cardShadow1: {
-    transform: [{ rotate: "-3deg" }, { translateY: -10 }],
+    transform: [{ rotate: "-2deg" }, { translateY: -8 }],
   },
   cardShadow2: {
-    transform: [{ rotate: "2deg" }, { translateY: -5 }],
-    opacity: 0.25,
+    transform: [{ rotate: "1.5deg" }, { translateY: -4 }],
+    opacity: 0.2,
   },
-
-  // 🖼 Main card
   mainCard: {
     width: "100%",
     height: "100%",
-    backgroundColor: THEME.colors.surface,
-    borderRadius: 24,
+    borderRadius: THEME.radius.lg,
     overflow: "hidden",
     ...THEME.shadow.card,
     elevation: 8,
@@ -289,92 +334,41 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.65)",
-    paddingVertical: 32,
-    paddingHorizontal: 24,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    paddingVertical: THEME.spacing.lg,
+    paddingHorizontal: THEME.spacing.lg,
     alignItems: "center",
   },
   cardTitle: {
-    fontSize: THEME.typography.sizes.xl,
+    fontSize: THEME.typography.sizes.lg,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.surface,
+    color: "#FFFFFF",
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: THEME.spacing.xs,
     letterSpacing: 0.5,
   },
   cardDescription: {
-    fontSize: THEME.typography.sizes.base,
+    fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.surface,
+    color: "#FFFFFF",
     textAlign: "center",
-    lineHeight: THEME.typography.sizes.base * THEME.typography.lineHeights.relaxed,
-    opacity: 0.95,
+    lineHeight: 20,
+    opacity: 0.9,
   },
-
-  // 📍 Pagination dots
   pagination: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 10,
-    marginVertical: 24,
+    gap: 8,
+    marginVertical: THEME.spacing.xl,
   },
   dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: THEME.colors.border,
+    height: 8,
+    borderRadius: 4,
   },
-  activeDot: {
-    backgroundColor: THEME.colors.primary,
-    width: 28,
-    height: 10,
-    borderRadius: 5,
-  },
-  inactiveDot: {
-    backgroundColor: THEME.colors.border,
-  },
-
-  // 🔘 Navigation buttons container
   navigationContainer: {
     flexDirection: "row",
-    gap: 12,
-    marginTop: 8,
-    paddingHorizontal: THEME.spacing.lg,
-  },
-
-  navButton: {
-    paddingVertical: 16,
-    borderRadius: 50, // Fully rounded (pill)
     alignItems: "center",
-    justifyContent: "center",
-  },
-
-  // ⬅️ Back button
-  backButton: {
-    flex: 1,
-    borderWidth: 1.5,
-    borderColor: THEME.colors.border,
-    backgroundColor: "transparent",
-  },
-  backButtonText: {
-    color: THEME.colors.text,
-    fontSize: THEME.typography.sizes.md,
-    fontFamily: THEME.typography.fontFamily.subheading,
-  },
-
-  // ▶️ Next button
-  nextButton: {
-    flex: 2,
-    backgroundColor: THEME.colors.primary,
-    ...THEME.shadow.base,
-  },
-  nextButtonFull: {
-    flex: 1,
-  },
-  nextButtonText: {
-    color: THEME.colors.surface,
-    fontSize: THEME.typography.sizes.md,
-    fontFamily: THEME.typography.fontFamily.subheading,
+    paddingHorizontal: THEME.spacing.lg,
   },
 });

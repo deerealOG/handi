@@ -20,9 +20,10 @@ import { THEME } from "../../../constants/theme";
 const ACTIVE_PROMOS = [
   {
     id: "1",
-    code: "FIXIT20",
+    code: "HANDI20",
     title: "20% Off First Booking",
-    description: "Get 20% off your first booking with any artisan. Valid for all services.",
+    description:
+      "Get 20% off your first booking with any artisan. Valid for all services.",
     discount: "20%",
     expiryDate: "Dec 31, 2025",
     category: "First Time",
@@ -60,7 +61,7 @@ export default function PromosScreen() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const handleClaimOffer = (promo: typeof ACTIVE_PROMOS[0]) => {
+  const handleClaimOffer = (promo: (typeof ACTIVE_PROMOS)[0]) => {
     Alert.alert(
       "Promo Code Copied!",
       `Use code "${promo.code}" at checkout to get ${promo.discount} off.`,
@@ -70,18 +71,24 @@ export default function PromosScreen() {
           text: "Book Now",
           onPress: () => router.push("/client/(tabs)/explore" as any),
         },
-      ]
+      ],
     );
     handleCopyCode(promo.code);
   };
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={THEME.colors.background} />
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor={THEME.colors.background}
+      />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <Ionicons name="arrow-back" size={24} color={THEME.colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Special Offers</Text>
@@ -91,7 +98,11 @@ export default function PromosScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {/* Info Banner */}
         <View style={styles.infoBanner}>
-          <MaterialCommunityIcons name="gift-outline" size={24} color={THEME.colors.primary} />
+          <MaterialCommunityIcons
+            name="gift-outline"
+            size={24}
+            color={THEME.colors.primary}
+          />
           <Text style={styles.infoText}>
             Tap any offer to copy the promo code and save on your next booking!
           </Text>
@@ -104,16 +115,20 @@ export default function PromosScreen() {
             style={styles.promoCard}
             onPress={() => handleClaimOffer(promo)}
           >
-            <Image source={promo.image} style={styles.promoImage} resizeMode="cover" />
-            
+            <Image
+              source={promo.image}
+              style={styles.promoImage}
+              resizeMode="cover"
+            />
+
             <View style={styles.promoContent}>
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{promo.discount} OFF</Text>
               </View>
-              
+
               <Text style={styles.promoTitle}>{promo.title}</Text>
               <Text style={styles.promoDescription}>{promo.description}</Text>
-              
+
               <View style={styles.codeContainer}>
                 <View style={styles.codeBox}>
                   <Text style={styles.codeLabel}>Code:</Text>
@@ -124,7 +139,9 @@ export default function PromosScreen() {
                   onPress={() => handleCopyCode(promo.code)}
                 >
                   <Ionicons
-                    name={copiedCode === promo.code ? "checkmark" : "copy-outline"}
+                    name={
+                      copiedCode === promo.code ? "checkmark" : "copy-outline"
+                    }
                     size={18}
                     color={THEME.colors.primary}
                   />
@@ -133,8 +150,14 @@ export default function PromosScreen() {
 
               <View style={styles.footer}>
                 <View style={styles.expiryRow}>
-                  <Ionicons name="time-outline" size={14} color={THEME.colors.muted} />
-                  <Text style={styles.expiryText}>Expires: {promo.expiryDate}</Text>
+                  <Ionicons
+                    name="time-outline"
+                    size={14}
+                    color={THEME.colors.muted}
+                  />
+                  <Text style={styles.expiryText}>
+                    Expires: {promo.expiryDate}
+                  </Text>
                 </View>
                 <View style={styles.categoryTag}>
                   <Text style={styles.categoryText}>{promo.category}</Text>

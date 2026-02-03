@@ -1,11 +1,12 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { THEME } from "../../../constants/theme";
 
@@ -18,28 +19,30 @@ const mockUsers = [
 
 export default function AdminUsers() {
   const router = useRouter();
+  const { colors } = useAppTheme();
+
   const renderUser = ({ item }: any) => (
-    <View style={[styles.card, styles.shadow]}>
+    <View style={[styles.card, { backgroundColor: colors.surface }, styles.shadow]}>
       <View style={styles.row}>
-        <Text style={styles.name}>{item.name}</Text>
+        <Text style={[styles.name, { color: colors.text }]}>{item.name}</Text>
         <Text
           style={[
             styles.status,
-            item.status === "Active" ? styles.active : styles.suspended,
+            item.status === "Active" ? { color: colors.success } : { color: colors.error },
           ]}
         >
           {item.status}
         </Text>
       </View>
 
-      <Text style={styles.role}>
+      <Text style={[styles.role, { color: colors.muted }]}>
         Role:{" "}
         <Text
           style={{
             color:
               item.role === "Artisan"
-                ? THEME.colors.primary
-                : THEME.colors.primary,
+                ? colors.primary
+                : colors.primary,
           }}
         >
           {item.role}
@@ -47,7 +50,7 @@ export default function AdminUsers() {
       </Text>
 
       <TouchableOpacity
-  style={styles.button}
+  style={[styles.button, { backgroundColor: colors.secondary }]}
   onPress={() =>
     router.push({
       pathname: "/admin/modal",
@@ -60,14 +63,14 @@ export default function AdminUsers() {
     })
   }
 >
-  <Text style={styles.buttonText}>View Profile</Text>
+  <Text style={[styles.buttonText, { color: colors.text }]}>View Profile</Text>
 </TouchableOpacity>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>👥 User Management</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>👥 User Management</Text>
 
       <FlatList
         data={mockUsers}
@@ -82,17 +85,14 @@ export default function AdminUsers() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
     padding: THEME.spacing.md,
   },
   title: {
     fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
-    color: THEME.colors.text,
     marginBottom: THEME.spacing.md,
   },
   card: {
-    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.md,
     marginBottom: THEME.spacing.md,
@@ -105,32 +105,22 @@ const styles = StyleSheet.create({
   name: {
     fontSize: THEME.typography.sizes.lg,
     fontWeight: "600",
-    color: THEME.colors.text,
   },
   status: {
     fontSize: THEME.typography.sizes.sm,
     fontWeight: "600",
   },
-  active: {
-    color: THEME.colors.success,
-  },
-  suspended: {
-    color: THEME.colors.error,
-  },
   role: {
-    color: THEME.colors.muted,
     marginTop: 6,
     fontSize: THEME.typography.sizes.base,
   },
   button: {
-    backgroundColor: THEME.colors.secondary,
     borderRadius: THEME.radius.md,
     paddingVertical: 6,
     marginTop: THEME.spacing.sm,
   },
   buttonText: {
     textAlign: "center",
-    color: THEME.colors.surface,
     fontWeight: "600",
   },
   shadow: {

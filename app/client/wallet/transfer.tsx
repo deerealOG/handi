@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+    Alert,
     Image,
     KeyboardAvoidingView,
     Platform,
@@ -24,7 +25,7 @@ const RECENT_ARTISANS = [
 
 export default function TransferScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"user" | "tip">("user");
+  const [activeTab, setActiveTab] = useState<"user" | "tip" | "business">("user");
   const [amount, setAmount] = useState("");
   const [recipient, setRecipient] = useState("");
   const [note, setNote] = useState("");
@@ -32,20 +33,20 @@ export default function TransferScreen() {
 
   const handleTransfer = () => {
     if (!amount || parseFloat(amount) <= 0) {
-      alert("Please enter a valid amount");
+      Alert.alert("Error", "Please enter a valid amount");
       return;
     }
     if (activeTab === "user" && !recipient) {
-      alert("Please enter recipient email or phone");
+      Alert.alert("Error", "Please enter recipient email or phone");
       return;
     }
-    if (activeTab === "tip" && !selectedArtisan) {
-      alert("Please select an artisan to tip");
+    if ((activeTab === "tip" || activeTab === "business") && !selectedArtisan) {
+      Alert.alert("Error", "Please select a recipient");
       return;
     }
     
-    const recipientName = activeTab === "user" ? recipient : RECENT_ARTISANS.find(a => a.id === selectedArtisan)?.name;
-    alert(`Transfer initiated for ₦${amount} to ${recipientName}`);
+    // const recipientName = activeTab === "user" ? recipient : RECENT_ARTISANS.find(a => a.id === selectedArtisan)?.name;
+    Alert.alert("Success", `Transfer initiated for ₦${amount}`);
     router.back();
   };
 
@@ -70,7 +71,13 @@ export default function TransferScreen() {
             style={[styles.tab, activeTab === "user" && styles.activeTab]}
             onPress={() => setActiveTab("user")}
           >
-            <Text style={[styles.tabText, activeTab === "user" && styles.activeTabText]}>Send to User</Text>
+            <Text style={[styles.tabText, activeTab === "user" && styles.activeTabText]}>To User</Text>
+          </TouchableOpacity>
+           <TouchableOpacity 
+            style={[styles.tab, activeTab === "business" && styles.activeTab]}
+            onPress={() => setActiveTab("business")}
+          >
+            <Text style={[styles.tabText, activeTab === "business" && styles.activeTabText]}>Pay Business</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.tab, activeTab === "tip" && styles.activeTab]}
@@ -95,7 +102,7 @@ export default function TransferScreen() {
                   autoCapitalize="none"
                 />
               </View>
-            ) : (
+            ) : activeTab === "tip" ? (
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Select Artisan</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.artisanScroll}>
@@ -115,6 +122,38 @@ export default function TransferScreen() {
                       <Text style={styles.artisanName}>{artisan.name}</Text>
                       <Text style={styles.artisanSkill}>{artisan.skill}</Text>
                       {selectedArtisan === artisan.id && (
+                        <View style={styles.checkBadge}>
+                          <Ionicons name="checkmark" size={12} color="white" />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            ) : (
+               // Business Tab
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Select Business</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.artisanScroll}>
+                  {[
+                      { id: "b1", name: "Apex Services", skill: "Construction" },
+                      { id: "b2", name: "CleanPro", skill: "Cleaning" }
+                  ].map((biz) => (
+                    <TouchableOpacity
+                      key={biz.id}
+                      style={[
+                        styles.artisanCard,
+                        selectedArtisan === biz.id && styles.artisanCardSelected
+                      ]}
+                      onPress={() => setSelectedArtisan(biz.id)}
+                    >
+                      <Image 
+                        source={require("../../../assets/images/featured.png")} 
+                        style={styles.artisanAvatar} 
+                      />
+                      <Text style={styles.artisanName}>{biz.name}</Text>
+                      <Text style={styles.artisanSkill}>{biz.skill}</Text>
+                      {selectedArtisan === biz.id && (
                         <View style={styles.checkBadge}>
                           <Ionicons name="checkmark" size={12} color="white" />
                         </View>
@@ -177,6 +216,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
+    paddingTop: 50,
   },
   header: {
     flexDirection: "row",

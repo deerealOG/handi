@@ -2,34 +2,66 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { THEME } from "../../../constants/theme";
+import { bookingService } from "../../../services";
 
 export default function RateArtisanScreen() {
   const router = useRouter();
-  const { artisan } = useLocalSearchParams();
+  const { artisan, bookingId } = useLocalSearchParams();
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = () => {
-    // TODO: Submit review API call
-    router.back();
+  const handleSubmit = async () => {
+    if (rating === 0) {
+      Alert.alert("Rating Required", "Please select a star rating");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const bookingIdStr = Array.isArray(bookingId) ? bookingId[0] : bookingId;
+
+      const result = await bookingService.addReview(
+        bookingIdStr || "default-booking",
+        rating,
+        review
+      );
+
+      if (result.success) {
+        Alert.alert("Success", "Thank you! Your review has been submitted.", [
+          {
+            text: "OK",
+            onPress: () => router.back(),
+          },
+        ]);
+      } else {
+        Alert.alert("Error", result.error || "Failed to submit review");
+      }
+    } catch (error) {
+      Alert.alert("Error", "An unexpected error occurred");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={THEME.colors.background} />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -44,12 +76,12 @@ export default function RateArtisanScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.content}>
-          
+
           {/* Artisan Info */}
           <View style={styles.artisanCard}>
-            <Image 
-              source={require("../../../assets/images/profileavatar.png")} 
-              style={styles.avatar} 
+            <Image
+              source={require("../../../assets/images/profileavatar.png")}
+              style={styles.avatar}
             />
             <Text style={styles.question}>How was your service with</Text>
             <Text style={styles.name}>{artisan || "Golden Amadi"}?</Text>
@@ -68,10 +100,10 @@ export default function RateArtisanScreen() {
             ))}
           </View>
           <Text style={styles.ratingLabel}>
-            {rating === 0 ? "Tap to rate" : 
-             rating === 5 ? "Excellent!" : 
-             rating === 4 ? "Good" : 
-             rating === 3 ? "Average" : "Poor"}
+            {rating === 0 ? "Tap to rate" :
+              rating === 5 ? "Excellent!" :
+                rating === 4 ? "Good" :
+                  rating === 3 ? "Average" : "Poor"}
           </Text>
 
           {/* Review Input */}
@@ -92,12 +124,14 @@ export default function RateArtisanScreen() {
         </ScrollView>
 
         <View style={styles.footer}>
-          <TouchableOpacity 
-            style={[styles.submitButton, rating === 0 && styles.disabledButton]} 
+          <TouchableOpacity
+            style={[styles.submitButton, (rating === 0 || isSubmitting) && styles.disabledButton]}
             onPress={handleSubmit}
-            disabled={rating === 0}
+            disabled={rating === 0 || isSubmitting}
           >
-            <Text style={styles.submitButtonText}>Submit Review</Text>
+            <Text style={styles.submitButtonText}>
+              {isSubmitting ? "Submitting..." : "Submit Review"}
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

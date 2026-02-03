@@ -1,23 +1,38 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Animated,
-  FlatList,
-  Image,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
+    Animated,
+    FlatList,
+    Image,
+    Modal,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TouchableOpacity,
+    View,
+    useWindowDimensions,
 } from "react-native";
 import { THEME } from "../../../constants/theme";
 import { Job } from "../types";
 
+// Conditionally import web header
+let WebHeader: React.ComponentType<{
+  title?: string;
+  showSearch?: boolean;
+}> | null = null;
+if (Platform.OS === "web") {
+  WebHeader = require("@/components/web/WebHeader").WebHeader;
+}
+
 export default function ArtisanHomeScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const isWeb = Platform.OS === "web";
   const [isOnline, setIsOnline] = useState(true);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -41,7 +56,6 @@ export default function ArtisanHomeScreen() {
       }),
     ]).start();
   }, [fadeAnim, slideAnim]);
-
 
   // Modal slide animation
   useEffect(() => {
@@ -79,38 +93,61 @@ export default function ArtisanHomeScreen() {
         },
       ]}
     >
-      <TouchableOpacity 
-        style={styles.jobCard}
-        onPress={() => router.push({ pathname: "/artisan/job-details", params: { id: item.id } })}
+      <TouchableOpacity
+        style={[
+          styles.jobCard,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+        ]}
+        onPress={() =>
+          router.push({
+            pathname: "/artisan/job-details",
+            params: { id: item.id },
+          })
+        }
       >
-        <View style={styles.jobIconContainer}>
+        <View
+          style={[
+            styles.jobIconContainer,
+            { backgroundColor: colors.primaryLight },
+          ]}
+        >
           <MaterialCommunityIcons
-            name={item.icon}
+            name={item.icon as any}
             size={24}
-            color={THEME.colors.primary}
+            color={colors.primary}
           />
         </View>
 
         <View style={{ flex: 1 }}>
-          <Text style={styles.jobTitle}>{item.title}</Text>
-          <Text style={styles.jobLocation}>{item.location}</Text>
+          <Text style={[styles.jobTitle, { color: colors.text }]}>
+            {item.title}
+          </Text>
+          <Text style={[styles.jobLocation, { color: colors.muted }]}>
+            {item.location}
+          </Text>
         </View>
 
         <View style={styles.jobAmountContainer}>
-          <Text style={styles.jobAmount}>{item.amount}</Text>
+          <Text style={[styles.jobAmount, { color: colors.primary }]}>
+            {item.amount}
+          </Text>
           <TouchableOpacity
-            style={styles.acceptButton}
+            style={[styles.acceptButton, { backgroundColor: colors.primary }]}
             onPress={() => handleAcceptPress(item)}
           >
-            <Text style={styles.acceptButtonText}>Accept</Text>
+            <Text
+              style={[styles.acceptButtonText, { color: colors.onPrimary }]}
+            >
+              Accept
+            </Text>
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
     </Animated.View>
-  )
+  );
 
   const availableJobs: Job[] = [
-      {
+    {
       id: "1",
       title: "Fix leaking kitchen sink",
       location: "Victoria Island, Lagos",
@@ -133,236 +170,487 @@ export default function ArtisanHomeScreen() {
     },
   ];
 
-
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ paddingBottom: 100 }}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.welcomeText}>Welcome back,</Text>
-            <Text style={styles.nameText}>Golden Amadi</Text>
+    <View style={[styles.webContainer, { backgroundColor: colors.background }]}>
+      {/* Web Header */}
+      {isWeb && WebHeader && <WebHeader title="Dashboard" showSearch={true} />}
+
+      <ScrollView
+        style={[
+          styles.container,
+          { backgroundColor: colors.background },
+          isWeb && styles.containerWeb,
+        ]}
+        contentContainerStyle={[
+          { paddingBottom: 100 },
+          isWeb && styles.contentWeb,
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Mobile Header - hidden on web */}
+        {!isWeb && (
+          <View style={styles.header}>
+            <View style={styles.headerTop}>
+              <View>
+                <Text style={[styles.welcomeText, { color: colors.muted }]}>
+                  Welcome back,
+                </Text>
+                <Text style={[styles.nameText, { color: colors.text }]}>
+                  Golden Amadi
+                </Text>
+              </View>
+              <View style={styles.headerIcons}>
+                <TouchableOpacity
+                  style={[
+                    styles.iconButton,
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                  onPress={() => router.push("/artisan/notifications")}
+                >
+                  <Ionicons
+                    name="notifications-outline"
+                    size={22}
+                    color={colors.text}
+                  />
+                  <View
+                    style={[styles.badge, { borderColor: colors.surface }]}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.iconButton,
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                  onPress={() => router.push("/artisan/messages")}
+                >
+                  <Ionicons
+                    name="chatbubble-ellipses-outline"
+                    size={22}
+                    color={colors.text}
+                  />
+                  <View
+                    style={[styles.badge, { borderColor: colors.surface }]}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push("/artisan/profile")}
+                >
+                  <Image
+                    source={require("../../../assets/images/profileavatar.png")}
+                    style={[styles.avatar, { borderColor: colors.surface }]}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
-          <View style={styles.headerIcons}>
-            <TouchableOpacity 
-              style={styles.iconButton}
-              onPress={() => router.push("/artisan/notifications")}
-            >
-              <Ionicons name="notifications-outline" size={22} color={THEME.colors.text} />
-              <View style={styles.badge} />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.iconButton}
-              onPress={() => router.push("/artisan/messages")}
-            >
-              <Ionicons name="chatbubble-ellipses-outline" size={22} color={THEME.colors.text} />
-              <View style={styles.badge} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push("/artisan/profile")}>
-              <Image
-                source={require("../../../assets/images/profileavatar.png")}
-                style={styles.avatar}
+        )}
+
+        {/* Online Toggle */}
+        <View
+          style={[
+            styles.statusCard,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <View style={styles.statusRow}>
+            <View style={styles.statusInfo}>
+              <View
+                style={[
+                  styles.statusDot,
+                  { backgroundColor: isOnline ? colors.primary : "#ccc" },
+                ]}
               />
-            </TouchableOpacity>
+              <Text style={[styles.statusText, { color: colors.text }]}>
+                {isOnline ? "You're Online" : "You're Offline"}
+              </Text>
+            </View>
+            <Switch
+              value={isOnline}
+              onValueChange={setIsOnline}
+              thumbColor={isOnline ? colors.primary : "#ccc"}
+              trackColor={{ false: "#ccc", true: colors.primary + "50" }}
+            />
           </View>
         </View>
-      </View>
 
-      {/* Online Toggle */}
-      <View style={styles.statusCard}>
-        <View style={styles.statusRow}>
-          <View style={styles.statusInfo}>
-            <View style={[styles.statusDot, { backgroundColor: isOnline ? THEME.colors.primary : "#ccc" }]} />
-            <Text style={styles.statusText}>
-              {isOnline ? "You're Online" : "You're Offline"}
-            </Text>
+        {/* Stats Summary */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.statsScroll}
+          contentContainerStyle={styles.statsContainer}
+        >
+          <View
+            style={[
+              styles.summaryCard,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                borderWidth: 1,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.summaryIconBg,
+                { backgroundColor: colors.primaryLight },
+              ]}
+            >
+              <MaterialCommunityIcons
+                name="wallet-outline"
+                size={24}
+                color={colors.primary}
+              />
+            </View>
+            <View>
+              <Text style={[styles.summaryLabel, { color: colors.muted }]}>
+                Earnings
+              </Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
+                ₦35,000
+              </Text>
+            </View>
           </View>
-          <Switch
-            value={isOnline}
-            onValueChange={setIsOnline}
-            thumbColor={isOnline ? THEME.colors.primary : "#ccc"}
-            trackColor={{ false: "#ccc", true: "rgba(28,140,75,0.2)" }}
+
+          <View
+            style={[
+              styles.summaryCard,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                borderWidth: 1,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.summaryIconBg,
+                { backgroundColor: "rgba(245, 124, 0, 0.1)" },
+              ]}
+            >
+              <MaterialCommunityIcons
+                name="briefcase-check-outline"
+                size={24}
+                color="#F57C00"
+              />
+            </View>
+            <View>
+              <Text style={[styles.summaryLabel, { color: colors.muted }]}>
+                Jobs Done
+              </Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
+                12
+              </Text>
+            </View>
+          </View>
+
+          <View
+            style={[
+              styles.summaryCard,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                borderWidth: 1,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.summaryIconBg,
+                { backgroundColor: "rgba(33, 150, 243, 0.1)" },
+              ]}
+            >
+              <MaterialCommunityIcons
+                name="star-outline"
+                size={24}
+                color="#2196F3"
+              />
+            </View>
+            <View>
+              <Text style={[styles.summaryLabel, { color: colors.muted }]}>
+                Rating
+              </Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
+                4.8
+              </Text>
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* Quick Actions */}
+        <View style={styles.quickActionsContainer}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Quick Actions
+          </Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.quickActionsScroll}
+          >
+            <TouchableOpacity
+              style={styles.quickActionButton}
+              onPress={() => router.push("/artisan/calendar")}
+            >
+              <View
+                style={[styles.quickActionIcon, { backgroundColor: "#F3E5F5" }]}
+              >
+                <MaterialCommunityIcons
+                  name="calendar-month-outline"
+                  size={24}
+                  color="#9C27B0"
+                />
+              </View>
+              <Text style={[styles.quickActionText, { color: colors.text }]}>
+                Calendar
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
+              onPress={() => router.push("/artisan/promote")}
+            >
+              <View
+                style={[styles.quickActionIcon, { backgroundColor: "#E0F7FA" }]}
+              >
+                <MaterialCommunityIcons
+                  name="bullhorn-outline"
+                  size={24}
+                  color="#00BCD4"
+                />
+              </View>
+              <Text style={[styles.quickActionText, { color: colors.text }]}>
+                Promote
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.quickActionButton}
+              onPress={() => router.push("/artisan/help")}
+            >
+              <View
+                style={[styles.quickActionIcon, { backgroundColor: "#FFEBEE" }]}
+              >
+                <MaterialCommunityIcons
+                  name="headset"
+                  size={24}
+                  color="#E91E63"
+                />
+              </View>
+              <Text style={[styles.quickActionText, { color: colors.text }]}>
+                Support
+              </Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+
+        {/* Active Job */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Active Job
+          </Text>
+          <TouchableOpacity
+            style={[
+              styles.activeJobCard,
+              { backgroundColor: colors.primaryDark },
+            ]}
+            onPress={() => router.push("/artisan/job-details?id=active1")}
+          >
+            <View style={styles.activeJobHeader}>
+              <View style={styles.activeJobBadge}>
+                <Text style={styles.activeJobBadgeText}>IN PROGRESS</Text>
+              </View>
+              <Text style={styles.activeJobTime}>Due: 2:00 PM</Text>
+            </View>
+
+            <Text style={styles.activeJobTitle}>Bathroom Pipe Repair</Text>
+            <View style={styles.activeJobLocationRow}>
+              <Ionicons
+                name="location-outline"
+                size={16}
+                color="rgba(255,255,255,0.8)"
+              />
+              <Text style={styles.activeJobLocation}>Lekki Phase 1, Lagos</Text>
+            </View>
+
+            <View style={styles.activeJobFooter}>
+              <View style={styles.activeJobClient}>
+                <Image
+                  source={require("../../../assets/images/profileavatar.png")}
+                  style={styles.activeJobAvatar}
+                />
+                <Text style={styles.activeJobClientName}>Golden Amadi</Text>
+              </View>
+              <Text style={styles.activeJobAmount}>₦8,000</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Available Jobs */}
+        <View style={styles.availableJobContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.availableJobTitle, { color: colors.text }]}>
+              Available Jobs
+            </Text>
+            <TouchableOpacity onPress={() => router.push("/artisan/jobs")}>
+              <Text style={[styles.seeAllText, { color: colors.primary }]}>
+                See All
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <FlatList
+            data={availableJobs}
+            keyExtractor={(item) => item.id}
+            renderItem={renderJobCard}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            scrollEnabled={false}
           />
         </View>
-      </View>
 
-      {/* Stats Summary */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsScroll} contentContainerStyle={styles.statsContainer}>
-        <View style={[styles.summaryCard, { backgroundColor: "#E8F5E9" }]}>
-          <View style={styles.summaryIconBg}>
-            <MaterialCommunityIcons name="wallet-outline" size={24} color={THEME.colors.primary} />
-          </View>
-          <View>
-            <Text style={styles.summaryLabel}>Earnings</Text>
-            <Text style={styles.summaryValue}>₦35,000</Text>
-          </View>
-        </View>
-
-        <View style={[styles.summaryCard, { backgroundColor: "#FFF4E5" }]}>
-          <View style={[styles.summaryIconBg, { backgroundColor: "rgba(245, 124, 0, 0.1)" }]}>
-            <MaterialCommunityIcons name="briefcase-check-outline" size={24} color="#F57C00" />
-          </View>
-          <View>
-            <Text style={styles.summaryLabel}>Jobs Done</Text>
-            <Text style={styles.summaryValue}>12</Text>
-          </View>
-        </View>
-
-        <View style={[styles.summaryCard, { backgroundColor: "#E3F2FD" }]}>
-          <View style={[styles.summaryIconBg, { backgroundColor: "rgba(33, 150, 243, 0.1)" }]}>
-            <MaterialCommunityIcons name="star-outline" size={24} color="#2196F3" />
-          </View>
-          <View>
-            <Text style={styles.summaryLabel}>Rating</Text>
-            <Text style={styles.summaryValue}>4.8</Text>
-          </View>
-        </View>
-      </ScrollView>
-
-      {/* Quick Actions */}
-      <View style={styles.quickActionsContainer}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionsScroll}>
-          <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push("/artisan/calendar")}>
-            <View style={[styles.quickActionIcon, { backgroundColor: "#F3E5F5" }]}>
-              <MaterialCommunityIcons name="calendar-month-outline" size={24} color="#9C27B0" />
-            </View>
-            <Text style={styles.quickActionText}>Calendar</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push("/artisan/promote")}>
-            <View style={[styles.quickActionIcon, { backgroundColor: "#E0F7FA" }]}>
-              <MaterialCommunityIcons name="bullhorn-outline" size={24} color="#00BCD4" />
-            </View>
-            <Text style={styles.quickActionText}>Promote</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push("/artisan/help")}>
-            <View style={[styles.quickActionIcon, { backgroundColor: "#FFEBEE" }]}>
-              <MaterialCommunityIcons name="headset" size={24} color="#E91E63" />
-            </View>
-            <Text style={styles.quickActionText}>Support</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
-
-      {/* Active Job */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Active Job</Text>
-        <TouchableOpacity 
-          style={styles.activeJobCard}
-          onPress={() => router.push("/artisan/job-details?id=active1")}
-        >
-          <View style={styles.activeJobHeader}>
-            <View style={styles.activeJobBadge}>
-              <Text style={styles.activeJobBadgeText}>IN PROGRESS</Text>
-            </View>
-            <Text style={styles.activeJobTime}>Due: 2:00 PM</Text>
-          </View>
-          
-          <Text style={styles.activeJobTitle}>Bathroom Pipe Repair</Text>
-          <View style={styles.activeJobLocationRow}>
-            <Ionicons name="location-outline" size={16} color="rgba(255,255,255,0.8)" />
-            <Text style={styles.activeJobLocation}>Lekki Phase 1, Lagos</Text>
-          </View>
-          
-          <View style={styles.activeJobFooter}>
-            <View style={styles.activeJobClient}>
-              <Image source={require("../../../assets/images/profileavatar.png")} style={styles.activeJobAvatar} />
-              <Text style={styles.activeJobClientName}>Golden Amadi</Text>
-            </View>
-            <Text style={styles.activeJobAmount}>₦8,000</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      {/* Available Jobs */}
-      <View style={styles.availableJobContainer}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.availableJobTitle}>Available Jobs</Text>
-          <TouchableOpacity onPress={() => router.push("/artisan/jobs")}>
-            <Text style={styles.seeAllText}>See All</Text>
-          </TouchableOpacity>
-        </View>
-
-        <FlatList
-          data={availableJobs}
-          keyExtractor={(item) => item.id}
-          renderItem={renderJobCard}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          scrollEnabled={false} 
-        />
-      </View>
-
-      {/* Accept Job Modal */}
-      <Modal transparent visible={showModal} animationType="none">
-        <View style={styles.modalOverlay}>
-          <Animated.View
-            style={[styles.modalContainer, { transform: [{ translateY: slideUp }] }]}
+        {/* Accept Job Modal */}
+        <Modal transparent visible={showModal} animationType="none">
+          <View
+            style={[
+              styles.modalOverlay,
+              { backgroundColor: "rgba(0,0,0,0.5)" },
+            ]}
           >
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Accept Job Request</Text>
-              <TouchableOpacity onPress={() => setShowModal(false)}>
-                <Ionicons name="close" size={24} color={THEME.colors.muted} />
-              </TouchableOpacity>
-            </View>
-            
-            <Text style={styles.modalText}>
-              Are you sure you want to accept this job? This will notify the client immediately.
-            </Text>
-
-            {selectedJob && (
-              <View style={styles.modalJobDetails}>
-                <View style={styles.modalJobRow}>
-                  <MaterialCommunityIcons name={selectedJob.icon} size={20} color={THEME.colors.primary} />
-                  <Text style={styles.modalJobTitle}>{selectedJob.title}</Text>
-                </View>
-                <Text style={styles.modalJobInfo}>{selectedJob.location}</Text>
-                <View style={styles.modalDivider} />
-                <View style={styles.modalPriceRow}>
-                  <Text style={styles.modalPriceLabel}>Estimated Earnings</Text>
-                  <Text style={styles.modalJobAmount}>{selectedJob.amount}</Text>
-                </View>
+            <Animated.View
+              style={[
+                styles.modalContainer,
+                {
+                  transform: [{ translateY: slideUp }],
+                  backgroundColor: colors.surface,
+                },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Accept Job Request
+                </Text>
+                <TouchableOpacity onPress={() => setShowModal(false)}>
+                  <Ionicons name="close" size={24} color={colors.muted} />
+                </TouchableOpacity>
               </View>
-            )}
 
-            <View style={styles.modalButtonsRow}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setShowModal(false)}
-              >
-                <Text style={[styles.modalButtonText, { color: THEME.colors.text }]}>
-                  Cancel
-                </Text>
-              </TouchableOpacity>
+              <Text style={[styles.modalText, { color: colors.muted }]}>
+                Are you sure you want to accept this job? This will notify the
+                client immediately.
+              </Text>
 
-              <TouchableOpacity
-                style={[styles.modalButton, styles.confirmButton]}
-                onPress={handleConfirm}
-              >
-                <Text style={[styles.modalButtonText, { color: "#fff" }]}>
-                  Accept Job
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </View>
-      </Modal>
-    </ScrollView>
+              {selectedJob && (
+                <View
+                  style={[
+                    styles.modalJobDetails,
+                    {
+                      backgroundColor: colors.background,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                >
+                  <View style={styles.modalJobRow}>
+                    <MaterialCommunityIcons
+                      name={selectedJob.icon as any}
+                      size={20}
+                      color={colors.primary}
+                    />
+                    <Text
+                      style={[styles.modalJobTitle, { color: colors.text }]}
+                    >
+                      {selectedJob.title}
+                    </Text>
+                  </View>
+                  <Text style={[styles.modalJobInfo, { color: colors.muted }]}>
+                    {selectedJob.location}
+                  </Text>
+                  <View
+                    style={[
+                      styles.modalDivider,
+                      { backgroundColor: colors.border },
+                    ]}
+                  />
+                  <View style={styles.modalPriceRow}>
+                    <Text
+                      style={[styles.modalPriceLabel, { color: colors.muted }]}
+                    >
+                      Estimated Earnings
+                    </Text>
+                    <Text
+                      style={[styles.modalJobAmount, { color: colors.primary }]}
+                    >
+                      {selectedJob.amount}
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              <View style={styles.modalButtonsRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.modalButton,
+                    styles.cancelButton,
+                    { backgroundColor: colors.border },
+                  ]}
+                  onPress={() => setShowModal(false)}
+                >
+                  <Text
+                    style={[styles.modalButtonText, { color: colors.text }]}
+                  >
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.modalButton,
+                    styles.confirmButton,
+                    { backgroundColor: colors.primary },
+                  ]}
+                  onPress={handleConfirm}
+                >
+                  <Text
+                    style={[
+                      styles.modalButtonText,
+                      { color: colors.onPrimary },
+                    ]}
+                  >
+                    Accept Job
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+          </View>
+        </Modal>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  webContainer: {
+    flex: 1,
+    flexDirection: "column",
+  },
   container: {
     flex: 1,
-    backgroundColor: "#FAFAFA", // Slightly off-white for better contrast
+    backgroundColor: "#FAFAFA",
     paddingHorizontal: 16,
     paddingTop: 20,
+  },
+  containerWeb: {
+    paddingHorizontal: 24,
+    paddingTop: 0,
+  },
+  contentWeb: {
+    maxWidth: 1200,
+    paddingBottom: 48,
   },
 
   // Header

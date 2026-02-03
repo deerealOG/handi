@@ -1,28 +1,33 @@
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { THEME } from "../../../constants/theme";
 
 export default function SecurityScreen() {
   const router = useRouter();
-  
+  const { resetPassword } = useAuth();
+
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem("biometricEnabled").then((val) => {
@@ -33,17 +38,60 @@ export default function SecurityScreen() {
   const toggleBiometric = async (val: boolean) => {
     setBiometricEnabled(val);
     await AsyncStorage.setItem("biometricEnabled", val.toString());
+    Alert.alert(
+      "Biometric Login",
+      val ? "Biometric login enabled" : "Biometric login disabled"
+    );
   };
 
-  const handleUpdatePassword = () => {
-    // TODO: Implement password update logic
-    router.back();
+  const handleUpdatePassword = async () => {
+    if (!currentPassword.trim()) {
+      Alert.alert("Error", "Please enter your current password");
+      return;
+    }
+
+    if (!newPassword.trim()) {
+      Alert.alert("Error", "Please enter a new password");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      Alert.alert("Error", "New password must be at least 6 characters");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
+
+    if (currentPassword === newPassword) {
+      Alert.alert("Error", "New password must be different from current password");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await resetPassword(currentPassword, newPassword);
+      if (result.success) {
+        Alert.alert("Success", "Password updated successfully", [
+          { text: "OK", onPress: () => router.back() }
+        ]);
+      } else {
+        Alert.alert("Error", result.error || "Failed to update password");
+      }
+    } catch (error) {
+      Alert.alert("Error", "An unexpected error occurred");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={THEME.colors.background} />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -58,7 +106,7 @@ export default function SecurityScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.content}>
-          
+
           {/* Biometric Toggle */}
           <View style={styles.section}>
             <View style={styles.row}>
@@ -78,7 +126,7 @@ export default function SecurityScreen() {
           {/* Change Password */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { marginBottom: 16 }]}>Change Password</Text>
-            
+
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Current Password</Text>
               <TextInput
@@ -116,8 +164,16 @@ export default function SecurityScreen() {
         </ScrollView>
 
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.saveButton} onPress={handleUpdatePassword}>
-            <Text style={styles.saveButtonText}>Update Password</Text>
+          <TouchableOpacity
+            style={[styles.saveButton, { opacity: isLoading ? 0.7 : 1 }]}
+            onPress={handleUpdatePassword}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color={THEME.colors.surface} size="small" />
+            ) : (
+              <Text style={styles.saveButtonText}>Update Password</Text>
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

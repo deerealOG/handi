@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -6,6 +7,7 @@ import { THEME } from "../../constants/theme";
 export default function JobModal() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { colors } = useAppTheme();
 
   // Example of dynamic job data via params
   const job = {
@@ -22,51 +24,51 @@ export default function JobModal() {
   const isDispute = job.status === "Dispute";
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>🧰 Job Details</Text>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.title, { color: colors.text }]}>🧰 Job Details</Text>
 
-      <View style={[styles.card, styles.shadow]}>
-        <Text style={styles.jobTitle}>{job.title}</Text>
-        <Text style={styles.detail}>
+      <View style={[styles.card, { backgroundColor: colors.surface }, styles.shadow]}>
+        <Text style={[styles.jobTitle, { color: colors.secondary }]}>{job.title}</Text>
+        <Text style={[styles.detail, { color: colors.text }]}>
           Client: <Text style={styles.bold}>{job.client}</Text>
         </Text>
-        <Text style={styles.detail}>
+        <Text style={[styles.detail, { color: colors.text }]}>
           Artisan: <Text style={styles.bold}>{job.artisan}</Text>
         </Text>
-        <Text style={styles.detail}>
+        <Text style={[styles.detail, { color: colors.text }]}>
           Status:{" "}
           <Text
             style={[
               styles.bold,
               job.status === "Completed"
-                ? styles.completed
+                ? { color: colors.success }
                 : isDispute
-                ? styles.dispute
-                : styles.active,
+                ? { color: colors.error }
+                : { color: colors.error },
             ]}
           >
             {job.status}
           </Text>
         </Text>
-        <Text style={styles.desc}>{job.description}</Text>
+        <Text style={[styles.desc, { color: colors.muted }]}>{job.description}</Text>
       </View>
 
       <TouchableOpacity
         style={[
           styles.actionButton,
-          isDispute ? styles.resolveBtn : styles.completeBtn,
+          isDispute ? { backgroundColor: colors.error } : { backgroundColor: colors.success },
         ]}
       >
-        <Text style={styles.actionText}>
+        <Text style={[styles.actionText, { color: '#FFFFFF' }]}>
           {isDispute ? "Resolve Dispute" : "Mark as Completed"}
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.closeButton}
+        style={[styles.closeButton, { backgroundColor: colors.secondary }]}
         onPress={() => router.back()}
       >
-        <Text style={styles.closeText}>Close</Text>
+        <Text style={[styles.closeText, { color: colors.text }]}>Close</Text>
       </TouchableOpacity>
     </View>
   );
@@ -75,35 +77,29 @@ export default function JobModal() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
     padding: THEME.spacing.lg,
     justifyContent: "center",
   },
   title: {
     fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
-    color: THEME.colors.text,
     textAlign: "center",
     marginBottom: THEME.spacing.lg,
   },
   card: {
-    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.lg,
   },
   jobTitle: {
     fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
-    color: THEME.colors.secondary,
     marginBottom: THEME.spacing.sm,
   },
   detail: {
-    color: THEME.colors.text,
     fontSize: THEME.typography.sizes.base,
     marginBottom: 4,
   },
   desc: {
-    color: THEME.colors.muted,
     marginTop: THEME.spacing.sm,
     fontSize: THEME.typography.sizes.base,
     lineHeight: 20,
@@ -111,40 +107,22 @@ const styles = StyleSheet.create({
   bold: {
     fontWeight: "700",
   },
-  active: {
-    color: THEME.colors.error,
-  },
-  completed: {
-    color: THEME.colors.success,
-  },
-  dispute: {
-    color: THEME.colors.error,
-  },
   actionButton: {
     borderRadius: THEME.radius.md,
     paddingVertical: 10,
     alignItems: "center",
     marginTop: THEME.spacing.lg,
   },
-  resolveBtn: {
-    backgroundColor: THEME.colors.error,
-  },
-  completeBtn: {
-    backgroundColor: THEME.colors.success,
-  },
   actionText: {
-    color: THEME.colors.surface,
     fontWeight: "700",
   },
   closeButton: {
     marginTop: THEME.spacing.lg,
-    backgroundColor: THEME.colors.secondary,
     borderRadius: THEME.radius.md,
     paddingVertical: 10,
     alignItems: "center",
   },
   closeText: {
-    color: THEME.colors.surface,
     fontWeight: "700",
   },
   shadow: {

@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
@@ -14,6 +15,7 @@ import { THEME } from "../../constants/theme";
 
 export default function BookingDetailsScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
   const params = useLocalSearchParams();
   
   // Parse the booking object if passed as a string, or use individual params
@@ -22,69 +24,70 @@ export default function BookingDetailsScreen() {
   const { id, artisan, skill, date, time, price, status } = params;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={THEME.colors.background} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.text === '#FAFAFA' ? "light-content" : "dark-content"} backgroundColor={colors.background} />
       
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={THEME.colors.text} />
+        <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Booking Details</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Booking Details</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        <View style={styles.card}>
-            <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Order ID</Text>
-                <Text style={styles.detailValue}>#{id}234</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+            <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.detailLabel, { color: colors.muted }]}>Order ID</Text>
+                <Text style={[styles.detailValue, { color: colors.text }]}>#{id}234</Text>
             </View>
-            <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Artisan</Text>
-                <Text style={styles.detailValue}>{artisan}</Text>
+            <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.detailLabel, { color: colors.muted }]}>Artisan</Text>
+                <Text style={[styles.detailValue, { color: colors.text }]}>{artisan}</Text>
             </View>
-            <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Service</Text>
-                <Text style={styles.detailValue}>{skill}</Text>
+            <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.detailLabel, { color: colors.muted }]}>Service</Text>
+                <Text style={[styles.detailValue, { color: colors.text }]}>{skill}</Text>
             </View>
-            <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Date</Text>
-                <Text style={styles.detailValue}>{date}</Text>
+            <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.detailLabel, { color: colors.muted }]}>Date</Text>
+                <Text style={[styles.detailValue, { color: colors.text }]}>{date}</Text>
             </View>
-            <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Time</Text>
-                <Text style={styles.detailValue}>{time}</Text>
+            <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.detailLabel, { color: colors.muted }]}>Time</Text>
+                <Text style={[styles.detailValue, { color: colors.text }]}>{time}</Text>
             </View>
-            <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Price</Text>
-                <Text style={[styles.detailValue, { color: THEME.colors.primary }]}>
+            <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.detailLabel, { color: colors.muted }]}>Price</Text>
+                <Text style={[styles.detailValue, { color: colors.primary }]}>
                 ₦{price}
                 </Text>
             </View>
-            <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Status</Text>
+            <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.detailLabel, { color: colors.muted }]}>Status</Text>
                 <Text style={[
                 styles.detailValue,
-                status === "Active" && { color: THEME.colors.success },
-                status === "Pending" && { color: "#CA8A04" },
-                status === "Cancelled" && { color: THEME.colors.error },
+                { color: colors.text },
+                status === "Active" && { color: colors.success },
+                status === "Pending" && { color: colors.warning },
+                status === "Cancelled" && { color: colors.error },
                 ]}>{status}</Text>
             </View>
         </View>
 
         <TouchableOpacity 
-            style={styles.messageButton}
+            style={[styles.messageButton, { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
             onPress={() => router.push({
               pathname: "/client/chat/1",
               params: { name: artisan }
             } as any)}
         >
-            <Ionicons name="chatbubble-ellipses-outline" size={20} color={THEME.colors.primary} style={{ marginRight: 8 }} />
-            <Text style={styles.messageButtonText}>Message Artisan</Text>
+            <Ionicons name="chatbubble-ellipses-outline" size={20} color={colors.primary} style={{ marginRight: 8 }} />
+            <Text style={[styles.messageButtonText, { color: colors.primary }]}>Message Artisan</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
-            style={styles.primaryButton}
+            style={[styles.primaryButton, { backgroundColor: colors.primary }]}
             onPress={() => router.push({
                 pathname: "/client/book-artisan",
                 params: { artisan: artisan, skill: skill }
@@ -100,7 +103,7 @@ export default function BookingDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.background,
+    paddingTop: 50,
   },
   header: {
     flexDirection: "row",
@@ -112,21 +115,17 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 8,
     borderRadius: 20,
-    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
     ...THEME.shadow.base,
   },
   headerTitle: {
     fontSize: THEME.typography.sizes.lg,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
   },
   content: {
     padding: THEME.spacing.lg,
   },
   card: {
-    backgroundColor: THEME.colors.surface,
     borderRadius: 16,
     padding: 20,
     ...THEME.shadow.card,
@@ -137,27 +136,23 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
   },
   detailLabel: {
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.muted,
     fontSize: THEME.typography.sizes.base,
   },
   detailValue: {
     fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.text,
     fontSize: THEME.typography.sizes.base,
   },
   primaryButton: {
-    backgroundColor: THEME.colors.primary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     ...THEME.shadow.card,
   },
   primaryButtonText: {
-    color: THEME.colors.surface,
+    color: "#FFFFFF",
     fontSize: THEME.typography.sizes.md,
     fontFamily: THEME.typography.fontFamily.heading,
   },
@@ -165,15 +160,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#DCFCE7",
     paddingVertical: 16,
     borderRadius: 12,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: THEME.colors.primary,
   },
   messageButtonText: {
-    color: THEME.colors.primary,
     fontSize: THEME.typography.sizes.md,
     fontFamily: THEME.typography.fontFamily.heading,
   },

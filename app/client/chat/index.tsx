@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -50,17 +51,18 @@ const CHATS = [
 
 export default function ChatListScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={THEME.colors.background} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.text === '#FAFAFA' ? "light-content" : "dark-content"} backgroundColor={colors.background} />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={THEME.colors.text} />
+        <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Messages</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Messages</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -70,7 +72,7 @@ export default function ChatListScreen() {
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.chatItem}
+            style={[styles.chatItem, { backgroundColor: colors.surface, borderColor: colors.border }]}
             onPress={() =>
               router.push({
                 pathname: "/client/chat/[id]",
@@ -81,27 +83,28 @@ export default function ChatListScreen() {
             {/* Avatar & Status */}
             <View style={styles.avatarContainer}>
               <Image source={item.image} style={styles.avatar} />
-              {item.online && <View style={styles.onlineBadge} />}
+              {item.online && <View style={[styles.onlineBadge, { backgroundColor: colors.success, borderColor: colors.surface }]} />}
             </View>
 
             {/* Message Info */}
             <View style={styles.chatInfo}>
               <View style={styles.topRow}>
-                <Text style={styles.name}>{item.artisan}</Text>
-                <Text style={styles.time}>{item.time}</Text>
+                <Text style={[styles.name, { color: colors.text }]}>{item.artisan}</Text>
+                <Text style={[styles.time, { color: colors.muted }]}>{item.time}</Text>
               </View>
               <View style={styles.bottomRow}>
                 <Text
                   style={[
                     styles.message,
-                    item.unread > 0 && styles.unreadMessage,
+                    { color: colors.muted },
+                    item.unread > 0 && { color: colors.text, fontFamily: THEME.typography.fontFamily.bodyMedium },
                   ]}
                   numberOfLines={1}
                 >
                   {item.lastMessage}
                 </Text>
                 {item.unread > 0 && (
-                  <View style={styles.unreadBadge}>
+                  <View style={[styles.unreadBadge, { backgroundColor: colors.primary }]}>
                     <Text style={styles.unreadText}>{item.unread}</Text>
                   </View>
                 )}
@@ -117,7 +120,6 @@ export default function ChatListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.background,
     paddingTop: 50,
   },
   header: {
@@ -130,14 +132,11 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 8,
     borderRadius: 20,
-    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
   },
   headerTitle: {
     fontSize: THEME.typography.sizes.lg,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
   },
   listContent: {
     paddingHorizontal: THEME.spacing.lg,
@@ -146,12 +145,10 @@ const styles = StyleSheet.create({
   chatItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.surface,
     padding: 16,
     borderRadius: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
     ...THEME.shadow.base,
   },
   avatarContainer: {
@@ -170,9 +167,7 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: THEME.colors.success,
     borderWidth: 2,
-    borderColor: THEME.colors.surface,
   },
   chatInfo: {
     flex: 1,
@@ -185,12 +180,10 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: THEME.typography.fontFamily.heading,
     fontSize: THEME.typography.sizes.base,
-    color: THEME.colors.text,
   },
   time: {
     fontFamily: THEME.typography.fontFamily.body,
     fontSize: 12,
-    color: THEME.colors.muted,
   },
   bottomRow: {
     flexDirection: "row",
@@ -201,21 +194,15 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: THEME.typography.fontFamily.body,
     fontSize: 13,
-    color: THEME.colors.muted,
     marginRight: 8,
   },
-  unreadMessage: {
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
-    color: THEME.colors.text,
-  },
   unreadBadge: {
-    backgroundColor: THEME.colors.primary,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 10,
   },
   unreadText: {
-    color: THEME.colors.surface,
+    color: "#FFFFFF",
     fontSize: 10,
     fontFamily: THEME.typography.fontFamily.subheading,
   },

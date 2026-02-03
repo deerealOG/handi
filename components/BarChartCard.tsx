@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import React from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { BarChart } from "react-native-chart-kit";
@@ -8,6 +9,7 @@ type BarChartCardProps = {
 };
 
 export default function BarChartCard({ data }: BarChartCardProps) {
+  const { colors } = useAppTheme();
   const screenWidth = Dimensions.get("window").width - THEME.spacing.lg * 2;
   const hasData = data && data.length > 0;
 
@@ -22,8 +24,8 @@ export default function BarChartCard({ data }: BarChartCardProps) {
   };
 
   return (
-    <View style={[styles.container, styles.shadow]}>
-      <Text style={styles.title}>Weekly Jobs Overview 📈</Text>
+    <View style={[styles.container, styles.shadow, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Weekly Jobs Overview 📈</Text>
 
       {hasData ? (
         <BarChart
@@ -34,21 +36,21 @@ export default function BarChartCard({ data }: BarChartCardProps) {
           yAxisLabel=""
           yAxisSuffix=""
           chartConfig={{
-            backgroundColor: THEME.colors.surface,
-            backgroundGradientFrom: THEME.colors.surface,
-            backgroundGradientTo: THEME.colors.surface,
+            backgroundColor: colors.surface,
+            backgroundGradientFrom: colors.surface,
+            backgroundGradientTo: colors.surface,
             decimalPlaces: 0,
             color: (opacity = 1) =>
               `rgba(147, 51, 234, ${opacity})`, // admin purple
             labelColor: (opacity = 1) =>
-              `rgba(142, 142, 147, ${opacity})`, // muted text
+              colors.muted,
             barPercentage: 0.6,
           }}
           verticalLabelRotation={0}
         />
       ) : (
-        <View style={styles.noDataBox}>
-          <Text style={styles.noDataText}>No chart data available</Text>
+        <View style={[styles.noDataBox, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.noDataText, { color: colors.muted }]}>No chart data available</Text>
         </View>
       )}
     </View>

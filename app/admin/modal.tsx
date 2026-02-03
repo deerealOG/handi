@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -6,6 +7,7 @@ import { THEME } from "../../constants/theme";
 
 export default function AdminUserModal() {
     const router = useRouter();
+    const { colors } = useAppTheme();
 
     const params = useLocalSearchParams();
 
@@ -19,16 +21,16 @@ export default function AdminUserModal() {
 
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>👤 User Profile</Text>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.title, { color: colors.text }]}>👤 User Profile</Text>
 
-      <View style={[styles.card, styles.shadow]}>
-  <Text style={styles.name}>{user.name}</Text>
-  <Text style={styles.detail}>Role: {user.role}</Text>
+      <View style={[styles.card, { backgroundColor: colors.surface }, styles.shadow]}>
+  <Text style={[styles.name, { color: colors.secondary }]}>{user.name}</Text>
+  <Text style={[styles.detail, { color: colors.text }]}>Role: {user.role}</Text>
   <Text
     style={[
       styles.detail,
-      user.status === "Active" ? styles.active : styles.suspended,
+      user.status === "Active" ? { color: colors.success } : { color: colors.error },
     ]}
   >
     Status: {user.status}
@@ -36,10 +38,10 @@ export default function AdminUserModal() {
 </View>
 
       <TouchableOpacity
-        style={styles.closeButton}
+        style={[styles.closeButton, { backgroundColor: colors.secondary }]}
         onPress={() => router.back()}
       >
-        <Text style={styles.closeText}>Close</Text>
+        <Text style={[styles.closeText, { color: '#000000' }]}>Close</Text>
       </TouchableOpacity>
     </View>
   );
@@ -48,48 +50,35 @@ export default function AdminUserModal() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
     padding: THEME.spacing.lg,
     justifyContent: "center",
   },
   title: {
     fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
-    color: THEME.colors.text,
     marginBottom: THEME.spacing.lg,
     textAlign: "center",
   },
   card: {
-    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.lg,
   },
   name: {
     fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
-    color: THEME.colors.secondary,
     marginBottom: THEME.spacing.sm,
   },
   detail: {
     fontSize: THEME.typography.sizes.base,
-    color: THEME.colors.text,
     marginBottom: 4,
-  },
-  active: {
-    color: THEME.colors.success,
-  },
-  suspended: {
-    color: THEME.colors.error,
   },
   closeButton: {
     marginTop: THEME.spacing.xl,
-    backgroundColor: THEME.colors.secondary,
     borderRadius: THEME.radius.md,
     paddingVertical: 10,
     alignItems: "center",
   },
   closeText: {
-    color: THEME.colors.surface,
     fontWeight: "700",
   },
   shadow: {

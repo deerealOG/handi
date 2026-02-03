@@ -1,86 +1,49 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
+    ActivityIndicator,
     SafeAreaView,
     ScrollView,
     StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { THEME } from "../../../constants/theme";
-
-const TRANSACTIONS = [
-  {
-    id: "1",
-    title: "Top Up via Paystack",
-    date: "Today, 10:23 AM",
-    amount: "+ ₦20,000",
-    type: "credit",
-    status: "Success",
-  },
-  {
-    id: "2",
-    title: "Payment to Golden Amadi",
-    date: "Yesterday, 4:15 PM",
-    amount: "- ₦5,000",
-    type: "debit",
-    status: "Success",
-  },
-  {
-    id: "3",
-    title: "Withdrawal to Bank",
-    date: "Oct 20, 2025",
-    amount: "- ₦10,000",
-    type: "debit",
-    status: "Pending",
-  },
-  {
-    id: "4",
-    title: "Refund for Cancelled Job",
-    date: "Oct 18, 2025",
-    amount: "+ ₦3,000",
-    type: "credit",
-    status: "Success",
-  },
-  {
-    id: "5",
-    title: "Payment to Sarah Jones",
-    date: "Oct 15, 2025",
-    amount: "- ₦4,500",
-    type: "debit",
-    status: "Success",
-  },
-  {
-    id: "6",
-    title: "Top Up via Paystack",
-    date: "Oct 10, 2025",
-    amount: "+ ₦50,000",
-    type: "credit",
-    status: "Success",
-  },
-  {
-    id: "7",
-    title: "Payment to Mike Obi",
-    date: "Oct 5, 2025",
-    amount: "- ₦6,000",
-    type: "debit",
-    status: "Success",
-  },
-  {
-    id: "8",
-    title: "Withdrawal to Bank",
-    date: "Oct 1, 2025",
-    amount: "- ₦15,000",
-    type: "debit",
-    status: "Success",
-  },
-];
+import { walletService } from "../../../services/walletService";
+import { WalletTransaction } from "../../../types/wallet";
 
 export default function TransactionHistoryScreen() {
   const router = useRouter();
+  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const walletRes = await walletService.getMyWallet();
+      if (walletRes.data) {
+        const txnRes = await walletService.getTransactions(walletRes.data.id);
+        if (txnRes.data) {
+          setTransactions(txnRes.data);
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getIconName = (type: string) => {
+    if (type === 'TOPUP' || type === 'REFUND') return 'arrow-bottom-left';
+    return 'arrow-top-right';
+  };
+
+  const isCredit = (amount: number) => amount >= 0;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -94,50 +57,62 @@ export default function TransactionHistoryScreen() {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {TRANSACTIONS.map((item) => (
-          <View key={item.id} style={styles.transactionItem}>
-            <View
-              style={[
-                styles.iconBox,
-                item.type === "credit" ? styles.creditIcon : styles.debitIcon,
-              ]}
-            >
-              <MaterialCommunityIcons
-                name={item.type === "credit" ? "arrow-bottom-left" : "arrow-top-right"}
-                size={20}
-                color={item.type === "credit" ? THEME.colors.primary : THEME.colors.error}
-              />
-            </View>
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator color={THEME.colors.primary} />
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          {transactions.length === 0 ? (
+            <Text style={{ textAlign: 'center', color: THEME.colors.muted, marginTop: 40 }}>
+              No transactions found
+            </Text>
+          ) : (
+            transactions.map((item) => (
+              <View key={item.id} style={styles.transactionItem}>
+                <View
+                  style={[
+                    styles.iconBox,
+                    isCredit(item.amount) ? styles.creditIcon : styles.debitIcon,
+                  ]}
+                >
+                  <MaterialCommunityIcons
+                    name={getIconName(item.type)}
+                    size={20}
+                    color={isCredit(item.amount) ? THEME.colors.primary : THEME.colors.error}
+                  />
+                </View>
 
-            <View style={styles.transactionInfo}>
-              <Text style={styles.transactionTitle}>{item.title}</Text>
-              <Text style={styles.transactionDate}>{item.date}</Text>
-            </View>
+                <View style={styles.transactionInfo}>
+                  <Text style={styles.transactionTitle}>{item.description}</Text>
+                  <Text style={styles.transactionDate}>{new Date(item.createdAt).toLocaleString()}</Text>
+                </View>
 
-            <View style={styles.amountContainer}>
-              <Text
-                style={[
-                  styles.amountText,
-                  item.type === "credit"
-                    ? { color: THEME.colors.primary }
-                    : { color: THEME.colors.text },
-                ]}
-              >
-                {item.amount}
-              </Text>
-              <Text
-                style={[
-                  styles.statusText,
-                  item.status === "Pending" && { color: "#CA8A04" },
-                ]}
-              >
-                {item.status}
-              </Text>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
+                <View style={styles.amountContainer}>
+                  <Text
+                    style={[
+                      styles.amountText,
+                      isCredit(item.amount)
+                        ? { color: THEME.colors.primary }
+                        : { color: THEME.colors.text },
+                    ]}
+                  >
+                    {isCredit(item.amount) ? '+' : ''}₦{Math.abs(item.amount).toLocaleString()}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.statusText,
+                      item.status === "PENDING" && { color: "#CA8A04" },
+                    ]}
+                  >
+                    {item.status}
+                  </Text>
+                </View>
+              </View>
+            ))
+          )}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }

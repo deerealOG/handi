@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -59,6 +60,7 @@ const INITIAL_MESSAGES = [
 
 export default function ChatRoomScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
   const { name } = useLocalSearchParams();
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [inputText, setInputText] = useState("");
@@ -78,20 +80,20 @@ export default function ChatRoomScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={THEME.colors.background} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.text === '#FFFFFF' ? "light-content" : "dark-content"} backgroundColor={colors.background} />
 
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={THEME.colors.text} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerInfo}>
-          <Text style={styles.headerTitle}>{name || "Chat"}</Text>
-          <Text style={styles.headerStatus}>Online</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>{name || "Chat"}</Text>
+          <Text style={[styles.headerStatus, { color: colors.success }]}>Online</Text>
         </View>
-        <TouchableOpacity style={styles.callButton}>
-          <Ionicons name="call-outline" size={22} color={THEME.colors.primary} />
+        <TouchableOpacity style={[styles.callButton, { backgroundColor: colors.successLight }]}>
+          <Ionicons name="call-outline" size={22} color={colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -105,13 +107,15 @@ export default function ChatRoomScreen() {
           <View
             style={[
               styles.messageBubble,
-              item.sender === "me" ? styles.myMessage : styles.otherMessage,
+              item.sender === "me" 
+                ? [styles.myMessage, { backgroundColor: colors.primary }] 
+                : [styles.otherMessage, { backgroundColor: colors.surface, borderColor: colors.border }],
             ]}
           >
             <Text
               style={[
                 styles.messageText,
-                item.sender === "me" ? styles.myMessageText : styles.otherMessageText,
+                item.sender === "me" ? { color: '#000000' } : { color: colors.text },
               ]}
             >
               {item.text}
@@ -119,7 +123,7 @@ export default function ChatRoomScreen() {
             <Text
               style={[
                 styles.messageTime,
-                item.sender === "me" ? styles.myMessageTime : styles.otherMessageTime,
+                item.sender === "me" ? styles.myMessageTime : { color: colors.muted },
               ]}
             >
               {item.time}
@@ -133,26 +137,26 @@ export default function ChatRoomScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
           <TouchableOpacity style={styles.attachButton}>
-            <Ionicons name="add" size={24} color={THEME.colors.muted} />
+            <Ionicons name="add" size={24} color={colors.muted} />
           </TouchableOpacity>
           
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, color: colors.text }]}
             placeholder="Type a message..."
-            placeholderTextColor={THEME.colors.muted}
+            placeholderTextColor={colors.muted}
             value={inputText}
             onChangeText={setInputText}
             multiline
           />
           
           <TouchableOpacity 
-            style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]} 
+            style={[styles.sendButton, { backgroundColor: colors.primary }, !inputText.trim() && styles.sendButtonDisabled]} 
             onPress={handleSend}
             disabled={!inputText.trim()}
           >
-            <Ionicons name="send" size={20} color={THEME.colors.surface} />
+            <Ionicons name="send" size={20} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -164,6 +168,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
+    paddingTop: 50,
   },
   header: {
     flexDirection: "row",

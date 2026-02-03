@@ -1,35 +1,70 @@
 // app/artisan/change-password.tsx
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
 export default function ChangePassword() {
   const router = useRouter();
+  const { resetPassword } = useAuth();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChangePassword = async () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      return Alert.alert("Error", "Please fill in all fields.");
-    }
-    if (newPassword !== confirmPassword) {
-      return Alert.alert("Error", "New passwords do not match.");
+    if (!currentPassword.trim()) {
+      Alert.alert("Error", "Please enter your current password");
+      return;
     }
 
-    // TODO: Connect to backend authentication
-    Alert.alert("✅ Success", "Your password has been changed.");
-    router.back();
+    if (!newPassword.trim()) {
+      Alert.alert("Error", "Please enter a new password");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      Alert.alert("Error", "New password must be at least 6 characters");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Alert.alert("Error", "New passwords do not match");
+      return;
+    }
+
+    if (currentPassword === newPassword) {
+      Alert.alert("Error", "New password must be different from current password");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await resetPassword(currentPassword, newPassword);
+      if (result.success) {
+        Alert.alert("✅ Success", "Your password has been changed.", [
+          { text: "OK", onPress: () => router.back() }
+        ]);
+      } else {
+        Alert.alert("Error", result.error || "Failed to update password");
+      }
+    } catch (error) {
+      Alert.alert("Error", "An unexpected error occurred");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -75,15 +110,21 @@ export default function ChangePassword() {
             placeholderTextColor={THEME.colors.muted}
             value={field.value}
             onChangeText={field.setter}
+            editable={!isLoading}
           />
         </View>
       ))}
 
       <TouchableOpacity
-        style={styles.saveButton}
+        style={[styles.saveButton, { opacity: isLoading ? 0.7 : 1 }]}
         onPress={handleChangePassword}
+        disabled={isLoading}
       >
-        <Text style={styles.saveText}>Update Password</Text>
+        {isLoading ? (
+          <ActivityIndicator color={THEME.colors.surface} size="small" />
+        ) : (
+          <Text style={styles.saveText}>Update Password</Text>
+        )}
       </TouchableOpacity>
     </ScrollView>
   );

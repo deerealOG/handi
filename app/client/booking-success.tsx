@@ -1,4 +1,5 @@
 // app/client/booking-success.tsx
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
@@ -7,6 +8,7 @@ import { THEME } from "../../constants/theme";
 
 export default function BookingSuccess() {
   const router = useRouter();
+  const { colors } = useAppTheme();
 
   // ⏱ Auto redirect to bookings after 4 seconds
   useEffect(() => {
@@ -17,31 +19,31 @@ export default function BookingSuccess() {
   }, [router]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* ✅ Success Icon */}
       <View style={styles.iconWrapper}>
         <MaterialCommunityIcons
           name="check-circle-outline"
           size={100}
-          color={THEME.colors.primary}
+          color={colors.primary}
         />
       </View>
 
       {/* 🏁 Success Message */}
-      <Text style={styles.title}>Booking Confirmed!</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Booking Confirmed!</Text>
 
       {/* 📝 Description */}
-      <Text style={styles.subtitle}>
+      <Text style={[styles.subtitle, { color: colors.muted }]}>
         Your booking request has been sent successfully.{"\n"}
         You’ll be notified once the artisan responds.
       </Text>
 
       {/* 🔘 Button to go to Bookings */}
       <TouchableOpacity
-        style={styles.button}
+        style={[styles.button, { backgroundColor: colors.primary }]}
         onPress={() => router.replace("/client/bookings")}
       >
-        <Text style={styles.buttonText}>Go to Bookings</Text>
+        <Text style={[styles.buttonText, { color: colors.onPrimary }]}>Go to Bookings</Text>
       </TouchableOpacity>
     </View>
   );
@@ -51,7 +53,6 @@ export default function BookingSuccess() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.background,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: THEME.spacing.lg,
@@ -64,21 +65,18 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: THEME.typography.fontFamily.heading,
     fontSize: THEME.typography.sizes.xl,
-    color: THEME.colors.text,
     marginBottom: THEME.spacing.sm,
     textAlign: "center",
   },
 
   subtitle: {
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.muted,
     textAlign: "center",
     lineHeight: THEME.typography.lineHeights.relaxed * 14, // converts relative to px
     marginBottom: THEME.spacing.xl,
   },
 
   button: {
-    backgroundColor: THEME.colors.primary,
     borderRadius: THEME.radius.lg,
     paddingVertical: THEME.spacing.md,
     paddingHorizontal: THEME.spacing.xl * 1.5,
@@ -87,7 +85,6 @@ const styles = StyleSheet.create({
 
   buttonText: {
     fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.surface,
     fontSize: THEME.typography.sizes.base,
     textAlign: "center",
   },

@@ -1,6 +1,10 @@
+import { useAuth } from "@/context/AuthContext";
+import { useAppTheme } from "@/hooks/use-app-theme";
+import { escrowService, EscrowTransaction } from "@/services";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+    ActivityIndicator,
     FlatList,
     Modal,
     StyleSheet,
@@ -11,40 +15,96 @@ import {
 } from "react-native";
 import { THEME } from "../../../constants/theme";
 
+interface WalletTransaction {
+  id: string;
+  title: string;
+  amount: string;
+  date: string;
+  type: 'credit' | 'debit';
+}
+
 export default function ArtisanWallet() {
-  const [balance, setBalance] = useState(24500);
-  const [modalVisible, setModalVisible] = useState(false); // Withdraw Modal
+  const { colors } = useAppTheme();
+  const { user } = useAuth();
+
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [balance, setBalance] = useState(0);
+  const [pendingPayouts, setPendingPayouts] = useState(0);
+  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
+
+  const [modalVisible, setModalVisible] = useState(false);
   const [topUpModalVisible, setTopUpModalVisible] = useState(false);
   const [transferModalVisible, setTransferModalVisible] = useState(false);
-  
+
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [topUpAmount, setTopUpAmount] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
   const [recipient, setRecipient] = useState("");
 
-  const transactions = [
-    {
-      id: "1",
-      title: "Job Payment - Plumbing",
-      amount: "+₦5,000",
-      date: "Oct 20, 2025",
-      type: "credit",
-    },
-    {
-      id: "2",
-      title: "Withdrawal to Bank",
-      amount: "-₦3,000",
-      date: "Oct 15, 2025",
-      type: "debit",
-    },
-    {
-      id: "3",
-      title: "Data Purchase",
-      amount: "-₦1,500",
-      date: "Oct 12, 2025",
-      type: "debit",
-    },
-  ];
+  const loadWalletData = useCallback(async () => {
+    try {
+      const artisanId = user?.id || 'artisan_001';
+
+      // Get escrow statistics and transactions
+      const [statsResult, historyResult] = await Promise.all([
+        escrowService.getEscrowStats(),
+        escrowService.getArtisanPayoutHistory(artisanId),
+      ]);
+
+      if (statsResult) {
+        // Calculate balance from released payouts
+        const releasedAmount = historyResult
+          ? historyResult
+            .filter((t: EscrowTransaction) => t.status === 'released')
+            .reduce((sum: number, t: EscrowTransaction) => sum + t.artisanAmount, 0)
+          : 0;
+
+        setBalance(releasedAmount);
+
+        // Calculate pending from in-review escrows
+        const pendingAmount = historyResult
+          ? historyResult
+            .filter((t: EscrowTransaction) => t.status === 'in_review' || t.status === 'completed')
+            .reduce((sum: number, t: EscrowTransaction) => sum + t.artisanAmount, 0)
+          : 0;
+
+        setPendingPayouts(pendingAmount);
+      }
+
+      // Transform escrow transactions to wallet transactions format
+      if (historyResult) {
+        const walletTxns: WalletTransaction[] = historyResult.map((t: EscrowTransaction) => ({
+          id: t.id,
+          title: t.status === 'released'
+            ? `Job Payment - ${t.id.slice(-6)}`
+            : `Pending - ${t.id.slice(-6)}`,
+          amount: `${t.status === 'released' ? '+' : ''}₦${t.artisanAmount.toLocaleString()}`,
+          date: new Date(t.createdAt).toLocaleDateString('en-NG', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          }),
+          type: t.status === 'released' ? 'credit' : 'debit' as const,
+        }));
+        setTransactions(walletTxns);
+      }
+    } catch (error) {
+      console.error('Error loading wallet data:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    loadWalletData();
+  }, [loadWalletData]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadWalletData();
+  }, [loadWalletData]);
 
   const handleWithdraw = () => {
     const amount = parseInt(withdrawAmount);
@@ -56,7 +116,7 @@ export default function ArtisanWallet() {
       alert("Insufficient funds");
       return;
     }
-    
+
     setBalance(prev => prev - amount);
     setModalVisible(false);
     setWithdrawAmount("");
@@ -86,8 +146,8 @@ export default function ArtisanWallet() {
       return;
     }
     if (!recipient.trim()) {
-        alert("Please enter a recipient");
-        return;
+      alert("Please enter a recipient");
+      return;
     }
 
     setBalance(prev => prev - amount);
@@ -97,59 +157,73 @@ export default function ArtisanWallet() {
     alert(`Successfully transferred ₦${amount.toLocaleString()} to ${recipient}`);
   }
 
+  if (loading) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <Text style={styles.headerTitle}>My Wallet</Text>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>My Wallet</Text>
 
       {/* Balance Card */}
-      <View style={styles.balanceCard}>
+      <View style={[styles.balanceCard, { backgroundColor: colors.primary }]}>
         <Text style={styles.balanceLabel}>Available Balance</Text>
         <Text style={styles.balanceValue}>₦{balance.toLocaleString()}</Text>
+        {pendingPayouts > 0 && (
+          <View style={styles.pendingRow}>
+            <MaterialCommunityIcons name="clock-outline" size={14} color="rgba(255,255,255,0.8)" />
+            <Text style={styles.pendingText}>₦{pendingPayouts.toLocaleString()} pending</Text>
+          </View>
+        )}
       </View>
 
       {/* Quick Actions */}
       <View style={styles.actionsRow}>
         <TouchableOpacity style={styles.actionButton} onPress={() => setTopUpModalVisible(true)}>
-            <View style={[styles.actionIcon, { backgroundColor: "#E8F5E9" }]}>
-                <MaterialCommunityIcons name="plus" size={24} color={THEME.colors.primary} />
-            </View>
-            <Text style={styles.actionText}>Top Up</Text>
+          <View style={[styles.actionIcon, { backgroundColor: colors.primaryLight }]}>
+            <MaterialCommunityIcons name="plus" size={24} color={colors.primary} />
+          </View>
+          <Text style={[styles.actionText, { color: colors.text }]}>Top Up</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton} onPress={() => setModalVisible(true)}>
-            <View style={[styles.actionIcon, { backgroundColor: "#FFEBEE" }]}>
-                <MaterialCommunityIcons name="bank-transfer-out" size={24} color={THEME.colors.error} />
-            </View>
-            <Text style={styles.actionText}>Withdraw</Text>
+          <View style={[styles.actionIcon, { backgroundColor: colors.errorLight }]}>
+            <MaterialCommunityIcons name="bank-transfer-out" size={24} color={colors.error} />
+          </View>
+          <Text style={[styles.actionText, { color: colors.text }]}>Withdraw</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton} onPress={() => setTransferModalVisible(true)}>
-            <View style={[styles.actionIcon, { backgroundColor: "#E3F2FD" }]}>
-                <MaterialCommunityIcons name="send" size={24} color="#2196F3" />
-            </View>
-            <Text style={styles.actionText}>Transfer</Text>
+          <View style={[styles.actionIcon, { backgroundColor: '#2196F3' + '15' }]}>
+            <MaterialCommunityIcons name="send" size={24} color="#2196F3" />
+          </View>
+          <Text style={[styles.actionText, { color: colors.text }]}>Transfer</Text>
         </TouchableOpacity>
       </View>
 
       {/* Recent Transactions */}
-      <Text style={styles.sectionTitle}>Recent Transactions</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Transactions</Text>
       <FlatList
         data={transactions}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <View style={styles.transactionItem}>
-            <View style={styles.transactionIcon}>
-                <MaterialCommunityIcons 
-                    name={item.type === 'credit' ? "arrow-down-left" : "arrow-up-right"} 
-                    size={20} 
-                    color={item.type === 'credit' ? THEME.colors.primary : THEME.colors.error} 
-                />
+          <View style={[styles.transactionItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={[styles.transactionIcon, { backgroundColor: colors.background }]}>
+              <MaterialCommunityIcons
+                name={item.type === 'credit' ? "arrow-down-left" : "arrow-up-right"}
+                size={20}
+                color={item.type === 'credit' ? colors.primary : colors.error}
+              />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.transactionTitle}>{item.title}</Text>
-              <Text style={styles.transactionDate}>{item.date}</Text>
+              <Text style={[styles.transactionTitle, { color: colors.text }]}>{item.title}</Text>
+              <Text style={[styles.transactionDate, { color: colors.muted }]}>{item.date}</Text>
             </View>
             <Text
               style={[
@@ -157,8 +231,8 @@ export default function ArtisanWallet() {
                 {
                   color:
                     item.type === "credit"
-                      ? THEME.colors.primary
-                      : THEME.colors.error,
+                      ? colors.primary
+                      : colors.error,
                 },
               ]}
             >
@@ -175,32 +249,33 @@ export default function ArtisanWallet() {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Withdraw Funds</Text>
-            <Text style={styles.modalSubtitle}>Enter amount to withdraw</Text>
-            
+        <View style={[styles.modalOverlay, { backgroundColor: colors.overlay }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Withdraw Funds</Text>
+            <Text style={[styles.modalSubtitle, { color: colors.muted }]}>Enter amount to withdraw</Text>
+
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
               placeholder="Amount (₦)"
+              placeholderTextColor={colors.muted}
               keyboardType="numeric"
               value={withdrawAmount}
               onChangeText={setWithdrawAmount}
             />
 
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelButton]}
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton, { backgroundColor: colors.background }]}
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancel</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.confirmButton]}
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton, { backgroundColor: colors.primary }]}
                 onPress={handleWithdraw}
               >
-                <Text style={styles.confirmButtonText}>Withdraw</Text>
+                <Text style={[styles.confirmButtonText, { color: colors.onPrimary }]}>Withdraw</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -214,32 +289,33 @@ export default function ArtisanWallet() {
         visible={topUpModalVisible}
         onRequestClose={() => setTopUpModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Top Up Wallet</Text>
-            <Text style={styles.modalSubtitle}>Enter amount to add</Text>
-            
+        <View style={[styles.modalOverlay, { backgroundColor: colors.overlay }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Top Up Wallet</Text>
+            <Text style={[styles.modalSubtitle, { color: colors.muted }]}>Enter amount to add</Text>
+
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
               placeholder="Amount (₦)"
+              placeholderTextColor={colors.muted}
               keyboardType="numeric"
               value={topUpAmount}
               onChangeText={setTopUpAmount}
             />
 
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelButton]}
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton, { backgroundColor: colors.background }]}
                 onPress={() => setTopUpModalVisible(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancel</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.confirmButton]}
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton, { backgroundColor: colors.primary }]}
                 onPress={handleTopUp}
               >
-                <Text style={styles.confirmButtonText}>Top Up</Text>
+                <Text style={[styles.confirmButtonText, { color: colors.onPrimary }]}>Top Up</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -253,39 +329,41 @@ export default function ArtisanWallet() {
         visible={transferModalVisible}
         onRequestClose={() => setTransferModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Transfer Funds</Text>
-            <Text style={styles.modalSubtitle}>Send money to another user</Text>
-            
+        <View style={[styles.modalOverlay, { backgroundColor: colors.overlay }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Transfer Funds</Text>
+            <Text style={[styles.modalSubtitle, { color: colors.muted }]}>Send money to another user</Text>
+
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
               placeholder="Recipient Email / ID"
+              placeholderTextColor={colors.muted}
               value={recipient}
               onChangeText={setRecipient}
             />
 
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
               placeholder="Amount (₦)"
+              placeholderTextColor={colors.muted}
               keyboardType="numeric"
               value={transferAmount}
               onChangeText={setTransferAmount}
             />
 
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelButton]}
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton, { backgroundColor: colors.background }]}
                 onPress={() => setTransferModalVisible(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancel</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.confirmButton]}
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton, { backgroundColor: colors.primary }]}
                 onPress={handleTransfer}
               >
-                <Text style={styles.confirmButtonText}>Transfer</Text>
+                <Text style={[styles.confirmButtonText, { color: colors.onPrimary }]}>Transfer</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -325,6 +403,17 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: "700",
     color: "#fff",
+  },
+  pendingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+  },
+  pendingText: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 12,
+    fontFamily: THEME.typography.fontFamily.body,
   },
   actionsRow: {
     flexDirection: "row",
@@ -387,7 +476,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
   },
-  
+
   // Modal Styles
   modalOverlay: {
     flex: 1,

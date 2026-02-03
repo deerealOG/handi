@@ -1,6 +1,9 @@
 // components/Button.tsx
+import { useAppTheme } from "@/hooks/use-app-theme";
+import * as Haptics from "expo-haptics";
 import React from "react";
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { THEME } from "../constants/theme";
 
 type ButtonProps = {
@@ -9,8 +12,11 @@ type ButtonProps = {
   variant?: "primary" | "secondary" | "outline" | "role";
   roleColor?: "client" | "artisan" | "admin";
   loading?: boolean;
+  style?: any;
   disabled?: boolean;
 };
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export const Button = ({
   label,
@@ -19,28 +25,50 @@ export const Button = ({
   roleColor = "client",
   loading = false,
   disabled = false,
+  style,
 }: ButtonProps) => {
+  const { colors } = useAppTheme();
+  const scale = useSharedValue(1);
+  
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.96);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1);
+  };
+
   // pick color depending on variant
   const backgroundColor =
     variant === "primary"
-      ? THEME.colors.primary
+      ? colors.primary
       : variant === "secondary"
-      ? THEME.colors.secondary
+      ? colors.secondary
       : variant === "role"
-      ? (THEME.colors as any)[roleColor]
+      ? (colors as any)[roleColor]
+      : variant === "outline"
+      ? colors.surface
       : "transparent";
 
-  const textColor = variant === "outline" ? THEME.colors.text : THEME.colors.surface;
-  const borderColor = variant === "outline" ? THEME.colors.muted : "transparent";
+  const textColor = variant === "outline" ? colors.text : "#FFFFFF";
+  const borderColor = variant === "outline" ? colors.primary : "transparent";
 
   return (
-    <TouchableOpacity
+    <AnimatedPressable
       style={[
         styles.button,
+        animatedStyle,
         { backgroundColor, borderColor, opacity: disabled ? 0.6 : 1 },
+        style,
       ]}
       onPress={onPress}
-      activeOpacity={0.8}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       disabled={disabled || loading}
     >
       {loading ? (
@@ -48,22 +76,22 @@ export const Button = ({
       ) : (
         <Text style={[styles.label, { color: textColor }]}>{label}</Text>
       )}
-    </TouchableOpacity>
+    </AnimatedPressable>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: THEME.spacing.sm,
+    paddingVertical: THEME.spacing.md,
     paddingHorizontal: THEME.spacing.lg,
-    borderRadius: THEME.radius.md,
-    borderWidth: 1,
+    borderRadius: THEME.radius.lg,
+    borderWidth: 1.5,
     alignItems: "center",
     justifyContent: "center",
     ...THEME.shadow.base,
   },
   label: {
     fontSize: THEME.typography.sizes.base,
-    fontWeight: THEME.typography.fontFamily.bodyMedium as any,
+    fontFamily: THEME.typography.fontFamily.subheading,
   },
 });

@@ -1,4 +1,6 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useAuth } from "@/context/AuthContext";
+import { useAppTheme } from "@/hooks/use-app-theme";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
@@ -14,6 +16,8 @@ import { THEME } from "../../../constants/theme";
 
 export default function ClientProfile() {
   const router = useRouter();
+  const { colors } = useAppTheme();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
     Alert.alert(
@@ -24,28 +28,38 @@ export default function ClientProfile() {
         {
           text: "Logout",
           style: "destructive",
-          onPress: () => router.replace("/auth/login" as any),
+          onPress: async () => {
+            await logout();
+            // The AuthContext will handle navigation to /welcome
+          },
         },
       ]
     );
   };
 
+
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <Text style={styles.headerTitle}>My Profile</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+              {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>My Profile</Text>
+          <View style={{ width: 40 }} />
+        </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Profile Info */}
-        <View style={styles.profileCard}>
+        <View style={[styles.profileCard, { backgroundColor: colors.surface }]}>
           <Image
             source={require("../../../assets/images/profileavatar.png")}
-            style={styles.avatar}
+            style={[styles.avatar, { borderColor: colors.surface }]}
           />
-          <Text style={styles.name}>Golden Amadi</Text>
-          <Text style={styles.email}>golden.amadi@example.com</Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>Client Account</Text>
+          <Text style={[styles.name, { color: colors.text }]}>Golden Amadi</Text>
+          <Text style={[styles.email, { color: colors.muted }]}>golden.amadi@example.com</Text>
+          <View style={[styles.badge, { backgroundColor: colors.successLight }]}>
+            <Text style={[styles.badgeText, { color: colors.primary }]}>Client Account</Text>
           </View>
         </View>
 
@@ -55,36 +69,48 @@ export default function ClientProfile() {
             icon="account-edit-outline"
             label="Edit Profile"
             onPress={() => router.push("/client/profile/edit-profile")}
+            colors={colors}
+          />
+          <ProfileButton
+            icon="cog-outline"
+            label="Settings"
+            onPress={() => router.push("/client/profile/settings")}
+            colors={colors}
           />
           <ProfileButton
             icon="shield-check-outline"
             label="Security"
             onPress={() => router.push("/client/profile/security")}
+             colors={colors}
           />
           <ProfileButton
             icon="bell-outline"
             label="Notifications"
             onPress={() => router.push("/client/notifications")}
+             colors={colors}
           />
           <ProfileButton
             icon="help-circle-outline"
             label="Help & Support"
             onPress={() => router.push("/client/profile/help")}
+             colors={colors}
           />
           <ProfileButton
             icon="information-outline"
             label="About App"
             onPress={() => router.push("/client/profile/about")}
+             colors={colors}
           />
           <ProfileButton
             icon="logout"
             label="Logout"
-            color={THEME.colors.error}
+            color={colors.error}
             onPress={handleLogout}
+             colors={colors}
           />
         </View>
         
-        <Text style={styles.versionText}>Version 1.0.0</Text>
+        <Text style={[styles.versionText, { color: colors.muted }]}>Version 1.0.0</Text>
       </ScrollView>
     </View>
   );
@@ -95,28 +121,30 @@ function ProfileButton({
   label,
   color,
   onPress,
+  colors,
 }: {
   icon: any;
   label: string;
   color?: string;
   onPress?: () => void;
+  colors: any;
 }) {
   return (
-    <TouchableOpacity style={styles.profileButton} onPress={onPress}>
+    <TouchableOpacity style={[styles.profileButton, { backgroundColor: colors.surface }]} onPress={onPress}>
       <View style={styles.iconLabel}>
         <MaterialCommunityIcons
           name={icon}
           size={22}
-          color={color || THEME.colors.primary}
+          color={color || colors.primary}
         />
-        <Text style={[styles.profileText, { color: color || THEME.colors.text }]}>
+        <Text style={[styles.profileText, { color: color || colors.text }]}>
           {label}
         </Text>
       </View>
       <MaterialCommunityIcons
         name="chevron-right"
         size={22}
-        color={THEME.colors.muted}
+        color={colors.muted}
       />
     </TouchableOpacity>
   );
@@ -127,14 +155,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: THEME.colors.background,
     padding: 16,
-    paddingTop: 50,
+    paddingTop: 30,
+  },
+    header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: THEME.spacing.lg,
+  },
+  backButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: THEME.colors.surface,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: THEME.typography.sizes.xl,
     fontFamily: THEME.typography.fontFamily.heading,
     color: THEME.colors.text,
-    marginBottom: 20,
   },
+
   profileCard: {
     alignItems: "center",
     backgroundColor: THEME.colors.surface,

@@ -1,18 +1,20 @@
 // app/client/proceed-payment.tsx
+import { useAuth } from "@/context/AuthContext";
+import { bookingService, escrowService } from "@/services";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Animated,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Animated,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
@@ -26,20 +28,36 @@ const BANKS = [
 
 export default function ProceedPayment() {
   const router = useRouter();
+  const { user } = useAuth();
   const params = useLocalSearchParams();
-  const { serviceType, jobTitle, location, date, urgent, price } = params;
+  const {
+    serviceType,
+    jobTitle,
+    jobDescription,
+    location,
+    date,
+    urgent,
+    price,
+    artisanId,
+    artisanName,
+    categoryId,
+    categoryName
+  } = params;
 
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"selection" | "bank_selection" | "confirmation" | "pin" | "otp" | "success">("selection");
-  
+
   // Bank Transfer State
   const [selectedBank, setSelectedBank] = useState<any>(null);
   const [showBankDropdown, setShowBankDropdown] = useState(false);
-  
+
   // PIN & OTP State
   const [pin, setPin] = useState("");
   const [otp, setOtp] = useState("");
+
+  // Created booking ID for success screen
+  const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
 
   // Animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -86,20 +104,56 @@ export default function ProceedPayment() {
     }, 1500);
   };
 
-  const handleOtpSubmit = () => {
+  const handleOtpSubmit = async () => {
     if (otp.length < 4) {
       Alert.alert("Invalid OTP", "Please enter the OTP sent to your phone.");
       return;
     }
     setLoading(true);
-    setTimeout(() => {
+
+    try {
+      // Create the booking via bookingService
+      const priceValue = parseInt(String(price).replace(/,/g, '')) || 5050;
+
+      const bookingResult = await bookingService.createBooking({
+        artisanId: (artisanId as string) || 'artisan_001',
+        categoryId: (categoryId as string) || 'general',
+        categoryName: (categoryName as string) || (serviceType as string) || 'General Service',
+        serviceType: (serviceType as string) || 'General',
+        description: (jobDescription as string) || (jobTitle as string) || 'Service request',
+        scheduledDate: date ? new Date(date as string).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        scheduledTime: date ? new Date(date as string).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '10:00 AM',
+        address: (location as string) || 'Lagos',
+        city: 'Lagos',
+        estimatedPrice: priceValue,
+      });
+
+      if (bookingResult.success && bookingResult.data) {
+        setCreatedBookingId(bookingResult.data.id);
+
+        // Create escrow for the payment
+        await escrowService.createEscrow(
+          bookingResult.data.id,
+          user?.id || 'user_001',
+          (artisanId as string) || 'artisan_001',
+          priceValue,
+          10 // 10% platform fee
+        );
+
+        setStep("success");
+      } else {
+        Alert.alert("Error", bookingResult.error || "Failed to create booking");
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      Alert.alert("Error", "An unexpected error occurred");
+    } finally {
       setLoading(false);
-      setStep("success");
-    }, 2000);
+    }
   };
 
   const handleFinish = () => {
-    router.push("/client/bookings" as any);
+    router.push("/client/(tabs)/bookings" as any);
   };
 
   const renderHeader = (title: string, backAction?: () => void) => (
@@ -139,10 +193,10 @@ export default function ProceedPayment() {
               styles.iconContainer,
               selectedMethod === method.id && styles.iconContainerSelected
             ]}>
-              <Ionicons 
-                name={method.icon as any} 
-                size={24} 
-                color={selectedMethod === method.id ? THEME.colors.surface : THEME.colors.primary} 
+              <Ionicons
+                name={method.icon as any}
+                size={24}
+                color={selectedMethod === method.id ? THEME.colors.surface : THEME.colors.primary}
               />
             </View>
             <View style={styles.methodInfo}>
@@ -151,10 +205,10 @@ export default function ProceedPayment() {
                 <Text style={styles.methodBalance}>Balance: {method.balance}</Text>
               )}
             </View>
-            <Ionicons 
-              name={selectedMethod === method.id ? "radio-button-on" : "radio-button-off"} 
-              size={24} 
-              color={selectedMethod === method.id ? THEME.colors.primary : THEME.colors.muted} 
+            <Ionicons
+              name={selectedMethod === method.id ? "radio-button-on" : "radio-button-off"}
+              size={24}
+              color={selectedMethod === method.id ? THEME.colors.primary : THEME.colors.muted}
             />
           </TouchableOpacity>
         ))}
@@ -227,7 +281,7 @@ export default function ProceedPayment() {
           </View>
         )}
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.primaryButton, !selectedBank && styles.disabledButton]}
           onPress={handleProceedToPin}
           disabled={!selectedBank}
@@ -250,9 +304,9 @@ export default function ProceedPayment() {
           <Text style={styles.confirmText}>
             You are about to pay <Text style={styles.boldAmount}>₦{price || "5,050"}</Text> via {selectedMethod === "wallet" ? "Wallet" : "Card"}.
           </Text>
-          
+
           <View style={styles.divider} />
-          
+
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Service</Text>
             <Text style={styles.detailValue}>{serviceType}</Text>
@@ -263,7 +317,7 @@ export default function ProceedPayment() {
           </View>
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.primaryButton}
           onPress={() => setStep("pin")}
         >
@@ -279,7 +333,7 @@ export default function ProceedPayment() {
       <View style={styles.contentContainer}>
         <Text style={styles.pinTitle}>Enter Transaction PIN</Text>
         <Text style={styles.pinSubtitle}>Please enter your 4-digit PIN to authorize this transaction.</Text>
-        
+
         <TextInput
           style={styles.pinInput}
           keyboardType="numeric"
@@ -291,7 +345,7 @@ export default function ProceedPayment() {
           placeholderTextColor={THEME.colors.muted}
         />
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.primaryButton}
           onPress={handlePinSubmit}
         >
@@ -311,7 +365,7 @@ export default function ProceedPayment() {
       <View style={styles.contentContainer}>
         <Text style={styles.pinTitle}>Enter OTP</Text>
         <Text style={styles.pinSubtitle}>We sent a 4-digit code to your phone number ending in **89.</Text>
-        
+
         <TextInput
           style={styles.pinInput}
           keyboardType="numeric"
@@ -322,7 +376,7 @@ export default function ProceedPayment() {
           placeholderTextColor={THEME.colors.muted}
         />
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.primaryButton}
           onPress={handleOtpSubmit}
         >
@@ -346,8 +400,8 @@ export default function ProceedPayment() {
         <Text style={styles.successMessage}>
           Your booking has been confirmed successfully. You can track your artisan now.
         </Text>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={styles.primaryButton}
           onPress={handleFinish}
         >
@@ -392,7 +446,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: THEME.spacing.lg,
   },
-  
+
   // Summary Card
   summaryCard: {
     backgroundColor: THEME.colors.primary,

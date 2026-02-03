@@ -1,22 +1,25 @@
 // app/client/book-artisan.tsx
+import { useAppTheme } from "@/hooks/use-app-theme";
+import { bookingService } from "@/services/bookingService";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as DocumentPicker from "expo-document-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Animated,
-  Easing,
-  Image,
-  Modal,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    Animated,
+    Easing,
+    Image,
+    Modal,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
@@ -42,24 +45,29 @@ const JOB_SUGGESTIONS: Record<string, string[]> = {
 
 export default function BookArtisan() {
   const router = useRouter();
+  const { colors } = useAppTheme();
   const params = useLocalSearchParams();
-  const artisanName = params.artisan || "Artisan";
+
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const artisanName = params.artisan || "Professional";
   const artisanSkill = params.skill || "Service";
 
   // ---------- form state ----------
   const [serviceType, setServiceType] = useState<string>(artisanSkill.toString());
   const [showServiceDropdown, setShowServiceDropdown] = useState(false);
-  
+
   const [jobTitle, setJobTitle] = useState<string>("");
   const [showJobSuggestions, setShowJobSuggestions] = useState(false);
-  
+
   const [jobDescription, setJobDescription] = useState<string>("");
   const [showDescriptionSuggestions, setShowDescriptionSuggestions] = useState(false);
   const [date, setDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [location, setLocation] = useState<string>("Lekki Phase 1, Lagos");
   const [urgent, setUrgent] = useState<boolean>(false);
-  const [selectedFile, setSelectedFile] = useState<any | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
 
   const DESCRIPTION_SUGGESTIONS = [
     "I need a professional to fix...",
@@ -70,54 +78,8 @@ export default function BookArtisan() {
   ];
 
   // ---------- summary modal ----------
-  const [showSummary, setShowSummary] = useState<boolean>(false);
-
-  // ---------- document picker ----------
-  const handleFileUpload = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: ["image/*"],
-        copyToCacheDirectory: true,
-      });
-
-      if (!("canceled" in result) && (result as any).uri) {
-        setSelectedFile(result as any);
-      } else if (!result.canceled && result.assets && result.assets.length > 0) {
-        setSelectedFile(result.assets[0]);
-      }
-    } catch (err) {
-      console.log("File upload error:", err);
-    }
-  };
-
-  // ---------- date picker handler ----------
-  const onChangeDate = (_: any, selected?: Date) => {
-    setShowDatePicker(false);
-    if (selected) setDate(selected);
-  };
-
-  // ---------- submit / navigate ----------
-  const handleSubmit = () => setShowSummary(true);
-  const handleEditDetails = () => setShowSummary(false);
-  const handleProceedToPayment = () => {
-    setShowSummary(false);
-    router.push({
-      pathname: "/client/proceed-payment",
-      params: {
-        serviceType,
-        jobTitle,
-        jobDescription,
-        location,
-        date: date.toISOString(),
-        urgent: urgent ? "true" : "false",
-        price: "5050",
-      },
-    } as any);
-  };
-
-  // ---------- animation for modal (slide + fade) ----------
-  const slideAnim = useRef(new Animated.Value(0)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [slideAnim] = useState(new Animated.Value(0));
+  const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
     if (showSummary) {
@@ -157,9 +119,86 @@ export default function BookArtisan() {
   });
 
   const suggestions = JOB_SUGGESTIONS[serviceType] || [];
-  const filteredSuggestions = suggestions.filter(s => 
+  const filteredSuggestions = suggestions.filter(s =>
     s.toLowerCase().includes(jobTitle.toLowerCase())
   );
+
+  // ---------- document picker ----------
+  const handleFileUpload = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ["image/*"],
+        copyToCacheDirectory: true,
+      });
+
+      if (!("canceled" in result) && (result as any).uri) {
+        setUploadedFiles([...uploadedFiles, result as any]);
+      } else if (!result.canceled && result.assets && result.assets.length > 0) {
+        setUploadedFiles([...uploadedFiles, result.assets[0]]);
+      }
+    } catch (err) {
+      console.log("File upload error:", err);
+    }
+  };
+
+  // ---------- date picker handler ----------
+  const onChangeDate = (_: any, selected?: Date) => {
+    setShowDatePicker(false);
+    if (selected) setDate(selected);
+  };
+
+  // ---------- submit / navigate ----------
+  const handleProceed = useCallback(async () => {
+    if (!serviceType || !jobTitle || !jobDescription || !location || !date) {
+      Alert.alert("Incomplete Information", "Please fill in all required fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // Format the date and time for the booking
+      const scheduledDate = date.toISOString().split('T')[0];
+      const scheduledTime = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+      // Create booking with required fields
+      await bookingService.createBooking({
+        artisanId: params.artisanId as string,
+        categoryId: params.categoryId as string,
+        categoryName: params.categoryName as string || serviceType,
+        serviceType,
+        description: `${jobTitle}: ${jobDescription}`,
+        scheduledDate,
+        scheduledTime,
+        address: location,
+        city: location.split(',').pop()?.trim() || 'Lagos', // Extract city from location or default to Lagos
+        estimatedPrice: 0, // Free service
+        images: uploadedFiles.map(file => file.uri)
+      });
+
+      // Navigate to success screen
+      router.replace({
+        pathname: "/client/booking-success",
+        params: {
+          artisanName: params.artisan,
+          serviceType,
+          date: date.toLocaleDateString(),
+          time: scheduledTime
+        }
+      });
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      Alert.alert("Error", "Failed to create booking. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [serviceType, jobTitle, jobDescription, location, date, urgent, uploadedFiles, params]);
+
+  const handleSubmit = handleProceed; // Alias for compatibility with existing code
+  const handleProceedToPayment = handleProceed; // Alias for compatibility with existing code
+  const handleEditDetails = () => setShowSummary(false); // Function to handle edit details
+
+  // Toggle summary modal
+  const toggleSummary = () => setShowSummary(!showSummary);
 
   return (
     <View style={styles.container}>
@@ -171,7 +210,7 @@ export default function BookArtisan() {
       >
         {(showServiceDropdown || showJobSuggestions || showDescriptionSuggestions) && (
           <TouchableOpacity
-            style={[StyleSheet.absoluteFill, { zIndex: 50, backgroundColor: 'transparent' }]}
+            style={styles.overlay}
             activeOpacity={1}
             onPress={() => {
               setShowServiceDropdown(false);
@@ -183,7 +222,7 @@ export default function BookArtisan() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color={THEME.colors.text} />
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Request Service</Text>
           <View style={{ width: 40 }} />
@@ -197,9 +236,9 @@ export default function BookArtisan() {
             onPress={() => setShowServiceDropdown(!showServiceDropdown)}
           >
             <Text style={styles.dropdownText}>{serviceType}</Text>
-            <Ionicons name="chevron-down" size={20} color={THEME.colors.muted} />
+            <Ionicons name="chevron-down" size={20} color={colors.muted} />
           </TouchableOpacity>
-          
+
           {showServiceDropdown && (
             <View style={styles.dropdownList}>
               {SERVICE_TYPES.map((type) => (
@@ -219,7 +258,7 @@ export default function BookArtisan() {
                     {type}
                   </Text>
                   {serviceType === type && (
-                    <Ionicons name="checkmark" size={18} color={THEME.colors.primary} />
+                    <Ionicons name="checkmark" size={18} color={colors.primary} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -233,25 +272,25 @@ export default function BookArtisan() {
           <View style={styles.inputWrapper}>
             <TextInput
               placeholder="e.g. Fix leaking sink"
-              placeholderTextColor={THEME.colors.muted}
+              placeholderTextColor={colors.placeholder}
               value={jobTitle}
               onChangeText={(text) => {
                 setJobTitle(text);
-                setShowJobSuggestions(true);
+                setShowJobSuggestions(text.length > 0);
               }}
               onFocus={() => setShowJobSuggestions(true)}
               style={styles.input}
             />
             {jobTitle.length > 0 && (
               <TouchableOpacity onPress={() => setJobTitle("")} style={styles.clearButton}>
-                <Ionicons name="close-circle" size={16} color={THEME.colors.muted} />
+                <Ionicons name="close-circle" size={16} color={colors.muted} />
               </TouchableOpacity>
             )}
           </View>
-          
+
           {showJobSuggestions && filteredSuggestions.length > 0 && (
             <View style={styles.suggestionsContainer}>
-              <Text style={styles.suggestionsHeader}>AI Suggestions ✨</Text>
+              <Text style={styles.suggestionsHeader}>AI Suggestions </Text>
               {filteredSuggestions.map((suggestion, index) => (
                 <TouchableOpacity
                   key={index}
@@ -262,7 +301,7 @@ export default function BookArtisan() {
                   }}
                 >
                   <Text style={styles.suggestionText}>{suggestion}</Text>
-                  <Ionicons name="add-circle-outline" size={20} color={THEME.colors.primary} />
+                  <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
                 </TouchableOpacity>
               ))}
             </View>
@@ -275,11 +314,11 @@ export default function BookArtisan() {
           <View style={styles.inputWrapper}>
             <TextInput
               placeholder="Describe the work you need done..."
-              placeholderTextColor={THEME.colors.muted}
+              placeholderTextColor={colors.placeholder}
               value={jobDescription}
               onChangeText={(text) => {
                 setJobDescription(text);
-                setShowDescriptionSuggestions(true);
+                setShowDescriptionSuggestions(text.length > 0);
               }}
               onFocus={() => setShowDescriptionSuggestions(true)}
               style={styles.textArea}
@@ -287,10 +326,10 @@ export default function BookArtisan() {
               numberOfLines={4}
             />
           </View>
-          
+
           {showDescriptionSuggestions && (
             <View style={styles.suggestionsContainer}>
-              <Text style={styles.suggestionsHeader}>AI Suggestions ✨</Text>
+              <Text style={styles.suggestionsHeader}>AI Suggestions </Text>
               {DESCRIPTION_SUGGESTIONS.map((suggestion, index) => (
                 <TouchableOpacity
                   key={index}
@@ -301,7 +340,7 @@ export default function BookArtisan() {
                   }}
                 >
                   <Text style={styles.suggestionText}>{suggestion}</Text>
-                  <Ionicons name="add-circle-outline" size={20} color={THEME.colors.primary} />
+                  <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
                 </TouchableOpacity>
               ))}
             </View>
@@ -315,14 +354,12 @@ export default function BookArtisan() {
             style={styles.dateButton}
             onPress={() => setShowDatePicker(true)}
           >
-            <MaterialCommunityIcons name="calendar" size={20} color={THEME.colors.primary} />
+            <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} />
             <Text style={styles.dateText}>
               {date.toLocaleDateString("en-NG", {
                 weekday: "short",
                 month: "short",
                 day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
               })}
             </Text>
           </TouchableOpacity>
@@ -342,7 +379,7 @@ export default function BookArtisan() {
           <Text style={styles.label}>Location</Text>
           <TextInput
             placeholder="Enter address"
-            placeholderTextColor={THEME.colors.muted}
+            placeholderTextColor={colors.placeholder}
             value={location}
             onChangeText={setLocation}
             style={styles.input}
@@ -357,25 +394,25 @@ export default function BookArtisan() {
             onPress={handleFileUpload}
             activeOpacity={0.8}
           >
-            {selectedFile ? (
+            {uploadedFiles[0] ? (
               <View style={styles.filePreview}>
                 <Image
-                  source={{ uri: selectedFile.uri }}
+                  source={{ uri: uploadedFiles[0].uri }}
                   style={styles.fileImage}
                 />
                 <Text style={styles.fileName} numberOfLines={1}>
-                  {selectedFile.name || "Selected Image"}
+                  {uploadedFiles[0].name || "Selected Image"}
                 </Text>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.removeFileButton}
-                  onPress={() => setSelectedFile(null)}
+                  onPress={() => setUploadedFiles([])}
                 >
                   <Ionicons name="close" size={16} color="white" />
                 </TouchableOpacity>
               </View>
             ) : (
               <>
-                <MaterialCommunityIcons name="cloud-upload-outline" size={32} color={THEME.colors.primary} />
+                <MaterialCommunityIcons name="cloud-upload-outline" size={32} color={colors.primary} />
                 <Text style={styles.uploadText}>Tap to upload image</Text>
                 <Text style={styles.uploadSubText}>Max size 5MB</Text>
               </>
@@ -392,7 +429,7 @@ export default function BookArtisan() {
           <Switch
             value={urgent}
             onValueChange={setUrgent}
-            trackColor={{ false: "#E5E7EB", true: THEME.colors.primary }}
+            trackColor={{ false: colors.border, true: colors.primary }}
             thumbColor={"#fff"}
           />
         </View>
@@ -400,13 +437,11 @@ export default function BookArtisan() {
         {/* Price Calculation Info */}
         <View style={styles.priceInfoContainer}>
           <View style={styles.priceInfoHeader}>
-            <Ionicons name="information-circle-outline" size={20} color={THEME.colors.primary} />
+            <Ionicons name="information-circle-outline" size={20} color={colors.primary} />
             <Text style={styles.priceInfoTitle}>How price is calculated</Text>
           </View>
           <Text style={styles.priceInfoText}>
-            The base fee covers the artisan's transportation and initial assessment. 
-            Additional costs for materials and labor hours will be discussed and added 
-            to the final bill after the job is completed.
+            Pricing is currently in beta. Your booking will be created for free, and the professional will confirm any pricing later.
           </Text>
         </View>
 
@@ -414,9 +449,9 @@ export default function BookArtisan() {
 
       {/* Footer Button */}
       <View style={styles.footerContainer}>
-        <TouchableOpacity style={styles.continueButton} onPress={handleSubmit}>
+        <TouchableOpacity style={styles.continueButton} onPress={toggleSummary}>
           <Text style={styles.continueText}>Review & Book</Text>
-          <Ionicons name="arrow-forward" size={20} color="white" />
+          <Ionicons name="arrow-forward" size={20} color={colors.onPrimary} />
         </TouchableOpacity>
       </View>
 
@@ -425,9 +460,9 @@ export default function BookArtisan() {
          ----------------------------- */}
       <Modal transparent visible={showSummary} animationType="none">
         <Animated.View style={[styles.modalOverlay, { opacity: fadeAnim }]}>
-          <TouchableOpacity 
-            style={styles.modalBackdrop} 
-            activeOpacity={1} 
+          <TouchableOpacity
+            style={styles.modalBackdrop}
+            activeOpacity={1}
             onPress={() => setShowSummary(false)}
           />
           <Animated.View
@@ -449,7 +484,7 @@ export default function BookArtisan() {
                   <Text style={styles.artisanName}>{artisanName}</Text>
                   <Text style={styles.artisanSkill}>{serviceType}</Text>
                   <View style={styles.ratingRow}>
-                    <Ionicons name="star" size={14} color="#FACC15" />
+                    <Ionicons name="star" size={14} color={colors.star} />
                     <Text style={styles.ratingText}>4.9 (120 reviews)</Text>
                   </View>
                 </View>
@@ -480,25 +515,15 @@ export default function BookArtisan() {
               </View>
 
               <View style={styles.summarySection}>
-                <Text style={styles.summarySectionTitle}>Payment Breakdown</Text>
+                <Text style={styles.summarySectionTitle}>Cost</Text>
                 <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Base Fee</Text>
-                  <Text style={styles.summaryValue}>₦5,000</Text>
+                  <Text style={styles.summaryLabel}>Beta Pricing</Text>
+                  <Text style={styles.summaryValue}>Free</Text>
                 </View>
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Service Fee</Text>
-                  <Text style={styles.summaryValue}>₦50</Text>
-                </View>
-                {urgent && (
-                  <View style={styles.summaryRow}>
-                    <Text style={[styles.summaryLabel, { color: THEME.colors.primary }]}>Urgent Fee</Text>
-                    <Text style={[styles.summaryValue, { color: THEME.colors.primary }]}>₦2,000</Text>
-                  </View>
-                )}
                 <View style={styles.divider} />
                 <View style={styles.totalRow}>
-                  <Text style={styles.totalLabel}>Total Estimate</Text>
-                  <Text style={styles.totalValue}>₦{urgent ? "7,050" : "5,050"}</Text>
+                  <Text style={styles.totalLabel}>Total</Text>
+                  <Text style={styles.totalValue}>₦0</Text>
                 </View>
               </View>
             </ScrollView>
@@ -508,7 +533,7 @@ export default function BookArtisan() {
                 style={styles.proceedButton}
                 onPress={handleProceedToPayment}
               >
-                <Text style={styles.proceedButtonText}>Proceed to Payment</Text>
+                <Text style={styles.proceedButtonText}>Confirm Booking</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.cancelButton}
@@ -524,15 +549,20 @@ export default function BookArtisan() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.background,
+    backgroundColor: colors.background,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 50,
+    backgroundColor: "transparent",
   },
   scrollView: {
     flex: 1,
     paddingHorizontal: THEME.spacing.lg,
-    paddingTop: 50,
+    paddingTop: 30,
   },
   header: {
     flexDirection: "row",
@@ -543,14 +573,14 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 8,
     borderRadius: 20,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
+    borderColor: colors.border,
   },
   headerTitle: {
     fontSize: THEME.typography.sizes.xl,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
+    color: colors.text,
   },
   fieldContainer: {
     marginBottom: 20,
@@ -559,7 +589,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.text,
+    color: colors.text,
     marginBottom: 8,
   },
   inputWrapper: {
@@ -567,14 +597,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   input: {
-    backgroundColor: THEME.colors.inputBackground,
+    backgroundColor: colors.inputBackground,
     borderRadius: 12,
     padding: 16,
     fontSize: THEME.typography.sizes.base,
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.text,
+    color: colors.text,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
+    borderColor: colors.border,
   },
   clearButton: {
     position: 'absolute',
@@ -582,43 +612,43 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   textArea: {
-    backgroundColor: THEME.colors.inputBackground,
+    backgroundColor: colors.inputBackground,
     borderRadius: 12,
     padding: 16,
     fontSize: THEME.typography.sizes.base,
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.text,
+    color: colors.text,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
+    borderColor: colors.border,
     minHeight: 100,
     textAlignVertical: "top",
   },
-  
+
   // Custom Dropdown
   dropdownButton: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: THEME.colors.inputBackground,
+    backgroundColor: colors.inputBackground,
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
+    borderColor: colors.border,
   },
   dropdownText: {
     fontSize: THEME.typography.sizes.base,
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.text,
+    color: colors.text,
   },
   dropdownList: {
     position: "absolute",
     top: "100%",
     left: 0,
     right: 0,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
+    borderColor: colors.border,
     marginTop: 4,
     zIndex: 100,
     ...THEME.shadow.card,
@@ -630,15 +660,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.background,
+    borderBottomColor: colors.background,
   },
   dropdownItemText: {
     fontSize: THEME.typography.sizes.base,
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.text,
+    color: colors.text,
   },
   selectedDropdownItemText: {
-    color: THEME.colors.primary,
+    color: colors.primary,
     fontFamily: THEME.typography.fontFamily.subheading,
   },
 
@@ -648,10 +678,10 @@ const styles = StyleSheet.create({
     top: "100%",
     left: 0,
     right: 0,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
+    borderColor: colors.border,
     marginTop: 4,
     zIndex: 100,
     ...THEME.shadow.card,
@@ -659,7 +689,7 @@ const styles = StyleSheet.create({
   },
   suggestionsHeader: {
     fontSize: 12,
-    color: THEME.colors.primary,
+    color: colors.primary,
     fontFamily: THEME.typography.fontFamily.subheading,
     marginBottom: 8,
     marginLeft: 8,
@@ -670,12 +700,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 12,
     borderRadius: 8,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: colors.surfaceElevated,
     marginBottom: 4,
   },
   suggestionText: {
     fontSize: 14,
-    color: THEME.colors.text,
+    color: colors.text,
     fontFamily: THEME.typography.fontFamily.body,
   },
 
@@ -683,25 +713,25 @@ const styles = StyleSheet.create({
   dateButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.inputBackground,
+    backgroundColor: colors.inputBackground,
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
+    borderColor: colors.border,
   },
   dateText: {
     marginLeft: 12,
     fontSize: THEME.typography.sizes.base,
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.text,
+    color: colors.text,
   },
 
   // Upload
   uploadBox: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: colors.surfaceElevated,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
+    borderColor: colors.border,
     borderStyle: "dashed",
     alignItems: "center",
     justifyContent: "center",
@@ -711,12 +741,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 14,
     fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.text,
+    color: colors.text,
   },
   uploadSubText: {
     marginTop: 4,
     fontSize: 12,
-    color: THEME.colors.muted,
+    color: colors.muted,
   },
   filePreview: {
     alignItems: "center",
@@ -730,14 +760,14 @@ const styles = StyleSheet.create({
   },
   fileName: {
     fontSize: 12,
-    color: THEME.colors.text,
+    color: colors.text,
     maxWidth: 200,
   },
   removeFileButton: {
     position: "absolute",
     top: -8,
     right: -8,
-    backgroundColor: THEME.colors.error,
+    backgroundColor: colors.error,
     borderRadius: 12,
     padding: 4,
   },
@@ -747,11 +777,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: colors.surface,
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
+    borderColor: colors.border,
     marginBottom: 24,
   },
   toggleInfo: {
@@ -760,17 +790,17 @@ const styles = StyleSheet.create({
   toggleLabel: {
     fontSize: 16,
     fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.text,
+    color: colors.text,
   },
   toggleSubLabel: {
     fontSize: 12,
-    color: THEME.colors.muted,
+    color: colors.muted,
     marginTop: 2,
   },
 
   // Price Info
   priceInfoContainer: {
-    backgroundColor: "#EFF6FF",
+    backgroundColor: colors.primaryLight,
     padding: 16,
     borderRadius: 12,
     marginBottom: 24,
@@ -784,11 +814,11 @@ const styles = StyleSheet.create({
   priceInfoTitle: {
     fontSize: 14,
     fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.primary,
+    color: colors.primary,
   },
   priceInfoText: {
     fontSize: 13,
-    color: "#1E3A8A",
+    color: colors.text,
     lineHeight: 20,
     fontFamily: THEME.typography.fontFamily.body,
   },
@@ -799,13 +829,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: colors.surface,
     padding: 20,
     borderTopWidth: 1,
-    borderColor: THEME.colors.border,
+    borderColor: colors.border,
   },
   continueButton: {
-    backgroundColor: THEME.colors.primary,
+    backgroundColor: colors.primary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -814,7 +844,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   continueText: {
-    color: "white",
+    color: colors.onPrimary,
     fontSize: 16,
     fontFamily: THEME.typography.fontFamily.subheading,
   },
@@ -822,14 +852,14 @@ const styles = StyleSheet.create({
   // Modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: colors.overlay,
     justifyContent: "flex-end",
   },
   modalBackdrop: {
     ...StyleSheet.absoluteFillObject,
   },
   summaryCard: {
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
@@ -842,19 +872,19 @@ const styles = StyleSheet.create({
   modalHandle: {
     width: 40,
     height: 4,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: colors.border,
     borderRadius: 2,
     marginBottom: 16,
   },
   modalTitle: {
     fontSize: 20,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
+    color: colors.text,
   },
   artisanCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: colors.surfaceElevated,
     padding: 16,
     borderRadius: 16,
     marginBottom: 24,
@@ -871,12 +901,12 @@ const styles = StyleSheet.create({
   artisanName: {
     fontSize: 16,
     fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.text,
+    color: colors.text,
     marginBottom: 4,
   },
   artisanSkill: {
     fontSize: 14,
-    color: THEME.colors.muted,
+    color: colors.muted,
     marginBottom: 4,
   },
   ratingRow: {
@@ -886,7 +916,7 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 12,
-    color: THEME.colors.text,
+    color: colors.text,
   },
   summarySection: {
     marginBottom: 24,
@@ -894,7 +924,7 @@ const styles = StyleSheet.create({
   summarySectionTitle: {
     fontSize: 14,
     fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.muted,
+    color: colors.muted,
     marginBottom: 12,
     textTransform: "uppercase",
   },
@@ -905,19 +935,19 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 14,
-    color: THEME.colors.muted,
+    color: colors.muted,
     fontFamily: THEME.typography.fontFamily.body,
   },
   summaryValue: {
     fontSize: 14,
-    color: THEME.colors.text,
+    color: colors.text,
     fontFamily: THEME.typography.fontFamily.bodyMedium,
     maxWidth: "60%",
     textAlign: "right",
   },
   divider: {
     height: 1,
-    backgroundColor: THEME.colors.border,
+    backgroundColor: colors.border,
     marginVertical: 12,
   },
   totalRow: {
@@ -929,25 +959,25 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 16,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
+    color: colors.text,
   },
   totalValue: {
     fontSize: 20,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.primary,
+    color: colors.primary,
   },
   modalFooter: {
     marginTop: 24,
     gap: 12,
   },
   proceedButton: {
-    backgroundColor: THEME.colors.primary,
+    backgroundColor: colors.primary,
     padding: 16,
     borderRadius: 16,
     alignItems: "center",
   },
   proceedButtonText: {
-    color: "white",
+    color: colors.onPrimary,
     fontSize: 16,
     fontFamily: THEME.typography.fontFamily.subheading,
   },
@@ -956,7 +986,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButtonText: {
-    color: THEME.colors.muted,
+    color: colors.muted,
     fontSize: 16,
     fontFamily: THEME.typography.fontFamily.bodyMedium,
   },

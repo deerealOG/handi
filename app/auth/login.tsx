@@ -1,149 +1,158 @@
 // app/auth/login.tsx
+import { Button } from "@/components/Button";
+import { Input } from "@/components/Input";
+import { useAuth } from "@/context/AuthContext";
+import { useAppTheme } from "@/hooks/use-app-theme";
+import { UserType } from "@/services";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+    Alert,
     Image,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { THEME } from "../../constants/theme";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
+  const { login } = useAuth();
   const params = useLocalSearchParams();
-  const userType = params.type || "client"; // 'client' or 'artisan'
+  const userType = (params.type as UserType) || "client"; // 'client' or 'artisan'
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
-    // TODO: Implement actual login logic
-    // For now, navigate to the appropriate dashboard based on userType
-    if (userType === "artisan") {
-      router.replace("/artisan/(tabs)" as any);
-    } else {
-      router.replace("/client/(tabs)" as any);
+  const handleLogin = async () => {
+    // Validate inputs
+    if (!email.trim()) {
+      Alert.alert("Error", "Please enter your email address");
+      return;
+    }
+    if (!password) {
+      Alert.alert("Error", "Please enter your password");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await login({
+        email: email.trim().toLowerCase(),
+        password,
+        userType,
+      });
+
+      if (!result.success) {
+        Alert.alert("Login Failed", result.error || "Invalid credentials");
+      }
+      // If successful, AuthContext will handle the navigation
+    } catch (error) {
+      Alert.alert("Error", "An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.surface }]}
     >
+      <StatusBar barStyle={colors.text === '#FAFAFA' ? "light-content" : "dark-content"} backgroundColor={colors.surface} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* ===============================
-            🏷 HANDI Logo Header
+            🏷 Logo Header
         =============================== */}
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/images/handi-hand-logo.png")}
-              style={styles.handIcon}
-              resizeMode="contain"
-            />
-            <Text style={styles.logoText}>HANDI</Text>
-          </View>
-        </View>
+        <Animated.View entering={FadeInDown.duration(800)} style={styles.header}>
+          <Image
+            source={require("../../assets/images/handi-logo-light.png")}
+            style={styles.handIcon}
+            resizeMode="contain"
+          />
+        </Animated.View>
 
         {/* ===============================
             📝 Welcome Text
         =============================== */}
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>Welcome Back!</Text>
-          <Text style={styles.subtitle}>
-            Log in to continue as a {userType === "artisan" ? "Professional" : "Client"}
+        <Animated.View entering={FadeInDown.delay(200).duration(800)} style={styles.textContainer}>
+          <Text style={[styles.title, { color: colors.text }]}>Welcome Back!</Text>
+          <Text style={[styles.subtitle, { color: colors.muted }]}>
+            Log in to continue as {userType === "admin" ? "an Administrator" : userType === "artisan" ? "a Professional" : userType === "business" ? "a Business" : "a Client"}
           </Text>
-        </View>
+        </Animated.View>
 
         {/* ===============================
             🔐 Login Form
         =============================== */}
-        <View style={styles.formContainer}>
+        <Animated.View entering={FadeInDown.delay(400).duration(800)} style={styles.formContainer}>
           {/* Email Input */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email Address</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={THEME.colors.muted}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your email"
-                placeholderTextColor={THEME.colors.muted}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
+          <Input 
+            label="Email Address"
+            placeholder="Enter your email"
+            value={email}
+            onChangeText={setEmail}
+            icon="mail-outline"
+          />
 
           {/* Password Input */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={THEME.colors.muted}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your password"
-                placeholderTextColor={THEME.colors.muted}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity
+          <View>
+            <Input 
+              label="Password"
+              placeholder="Enter your password"
+              value={password}
+              onChangeText={setPassword}
+              icon="lock-closed-outline"
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
                 style={styles.eyeIcon}
               >
                 <Ionicons
                   name={showPassword ? "eye-off-outline" : "eye-outline"}
                   size={20}
-                  color={THEME.colors.muted}
+                  color={colors.muted}
                 />
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
 
           {/* Forgot Password */}
-          <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          <TouchableOpacity style={styles.forgotPassword} onPress={() => router.push("/auth/forgot-password" as any)}>
+            <Text style={[styles.forgotPasswordText, { color: colors.primary }]}>Forgot Password?</Text>
           </TouchableOpacity>
 
           {/* Login Button */}
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Log In</Text>
-          </TouchableOpacity>
-        </View>
+          <Button 
+            label="Log In"
+            onPress={handleLogin}
+            loading={isLoading}
+            variant="primary"
+          />
+        </Animated.View>
 
         {/* ===============================
             🦶 Footer
         =============================== */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don&apos;t have an account? </Text>
-          <TouchableOpacity onPress={() => router.push("/auth/register" as any)}>
-            <Text style={styles.signUpText}>Sign Up</Text>
+        <Animated.View entering={FadeInDown.delay(600).duration(800)} style={styles.footer}>
+          <Text style={[styles.footerText, { color: colors.muted }]}>Don&apos;t have an account? </Text>
+          <TouchableOpacity onPress={() => router.push(`/auth/register-${userType}` as any)}>
+            <Text style={[styles.signUpText, { color: colors.primary }]}>Sign Up</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -152,7 +161,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
   },
   scrollContent: {
     flexGrow: 1,
@@ -167,20 +175,9 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     alignItems: "center",
   },
-  logoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
   handIcon: {
-    width: 50,
-    height: 50,
-  },
-  logoText: {
-    fontSize: 28,
-    fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.primary,
-    letterSpacing: 1.5,
+    width: 100,
+    height: 100,
   },
 
   // 📝 Text
@@ -191,14 +188,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: THEME.typography.sizes.xl,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
     marginBottom: 8,
     textAlign: "center",
   },
   subtitle: {
     fontSize: THEME.typography.sizes.base,
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.muted,
     textAlign: "center",
   },
 
@@ -213,16 +208,13 @@ const styles = StyleSheet.create({
   label: {
     fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.text,
     marginLeft: 4,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.background,
     borderRadius: 50, // Pill shape inputs
     borderWidth: 1,
-    borderColor: THEME.colors.border,
     paddingHorizontal: 16,
     height: 56,
   },
@@ -233,35 +225,23 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: THEME.typography.fontFamily.body,
     fontSize: THEME.typography.sizes.base,
-    color: THEME.colors.text,
     height: "100%",
   },
   eyeIcon: {
+    position: "absolute",
+    right: 16,
+    bottom: 45,
     padding: 4,
+    zIndex: 10,
   },
 
   forgotPassword: {
     alignSelf: "flex-end",
+    marginTop: -8,
   },
   forgotPasswordText: {
-    color: THEME.colors.primary,
     fontFamily: THEME.typography.fontFamily.subheading,
     fontSize: THEME.typography.sizes.sm,
-  },
-
-  loginButton: {
-    backgroundColor: THEME.colors.primary,
-    borderRadius: 50,
-    height: 56,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 12,
-    ...THEME.shadow.base,
-  },
-  loginButtonText: {
-    color: THEME.colors.surface,
-    fontFamily: THEME.typography.fontFamily.subheading,
-    fontSize: THEME.typography.sizes.md,
   },
 
   // 🦶 Footer
@@ -271,12 +251,10 @@ const styles = StyleSheet.create({
     paddingTop: 40,
   },
   footerText: {
-    color: THEME.colors.muted,
     fontFamily: THEME.typography.fontFamily.body,
     fontSize: THEME.typography.sizes.base,
   },
   signUpText: {
-    color: THEME.colors.primary,
     fontFamily: THEME.typography.fontFamily.subheading,
     fontSize: THEME.typography.sizes.base,
   },

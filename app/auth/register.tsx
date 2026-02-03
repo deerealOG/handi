@@ -1,195 +1,191 @@
 // app/auth/register.tsx
+import { Button } from "@/components/Button";
+import { Input } from "@/components/Input";
+import { useAuth } from "@/context/AuthContext";
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+    Alert,
     Image,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { THEME } from "../../constants/theme";
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
+  const { register } = useAuth();
   const params = useLocalSearchParams();
-  const userType = params.type || "client"; // 'client' or 'artisan'
+  const userType = (params.type as "client" | "artisan" | "business") || "client";
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegister = () => {
-    // TODO: Implement actual registration logic
-    // Navigate to dashboard or verification screen
-    if (userType === "artisan") {
-      router.replace("/artisan/(tabs)" as any);
-    } else {
-      router.replace("/client/(tabs)" as any);
+  const handleRegister = async () => {
+    if (!fullName || !email || !password) {
+      Alert.alert("Missing Information", "Please fill in all required fields.");
+      return;
     }
+
+    if (password.length < 6) {
+      Alert.alert("Weak Password", "Password must be at least 6 characters.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert("Invalid Email", "Please enter a valid email address.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const nameParts = fullName.trim().split(" ");
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(" ") || "";
+
+    const result = await register({
+      firstName,
+      lastName,
+      email,
+      phone,
+      password,
+      userType,
+    });
+
+    setIsLoading(false);
+
+    if (!result.success) {
+      Alert.alert("Registration Failed", result.error || "Please try again.");
+    }
+    // If successful, AuthContext will handle navigation
   };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.surface }]}
     >
+      <StatusBar barStyle={colors.text === '#FAFAFA' ? "light-content" : "dark-content"} backgroundColor={colors.surface} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* ===============================
-            🏷 HANDI Logo Header
+            🏷 Logo Header
         =============================== */}
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/images/handi-hand-logo.png")}
-              style={styles.handIcon}
-              resizeMode="contain"
-            />
-            <Text style={styles.logoText}>HANDI</Text>
-          </View>
-        </View>
+        <Animated.View entering={FadeInDown.duration(800)} style={styles.header}>
+          <Image
+            source={require("../../assets/images/handi-logo-light.png")}
+            style={styles.handIcon}
+            resizeMode="contain"
+          />
+        </Animated.View>
 
         {/* ===============================
             📝 Welcome Text
         =============================== */}
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>
-            Join as a {userType === "artisan" ? "Professional Artisan" : "Client"}
+        <Animated.View entering={FadeInDown.delay(200).duration(800)} style={styles.textContainer}>
+          <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
+          <Text style={[styles.subtitle, { color: colors.muted }]}>
+            Join as a {userType === "artisan" ? "Professional Artisan" : userType === "business" ? "Business" : "Client"}
           </Text>
-        </View>
+        </Animated.View>
 
         {/* ===============================
             📝 Registration Form
         =============================== */}
-        <View style={styles.formContainer}>
-          {/* Full Name Input */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Full Name</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="person-outline"
-                size={20}
-                color={THEME.colors.muted}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your full name"
-                placeholderTextColor={THEME.colors.muted}
-                value={fullName}
-                onChangeText={setFullName}
-                autoCapitalize="words"
-              />
-            </View>
-          </View>
+        <Animated.View entering={FadeInDown.delay(400).duration(800)} style={styles.formContainer}>
+          {/* Full Name / Business Name Input */}
+          <Input 
+            label={userType === "business" ? "Business Name" : "Full Name"}
+            placeholder={userType === "business" ? "Enter business name" : "Enter your full name"}
+            value={fullName}
+            onChangeText={setFullName}
+            icon={userType === "business" ? "business-outline" : "person-outline"}
+            autoCapitalize="words"
+          />
 
           {/* Email Input */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email Address</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={THEME.colors.muted}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your email"
-                placeholderTextColor={THEME.colors.muted}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
+          <Input 
+            label="Email Address"
+            placeholder="Enter your email"
+            value={email}
+            onChangeText={setEmail}
+            icon="mail-outline"
+            keyboardType="email-address"
+          />
 
           {/* Phone Input */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Phone Number</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="call-outline"
-                size={20}
-                color={THEME.colors.muted}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your phone number"
-                placeholderTextColor={THEME.colors.muted}
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
-              />
-            </View>
-          </View>
+          <Input 
+            label="Phone Number"
+            placeholder="Enter your phone number"
+            value={phone}
+            onChangeText={setPhone}
+            icon="call-outline"
+            keyboardType="phone-pad"
+          />
 
           {/* Password Input */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
-            <View style={styles.inputContainer}>
+          <View>
+            <Input 
+              label="Password"
+              placeholder="Create a password"
+              value={password}
+              onChangeText={setPassword}
+              icon="lock-closed-outline"
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeIcon}
+            >
               <Ionicons
-                name="lock-closed-outline"
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
                 size={20}
-                color={THEME.colors.muted}
-                style={styles.inputIcon}
+                color={colors.muted}
               />
-              <TextInput
-                style={styles.input}
-                placeholder="Create a password"
-                placeholderTextColor={THEME.colors.muted}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
-              >
-                <Ionicons
-                  name={showPassword ? "eye-off-outline" : "eye-outline"}
-                  size={20}
-                  color={THEME.colors.muted}
-                />
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
 
           {/* Terms and Conditions */}
-          <Text style={styles.termsText}>
+          <Text style={[styles.termsText, { color: colors.muted }]}>
             By signing up, you agree to our{" "}
-            <Text style={styles.linkText}>Terms</Text> and{" "}
-            <Text style={styles.linkText}>Privacy Policy</Text>
+            <Text style={[styles.linkText, { color: colors.primary }]}>Terms</Text> and{" "}
+            <Text style={[styles.linkText, { color: colors.primary }]}>Privacy Policy</Text>
           </Text>
 
           {/* Sign Up Button */}
-          <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-            <Text style={styles.registerButtonText}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
+          <Button 
+            label="Sign Up"
+            onPress={handleRegister}
+            variant="primary"
+          />
+        </Animated.View>
 
         {/* ===============================
             🦶 Footer
         =============================== */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Already have an account? </Text>
+        <Animated.View entering={FadeInDown.delay(600).duration(800)} style={styles.footer}>
+          <Text style={[styles.footerText, { color: colors.muted }]}>Already have an account? </Text>
           <TouchableOpacity onPress={() => router.push("/auth/login" as any)}>
-            <Text style={styles.loginText}>Log In</Text>
+            <Text style={[styles.loginText, { color: colors.primary }]}>Log In</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -198,7 +194,6 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
   },
   scrollContent: {
     flexGrow: 1,
@@ -213,20 +208,9 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     alignItems: "center",
   },
-  logoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
   handIcon: {
-    width: 50,
-    height: 50,
-  },
-  logoText: {
-    fontSize: 28,
-    fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.primary,
-    letterSpacing: 1.5,
+    width: 100,
+    height: 100,
   },
 
   // 📝 Text
@@ -237,14 +221,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: THEME.typography.sizes.xl,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
     marginBottom: 8,
     textAlign: "center",
   },
   subtitle: {
     fontSize: THEME.typography.sizes.base,
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.muted,
     textAlign: "center",
   },
 
@@ -259,16 +241,13 @@ const styles = StyleSheet.create({
   label: {
     fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.subheading,
-    color: THEME.colors.text,
     marginLeft: 4,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.background,
     borderRadius: 50, // Pill shape inputs
     borderWidth: 1,
-    borderColor: THEME.colors.border,
     paddingHorizontal: 16,
     height: 56,
   },
@@ -279,38 +258,24 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: THEME.typography.fontFamily.body,
     fontSize: THEME.typography.sizes.base,
-    color: THEME.colors.text,
     height: "100%",
   },
   eyeIcon: {
+    position: "absolute",
+    right: 16,
+    bottom: 18,
     padding: 4,
+    zIndex: 10,
   },
 
   termsText: {
     fontSize: THEME.typography.sizes.sm,
-    color: THEME.colors.muted,
     textAlign: "center",
     lineHeight: 20,
     marginTop: 8,
   },
   linkText: {
-    color: THEME.colors.primary,
     fontFamily: THEME.typography.fontFamily.subheading,
-  },
-
-  registerButton: {
-    backgroundColor: THEME.colors.primary,
-    borderRadius: 50,
-    height: 56,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 12,
-    ...THEME.shadow.base,
-  },
-  registerButtonText: {
-    color: THEME.colors.surface,
-    fontFamily: THEME.typography.fontFamily.subheading,
-    fontSize: THEME.typography.sizes.md,
   },
 
   // 🦶 Footer
@@ -320,12 +285,10 @@ const styles = StyleSheet.create({
     paddingTop: 40,
   },
   footerText: {
-    color: THEME.colors.muted,
     fontFamily: THEME.typography.fontFamily.body,
     fontSize: THEME.typography.sizes.base,
   },
   loginText: {
-    color: THEME.colors.primary,
     fontFamily: THEME.typography.fontFamily.subheading,
     fontSize: THEME.typography.sizes.base,
   },

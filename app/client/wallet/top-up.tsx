@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -18,18 +19,27 @@ import { THEME } from "../../../constants/theme";
 
 export default function TopUpScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
   const [amount, setAmount] = useState("");
   const [showGateway, setShowGateway] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const formatAmountToWords = (value: string) => {
+  const formatAmountToWords = (value: string): string => {
     const num = parseInt(value.replace(/,/g, ""), 10);
     if (isNaN(num)) return "";
     
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)} Million`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)} Thousand`;
-    if (num >= 100) return `${num} Hundred`;
-    return num.toString();
+    // Simple helper for demo purposes. Ideally use a library like 'number-to-words'
+    const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+
+    if (num < 10) return ones[num];
+    if (num < 20) return teens[num - 10];
+    if (num < 100) return tens[Math.floor(num / 10)] + (num % 10 !== 0 ? ' ' + ones[num % 10] : '');
+    if (num < 1000) return ones[Math.floor(num / 100)] + ' Hundred' + (num % 100 !== 0 ? ' and ' + formatAmountToWords((num % 100).toString()) : '');
+    if (num < 1000000) return formatAmountToWords(Math.floor(num / 1000).toString()) + ' Thousand' + (num % 1000 !== 0 ? ' ' + formatAmountToWords((num % 1000).toString()) : '');
+    
+    return `${(num / 1000000).toFixed(2)} Million`;
   };
 
   const handleTopUp = () => {
@@ -39,7 +49,7 @@ export default function TopUpScreen() {
     }
     setShowGateway(true);
     setLoading(true);
-    
+
     // Simulate payment gateway processing
     setTimeout(() => {
       setLoading(false);
@@ -52,29 +62,31 @@ export default function TopUpScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={THEME.colors.background} />
-      
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.text === '#FAFAFA' ? "light-content" : "dark-content"} backgroundColor={colors.background} />
+
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={THEME.colors.text} />
+        <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Top Up Wallet</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Top Up Wallet</Text>
         <View style={{ width: 40 }} />
       </View>
+
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.content}
       >
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Enter Amount</Text>
+          <Text style={[styles.label, { color: colors.muted }]}>Enter Amount</Text>
           <View style={styles.inputWrapper}>
-            <Text style={styles.currencySymbol}>₦</Text>
+            <Text style={[styles.currencySymbol, { color: colors.text }]}>₦</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: colors.text }]}
               placeholder="0.00"
-              placeholderTextColor={THEME.colors.muted}
+              placeholderTextColor={colors.muted}
               keyboardType="numeric"
               value={amount}
               onChangeText={setAmount}
@@ -82,7 +94,7 @@ export default function TopUpScreen() {
             />
           </View>
           {amount ? (
-            <Text style={styles.amountWords}>
+            <Text style={[styles.amountWords, { color: colors.primary }]}>
               {formatAmountToWords(amount)} Naira
             </Text>
           ) : null}
@@ -92,16 +104,16 @@ export default function TopUpScreen() {
           {["1000", "2000", "5000", "10000"].map((amt) => (
             <TouchableOpacity
               key={amt}
-              style={styles.quickAmountChip}
+              style={[styles.quickAmountChip, { backgroundColor: colors.surface, borderColor: colors.border }]}
               onPress={() => setAmount(amt)}
             >
-              <Text style={styles.quickAmountText}>₦{amt}</Text>
+              <Text style={[styles.quickAmountText, { color: colors.text }]}>₦{amt}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        <TouchableOpacity 
-          style={[styles.submitButton, !amount && styles.submitButtonDisabled]} 
+        <TouchableOpacity
+          style={[styles.submitButton, { backgroundColor: colors.primary }, !amount && styles.submitButtonDisabled]}
           onPress={handleTopUp}
           disabled={!amount}
         >
@@ -112,24 +124,24 @@ export default function TopUpScreen() {
       {/* Payment Gateway Simulation Modal */}
       <Modal visible={showGateway} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.gatewayContainer}>
+          <View style={[styles.gatewayContainer, { backgroundColor: colors.surface }]}>
             <View style={styles.gatewayHeader}>
-              <Text style={styles.gatewayTitle}>Secure Payment Gateway</Text>
+              <Text style={[styles.gatewayTitle, { color: colors.text }]}>Secure Payment Gateway</Text>
               <TouchableOpacity onPress={() => setShowGateway(false)}>
-                <Ionicons name="close" size={24} color={THEME.colors.text} />
+                <Ionicons name="close" size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
-            
+
             <View style={styles.gatewayContent}>
               {loading ? (
                 <View style={styles.loadingState}>
-                  <ActivityIndicator size="large" color={THEME.colors.primary} />
-                  <Text style={styles.loadingText}>Processing Payment...</Text>
+                  <ActivityIndicator size="large" color={colors.primary} />
+                  <Text style={[styles.loadingText, { color: colors.text }]}>Processing Payment...</Text>
                 </View>
               ) : (
                 <View style={styles.successState}>
-                  <Ionicons name="checkmark-circle" size={64} color={THEME.colors.success} />
-                  <Text style={styles.successText}>Payment Successful</Text>
+                  <Ionicons name="checkmark-circle" size={64} color={colors.success} />
+                  <Text style={[styles.successText, { color: colors.success }]}>Payment Successful</Text>
                 </View>
               )}
             </View>
@@ -143,27 +155,24 @@ export default function TopUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.background,
+    paddingTop: 50,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: THEME.spacing.lg,
-    paddingVertical: THEME.spacing.md,
+    marginBottom: THEME.spacing.lg,
   },
   backButton: {
     padding: 8,
     borderRadius: 20,
-    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
     ...THEME.shadow.base,
   },
   headerTitle: {
     fontSize: THEME.typography.sizes.lg,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
   },
   content: {
     flex: 1,
@@ -177,7 +186,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.muted,
     marginBottom: 16,
     textAlign: "center",
   },
@@ -189,19 +197,16 @@ const styles = StyleSheet.create({
   currencySymbol: {
     fontSize: 40,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
     marginRight: 8,
   },
   input: {
     fontSize: 40,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
     minWidth: 100,
   },
   amountWords: {
     marginTop: 8,
     fontSize: THEME.typography.sizes.md,
-    color: THEME.colors.primary,
     fontFamily: THEME.typography.fontFamily.subheading,
   },
   quickAmounts: {
@@ -215,17 +220,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 20,
-    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
-    borderColor: THEME.colors.border,
   },
   quickAmountText: {
     fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.bodyMedium,
-    color: THEME.colors.text,
   },
   submitButton: {
-    backgroundColor: THEME.colors.primary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
@@ -235,19 +236,18 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   submitButtonText: {
-    color: THEME.colors.surface,
+    color: "#FFFFFF",
     fontSize: THEME.typography.sizes.md,
     fontFamily: THEME.typography.fontFamily.heading,
   },
-  
+
   // Gateway Modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.6)",
     justifyContent: "flex-end",
   },
   gatewayContainer: {
-    backgroundColor: THEME.colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     height: "60%",
@@ -262,7 +262,6 @@ const styles = StyleSheet.create({
   gatewayTitle: {
     fontSize: 18,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
   },
   gatewayContent: {
     flex: 1,
@@ -276,7 +275,6 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     fontFamily: THEME.typography.fontFamily.bodyMedium,
-    color: THEME.colors.text,
   },
   successState: {
     alignItems: "center",
@@ -285,6 +283,5 @@ const styles = StyleSheet.create({
   successText: {
     fontSize: 20,
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.success,
   },
 });

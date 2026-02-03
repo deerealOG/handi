@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { useRouter } from "expo-router";
 import React from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -31,31 +32,33 @@ const mockJobs = [
 
 export default function AdminJobs() {
   const router = useRouter();
+  const { colors } = useAppTheme();
+
   const renderJob = ({ item }: any) => (
-    <View style={[styles.card, styles.shadow]}>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.detail}>
-        Client: <Text style={styles.bold}>{item.client}</Text>
+    <View style={[styles.card, { backgroundColor: colors.surface }, styles.shadow]}>
+      <Text style={[styles.title, { color: colors.text }]}>{item.title}</Text>
+      <Text style={[styles.detail, { color: colors.muted }]}>
+        Client: <Text style={[styles.bold, { color: colors.text }]}>{item.client}</Text>
       </Text>
-      <Text style={styles.detail}>
-        Artisan: <Text style={styles.bold}>{item.artisan}</Text>
+      <Text style={[styles.detail, { color: colors.muted }]}>
+        Artisan: <Text style={[styles.bold, { color: colors.text }]}>{item.artisan}</Text>
       </Text>
 
       <Text
         style={[
           styles.status,
           item.status === "Active"
-            ? styles.active
+            ? { color: colors.error }
             : item.status === "Completed"
-            ? styles.completed
-            : styles.dispute,
+            ? { color: colors.success }
+            : { color: colors.error },
         ]}
       >
         {item.status}
       </Text>
 
       <TouchableOpacity
-        style={styles.button}
+        style={[styles.button, { backgroundColor: colors.secondary }]}
         onPress={() =>
           router.push({
             pathname: "/admin/jobModal",
@@ -70,7 +73,7 @@ export default function AdminJobs() {
           })
         }
       >
-        <Text style={styles.buttonText}>
+        <Text style={[styles.buttonText, { color: colors.text }]}>
           {item.status === "Dispute" ? "Resolve Dispute" : "View Details"}
         </Text>
       </TouchableOpacity>
@@ -79,8 +82,8 @@ export default function AdminJobs() {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>🧰 Job Management</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.header, { color: colors.text }]}>🧰 Job Management</Text>
 
       <FlatList
         data={mockJobs}
@@ -95,17 +98,14 @@ export default function AdminJobs() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
     padding: THEME.spacing.md,
   },
   header: {
     fontSize: THEME.typography.sizes.xl,
     fontWeight: "700",
-    color: THEME.colors.text,
     marginBottom: THEME.spacing.md,
   },
   card: {
-    backgroundColor: THEME.colors.surface,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.md,
     marginBottom: THEME.spacing.md,
@@ -113,15 +113,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: THEME.typography.sizes.lg,
     fontWeight: "700",
-    color: THEME.colors.text,
     marginBottom: THEME.spacing.xs,
   },
   detail: {
-    color: THEME.colors.muted,
     fontSize: THEME.typography.sizes.base,
   },
   bold: {
-    color: THEME.colors.text,
     fontWeight: "600",
   },
   status: {
@@ -129,24 +126,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginTop: THEME.spacing.sm,
   },
-  active: {
-    color: THEME.colors.error,
-  },
-  completed: {
-    color: THEME.colors.success,
-  },
-  dispute: {
-    color: THEME.colors.error,
-  },
   button: {
-    backgroundColor: THEME.colors.secondary,
     borderRadius: THEME.radius.md,
     paddingVertical: 6,
     marginTop: THEME.spacing.sm,
   },
   buttonText: {
     textAlign: "center",
-    color: THEME.colors.surface,
     fontWeight: "600",
   },
   shadow: {

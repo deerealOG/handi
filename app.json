@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "FIXIT",
-    "slug": "FIXIT",
+    "name": "HANDI",
+    "slug": "HANDI",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fixit",
+    "scheme": "handi",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -27,11 +27,12 @@
         "googleMaps": {
           "apiKey": "YOUR_GOOGLE_MAPS_API_KEY_HERE"
         }
-      }
+      },
+      "package": "ng.com.handiapp"
     },
     "web": {
       "output": "static",
-      "favicon": "/assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
       "expo-router",
@@ -49,6 +50,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7a15a2a7-238a-4cdd-be80-2a0f315f547f"
+      }
     }
   }
 }

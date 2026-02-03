@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -9,7 +10,6 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { THEME } from "../constants/theme";
 
 const { width } = Dimensions.get("window");
 
@@ -21,6 +21,7 @@ interface ToastProps {
 }
 
 export default function Toast({ visible, message, type = "info", onDismiss }: ToastProps) {
+  const { colors } = useAppTheme();
   const translateY = useRef(new Animated.Value(-100)).current;
   const [show, setShow] = useState(visible);
 
@@ -88,26 +89,26 @@ export default function Toast({ visible, message, type = "info", onDismiss }: To
 
   const getColor = () => {
     switch (type) {
-      case "success": return THEME.colors.success;
-      case "error": return THEME.colors.error;
-      default: return THEME.colors.primary;
+      case "success": return colors.success;
+      case "error": return colors.error;
+      default: return colors.primary;
     }
   };
 
   return (
     <Animated.View
-      style={[styles.container, { transform: [{ translateY }] }]}
+      style={[styles.container, { transform: [{ translateY }], backgroundColor: colors.surface }]}
       {...panResponder.panHandlers}
     >
       <View style={[styles.iconContainer, { backgroundColor: getColor() }]}>
         <Ionicons name={getIcon()} size={24} color="white" />
       </View>
       <View style={styles.content}>
-        <Text style={styles.title}>{type.charAt(0).toUpperCase() + type.slice(1)}</Text>
-        <Text style={styles.message}>{message}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{type.charAt(0).toUpperCase() + type.slice(1)}</Text>
+        <Text style={[styles.message, { color: colors.muted }]}>{message}</Text>
       </View>
       <TouchableOpacity onPress={handleDismiss}>
-        <Ionicons name="close" size={20} color={THEME.colors.muted} />
+        <Ionicons name="close" size={20} color={colors.muted} />
       </TouchableOpacity>
     </Animated.View>
   );
@@ -119,7 +120,6 @@ const styles = StyleSheet.create({
     top: 0,
     left: 20,
     right: 20,
-    backgroundColor: "white",
     borderRadius: 16,
     padding: 16,
     flexDirection: "row",
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     zIndex: 9999,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 5,
   },
@@ -145,11 +145,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#1F2937",
     marginBottom: 2,
   },
   message: {
     fontSize: 12,
-    color: "#6B7280",
   },
 });

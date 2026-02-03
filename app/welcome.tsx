@@ -1,190 +1,153 @@
 // app/welcome.tsx
+import { Button } from "@/components/Button";
+import { useAuth } from "@/context/AuthContext";
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
+import Animated, { FadeIn, FadeInDown, FadeInUp } from "react-native-reanimated";
 import { THEME } from "../constants/theme";
-
-const { width, height } = Dimensions.get("window");
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
+  const { setGuestMode } = useAuth();
+
+  const handleGuestBrowse = () => {
+    setGuestMode(true);
+    router.push("/client/(tabs)" as any);
+  };
 
   return (
-    <View style={styles.container}>
-      {/* ===============================
-          🏷 HANDI Logo Header
-      =============================== */}
-      <View style={styles.header}>
-        <View style={styles.logoContainer}>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      {/* Decorative gradient blob */}
+      <Animated.View
+        entering={FadeIn.duration(1200)}
+        style={[styles.decorBlob, { backgroundColor: colors.primary }]}
+      />
+      
+      {/* Centered Content */}
+      <View style={styles.contentContainer}>
+        {/* Logo */}
+        <Animated.View entering={FadeInDown.duration(800)} >
           <Image
-            source={require("../assets/images/handi-hand-logo.png")}
+            source={require("../assets/images/handi-logo-light.png")}
             style={styles.handIcon}
             resizeMode="contain"
           />
-          <Text style={styles.logoText}>HANDI</Text>
-        </View>
+        </Animated.View>
+
+        {/* Title & Subtitle */}
+        <Animated.View entering={FadeInUp.delay(300).duration(800)}>
+          <Text style={[styles.subtitle, { color: colors.muted }]}>
+            Connect with nearby service providers and professionals around you.
+          </Text>
+        </Animated.View>
+
+        {/* Action Buttons */}
+        <Animated.View 
+            entering={FadeInUp.delay(500).duration(800)}
+            style={styles.buttonGroup}
+        >
+          <Button 
+            label="🔧  I need a service" 
+            onPress={() => router.push("/auth/register-client" as any)}
+            variant="outline"
+          />
+          
+          <Button 
+            label="💼  I provide services" 
+            onPress={() => router.push("/auth/register-artisan" as any)}
+            variant="outline"
+          />
+
+          <Button 
+            label="🏢  I run a business" 
+            onPress={() => router.push("/auth/register-business" as any)}
+            variant="outline"
+          />
+        </Animated.View>
+
+        {/* Guest Browse Option */}
+        <Animated.View entering={FadeInUp.delay(700).duration(800)}>
+          <Text 
+            style={[styles.guestText, { color: colors.muted }]}
+            onPress={handleGuestBrowse}
+          >
+            Just browsing? <Text style={{ color: colors.primary, fontFamily: THEME.typography.fontFamily.subheading }}>Explore first</Text>
+          </Text>
+        </Animated.View>
       </View>
 
-      {/* ===============================
-          🖼 Main Hero Image
-      =============================== */}
-      <View style={styles.heroContainer}>
-        <Image
-          source={require("../assets/images/welcome-hero.png")}
-          style={styles.heroImage}
-          resizeMode="contain"
-        />
-      </View>
-
-      {/* ===============================
-          📝 Title & Subtitle
-      =============================== */}
-      <View style={styles.textContainer}>
-        <Text style={styles.title}>Welcome to HANDI</Text>
-        <Text style={styles.subtitle}>
-          Nigeria&apos;s trusted platform connecting clients with skilled artisans
+      {/* Footer Links */}
+      <Animated.View entering={FadeIn.delay(900).duration(800)} style={styles.footer}>
+        <Text 
+          style={[styles.loginText, { color: colors.muted }]}
+          onPress={() => router.push("/auth/login" as any)}
+        >
+          Already have an account? <Text style={{ color: colors.primary, fontFamily: THEME.typography.fontFamily.subheading }}>Log In</Text>
         </Text>
-      </View>
-
-      {/* ===============================
-        Action Buttons
-      =============================== */}
-      <View style={styles.buttonContainer}>
-        {/* Continue as Client */}
-        <TouchableOpacity
-          style={[styles.button, styles.primaryButton]}
-          onPress={() => router.push({ pathname: "/auth/login", params: { type: "client" } } as any)}
-        >
-          <Text style={styles.primaryButtonText}>Continue as Client</Text>
-        </TouchableOpacity>
-
-        {/* Continue as Artisan */}
-        <TouchableOpacity
-          style={[styles.button, styles.outlinedButton]}
-          onPress={() => router.push({ pathname: "/auth/login", params: { type: "artisan" } } as any)}
-        >
-          <Text style={styles.outlinedButtonText}>Continue as Artisan</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* ===============================
-          ⚙️ Footer Text
-      =============================== */}
-      <Text style={styles.footerText}>Powered by HANDI © 2025</Text>
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // 🌿 Page container
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
-    paddingTop: 60,
-    paddingBottom: 40,
     paddingHorizontal: THEME.spacing.lg,
-    alignItems: "center",
-  },
-
-  // 🏷 Header with logo
-  header: {
-    marginBottom: 20,
-    alignItems: "center",
-  },
-  logoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  handIcon: {
-    width: 60,
-    height: 60,
-  },
-  logoText: {
-    fontSize: THEME.typography.sizes["2xl"],
-    fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.primary,
-    letterSpacing: 1.5,
-  },
-
-  // 🖼 Hero Image Container
-  heroContainer: {
-    width: width - 40,
-    height: height * 0.35, // 35% of screen height
     justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 24,
   },
-  heroImage: {
-    width: "100%",
-    height: "100%",
-  },
-
-  // 📝 Text Styles
-  textContainer: {
+  contentContainer: {
     alignItems: "center",
-    marginBottom: 40,
-    paddingHorizontal: 20,
+  },
+  
+  handIcon: {
+    width: 120,
+    height: 120,
   },
   title: {
-    fontSize: THEME.typography.sizes.xl,
+    fontSize: THEME.typography.sizes["2xl"],
     fontFamily: THEME.typography.fontFamily.heading,
-    color: THEME.colors.text,
     textAlign: "center",
-    marginBottom: 12,
   },
   subtitle: {
     fontSize: THEME.typography.sizes.base,
     fontFamily: THEME.typography.fontFamily.body,
-    color: THEME.colors.muted,
     textAlign: "center",
-    lineHeight: THEME.typography.sizes.base * 1.5,
+    marginBottom: THEME.spacing["2xl"],
+    lineHeight: 24,
+    paddingHorizontal: THEME.spacing.lg,
   },
-
-  // 🔘 Button group
-  buttonContainer: {
+  buttonGroup: {
     width: "100%",
-    gap: 16,
-    paddingHorizontal: 10,
+    gap: THEME.spacing.md,
+    marginBottom: THEME.spacing.lg,
   },
-
-  // 🧱 Base button style
-  button: {
-    paddingVertical: 16,
-    borderRadius: 50, // Pill shape
-    alignItems: "center",
-    width: "100%",
-  },
-
-  // 🌊 Primary (filled) button
-  primaryButton: {
-    backgroundColor: THEME.colors.primary,
-    ...THEME.shadow.card,
-  },
-  primaryButtonText: {
-    color: THEME.colors.surface,
-    fontFamily: THEME.typography.fontFamily.subheading,
-    fontSize: THEME.typography.sizes.md,
-  },
-
-  // ⚪ Outlined (secondary) button
-  outlinedButton: {
-    borderWidth: 1.5,
-    borderColor: THEME.colors.primary,
-    backgroundColor: "transparent",
-  },
-  outlinedButtonText: {
-    color: THEME.colors.primary,
-    fontFamily: THEME.typography.fontFamily.subheading,
-    fontSize: THEME.typography.sizes.md,
-  },
-
-  // ⚙️ Footer
-  footerText: {
+  footer: {
     position: "absolute",
-    bottom: 20,
-    fontSize: THEME.typography.sizes.xs,
-    color: THEME.colors.muted,
+    bottom: 40,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+  loginText: {
     fontFamily: THEME.typography.fontFamily.body,
+    fontSize: THEME.typography.sizes.sm,
+  },
+  guestText: {
+    fontFamily: THEME.typography.fontFamily.body,
+    fontSize: THEME.typography.sizes.sm,
+    textAlign: "center" as const,
+    marginTop: THEME.spacing.lg,
+  },
+  decorBlob: {
+    position: "absolute" as const,
+    top: -100,
+    right: -80,
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    opacity: 0.08,
   },
 });

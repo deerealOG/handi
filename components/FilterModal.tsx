@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
@@ -46,6 +47,7 @@ const DISTANCES = [
 ];
 
 export default function FilterModal({ visible, onClose, onApply }: FilterModalProps) {
+  const { colors } = useAppTheme();
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
   const [rating, setRating] = useState(0);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -70,44 +72,46 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.container}>
+      <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
+        <View style={[styles.container, { backgroundColor: colors.surface }]}>
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>Filter Artisans</Text>
+          <View style={[styles.header, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.title, { color: colors.text }]}>Filter Artisans</Text>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={24} color={THEME.colors.text} />
+              <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
 
           <ScrollView style={styles.content}>
             {/* Price Range */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Price Range</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Price Range</Text>
               {PRICE_RANGES.map((range) => (
                 <TouchableOpacity
                   key={range.label}
                   style={[
                     styles.option,
+                    { backgroundColor: colors.background },
                     priceRange[0] === range.value[0] &&
                     priceRange[1] === range.value[1] &&
-                    styles.selectedOption,
+                    { backgroundColor: colors.primaryLight, borderWidth: 1, borderColor: colors.primary },
                   ]}
                   onPress={() => setPriceRange(range.value)}
                 >
                   <Text
                     style={[
                       styles.optionText,
+                      { color: colors.text },
                       priceRange[0] === range.value[0] &&
                       priceRange[1] === range.value[1] &&
-                      styles.selectedOptionText,
+                      { color: colors.primary, fontFamily: THEME.typography.fontFamily.subheading },
                     ]}
                   >
                     {range.label}
                   </Text>
                   {priceRange[0] === range.value[0] &&
                     priceRange[1] === range.value[1] && (
-                    <Ionicons name="checkmark" size={20} color={THEME.colors.primary} />
+                    <Ionicons name="checkmark" size={20} color={colors.primary} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -115,26 +119,28 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
 
             {/* Rating */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Minimum Rating</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Minimum Rating</Text>
               {RATINGS.map((r) => (
                 <TouchableOpacity
                   key={r.label}
                   style={[
                     styles.option,
-                    rating === r.value && styles.selectedOption,
+                    { backgroundColor: colors.background },
+                    rating === r.value && { backgroundColor: colors.primaryLight, borderWidth: 1, borderColor: colors.primary },
                   ]}
                   onPress={() => setRating(r.value)}
                 >
                   <Text
                     style={[
                       styles.optionText,
-                      rating === r.value && styles.selectedOptionText,
+                      { color: colors.text },
+                      rating === r.value && { color: colors.primary, fontFamily: THEME.typography.fontFamily.subheading },
                     ]}
                   >
                     {r.label}
                   </Text>
                   {rating === r.value && (
-                    <Ionicons name="checkmark" size={20} color={THEME.colors.primary} />
+                    <Ionicons name="checkmark" size={20} color={colors.primary} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -142,26 +148,28 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
 
             {/* Distance */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Distance</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Distance</Text>
               {DISTANCES.map((d) => (
                 <TouchableOpacity
                   key={d.label}
                   style={[
                     styles.option,
-                    distance === d.value && styles.selectedOption,
+                    { backgroundColor: colors.background },
+                    distance === d.value && { backgroundColor: colors.primaryLight, borderWidth: 1, borderColor: colors.primary },
                   ]}
                   onPress={() => setDistance(d.value)}
                 >
                   <Text
                     style={[
                       styles.optionText,
-                      distance === d.value && styles.selectedOptionText,
+                      { color: colors.text },
+                      distance === d.value && { color: colors.primary, fontFamily: THEME.typography.fontFamily.subheading },
                     ]}
                   >
                     {d.label}
                   </Text>
                   {distance === d.value && (
-                    <Ionicons name="checkmark" size={20} color={THEME.colors.primary} />
+                    <Ionicons name="checkmark" size={20} color={colors.primary} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -172,32 +180,34 @@ export default function FilterModal({ visible, onClose, onApply }: FilterModalPr
               <TouchableOpacity
                 style={[
                   styles.option,
-                  verifiedOnly && styles.selectedOption,
+                  { backgroundColor: colors.background },
+                  verifiedOnly && { backgroundColor: colors.primaryLight, borderWidth: 1, borderColor: colors.primary },
                 ]}
                 onPress={() => setVerifiedOnly(!verifiedOnly)}
               >
                 <Text
                   style={[
                     styles.optionText,
-                    verifiedOnly && styles.selectedOptionText,
+                    { color: colors.text },
+                    verifiedOnly && { color: colors.primary, fontFamily: THEME.typography.fontFamily.subheading },
                   ]}
                 >
                   Verified Artisans Only
                 </Text>
                 {verifiedOnly && (
-                  <Ionicons name="checkmark" size={20} color={THEME.colors.primary} />
+                  <Ionicons name="checkmark" size={20} color={colors.primary} />
                 )}
               </TouchableOpacity>
             </View>
           </ScrollView>
 
           {/* Footer */}
-          <View style={styles.footer}>
-            <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-              <Text style={styles.resetText}>Reset</Text>
+          <View style={[styles.footer, { borderTopColor: colors.border }]}>
+            <TouchableOpacity style={[styles.resetButton, { borderColor: colors.border }]} onPress={handleReset}>
+              <Text style={[styles.resetText, { color: colors.text }]}>Reset</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.applyButton} onPress={handleApply}>
-              <Text style={styles.applyText}>Apply Filters</Text>
+            <TouchableOpacity style={[styles.applyButton, { backgroundColor: colors.primary }]} onPress={handleApply}>
+              <Text style={[styles.applyText, { color: colors.onPrimary }]}>Apply Filters</Text>
             </TouchableOpacity>
           </View>
         </View>

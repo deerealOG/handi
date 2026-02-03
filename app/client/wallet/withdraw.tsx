@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+    ActivityIndicator,
+    Alert,
     KeyboardAvoidingView,
     Modal,
     Platform,
@@ -12,9 +14,11 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { THEME } from "../../../constants/theme";
+import { walletService } from "../../../services/walletService";
+import { Wallet } from "../../../types/wallet";
 
 const numberToWords = (num: number): string => {
   if (num === 0) return "";
@@ -25,7 +29,7 @@ const numberToWords = (num: number): string => {
   if (num < 10) return ones[num];
   if (num < 20) return teens[num - 10];
   if (num < 100) return tens[Math.floor(num / 10)] + (num % 10 !== 0 ? " " + ones[num % 10] : "");
-  if (num < 1000) return ones[Math.floor(num / 100)] + " Hundred" + (num % 100 !== 0 ? " and " + numberToWords(num % 100) : "");
+  if (num < 1000) return ones[Math.floor(num / 100)] + " Hundred" + (num % 100 !== 0 ? " " + numberToWords(num % 100) : "");
   if (num < 1000000) return numberToWords(Math.floor(num / 1000)) + " Thousand" + (num % 1000 !== 0 ? " " + numberToWords(num % 1000) : "");
   if (num < 1000000000) return numberToWords(Math.floor(num / 1000000)) + " Million" + (num % 1000000 !== 0 ? " " + numberToWords(num % 1000000) : "");
   return "Amount too large";
@@ -33,11 +37,27 @@ const numberToWords = (num: number): string => {
 
 export default function WithdrawScreen() {
   const router = useRouter();
+  const [wallet, setWallet] = useState<Wallet | null>(null);
   const [amount, setAmount] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [selectedBank, setSelectedBank] = useState("");
   const [showBankModal, setShowBankModal] = useState(false);
   const [amountInWords, setAmountInWords] = useState("");
+  const [loading, setLoading] = useState(false);
+  
+  // Confirmation flow
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [withdrawalPassword, setWithdrawalPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  
+  // Mock withdrawal password - in production this would be verified server-side
+  const CORRECT_PASSWORD = "1234";
+
+  useEffect(() => {
+    walletService.getMyWallet().then(res => {
+      if (res.data) setWallet(res.data);
+    });
+  }, []);
 
   const handleAmountChange = (text: string) => {
     setAmount(text);
@@ -53,19 +73,64 @@ export default function WithdrawScreen() {
 
   const handleWithdraw = () => {
     if (!amount || parseFloat(amount) <= 0) {
-      alert("Please enter a valid amount");
+      Alert.alert("Error", "Please enter a valid amount");
       return;
     }
+    const numAmount = parseFloat(amount.replace(/,/g, ""));
+    if (wallet && numAmount > wallet.balance) {
+      Alert.alert("Error", "Insufficient balance");
+      return;
+    }
+
     if (!accountNumber || accountNumber.length !== 10) {
-      alert("Please enter a valid 10-digit account number");
+      Alert.alert("Error", "Please enter a valid 10-digit account number");
       return;
     }
     if (!selectedBank) {
-      alert("Please select a bank");
+      Alert.alert("Error", "Please select a bank");
       return;
     }
-    alert(`Withdrawal initiated for ₦${amount}`);
-    router.back();
+    // Show confirmation modal instead of immediate withdrawal
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmWithdrawal = async () => {
+    if (withdrawalPassword !== CORRECT_PASSWORD) {
+      setPasswordError("Incorrect withdrawal password");
+      return;
+    }
+    setPasswordError("");
+    setLoading(true);
+    
+    try {
+      if (!wallet) return;
+
+      const numAmount = parseFloat(amount.replace(/,/g, ""));
+      const res = await walletService.requestWithdrawal(wallet.id, numAmount, {
+        bankName: selectedBank,
+        accountNumber,
+        accountName: 'Provided Account' // Mock
+      });
+
+      if (res.success) {
+        setShowConfirmModal(false);
+        setWithdrawalPassword("");
+        
+        Alert.alert(
+          "Withdrawal Request Successful",
+          `Your withdrawal of ₦${amount} to ${selectedBank} (${accountNumber}) has been requested.`,
+          [
+            { text: "OK", onPress: () => router.back() }
+          ]
+        );
+      } else {
+        Alert.alert("Error", res.error || "Withdrawal failed");
+      }
+    } catch (e) {
+      Alert.alert("Error", "An error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -87,7 +152,7 @@ export default function WithdrawScreen() {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.balanceCard}>
             <Text style={styles.balanceLabel}>Available Balance</Text>
-            <Text style={styles.balanceValue}>₦45,200.00</Text>
+            <Text style={styles.balanceValue}>₦{wallet?.balance.toLocaleString() ?? '0.00'}</Text>
           </View>
 
           <View style={styles.form}>
@@ -136,7 +201,7 @@ export default function WithdrawScreen() {
             onPress={handleWithdraw}
             disabled={!amount || !accountNumber || !selectedBank}
           >
-            <Text style={styles.submitButtonText}>Withdraw Funds</Text>
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitButtonText}>Withdraw Funds</Text>}
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -169,6 +234,65 @@ export default function WithdrawScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Withdrawal Confirmation Modal */}
+      <Modal visible={showConfirmModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.confirmModalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Confirm Withdrawal</Text>
+              <TouchableOpacity onPress={() => {
+                setShowConfirmModal(false);
+                setWithdrawalPassword("");
+                setPasswordError("");
+              }}>
+                <Ionicons name="close" size={24} color={THEME.colors.text} />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.confirmDetails}>
+              <View style={styles.confirmRow}>
+                <Text style={styles.confirmLabel}>Amount</Text>
+                <Text style={styles.confirmValue}>₦{amount}</Text>
+              </View>
+              <View style={styles.confirmRow}>
+                <Text style={styles.confirmLabel}>Bank</Text>
+                <Text style={styles.confirmValue}>{selectedBank}</Text>
+              </View>
+              <View style={styles.confirmRow}>
+                <Text style={styles.confirmLabel}>Account</Text>
+                <Text style={styles.confirmValue}>{accountNumber}</Text>
+              </View>
+            </View>
+            
+            <View style={styles.passwordSection}>
+              <Text style={styles.passwordLabel}>Enter Withdrawal Password</Text>
+              <TextInput
+                style={[styles.passwordInput, passwordError && styles.passwordInputError]}
+                placeholder="Enter 4-digit PIN"
+                placeholderTextColor={THEME.colors.muted}
+                keyboardType="numeric"
+                secureTextEntry
+                maxLength={4}
+                value={withdrawalPassword}
+                onChangeText={(text) => {
+                  setWithdrawalPassword(text);
+                  setPasswordError("");
+                }}
+              />
+              {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+            </View>
+            
+            <TouchableOpacity 
+              style={[styles.confirmButton, !withdrawalPassword && styles.submitButtonDisabled]}
+              onPress={handleConfirmWithdrawal}
+              disabled={!withdrawalPassword || loading}
+            >
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.confirmButtonText}>Confirm Withdrawal</Text>}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -177,6 +301,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
+    paddingTop: 50,
   },
   header: {
     flexDirection: "row",
@@ -315,5 +440,75 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: THEME.typography.fontFamily.body,
     color: THEME.colors.text,
+  },
+  confirmModalContent: {
+    backgroundColor: THEME.colors.surface,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+  },
+  confirmDetails: {
+    backgroundColor: THEME.colors.background,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    gap: 12,
+  },
+  confirmRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  confirmLabel: {
+    fontSize: 14,
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.muted,
+  },
+  confirmValue: {
+    fontSize: 14,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.text,
+  },
+  passwordSection: {
+    marginBottom: 24,
+  },
+  passwordLabel: {
+    fontSize: 14,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: THEME.colors.text,
+    marginBottom: 8,
+  },
+  passwordInput: {
+    backgroundColor: THEME.colors.background,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 18,
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.text,
+    textAlign: "center",
+    letterSpacing: 10,
+  },
+  passwordInputError: {
+    borderColor: THEME.colors.error,
+  },
+  errorText: {
+    color: THEME.colors.error,
+    fontSize: 12,
+    fontFamily: THEME.typography.fontFamily.body,
+    marginTop: 8,
+    textAlign: "center",
+  },
+  confirmButton: {
+    backgroundColor: THEME.colors.primary,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  confirmButtonText: {
+    color: THEME.colors.surface,
+    fontSize: THEME.typography.sizes.md,
+    fontFamily: THEME.typography.fontFamily.heading,
   },
 });

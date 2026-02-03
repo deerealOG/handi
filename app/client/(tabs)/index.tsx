@@ -1,18 +1,24 @@
 // app/client/(tabs)/index.tsx
+import { useAuth } from "@/context/AuthContext";
+import { useAppTheme } from "@/hooks/use-app-theme";
+import { Booking, bookingService } from "@/services";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Image,
-  Modal,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    FlatList,
+    Image,
+    Modal,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import EnhancedArtisanCard from "../../../components/EnhancedArtisanCard";
 import FilterModal, { FilterOptions } from "../../../components/FilterModal";
 import Toast from "../../../components/Toast";
 import { THEME } from "../../../constants/theme";
@@ -21,7 +27,7 @@ import { THEME } from "../../../constants/theme";
 // Data
 // ================================
 const CATEGORIES = [
-  { id: "1", name: "Electrician", icon: "flash-outline", color: "#E6F4EA"},
+  { id: "1", name: "Electrician", icon: "flash-outline", color: "#E6F4EA" },
   { id: "2", name: "Plumber", icon: "pipe", color: "#E6F4EA" },
   { id: "3", name: "Carpenter", icon: "hammer-screwdriver", color: "#E6F4EA" },
   { id: "4", name: "Barber", icon: "scissors-cutting", color: "#E6F4EA" },
@@ -29,12 +35,15 @@ const CATEGORIES = [
   { id: "6", name: "Gardener", icon: "leaf", color: "#E6F4EA" },
 ];
 
-const FEATURED_PROMO = {
-  title: "20% Off First Booking",
-  subtitle: "Get professional help for less",
-  image: require("../../../assets/images/featured.png"),
-  color: "#E6F4EA",
-};
+const PROMOS = [
+  {
+    id: "1",
+    title: "20% Off First Booking",
+    subtitle: "Get professional help for less",
+    image: require("../../../assets/images/featured.png"),
+    color: "#E6F4EA",
+  },
+];
 
 const TOP_RATED = [
   { id: 1, name: "Golden Amadi", skill: "Electrician", price: "5,000", rating: 4.9, reviews: 120, distance: "2.5 km", verified: true },
@@ -52,97 +61,93 @@ const RECENT_BOOKINGS = [
   { id: 102, name: "Sarah Jones", skill: "Electrician", date: "Yesterday, 2:00 PM", status: "Completed" },
 ];
 
+const FEATURED_BUSINESSES = [
+  { id: 101, name: "Apex Services Ltd", skill: "Plumbing & Electrical", price: "10,000", rating: 4.8, reviews: 200, distance: "1.5 km", verified: true, type: "business" },
+  { id: 102, name: "BuildRight Construction", skill: "General Contractor", price: "50,000", rating: 4.9, reviews: 50, distance: "4.0 km", verified: true, type: "business" },
+];
+
 // ================================
 // Components
 // ================================
 
-const SectionHeader = ({ title, onPressSeeAll }: { title: string; onPressSeeAll?: () => void }) => (
-  <View style={styles.sectionHeader}>
-    <Text style={styles.sectionTitle}>{title}</Text>
-    {onPressSeeAll && (
-      <TouchableOpacity onPress={onPressSeeAll}>
-        <Text style={styles.seeAllText}>See All</Text>
-      </TouchableOpacity>
-    )}
-  </View>
-);
+const SectionHeader = ({ title, onPressSeeAll }: { title: string; onPressSeeAll?: () => void }) => {
+  const { colors } = useAppTheme();
+  return (
+    <View style={styles.sectionHeader}>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>{title}</Text>
+      {onPressSeeAll && (
+        <TouchableOpacity onPress={onPressSeeAll}>
+          <Text style={[styles.seeAllText, { color: colors.primary }]}>See All</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+};
 
-const ArtisanCard = ({ item, router }: { item: any; router: any }) => (
-  <TouchableOpacity
-    style={styles.artisanCard}
-    onPress={() =>
-      router.push({
-        pathname: "/client/artisan-details",
-        params: { id: item.id, name: item.name, skill: item.skill, price: item.price, rating: item.rating, reviews: item.reviews, distance: item.distance, verified: item.verified },
-      })
-    }
-  >
-    <View style={styles.cardHeader}>
-      <Image
-        source={require("../../../assets/images/profileavatar.png")}
-        style={styles.avatar}
+const ArtisanCard = ({ item, router }: { item: any; router: any }) => {
+  return (
+    <View style={{ marginRight: 16 }}>
+      <EnhancedArtisanCard
+        artisan={{
+          ...item,
+          verificationLevel: item.verified ? 'verified' : 'none',
+        }}
       />
-      <TouchableOpacity style={styles.heartButton}>
-        <Ionicons name="heart-outline" size={20} color={THEME.colors.muted} />
-      </TouchableOpacity>
     </View>
-
-    <View style={styles.cardBody}>
-      <View style={styles.nameRow}>
-        <Text style={styles.artisanName} numberOfLines={1}>{item.name}</Text>
-        {item.verified && (
-          <MaterialCommunityIcons name="check-decagram" size={16} color={THEME.colors.primary} style={{ marginLeft: 4 }} />
-        )}
-      </View>
-      <Text style={styles.artisanSkill}>{item.skill}</Text>
-      
-      <View style={styles.infoRow}>
-        <View style={styles.ratingContainer}>
-          <Ionicons name="star" size={14} color="#FACC15" />
-          <Text style={styles.ratingText}>{item.rating}</Text>
-          <Text style={styles.reviewText}>({item.reviews})</Text>
-        </View>
-        <View style={styles.distanceContainer}>
-          <Ionicons name="location-outline" size={14} color={THEME.colors.muted} />
-          <Text style={styles.distanceText}>{item.distance}</Text>
-        </View>
-      </View>
-
-      <View style={styles.priceRow}>
-        <Text style={styles.priceLabel}>From</Text>
-        <Text style={styles.priceValue}>₦{item.price}</Text>
-      </View>
-
-      <TouchableOpacity 
-        style={styles.bookButton}
-        onPress={() =>
-          router.push({
-            pathname: "/client/book-artisan",
-            params: { artisan: item.name, skill: item.skill },
-          })
-        }
-      >
-        <Text style={styles.bookButtonText}>Book Now</Text>
-      </TouchableOpacity>
-    </View>
-  </TouchableOpacity>
-);
+  );
+};
 
 // ================================
 // Main Screen
 // ================================
 export default function ClientHome() {
   const router = useRouter();
+  const { colors } = useAppTheme();
+  const { user, isGuest } = useAuth();
+  
+  // Dynamic greeting
+  const greeting = user?.firstName 
+    ? `Hi, ${user.firstName} 👋` 
+    : isGuest 
+    ? "Hi there 👋" 
+    : "Welcome 👋";
+  
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [location, setLocation] = useState("Lagos, Nigeria");
-  
+
   // Toast State
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
+  const [recentBookings, setRecentBookings] = useState<Booking[]>([]);
+  const [isLoadingBookings, setIsLoadingBookings] = useState(false);
+
+  // Fetch bookings on focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadBookings();
+    }, [])
+  );
+
+  const loadBookings = async () => {
+    try {
+      setIsLoadingBookings(true);
+      // Hardcoded user ID for demo
+      const response = await bookingService.getBookings('user_001', 'client', { perPage: 3 });
+      if (response.success && response.data) {
+        setRecentBookings(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to load bookings", error);
+    } finally {
+      setIsLoadingBookings(false);
+    }
+  };
+
+  /*
   useEffect(() => {
     // Simulate welcome toast
     // setTimeout(() => {
@@ -150,7 +155,23 @@ export default function ClientHome() {
     //   setToastVisible(true);
     // }, 1000);
   }, []);
-  
+  */
+
+  const promoListRef = React.useRef<FlatList>(null);
+  const [currentPromoIndex, setCurrentPromoIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+        setCurrentPromoIndex((prevIndex) => {
+            const nextIndex = prevIndex === PROMOS.length - 1 ? 0 : prevIndex + 1;
+            promoListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+            return nextIndex;
+        });
+    }, 3000); // Scroll every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   const [filters, setFilters] = useState<FilterOptions>({
     priceRange: [0, 100000],
     rating: 0,
@@ -173,50 +194,61 @@ export default function ClientHome() {
     "Cheap house cleaning",
     "AC repair",
     "Mechanic",
+    "Cleaning Services",
+    "Construction Company",
+    "Apex Services",
   ].filter(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={THEME.colors.background} />
-      
-      <Toast 
-        visible={toastVisible} 
-        message={toastMessage} 
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.text === '#1F2937' ? "dark-content" : "light-content"} backgroundColor={colors.background} />
+
+      <Toast
+        visible={toastVisible}
+        message={toastMessage}
         type="success"
-        onDismiss={() => setToastVisible(false)} 
+        onDismiss={() => setToastVisible(false)}
       />
 
       {/* --- Header --- */}
-      <View style={styles.header}>
+      <Animated.View entering={FadeInDown.duration(800)} style={styles.header}>
         <View style={styles.headerLeft}>
           <TouchableOpacity onPress={() => router.push("/client/(tabs)/profile" as any)}>
             <Image
               source={require("../../../assets/images/profileavatar.png")}
-              style={styles.headerAvatar}
+              style={[styles.headerAvatar, { borderColor: colors.surface }]}
             />
           </TouchableOpacity>
           <View>
-            <Text style={styles.greeting}>Hi, Golden 👋</Text>
-            <TouchableOpacity 
-              style={styles.locationSelector}
+            <Text style={[styles.greeting, { color: colors.text }]}>{greeting}</Text>
+            <TouchableOpacity
+              style={[styles.locationSelector, { backgroundColor: colors.surface, borderColor: colors.border }]}
               onPress={() => setShowLocationModal(true)}
             >
-              <View style={styles.locationIconContainer}>
-                <Ionicons name="location" size={12} color={THEME.colors.primary} />
+              <View style={[styles.locationIconContainer, { backgroundColor: colors.primaryLight }]}>
+                <Ionicons name="location" size={12} color={colors.primary} />
               </View>
-              <Text style={styles.locationText}>{location}</Text>
-              <Ionicons name="chevron-down" size={12} color={THEME.colors.text} />
+              <Text style={[styles.locationText, { color: colors.text }]}>{location}</Text>
+              <Ionicons name="chevron-down" size={12} color={colors.text} />
             </TouchableOpacity>
           </View>
         </View>
-        <TouchableOpacity 
-          style={styles.notificationButton}
-          onPress={() => router.push("/client/notifications" as any)}
-        >
-          <Ionicons name="notifications-outline" size={24} color={THEME.colors.text} />
-          <View style={styles.notificationBadge} />
-        </TouchableOpacity>
-      </View>
+        <View style={styles.headerRight}>
+          <TouchableOpacity
+            style={[styles.headerIconButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            onPress={() => router.push("/client/liked-items" as any)}
+          >
+            <Ionicons name="heart-outline" size={22} color={colors.error} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.notificationButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            onPress={() => router.push("/client/notifications" as any)}
+          >
+            <Ionicons name="notifications-outline" size={24} color={colors.text} />
+            <View style={[styles.notificationBadge, { borderColor: colors.surface }]} />
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -224,144 +256,158 @@ export default function ClientHome() {
         keyboardShouldPersistTaps="handled"
       >
         {/* --- Search Bar --- */}
-        <View style={styles.searchWrapper}>
-          <View style={styles.searchContainer}>
-            <Ionicons name="search-outline" size={22} color={THEME.colors.muted} />
+        <Animated.View entering={FadeInDown.delay(200).duration(800)} style={styles.searchWrapper}>
+          <View style={[styles.searchContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Ionicons name="search-outline" size={22} color={colors.muted} />
             <TextInput
-              style={styles.searchInput}
-              placeholder="Search for services or artisans..."
-              placeholderTextColor={THEME.colors.muted}
+              style={[styles.searchInput, { color: colors.text }]}
+              placeholder="Search services..."
+              placeholderTextColor={colors.muted}
               value={searchQuery}
               onChangeText={handleSearch}
               onFocus={() => setShowSuggestions(searchQuery.length > 0)}
+              onSubmitEditing={() => {
+                setShowSuggestions(false);
+                router.push({
+                  pathname: "/client/(tabs)/explore",
+                  params: { query: searchQuery },
+                } as any);
+              }}
+              returnKeyType="search"
             />
             <TouchableOpacity
-              style={styles.filterButton}
+              style={[styles.filterButton, { backgroundColor: colors.primary }]}
               onPress={() => setFilterModalVisible(true)}
             >
-              <Ionicons name="options-outline" size={22} color={THEME.colors.surface} />
+              <Ionicons name="options-outline" size={22} color={colors.onPrimary} />
             </TouchableOpacity>
           </View>
 
           {/* Search Suggestions Dropdown */}
           {showSuggestions && SUGGESTIONS.length > 0 && (
-            <View style={styles.suggestionsContainer}>
+            <View style={[styles.suggestionsContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               {SUGGESTIONS.map((suggestion, index) => (
                 <TouchableOpacity
                   key={index}
-                  style={styles.suggestionItem}
+                  style={[styles.suggestionItem, { borderBottomColor: colors.background }]}
                   onPress={() => {
                     setSearchQuery(suggestion);
                     setShowSuggestions(false);
                     router.push({
                       pathname: "/client/(tabs)/explore",
-                      params: { search: suggestion },
+                      params: { query: suggestion },
                     } as any);
                   }}
                 >
-                  <Ionicons name="time-outline" size={20} color={THEME.colors.muted} />
-                  <Text style={styles.suggestionText}>{suggestion}</Text>
-                  <Ionicons name="arrow-forward" size={18} color={THEME.colors.muted} />
+                  <Ionicons name="time-outline" size={20} color={colors.muted} />
+                  <Text style={[styles.suggestionText, { color: colors.text }]}>{suggestion}</Text>
+                  <Ionicons name="arrow-forward" size={18} color={colors.muted} />
                 </TouchableOpacity>
               ))}
             </View>
           )}
-        </View>
+        </Animated.View>
 
         {/* --- Categories --- */}
-        <SectionHeader 
-          title="Categories" 
-          onPressSeeAll={() => router.push("/client/categories" as any)} 
-        />
-        <View style={styles.categoriesGrid}>
-          {CATEGORIES.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.categoryItem}
-              onPress={() =>
-                router.push({
-                  pathname: "/client/(tabs)/explore",
-                  params: { category: item.name },
-                } as any)
-              }
-            >
-              <View style={[styles.iconCircle, { backgroundColor: item.color }]}>
-                <MaterialCommunityIcons
-                  name={item.icon as any}
-                  size={24}
-                  color={THEME.colors.text}
-                />
-              </View>
-              <Text style={styles.categoryText}>{item.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* --- Featured Promo --- */}
-        <View style={styles.promoCard}>
-          <View style={styles.promoContent}>
-            <Text style={styles.promoTitle}>{FEATURED_PROMO.title}</Text>
-            <Text style={styles.promoSubtitle}>{FEATURED_PROMO.subtitle}</Text>
-            <TouchableOpacity 
-              style={styles.promoButton}
-              onPress={() => router.push("/client/promos" as any)}
-            >
-              <Text style={styles.promoButtonText}>Claim Offer</Text>
-            </TouchableOpacity>
+        <Animated.View entering={FadeInDown.delay(400).duration(800)}>
+          <SectionHeader
+            title="Categories"
+            onPressSeeAll={() => router.push("/client/categories" as any)}
+          />
+          <View style={styles.categoriesGrid}>
+            {CATEGORIES.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.categoryItem}
+                onPress={() =>
+                  router.push({
+                    pathname: "/client/(tabs)/explore",
+                    params: { category: item.name },
+                  } as any)
+                }
+              >
+                <View style={[styles.iconCircle, { backgroundColor: colors.primaryLight }]}>
+                  <MaterialCommunityIcons
+                    name={item.icon as any}
+                    size={24}
+                    color={colors.primary}
+                  />
+                </View>
+                <Text style={[styles.categoryText, { color: colors.text }]}>{item.name}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
-          <Image source={FEATURED_PROMO.image} style={styles.promoImage} resizeMode="contain" />
-        </View>
+        </Animated.View>
+
+        {/* --- Featured Promos --- */}
+        <Animated.View entering={FadeInDown.delay(600).duration(800)} style={{ marginBottom: 24 }}>
+           {PROMOS.map((item) => (
+               <View key={item.id} style={[styles.promoCard, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 }]}>
+                  <View style={styles.promoContent}>
+                    <Text style={[styles.promoTitle, { color: colors.primary }]}>{item.title}</Text>
+                    <Text style={[styles.promoSubtitle, { color: colors.text }]}>{item.subtitle}</Text>
+                    <TouchableOpacity
+                      style={[styles.promoButton, { backgroundColor: colors.primary }]}
+                      onPress={() => router.push("/client/promos" as any)}
+                    >
+                      <Text style={[styles.promoButtonText, { color: colors.onPrimary }]}>Claim Offer</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Image source={item.image} style={styles.promoImage} resizeMode="contain" />
+               </View>
+           ))}
+        </Animated.View>
 
         {/* --- Recent Bookings --- */}
-        <SectionHeader title="Recent Bookings" onPressSeeAll={() => router.push("/client/bookings" as any)} />
-        <View style={styles.recentBookingsContainer}>
-          {RECENT_BOOKINGS.map((booking) => (
-            <TouchableOpacity 
-              key={booking.id} 
-              style={styles.recentBookingCard}
-              onPress={() => router.push({
-                pathname: "/client/booking-details",
-                params: { id: booking.id }
-              })}
-            >
-              <View style={styles.recentBookingInfo}>
-                <Text style={styles.recentBookingName}>{booking.name}</Text>
-                <Text style={styles.recentBookingSkill}>{booking.skill}</Text>
-              </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={styles.recentBookingDate}>{booking.date}</Text>
-                <Text style={[
-                  styles.recentBookingStatus, 
-                  { color: booking.status === "Completed" ? THEME.colors.success : THEME.colors.secondary }
-                ]}>
-                  {booking.status}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <Animated.View entering={FadeInDown.delay(800).duration(800)}>
+          <SectionHeader title="Recent Bookings" onPressSeeAll={() => router.push("/client/bookings" as any)} />
+          <View style={styles.recentBookingsContainer}>
+            {recentBookings.length === 0 ? (
+              <Text style={{ textAlign: 'center', color: colors.muted, fontStyle: 'italic', marginBottom: 24 }}>No recent bookings found.</Text>
+            ) : (
+               recentBookings.map((booking) => (
+              <TouchableOpacity
+                key={booking.id}
+                style={[styles.recentBookingCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
+                onPress={() => router.push({
+                  pathname: "/client/booking-details",
+                  params: { id: booking.id }
+                })}
+              >
+                <View style={styles.recentBookingInfo}>
+                  <Text style={[styles.recentBookingName, { color: colors.text }]}>
+                    {booking.artisan?.fullName || booking.categoryName}
+                  </Text>
+                  <Text style={[styles.recentBookingSkill, { color: colors.muted }]}>{booking.serviceType}</Text>
+                </View>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={[styles.recentBookingDate, { color: colors.muted }]}>
+                    {new Date(booking.scheduledDate).toLocaleDateString()}
+                  </Text>
+                  <Text style={[
+                    styles.recentBookingStatus,
+                    { color: booking.status === "completed" ? colors.success : colors.secondary }
+                  ]}>
+                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )))}
+          </View>
+        </Animated.View>
 
-        {/* --- Top Rated Artisans --- */}
-        <SectionHeader title="Top Rated Artisans" onPressSeeAll={() => router.push("/client/(tabs)/explore" as any)} />
+        {/* --- Horizontal Scroll Sections --- */}
+        <SectionHeader title="Top Rated Professionals" onPressSeeAll={() => router.push({ pathname: "/client/all-artisans", params: { title: "Top Rated Professionals", filter: "top-rated" } } as any)} />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
           {TOP_RATED.map((item) => (
             <ArtisanCard key={item.id} item={item} router={router} />
           ))}
         </ScrollView>
 
-        {/* --- Nearby Artisans --- */}
-        <SectionHeader title="Nearby Artisans" onPressSeeAll={() => router.push("/client/(tabs)/explore" as any)} />
+        <SectionHeader title="Nearby Professionals" onPressSeeAll={() => router.push({ pathname: "/client/all-artisans", params: { title: "Nearby Professionals", filter: "nearby" } } as any)} />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
           {NEARBY.map((item) => (
             <ArtisanCard key={item.id} item={item} router={router} />
-          ))}
-        </ScrollView>
-
-        {/* --- Recommended for You --- */}
-        <SectionHeader title="Recommended for You" onPressSeeAll={() => router.push("/client/(tabs)/explore" as any)} />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
-          {TOP_RATED.map((item) => (
-            <ArtisanCard key={`rec-${item.id}`} item={item} router={router} />
           ))}
         </ScrollView>
       </ScrollView>
@@ -375,26 +421,26 @@ export default function ClientHome() {
 
       {/* Location Modal */}
       <Modal visible={showLocationModal} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.locationModalContent}>
+        <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
+          <View style={[styles.locationModalContent, { backgroundColor: colors.surface }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Location</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Select Location</Text>
               <TouchableOpacity onPress={() => setShowLocationModal(false)}>
-                <Ionicons name="close" size={24} color={THEME.colors.text} />
+                <Ionicons name="close" size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
             {["Lagos, Nigeria", "Abuja, Nigeria", "Port Harcourt, Nigeria"].map((loc) => (
               <TouchableOpacity
                 key={loc}
-                style={styles.locationOption}
+                style={[styles.locationOption, { borderBottomColor: colors.border }]}
                 onPress={() => {
                   setLocation(loc);
                   setShowLocationModal(false);
                 }}
               >
-                <Ionicons name="location-outline" size={20} color={THEME.colors.muted} />
-                <Text style={styles.locationOptionText}>{loc}</Text>
-                {location === loc && <Ionicons name="checkmark" size={20} color={THEME.colors.primary} />}
+                <Ionicons name="location-outline" size={20} color={colors.muted} />
+                <Text style={[styles.locationOptionText, { color: colors.text }]}>{loc}</Text>
+                {location === loc && <Ionicons name="checkmark" size={20} color={colors.primary} />}
               </TouchableOpacity>
             ))}
           </View>
@@ -407,8 +453,7 @@ export default function ClientHome() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.background,
-    paddingTop: 50,
+    paddingTop: 60,
   },
   scrollContent: {
     paddingBottom: 100,
@@ -484,6 +529,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: THEME.colors.surface,
   },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  headerIconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+  },
 
   // Search
   searchWrapper: {
@@ -493,9 +551,9 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.surface,
     marginHorizontal: THEME.spacing.lg,
     paddingHorizontal: 16,
+    backgroundColor: THEME.colors.surface,
     height: 52,
     borderRadius: 26,
     borderWidth: 1,
@@ -508,11 +566,12 @@ const styles = StyleSheet.create({
     fontFamily: THEME.typography.fontFamily.body,
     fontSize: THEME.typography.sizes.base,
     color: THEME.colors.text,
+
   },
   filterButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: THEME.colors.primary,
     justifyContent: "center",
     alignItems: "center",
@@ -583,7 +642,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 8, 
   },
   categoryText: {
     fontSize: THEME.typography.sizes.sm,
@@ -594,13 +653,13 @@ const styles = StyleSheet.create({
   // Promo Card
   promoCard: {
     marginHorizontal: THEME.spacing.lg,
-    backgroundColor: "#E6F4EA",
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 24,
+    padding: 24,
     flexDirection: "row",
     alignItems: "center",
     marginBottom: THEME.spacing.xl,
     overflow: "hidden",
+    ...THEME.shadow.card,
   },
   promoContent: {
     flex: 1,
@@ -786,6 +845,20 @@ const styles = StyleSheet.create({
     color: THEME.colors.surface,
     fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.subheading,
+  },
+
+  // FAB
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...THEME.shadow.card,
+    zIndex: 100,
   },
 
   // Location Modal

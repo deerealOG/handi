@@ -1,0 +1,2 @@
+- When a tabbed section has both `/section/index.tsx` and `/section/(tabs)/index.tsx`, ensure root route explicitly redirects to tabbed route on native to avoid stale legacy screens.
+- For UX sign-off requests, verify every visible CTA has a concrete `onPress`/navigation target before considering implementation complete.

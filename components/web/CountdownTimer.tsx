@@ -115,7 +115,7 @@ export default function CountdownTimer({
 
       {!isFooter && (
         <Text style={[styles.tagline, { color: colors.muted }]}>
-          Be the first to experience HANDI - Nigeria's premier service platform
+          Be the first to experience HANDI - Nigeria&apos;s premier service platform
         </Text>
       )}
     </View>

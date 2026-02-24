@@ -152,7 +152,7 @@ export default function BusinessPage() {
       >
         <Text style={styles.ctaTitle}>Ready to Get Started?</Text>
         <Text style={styles.ctaSubtitle}>
-          Let's discuss how HANDI can help streamline your facility management.
+          Let&apos;s discuss how HANDI can help streamline your facility management.
         </Text>
         <TouchableOpacity
           style={styles.ctaButton}

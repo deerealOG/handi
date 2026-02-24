@@ -1,11 +1,14 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import {
-    AlertTriangle,
-    Clock,
-    FileCheck,
-    Phone,
-    ShieldCheck,
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  FileCheck,
+  HelpCircle,
+  Phone,
+  Shield,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -63,6 +66,37 @@ const PROVIDER_GUIDELINES = [
   },
 ];
 
+const POPULAR_TOPICS = [
+  {
+    icon: Shield,
+    title: "How we verify providers",
+    description:
+      "Learn about our rigorous verification process including ID checks, background screening, and skill assessments.",
+    href: "/faq#verification",
+  },
+  {
+    icon: HelpCircle,
+    title: "What to do if something goes wrong",
+    description:
+      "Step-by-step guide on how to report issues, request refunds, and get support when a service doesn't meet expectations.",
+    href: "/faq#disputes",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Payment protection",
+    description:
+      "Your payments are held securely until you confirm the service is completed satisfactorily. No surprises, no hidden fees.",
+    href: "/faq#payments",
+  },
+  {
+    icon: Clock,
+    title: "Cancellation policy",
+    description:
+      "Understand our flexible cancellation policy and when you're eligible for full or partial refunds.",
+    href: "/faq#cancellation",
+  },
+];
+
 export default function SafetyPage() {
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
@@ -79,8 +113,46 @@ export default function SafetyPage() {
         </p>
       </section>
 
+      {/* Popular Topics Section */}
+      <section className="py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="font-heading text-2xl lg:text-3xl text-center mb-4">
+            Popular Topics
+          </h2>
+          <p className="text-[var(--color-muted)] text-center mb-12 max-w-xl mx-auto">
+            Quick answers to the most common safety questions.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-6">
+            {POPULAR_TOPICS.map((topic) => (
+              <Link
+                key={topic.title}
+                href={topic.href}
+                className="bg-white p-6 rounded-2xl shadow-card hover:shadow-float transition-all group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-[var(--color-primary-light)] flex items-center justify-center shrink-0 group-hover:bg-[var(--color-primary)] transition-colors">
+                    <topic.icon
+                      size={24}
+                      className="text-[var(--color-primary)] group-hover:text-white transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-semibold text-lg mb-2 group-hover:text-[var(--color-primary)] transition-colors">
+                      {topic.title}
+                    </h3>
+                    <p className="text-[var(--color-muted)] text-sm leading-relaxed">
+                      {topic.description}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Customer Guidelines */}
-      <section className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
+      <section className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-5xl mx-auto">
           <h2 className="font-heading text-2xl lg:text-3xl text-center mb-12">
             For Customers
@@ -110,7 +182,7 @@ export default function SafetyPage() {
       </section>
 
       {/* Provider Guidelines */}
-      <section className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <h2 className="font-heading text-2xl lg:text-3xl text-center mb-4">
             For Service Providers
@@ -125,7 +197,7 @@ export default function SafetyPage() {
                 className="bg-white p-6 rounded-2xl shadow-card hover:shadow-float transition-shadow"
               >
                 <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mb-4 shrink-0">
-                  <span className="text-[var(--color-primary)] text-lg">✓</span>
+                  <CheckCircle2 className="text-[var(--color-primary)] w-5 h-5" />
                 </div>
                 <h3 className="font-heading font-semibold text-base mb-2">
                   {guideline.title}
@@ -140,7 +212,7 @@ export default function SafetyPage() {
       </section>
 
       {/* Emergency Contact */}
-      <section className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
+      <section className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="font-heading text-2xl lg:text-3xl mb-4">
             Need Immediate Assistance?

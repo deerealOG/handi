@@ -80,8 +80,6 @@ export function Available24_7Badge({ style }: { style?: any }) {
 // Priority Booking Badge
 // ================================
 export function PriorityBadge({ style }: { style?: any }) {
-  const { colors } = useAppTheme();
-
   return (
     <View style={[styles.priorityContainer, { backgroundColor: '#FEF3C7', borderColor: '#F59E0B' + '30' }, style]}>
       <Ionicons name="rocket" size={14} color="#F59E0B" />

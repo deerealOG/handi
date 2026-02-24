@@ -9,7 +9,6 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Dimensions,
     LayoutAnimation,
     Platform,
     ScrollView,
@@ -29,8 +28,6 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const { width } = Dimensions.get("window");
-const isDesktop = Platform.OS === "web" && width > 768;
 
 export default function FAQPage() {
   const router = useRouter();
@@ -173,7 +170,7 @@ export default function FAQPage() {
               No results found
             </Text>
             <Text style={[styles.emptySubtitle, { color: colors.muted }]}>
-              We couldn't find any FAQs matching your search.
+              We couldn&apos;t find any FAQs matching your search.
             </Text>
             <TouchableOpacity
               style={[styles.clearButton, { backgroundColor: "#F59E0B" }]}

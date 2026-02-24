@@ -17,9 +17,9 @@ export const APP_CONFIG = {
 
   // Social Media
   SOCIAL: {
-    TWITTER: "https://twitter.com/handiappng",
-    FACEBOOK: "https://facebook.com/handiappng",
-    INSTAGRAM: "https://instagram.com/handiappng",
+    TWITTER: "https://twitter.com/myhandiapp",
+    FACEBOOK: "https://facebook.com/handiapp",
+    INSTAGRAM: "https://instagram.com/myhandiapp",
     LINKEDIN: "https://linkedin.com/company/handiapp",
   },
 

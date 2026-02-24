@@ -33,10 +33,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       ...config.android,
       adaptiveIcon: {
-        backgroundColor: "#E6F4FE",
-        foregroundImage: "./assets/images/android-icon-foreground.png",
-        backgroundImage: "./assets/images/android-icon-background.png",
-        monochromeImage: "./assets/images/android-icon-monochrome.png",
+        backgroundColor: "#368951",
+        foregroundImage: "./assets/images/handi-logo.png",
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
@@ -57,9 +55,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       [
         "expo-splash-screen",
         {
-          image: "./assets/images/splash.png",
+          image: "./assets/images/handi-splash.png",
           resizeMode: "contain",
-          backgroundColor: "#1C8C4B",
+          backgroundColor: "#368951",
         },
       ],
       "expo-font",

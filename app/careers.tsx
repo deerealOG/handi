@@ -106,7 +106,7 @@ export default function CareersPage() {
           Why Work at HANDI?
         </Text>
         <Text style={[styles.sectionSubtitle, { color: colors.muted }]}>
-          We're on a mission to transform how Nigerians access quality services.
+          We&apos;re on a mission to transform how Nigerians access quality services.
           Join us and be part of something meaningful.
         </Text>
       </View>
@@ -179,9 +179,9 @@ export default function CareersPage() {
       <View
         style={[styles.ctaSection, { backgroundColor: THEME.colors.primary }]}
       >
-        <Text style={styles.ctaTitle}>Don't See a Role for You?</Text>
+        <Text style={styles.ctaTitle}>Don&apos;t See a Role for You?</Text>
         <Text style={styles.ctaSubtitle}>
-          We're always looking for talented individuals. Send your resume to
+          We&apos;re always looking for talented individuals. Send your resume to
           careers@handiapp.com.ng
         </Text>
       </View>

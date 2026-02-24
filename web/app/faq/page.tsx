@@ -2,7 +2,7 @@
 
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Phone} from "lucide-react";
 import { useState } from "react";
 
 const FAQ_CATEGORIES = [
@@ -11,7 +11,7 @@ const FAQ_CATEGORIES = [
     questions: [
       {
         q: "What is HANDI?",
-        a: "HANDI is Nigeria's premier service marketplace connecting customers with verified service professionals. We make it easy to find, book, and pay for quality services ranging from electrical work to beauty services.",
+        a: "HANDI is Nigeria's premier service marketplace connecting customers with verified service professionals. We make it easy to find, book, and pay for quality services.",
       },
       {
         q: "How do I create an account?",
@@ -19,7 +19,7 @@ const FAQ_CATEGORIES = [
       },
       {
         q: "Is HANDI available in my city?",
-        a: "HANDI is currently available in Lagos, Abuja, Port Harcourt, Ibadan, and over 10 other major Nigerian cities. We're expanding rapidly - check the app for availability in your area.",
+        a: "HANDI covers all states in Nigeria.",
       },
     ],
   },
@@ -70,7 +70,7 @@ const FAQ_CATEGORIES = [
       },
       {
         q: "How and when do I get paid?",
-        a: "Payments are processed within 3-5 business days after service completion and customer confirmation. You can withdraw to your bank account or keep funds in your HANDI wallet.",
+        a: "Payments are processed within 24 hours after service completion and customer confirmation. You can withdraw to your bank account or keep funds in your HANDI wallet.",
       },
     ],
   },
@@ -155,7 +155,8 @@ export default function FAQPage() {
             Can&apos;t find the answer you&apos;re looking for? Our support team
             is here to help.
           </p>
-          <a href="/contact" className="btn-primary inline-block">
+          <a href="/contact" className="btn-primary inline-flex items-center py-4 px-8 rounded-full">
+            <Phone className="mr-2" />
             Contact Support
           </a>
         </div>

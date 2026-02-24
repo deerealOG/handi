@@ -68,7 +68,6 @@ export function VerificationBadge({
   showLabel = true,
   style,
 }: VerificationBadgeProps) {
-  const { colors } = useAppTheme();
   const data = VERIFICATION_DATA[level];
 
   const sizes = {

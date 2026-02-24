@@ -122,7 +122,7 @@ export default function EnterprisePage() {
       >
         <Text style={styles.ctaTitle}>Ready for Enterprise?</Text>
         <Text style={styles.ctaSubtitle}>
-          Let's build a custom solution for your organization.
+          Let&apos;s build a custom solution for your organization.
         </Text>
         <TouchableOpacity
           style={styles.ctaButton}

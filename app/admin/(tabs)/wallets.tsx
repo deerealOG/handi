@@ -18,7 +18,6 @@ import {
 export default function AdminWalletsScreen() {
   const { colors } = useAppTheme();
   const [wallets, setWallets] = useState<Wallet[]>([]);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -34,7 +33,6 @@ export default function AdminWalletsScreen() {
     } catch (error) {
       console.error('Error loading wallets:', error);
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   };

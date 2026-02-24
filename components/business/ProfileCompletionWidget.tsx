@@ -20,7 +20,7 @@ export function ProfileCompletionWidget({ onCompletePress }: ProfileCompletionWi
   
   // Mock Data for demonstration
   // In a real app, this would come from a user profile hook/context
-  const [fields, setFields] = useState<ProfileField[]>([
+  const [fields] = useState<ProfileField[]>([
     { key: 'email', label: 'Business Email', isCompleted: true },
     { key: 'type', label: 'Business Type', isCompleted: true },
     { key: 'services', label: 'Services Offered', isCompleted: true },
@@ -38,7 +38,7 @@ export function ProfileCompletionWidget({ onCompletePress }: ProfileCompletionWi
 
   useEffect(() => {
     progress.value = withTiming(percentage / 100, { duration: 1000 });
-  }, [percentage]);
+  }, [percentage, progress]);
 
   const progressStyle = useAnimatedStyle(() => {
     return {

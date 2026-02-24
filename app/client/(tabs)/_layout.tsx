@@ -10,28 +10,28 @@ export default function ClientTabs() {
 
   return (
     <Tabs
-      // ⚙️ General Tab Navigator Configuration
       screenOptions={{
-        headerShown: false, // Hide headers on all tab screens
-        tabBarShowLabel: true, // Show labels under icons
-        tabBarActiveTintColor: colors.primary, // Active tab color from theme
-        tabBarInactiveTintColor: colors.muted, // Inactive tab color
+        headerShown: false,
+        tabBarShowLabel: true,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.muted,
         tabBarStyle: {
-          backgroundColor: colors.surface, // Use themed surface color
-          borderTopColor: colors.border, // Subtle divider line
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           height: 60,
           paddingBottom: THEME.spacing.xs,
           paddingTop: THEME.spacing.xs,
-          ...THEME.shadow.card, // Light shadow for elevation
+          ...THEME.shadow.card,
         },
         tabBarLabelStyle: {
-          fontSize: THEME.typography.sizes.sm, // Label font size from theme
-          fontFamily: THEME.typography.fontFamily.bodyMedium, // Consistent font
-          lineHeight: THEME.typography.sizes.sm * THEME.typography.lineHeights.normal,
+          fontSize: THEME.typography.sizes.sm,
+          fontFamily: THEME.typography.fontFamily.bodyMedium,
+          lineHeight:
+            THEME.typography.sizes.sm * THEME.typography.lineHeights.normal,
         },
       }}
     >
-      {/* 🏠 HOME TAB */}
+      {/* 🏠 HOME */}
       <Tabs.Screen
         name="index"
         options={{
@@ -46,14 +46,14 @@ export default function ClientTabs() {
         }}
       />
 
-      {/* 🔍 FIND PROS TAB */}
+      {/* 🔍 EXPLORE */}
       <Tabs.Screen
         name="explore"
         options={{
-          title: "Find Pros",
+          title: "Explore",
           tabBarIcon: ({ focused, color }) => (
             <MaterialCommunityIcons
-              name={focused ? "magnify-plus" : "magnify"}
+              name={focused ? "compass" : "compass-outline"}
               size={26}
               color={color}
             />
@@ -61,7 +61,22 @@ export default function ClientTabs() {
         }}
       />
 
-      {/* 📅 BOOKINGS TAB */}
+      {/* 🛒 SHOP */}
+      <Tabs.Screen
+        name="shop"
+        options={{
+          title: "Shop",
+          tabBarIcon: ({ focused, color }) => (
+            <MaterialCommunityIcons
+              name={focused ? "shopping" : "shopping-outline"}
+              size={26}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      {/* 📅 BOOKINGS */}
       <Tabs.Screen
         name="bookings"
         options={{
@@ -76,22 +91,7 @@ export default function ClientTabs() {
         }}
       />
 
-      {/* 💳 WALLET TAB */}
-      <Tabs.Screen
-        name="wallet"
-        options={{
-          title: "Wallet",
-          tabBarIcon: ({ focused, color }) => (
-            <MaterialCommunityIcons
-              name={focused ? "wallet" : "wallet-outline"}
-              size={26}
-              color={color}
-            />
-          ),
-        }}
-      />
-
-      {/* 👤 PROFILE TAB */}
+      {/* 👤 PROFILE */}
       <Tabs.Screen
         name="profile"
         options={{
@@ -106,7 +106,8 @@ export default function ClientTabs() {
         }}
       />
 
-
+      {/* Hide the old wallet tab if it still exists as a file */}
+      <Tabs.Screen name="wallet" options={{ href: null }} />
     </Tabs>
   );
 }

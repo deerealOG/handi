@@ -3,14 +3,14 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import {
-  ChevronDown,
-  Clock,
-  Headphones,
-  Mail,
-  MessageSquare,
-  Phone,
-  Send,
-  User,
+    ChevronDown,
+    Clock,
+    Headphones,
+    Mail,
+    MessageSquare,
+    Phone,
+    Send,
+    User,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -23,7 +23,7 @@ const CONTACT_INFO = [
   {
     icon: Mail,
     title: "Email Address",
-    details: ["support@handi.ng", "business@handi.ng"],
+    details: ["support@handiapp.com.ng"],
   },
   {
     icon: Headphones,
@@ -52,10 +52,11 @@ export default function ContactPage() {
     subject: "",
     message: "",
   });
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Thank you for your message! We'll get back to you soon.");
+    setSubmitted(true);
     setFormData({
       firstName: "",
       lastName: "",
@@ -64,11 +65,12 @@ export default function ContactPage() {
       subject: "",
       message: "",
     });
+    setTimeout(() => setSubmitted(false), 4000);
   };
 
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
-      <Navbar activeTab="contact" />
+      <Navbar />
 
       {/* Hero Section */}
       <section className="bg-[var(--color-primary)] py-16 lg:py-20 px-4 sm:px-6 lg:px-8 text-center">
@@ -98,6 +100,12 @@ export default function ContactPage() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
+                {submitted && (
+                  <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl p-4 text-sm flex items-center gap-2">
+                    ✅ Thank you for your message! We&apos;ll get back to you
+                    soon.
+                  </div>
+                )}
                 {/* Name Fields */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -119,7 +127,7 @@ export default function ContactPage() {
                             firstName: e.target.value,
                           })
                         }
-                        className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all"
+                        className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-full focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all"
                         placeholder="John"
                       />
                     </div>
@@ -140,7 +148,7 @@ export default function ContactPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, lastName: e.target.value })
                         }
-                        className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all"
+                        className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-full focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all"
                         placeholder="Doe"
                       />
                     </div>
@@ -164,7 +172,7 @@ export default function ContactPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
-                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all"
+                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-full focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all"
                       placeholder="john@example.com"
                     />
                   </div>
@@ -186,7 +194,7 @@ export default function ContactPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, phone: e.target.value })
                       }
-                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all"
+                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-full focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all"
                       placeholder="+234 800 000 0000"
                     />
                   </div>
@@ -204,7 +212,7 @@ export default function ContactPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, subject: e.target.value })
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all appearance-none bg-white cursor-pointer"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-full focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all appearance-none bg-white cursor-pointer"
                     >
                       <option value="">Select a subject...</option>
                       {INQUIRY_SUBJECTS.map((subject) => (
@@ -232,7 +240,7 @@ export default function ContactPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, message: e.target.value })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all resize-none"
                     placeholder="Tell us more about your inquiry..."
                   />
                 </div>

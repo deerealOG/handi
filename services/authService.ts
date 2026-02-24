@@ -2,7 +2,7 @@
 // Authentication service for HANDI app
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ApiResponse, tokenManager } from "./api";
+import { ApiResponse, api, tokenManager } from "./api";
 
 // ================================
 // Types
@@ -61,65 +61,8 @@ export interface AuthTokens {
 
 interface AuthResponse {
   user: User;
-  tokens: AuthTokens;
+  tokens?: AuthTokens;
 }
-
-// ================================
-// Mock Data
-// ================================
-const MOCK_USERS: Record<string, User> = {
-  "client@test.com": {
-    id: "user_001",
-    email: "client@test.com",
-    phone: "+234 812 345 6789",
-    firstName: "John",
-    lastName: "Adebayo",
-    fullName: "John Adebayo",
-    avatar: undefined,
-    userType: "client",
-    isVerified: true,
-    isEmailVerified: true,
-    isPhoneVerified: true,
-    location: { city: "Lagos", state: "Lagos" },
-    createdAt: "2024-01-15T10:00:00Z",
-  },
-  "artisan@test.com": {
-    id: "artisan_001",
-    email: "artisan@test.com",
-    phone: "+234 803 456 7890",
-    firstName: "Golden",
-    lastName: "Amadi",
-    fullName: "Golden Amadi",
-    avatar: undefined,
-    userType: "artisan",
-    isVerified: true,
-    isEmailVerified: true,
-    isPhoneVerified: true,
-    location: { city: "Lagos", state: "Lagos" },
-    createdAt: "2024-01-10T10:00:00Z",
-    skills: ["Electrician", "AC Repair"],
-    rating: 4.9,
-    totalJobs: 156,
-    bio: "Professional electrician with 8 years of experience.",
-    certifications: ["NABTEB Certified", "Safety Training"],
-    verificationLevel: "certified",
-  },
-  "admin@test.com": {
-    id: "admin_001",
-    email: "admin@test.com",
-    phone: "+234 800 123 4567",
-    firstName: "Admin",
-    lastName: "User",
-    fullName: "Admin User",
-    avatar: undefined,
-    userType: "admin",
-    isVerified: true,
-    isEmailVerified: true,
-    isPhoneVerified: true,
-    location: { city: "Lagos", state: "Lagos" },
-    createdAt: "2024-01-01T10:00:00Z",
-  },
-};
 
 // Storage keys
 const USER_KEY = "current_user";
@@ -136,52 +79,61 @@ export const authService = {
   ): Promise<ApiResponse<AuthResponse>> {
     const { email, password, userType } = credentials;
 
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    const response = await api.post<{
+      accessToken: string;
+      refreshToken: string;
+      user: {
+        id: string;
+        email: string;
+        userType: string;
+        fullName: string;
+      };
+    }>(
+      "/api/auth/login",
+      { email, password },
+      { requiresAuth: false },
+    );
 
-    // For development: Allow any email/password combination
-    // Create a dynamic user based on the provided email
-    const emailName = email.split("@")[0];
-    const firstName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
-
-    const dynamicUser: User = {
-      id: `user_${Date.now()}`,
-      email: email.toLowerCase(),
-      phone: "+234 800 000 0000",
-      firstName: firstName,
-      lastName: "User",
-      fullName: `${firstName} User`,
-      avatar: undefined,
-      userType: userType,
-      isVerified: true,
-      isEmailVerified: true,
-      isPhoneVerified: true,
-      location: { city: "Lagos", state: "Lagos" },
-      createdAt: new Date().toISOString(),
-      // Artisan-specific fields (only relevant for artisan users)
-      ...(userType === "artisan" && {
-        skills: ["General Services"],
-        rating: 4.5,
-        totalJobs: 0,
-        bio: "Professional service provider",
-        certifications: [],
-        verificationLevel: "basic" as const,
-      }),
-    };
+    if (!response.success || !response.data) {
+      return { success: false, error: response.error || "Login failed" };
+    }
 
     const tokens: AuthTokens = {
-      accessToken: `mock_access_token_${Date.now()}`,
-      refreshToken: `mock_refresh_token_${Date.now()}`,
+      accessToken: response.data.accessToken,
+      refreshToken: response.data.refreshToken,
       expiresIn: 3600,
     };
 
     await tokenManager.setToken(tokens.accessToken);
     await tokenManager.setRefreshToken(tokens.refreshToken);
-    await AsyncStorage.setItem(USER_KEY, JSON.stringify(dynamicUser));
+
+    const [firstName, ...rest] = response.data.user.fullName.split(" ");
+    const mappedUser: User = {
+      id: response.data.user.id,
+      email: response.data.user.email,
+      phone: "",
+      firstName: firstName || "",
+      lastName: rest.join(" "),
+      fullName: response.data.user.fullName,
+      userType:
+        response.data.user.userType?.toLowerCase() === "business"
+          ? "business"
+          : response.data.user.userType?.toLowerCase() === "artisan"
+            ? "artisan"
+            : response.data.user.userType?.toLowerCase() === "admin"
+              ? "admin"
+              : "client",
+      isVerified: true,
+      isEmailVerified: true,
+      isPhoneVerified: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    await AsyncStorage.setItem(USER_KEY, JSON.stringify(mappedUser));
 
     return {
       success: true,
-      data: { user: dynamicUser, tokens },
+      data: { user: mappedUser, tokens },
       message: "Login successful",
     };
   },
@@ -190,36 +142,57 @@ export const authService = {
    * Register a new user
    */
   async register(data: RegisterData): Promise<ApiResponse<AuthResponse>> {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const userType =
+      data.userType === "business"
+        ? "BUSINESS"
+        : data.userType === "artisan"
+          ? "ARTISAN"
+          : data.userType === "admin"
+            ? "ADMIN"
+            : "CLIENT";
 
-    const newUser: User = {
-      id: `user_${Date.now()}`,
-      email: data.email,
-      phone: data.phone,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      fullName: `${data.firstName} ${data.lastName}`,
-      userType: data.userType,
-      isVerified: false,
-      isEmailVerified: false,
-      isPhoneVerified: false,
-      createdAt: new Date().toISOString(),
-    };
+    const response = await api.post<{
+      user: {
+        id: string;
+        email: string;
+        userType: string;
+        fullName: string;
+      };
+      otp?: string;
+    }>(
+      "/api/auth/register",
+      {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+        userType,
+      },
+      { requiresAuth: false },
+    );
 
-    const tokens: AuthTokens = {
-      accessToken: `mock_access_token_${Date.now()}`,
-      refreshToken: `mock_refresh_token_${Date.now()}`,
-      expiresIn: 3600,
-    };
-
-    await tokenManager.setToken(tokens.accessToken);
-    await tokenManager.setRefreshToken(tokens.refreshToken);
-    await AsyncStorage.setItem(USER_KEY, JSON.stringify(newUser));
+    if (!response.success || !response.data) {
+      return { success: false, error: response.error || "Registration failed" };
+    }
 
     return {
       success: true,
-      data: { user: newUser, tokens },
+      data: {
+        user: {
+          id: response.data.user.id,
+          email: response.data.user.email,
+          phone: data.phone,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          fullName: response.data.user.fullName,
+          userType: data.userType,
+          isVerified: false,
+          isEmailVerified: false,
+          isPhoneVerified: false,
+          createdAt: new Date().toISOString(),
+        },
+      },
       message: "Registration successful. Please verify your email.",
     };
   },
@@ -263,21 +236,18 @@ export const authService = {
   async forgotPassword(
     email: string,
   ): Promise<ApiResponse<{ message: string }>> {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Check if email exists
-    if (MOCK_USERS[email.toLowerCase()]) {
-      return {
-        success: true,
-        data: { message: "OTP sent to your email" },
-        message: "If this email exists, you will receive a reset code.",
-      };
+    const response = await api.post<{ message: string }>(
+      "/api/auth/forgot-password",
+      { email },
+      { requiresAuth: false },
+    );
+    if (!response.success) {
+      return { success: false, error: response.error || "Request failed" };
     }
-
-    // Always return success to prevent email enumeration
     return {
       success: true,
-      message: "If this email exists, you will receive a reset code.",
+      data: { message: response.message || "Reset link sent" },
+      message: response.message,
     };
   },
 
@@ -288,20 +258,18 @@ export const authService = {
     email: string,
     otp: string,
   ): Promise<ApiResponse<{ verified: boolean }>> {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    // Mock: Accept any 6-digit OTP
-    if (otp.length === 6 && /^\d+$/.test(otp)) {
-      return {
-        success: true,
-        data: { verified: true },
-        message: "OTP verified successfully",
-      };
+    const response = await api.post<{ verified?: boolean }>(
+      "/api/auth/verify-otp",
+      { email, otp },
+      { requiresAuth: false },
+    );
+    if (!response.success) {
+      return { success: false, error: response.error || "Invalid OTP code" };
     }
-
     return {
-      success: false,
-      error: "Invalid OTP code",
+      success: true,
+      data: { verified: true },
+      message: "OTP verified successfully",
     };
   },
 
@@ -309,44 +277,33 @@ export const authService = {
    * Reset password after OTP verification
    */
   async resetPassword(
-    email: string,
+    token: string,
     newPassword: string,
   ): Promise<ApiResponse<null>> {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    if (newPassword.length < 6) {
+    const response = await api.post<null>(
+      "/api/auth/reset-password",
+      { token, password: newPassword },
+      { requiresAuth: false },
+    );
+    if (!response.success) {
       return {
         success: false,
-        error: "Password must be at least 6 characters",
+        error: response.error || "Password reset failed",
       };
     }
-
-    return {
-      success: true,
-      message:
-        "Password reset successful. Please login with your new password.",
-    };
+    return { success: true, message: "Password reset successful" };
   },
 
   /**
    * Update user profile
    */
   async updateProfile(updates: Partial<User>): Promise<ApiResponse<User>> {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    const currentUser = await this.getCurrentUser();
-    if (!currentUser) {
-      return { success: false, error: "Not authenticated" };
+    const response = await api.patch<User>("/api/profile", updates);
+    if (!response.success || !response.data) {
+      return { success: false, error: response.error || "Update failed" };
     }
-
-    const updatedUser = { ...currentUser, ...updates };
-    await AsyncStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
-
-    return {
-      success: true,
-      data: updatedUser,
-      message: "Profile updated successfully",
-    };
+    await AsyncStorage.setItem(USER_KEY, JSON.stringify(response.data));
+    return { success: true, data: response.data, message: response.message };
   },
 
   /**
@@ -356,23 +313,11 @@ export const authService = {
     currentPassword: string,
     newPassword: string,
   ): Promise<ApiResponse<null>> {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    if (currentPassword.length < 6) {
-      return { success: false, error: "Current password is incorrect" };
-    }
-
     if (newPassword.length < 6) {
-      return {
-        success: false,
-        error: "New password must be at least 6 characters",
-      };
+      return { success: false, error: "New password must be at least 6 characters" };
     }
-
-    return {
-      success: true,
-      message: "Password changed successfully",
-    };
+    // No backend endpoint yet; keep client-side error.
+    return { success: false, error: "Change password is not available yet" };
   },
 };
 

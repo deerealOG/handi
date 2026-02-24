@@ -4,18 +4,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
@@ -73,14 +73,23 @@ export default function RegisterBusinessScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={[styles.container, { backgroundColor: colors.surface }]}
     >
-      <StatusBar barStyle={colors.text === '#FAFAFA' ? "light-content" : "dark-content"} backgroundColor={colors.surface} />
+      <StatusBar
+        barStyle={colors.text === "#FAFAFA" ? "light-content" : "dark-content"}
+        backgroundColor={colors.surface}
+      />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={[
+              styles.backButton,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -92,7 +101,9 @@ export default function RegisterBusinessScreen() {
             style={styles.logo}
             resizeMode="contain"
           />
-          <Text style={[styles.title, { color: colors.text }]}>For Business</Text>
+          <Text style={[styles.title, { color: colors.text }]}>
+            For Business
+          </Text>
           <Text style={[styles.subtitle, { color: colors.muted }]}>
             Scale your operations with enterprise tools
           </Text>
@@ -102,9 +113,24 @@ export default function RegisterBusinessScreen() {
         <View style={styles.formContainer}>
           {/* Business Name */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Business Name</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.primary + 10, borderColor: colors.primary + 10 }]}>
-              <Ionicons name="business-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>
+              Business Name
+            </Text>
+            <View
+              style={[
+                styles.inputContainer,
+                {
+                  backgroundColor: colors.primary + 10,
+                  borderColor: colors.primary + 10,
+                },
+              ]}
+            >
+              <Ionicons
+                name="business-outline"
+                size={20}
+                color={colors.muted}
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={[styles.input, { color: colors.text }]}
                 placeholder="Apex Services Ltd"
@@ -117,9 +143,24 @@ export default function RegisterBusinessScreen() {
 
           {/* Address */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Business Address</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.primary + 10, borderColor: colors.primary + 10 }]}>
-              <Ionicons name="location-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>
+              Business Address
+            </Text>
+            <View
+              style={[
+                styles.inputContainer,
+                {
+                  backgroundColor: colors.primary + 10,
+                  borderColor: colors.primary + 10,
+                },
+              ]}
+            >
+              <Ionicons
+                name="location-outline"
+                size={20}
+                color={colors.muted}
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={[styles.input, { color: colors.text }]}
                 placeholder="123 Main Street, Lagos"
@@ -132,9 +173,24 @@ export default function RegisterBusinessScreen() {
 
           {/* CAC/TIN (Optional) */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>CAC / TIN (Optional)</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.primary + 10, borderColor: colors.primary + 10 }]}>
-              <Ionicons name="document-text-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>
+              CAC / TIN (Optional)
+            </Text>
+            <View
+              style={[
+                styles.inputContainer,
+                {
+                  backgroundColor: colors.primary + 10,
+                  borderColor: colors.primary + 10,
+                },
+              ]}
+            >
+              <Ionicons
+                name="document-text-outline"
+                size={20}
+                color={colors.muted}
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={[styles.input, { color: colors.text }]}
                 placeholder="RC123456"
@@ -147,9 +203,24 @@ export default function RegisterBusinessScreen() {
 
           {/* Email */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Business Email</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.primary + 10, borderColor:colors.primary + 10 }]}>
-              <Ionicons name="mail-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>
+              Business Email
+            </Text>
+            <View
+              style={[
+                styles.inputContainer,
+                {
+                  backgroundColor: colors.primary + 10,
+                  borderColor: colors.primary + 10,
+                },
+              ]}
+            >
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color={colors.muted}
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={[styles.input, { color: colors.text }]}
                 placeholder="contact@apexservices.com"
@@ -165,8 +236,21 @@ export default function RegisterBusinessScreen() {
           {/* Password */}
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Password</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.primary + 10, borderColor: colors.primary + 10 }]}>
-              <Ionicons name="lock-closed-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+            <View
+              style={[
+                styles.inputContainer,
+                {
+                  backgroundColor: colors.primary + 10,
+                  borderColor: colors.primary + 10,
+                },
+              ]}
+            >
+              <Ionicons
+                name="lock-closed-outline"
+                size={20}
+                color={colors.muted}
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={[styles.input, { color: colors.text }]}
                 placeholder="••••••••"
@@ -176,7 +260,11 @@ export default function RegisterBusinessScreen() {
                 secureTextEntry={!showPassword}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.muted} />
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color={colors.muted}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -190,16 +278,22 @@ export default function RegisterBusinessScreen() {
             {isLoading ? (
               <ActivityIndicator color={colors.onPrimary} />
             ) : (
-              <Text style={[styles.buttonText, { color: colors.onPrimary }]}>Create Business Account</Text>
+              <Text style={[styles.buttonText, { color: colors.onPrimary }]}>
+                Create Business Account
+              </Text>
             )}
           </TouchableOpacity>
         </View>
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.muted }]}>Already have an account? </Text>
+          <Text style={[styles.footerText, { color: colors.muted }]}>
+            Already have an account?{" "}
+          </Text>
           <TouchableOpacity onPress={() => router.push("/auth/login" as any)}>
-            <Text style={[styles.linkText, { color: colors.primary }]}>Log In</Text>
+            <Text style={[styles.linkText, { color: colors.primary }]}>
+              Log In
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -260,7 +354,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     paddingHorizontal: 16,
-
   },
   inputIcon: {
     marginRight: 12,

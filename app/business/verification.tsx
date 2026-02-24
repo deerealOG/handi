@@ -71,7 +71,7 @@ export default function BusinessVerificationScreen() {
       Alert.alert("Success", "Verification submitted successfully", [
         { text: "OK", onPress: () => router.replace("/business") },
       ]);
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to submit verification");
     } finally {
       setLoading(false);

@@ -2,6 +2,7 @@
 // Base API configuration for HANDI app
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 // ================================
 // API Configuration
@@ -46,10 +47,23 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 // ================================
 const TOKEN_KEY = "auth_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
+const secureStoreAvailable = SecureStore.isAvailableAsync();
+
+const getStore = async () => {
+  try {
+    return (await secureStoreAvailable) ? "secure" : "async";
+  } catch {
+    return "async";
+  }
+};
 
 export const tokenManager = {
   async getToken(): Promise<string | null> {
     try {
+      const store = await getStore();
+      if (store === "secure") {
+        return await SecureStore.getItemAsync(TOKEN_KEY);
+      }
       return await AsyncStorage.getItem(TOKEN_KEY);
     } catch {
       return null;
@@ -57,11 +71,22 @@ export const tokenManager = {
   },
 
   async setToken(token: string): Promise<void> {
+    const store = await getStore();
+    if (store === "secure") {
+      await SecureStore.setItemAsync(TOKEN_KEY, token, {
+        keychainAccessible: SecureStore.WHEN_UNLOCKED,
+      });
+      return;
+    }
     await AsyncStorage.setItem(TOKEN_KEY, token);
   },
 
   async getRefreshToken(): Promise<string | null> {
     try {
+      const store = await getStore();
+      if (store === "secure") {
+        return await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+      }
       return await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
     } catch {
       return null;
@@ -69,10 +94,23 @@ export const tokenManager = {
   },
 
   async setRefreshToken(token: string): Promise<void> {
+    const store = await getStore();
+    if (store === "secure") {
+      await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token, {
+        keychainAccessible: SecureStore.WHEN_UNLOCKED,
+      });
+      return;
+    }
     await AsyncStorage.setItem(REFRESH_TOKEN_KEY, token);
   },
 
   async clearTokens(): Promise<void> {
+    const store = await getStore();
+    if (store === "secure") {
+      await SecureStore.deleteItemAsync(TOKEN_KEY);
+      await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+      return;
+    }
     await AsyncStorage.multiRemove([TOKEN_KEY, REFRESH_TOKEN_KEY]);
   },
 };

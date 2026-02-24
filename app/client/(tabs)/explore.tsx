@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
     Image,
+    RefreshControl,
     ScrollView,
     StatusBar,
     StyleSheet,
@@ -14,8 +15,12 @@ import {
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import EnhancedArtisanCard from "../../../components/EnhancedArtisanCard";
+import { EnhancedArtisanCard } from "../../../components/EnhancedArtisanCard";
 import FilterModal, { FilterOptions } from "../../../components/FilterModal";
+import {
+    ADDITIONAL_CATEGORIES,
+    FEATURED_CATEGORIES,
+} from "../../../constants/categories";
 import { THEME } from "../../../constants/theme";
 
 // Sample artisan data with locations
@@ -68,8 +73,8 @@ const ARTISANS = [
     reviews: 40,
     distance: "0.5 km",
     verified: true,
-    latitude: 6.5290,
-    longitude: 3.3750,
+    latitude: 6.529,
+    longitude: 3.375,
     type: "artisan",
   },
   {
@@ -81,8 +86,8 @@ const ARTISANS = [
     reviews: 55,
     distance: "1.2 km",
     verified: false,
-    latitude: 6.5200,
-    longitude: 3.3820,
+    latitude: 6.52,
+    longitude: 3.382,
     type: "artisan",
   },
 ];
@@ -97,8 +102,8 @@ const BUSINESSES = [
     reviews: 200,
     distance: "1.5 km",
     verified: true,
-    latitude: 6.5220,
-    longitude: 3.3700,
+    latitude: 6.522,
+    longitude: 3.37,
     type: "business",
   },
   {
@@ -110,8 +115,8 @@ const BUSINESSES = [
     reviews: 50,
     distance: "4.0 km",
     verified: true,
-    latitude: 6.5300,
-    longitude: 3.3900,
+    latitude: 6.53,
+    longitude: 3.39,
     type: "business",
   },
   {
@@ -123,23 +128,73 @@ const BUSINESSES = [
     reviews: 80,
     distance: "2.0 km",
     verified: true,
-    latitude: 6.5180,
-    longitude: 3.3750,
+    latitude: 6.518,
+    longitude: 3.375,
     type: "business",
   },
 ];
 
-const ARTISAN_CATEGORIES = ["All", "Electrician", "Plumber", "Carpenter", "Painter", "Barber", "Gardener"];
-const BUSINESS_CATEGORIES = ["All", "Construction", "Cleaning", "Plumbing", "Electrical", "Logistics", "Event Planning"];
+// Derive categories from single source of truth
+const ALL_CATEGORIES = [
+  ...FEATURED_CATEGORIES,
+  ...(ADDITIONAL_CATEGORIES || []),
+];
+const ARTISAN_CATEGORIES = [
+  "All",
+  ...ALL_CATEGORIES.slice(0, 8).map((c) => c.name),
+];
+const BUSINESS_CATEGORIES = [
+  "All",
+  ...ALL_CATEGORIES.filter((c) =>
+    [
+      "construction",
+      "cleaning-service",
+      "plumber",
+      "electrician",
+      "logistics",
+      "event-planner",
+    ].includes(c.id),
+  ).map((c) => c.name),
+];
+
+const PROMO_SERVICES = [
+  {
+    id: "priority-booking",
+    title: "Priority Booking",
+    subtitle: "Get matched with top-rated providers in minutes.",
+    cta: "Book Fast",
+    icon: "flash-outline" as const,
+  },
+  {
+    id: "same-day",
+    title: "Same-Day Home Fix",
+    subtitle: "Find available pros for urgent service requests.",
+    cta: "Find Now",
+    icon: "construct-outline" as const,
+  },
+  {
+    id: "trusted-business",
+    title: "Trusted Business Teams",
+    subtitle: "Verified companies for bigger projects.",
+    cta: "View Teams",
+    icon: "business-outline" as const,
+  },
+];
 
 export default function ExploreScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const { colors } = useAppTheme();
-  const [searchQuery, setSearchQuery] = useState(params.query?.toString() || "");
-  const [activeFilter, setActiveFilter] = useState(params.category?.toString() || "All");
+  const [searchQuery, setSearchQuery] = useState(
+    params.query?.toString() || "",
+  );
+  const [activeFilter, setActiveFilter] = useState(
+    params.category?.toString() || "All",
+  );
   const [viewMode, setViewMode] = useState<"map" | "list">("list");
-  const [searchType, setSearchType] = useState<"artisan" | "business">((params.type as "business") || "artisan"); // Init from params
+  const [searchType, setSearchType] = useState<"artisan" | "business">(
+    (params.type as "business") || "artisan",
+  ); // Init from params
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
     priceRange: [0, 100000],
@@ -148,9 +203,17 @@ export default function ExploreScreen() {
     distance: 100,
   });
   const [selectedArtisan, setSelectedArtisan] = useState<number | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    // Simulate reload
+    setTimeout(() => setRefreshing(false), 1200);
+  };
 
   const dataToFilter = searchType === "artisan" ? ARTISANS : BUSINESSES;
-  const currentCategories = searchType === "artisan" ? ARTISAN_CATEGORIES : BUSINESS_CATEGORIES;
+  const currentCategories =
+    searchType === "artisan" ? ARTISAN_CATEGORIES : BUSINESS_CATEGORIES;
 
   // Reset filter when search type changes
   React.useEffect(() => {
@@ -158,68 +221,111 @@ export default function ExploreScreen() {
   }, [searchType]);
 
   const filteredArtisans = dataToFilter.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          item.skill.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.skill.toLowerCase().includes(searchQuery.toLowerCase());
     if (!matchesSearch) return false;
 
-    if (activeFilter !== "All" && !item.skill.includes(activeFilter)) return false; // Relaxed skill check
+    if (activeFilter !== "All" && !item.skill.includes(activeFilter))
+      return false; // Relaxed skill check
     if (filters.verifiedOnly && !item.verified) return false;
     if (item.rating < filters.rating) return false;
     const price = parseInt(item.price.replace(/,/g, ""));
-    if (price < filters.priceRange[0] || price > filters.priceRange[1]) return false;
+    if (price < filters.priceRange[0] || price > filters.priceRange[1])
+      return false;
     return true;
   });
 
   const handleApplyFilters = (newFilters: FilterOptions) => {
     setFilters(newFilters);
   };
-  const handleBookArtisan = (artisan: { id: number; name: string; skill: string; price: string; rating: number; reviews: number; distance: string; verified: boolean; latitude: number; longitude: number; }): void => {
-    setSelectedArtisan(artisan.id);
-  };
-
-  const handleHeartPress = (id: number): void => {
-    setSelectedArtisan((prev) => (prev === id ? null : id));
-  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={colors.text === '#1F2937' ? "dark-content" : "light-content"} backgroundColor={colors.background} />
+      <StatusBar
+        barStyle={colors.text === "#1F2937" ? "dark-content" : "light-content"}
+        backgroundColor={colors.background}
+      />
 
       {/* Header */}
       <Animated.View entering={FadeInDown.duration(800)} style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>Explore</Text>
         {/* Toggle */}
-        <View style={[styles.typeToggle, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <TouchableOpacity 
-                style={[styles.toggleBtn, searchType === "artisan" && { backgroundColor: colors.primary }]}
-                onPress={() => setSearchType("artisan")}
+        <View
+          style={[
+            styles.typeToggle,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <TouchableOpacity
+            style={[
+              styles.toggleBtn,
+              searchType === "artisan" && { backgroundColor: colors.primary },
+            ]}
+            onPress={() => setSearchType("artisan")}
+          >
+            <Text
+              style={[
+                styles.toggleText,
+                {
+                  color:
+                    searchType === "artisan" ? colors.onPrimary : colors.text,
+                },
+              ]}
             >
-                <Text style={[styles.toggleText, { color: searchType === "artisan" ? colors.onPrimary : colors.text }]}>Professionals</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-                style={[styles.toggleBtn, searchType === "business" && { backgroundColor: colors.primary }]}
-                onPress={() => setSearchType("business")}
+              Professionals
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.toggleBtn,
+              searchType === "business" && { backgroundColor: colors.primary },
+            ]}
+            onPress={() => setSearchType("business")}
+          >
+            <Text
+              style={[
+                styles.toggleText,
+                {
+                  color:
+                    searchType === "business" ? colors.onPrimary : colors.text,
+                },
+              ]}
             >
-                <Text style={[styles.toggleText, { color: searchType === "business" ? colors.onPrimary : colors.text }]}>Businesses</Text>
-            </TouchableOpacity>
+              Businesses
+            </Text>
+          </TouchableOpacity>
         </View>
       </Animated.View>
 
       {/* Search Bar - Consistent with home */}
-      <Animated.View entering={FadeInDown.delay(200).duration(800)} style={[styles.searchContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <Animated.View
+        entering={FadeInDown.delay(200).duration(800)}
+        style={[
+          styles.searchContainer,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+        ]}
+      >
         <Ionicons name="search-outline" size={22} color={colors.muted} />
         <TextInput
           style={[styles.searchInput, { color: colors.text }]}
-          placeholder={searchType === "artisan" ? "Search for professionals..." : "Search for businesses..."}
+          placeholder={
+            searchType === "artisan"
+              ? "Search for professionals..."
+              : "Search for businesses..."
+          }
           placeholderTextColor={colors.muted}
           returnKeyType="search"
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery("")} style={{marginRight: 8}}>
-                <Ionicons name="close-circle" size={18} color={colors.muted} />
-            </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setSearchQuery("")}
+            style={{ marginRight: 8 }}
+          >
+            <Ionicons name="close-circle" size={18} color={colors.muted} />
+          </TouchableOpacity>
         )}
         <TouchableOpacity
           style={[styles.filterButton, { backgroundColor: colors.primary }]}
@@ -230,7 +336,10 @@ export default function ExploreScreen() {
       </Animated.View>
 
       {/* Filter Tabs */}
-      <Animated.View entering={FadeInDown.delay(400).duration(800)} style={styles.filterContainer}>
+      <Animated.View
+        entering={FadeInDown.delay(400).duration(800)}
+        style={styles.filterContainer}
+      >
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -244,7 +353,10 @@ export default function ExploreScreen() {
               style={[
                 styles.filterChip,
                 { backgroundColor: colors.surface, borderColor: colors.border },
-                activeFilter === filter && { backgroundColor: colors.primary, borderColor: colors.primary },
+                activeFilter === filter && {
+                  backgroundColor: colors.primary,
+                  borderColor: colors.primary,
+                },
               ]}
             >
               <Text
@@ -256,6 +368,54 @@ export default function ExploreScreen() {
               >
                 {filter}
               </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </Animated.View>
+
+      <Animated.View
+        entering={FadeInDown.delay(500).duration(800)}
+        style={styles.promoSection}
+      >
+        <Text style={[styles.promoSectionTitle, { color: colors.text }]}>
+          Featured Services
+        </Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.promoScrollContent}
+        >
+          {PROMO_SERVICES.map((promo) => (
+            <TouchableOpacity
+              key={promo.id}
+              style={[
+                styles.promoCard,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
+              onPress={() => setSearchQuery(promo.title)}
+              activeOpacity={0.85}
+            >
+              <View
+                style={[
+                  styles.promoIconWrap,
+                  { backgroundColor: colors.primaryLight },
+                ]}
+              >
+                <Ionicons name={promo.icon} size={18} color={colors.primary} />
+              </View>
+              <Text style={[styles.promoTitle, { color: colors.text }]}>
+                {promo.title}
+              </Text>
+              <Text style={[styles.promoSubtitle, { color: colors.muted }]}>
+                {promo.subtitle}
+              </Text>
+              <View
+                style={[styles.promoCta, { backgroundColor: colors.primaryLight }]}
+              >
+                <Text style={[styles.promoCtaText, { color: colors.primary }]}>
+                  {promo.cta}
+                </Text>
+              </View>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -319,7 +479,9 @@ export default function ExploreScreen() {
           {selectedArtisan && (
             <View style={styles.selectedCardOverlay}>
               {(() => {
-                const artisan = filteredArtisans.find((a) => a.id === selectedArtisan);
+                const artisan = filteredArtisans.find(
+                  (a) => a.id === selectedArtisan,
+                );
                 if (!artisan) return null;
                 return (
                   <View style={styles.selectedCard}>
@@ -328,7 +490,11 @@ export default function ExploreScreen() {
                       onPress={() => setSelectedArtisan(null)}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
-                      <Ionicons name="close" size={20} color={THEME.colors.muted} />
+                      <Ionicons
+                        name="close"
+                        size={20}
+                        color={THEME.colors.muted}
+                      />
                     </TouchableOpacity>
                     <View style={styles.selectedCardContent}>
                       <Image
@@ -348,11 +514,19 @@ export default function ExploreScreen() {
                             />
                           )}
                         </View>
-                        <Text style={styles.selectedSkill}>{artisan.skill}</Text>
+                        <Text style={styles.selectedSkill}>
+                          {artisan.skill}
+                        </Text>
                         <View style={styles.selectedMetrics}>
                           <View style={styles.metricItem}>
-                            <Ionicons name="star" size={14} color={colors.star} />
-                            <Text style={styles.metricText}>{artisan.rating}</Text>
+                            <Ionicons
+                              name="star"
+                              size={14}
+                              color={colors.star}
+                            />
+                            <Text style={styles.metricText}>
+                              {artisan.rating}
+                            </Text>
                           </View>
                           <View style={styles.metricItem}>
                             <Ionicons
@@ -360,9 +534,13 @@ export default function ExploreScreen() {
                               size={14}
                               color={THEME.colors.muted}
                             />
-                            <Text style={styles.metricText}>{artisan.distance}</Text>
+                            <Text style={styles.metricText}>
+                              {artisan.distance}
+                            </Text>
                           </View>
-                          <Text style={styles.selectedPrice}>₦{artisan.price}</Text>
+                          <Text style={styles.selectedPrice}>
+                            NGN {artisan.price}
+                          </Text>
                         </View>
                       </View>
                     </View>
@@ -370,22 +548,27 @@ export default function ExploreScreen() {
                       style={styles.viewProfileButton}
                       onPress={() =>
                         router.push({
-                          pathname: artisan.type === 'business' ? "/client/business-details" : "/client/artisan-details",
-                          params: { 
-                            id: artisan.id, 
+                          pathname:
+                            artisan.type === "business"
+                              ? "/client/business-details"
+                              : "/client/artisan-details",
+                          params: {
+                            id: artisan.id,
                             name: artisan.name,
-                            businessName: artisan.name, 
-                            skill: artisan.skill, 
-                            price: artisan.price, 
-                            rating: artisan.rating, 
-                            reviews: artisan.reviews, 
-                            distance: artisan.distance, 
-                            verified: String(artisan.verified) 
+                            businessName: artisan.name,
+                            skill: artisan.skill,
+                            price: artisan.price,
+                            rating: artisan.rating,
+                            reviews: artisan.reviews,
+                            distance: artisan.distance,
+                            verified: String(artisan.verified),
                           },
                         })
                       }
                     >
-                      <Text style={styles.viewProfileButtonText}>View Profile</Text>
+                      <Text style={styles.viewProfileButtonText}>
+                        View Profile
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 );
@@ -397,26 +580,53 @@ export default function ExploreScreen() {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={THEME.colors.primary}
+              colors={[THEME.colors.primary]}
+            />
+          }
         >
           {filteredArtisans.length === 0 ? (
-            <View style={{ alignItems: 'center', marginTop: 50 }}>
-              <Ionicons name="search-outline" size={64} color={colors.muted} style={{ opacity: 0.5 }} />
-              <Text style={{ marginTop: 16, color: colors.muted, fontFamily: THEME.typography.fontFamily.subheading }}>No results found</Text>
-              <Text style={{ marginTop: 8, color: colors.muted, textAlign: 'center' }}>
+            <View style={{ alignItems: "center", marginTop: 50 }}>
+              <Ionicons
+                name="search-outline"
+                size={64}
+                color={colors.muted}
+                style={{ opacity: 0.5 }}
+              />
+              <Text
+                style={{
+                  marginTop: 16,
+                  color: colors.muted,
+                  fontFamily: THEME.typography.fontFamily.subheading,
+                }}
+              >
+                No results found
+              </Text>
+              <Text
+                style={{
+                  marginTop: 8,
+                  color: colors.muted,
+                  textAlign: "center",
+                }}
+              >
                 Try adjusting your search or filters
               </Text>
             </View>
           ) : (
-             filteredArtisans.map((artisan) => (
-                <EnhancedArtisanCard
-                  key={artisan.id}
-                  artisan={{
-                    ...artisan,
-                    type: artisan.type as 'individual' | 'business',
-                    verificationLevel: artisan.verified ? 'verified' : 'none',
-                  }}
-                />
-             ))
+            filteredArtisans.map((artisan) => (
+              <EnhancedArtisanCard
+                key={artisan.id}
+                artisan={{
+                  ...artisan,
+                  type: artisan.type as "individual" | "business",
+                  verificationLevel: artisan.verified ? "verified" : "none",
+                }}
+              />
+            ))
           )}
         </ScrollView>
       )}
@@ -514,6 +724,55 @@ const styles = StyleSheet.create({
   // Filter Chips
   filterContainer: {
     marginBottom: THEME.spacing.md,
+  },
+  promoSection: {
+    marginBottom: THEME.spacing.md,
+  },
+  promoSectionTitle: {
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.heading,
+    paddingHorizontal: THEME.spacing.lg,
+    marginBottom: 10,
+  },
+  promoScrollContent: {
+    paddingHorizontal: THEME.spacing.lg,
+    gap: 10,
+  },
+  promoCard: {
+    width: 220,
+    borderRadius: THEME.radius.lg,
+    borderWidth: 1,
+    padding: 14,
+    ...THEME.shadow.card,
+  },
+  promoIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  promoTitle: {
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    marginBottom: 4,
+  },
+  promoSubtitle: {
+    fontSize: THEME.typography.sizes.xs,
+    fontFamily: THEME.typography.fontFamily.body,
+    lineHeight: 16,
+    marginBottom: 10,
+  },
+  promoCta: {
+    alignSelf: "flex-start",
+    borderRadius: THEME.radius.pill,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  promoCtaText: {
+    fontSize: THEME.typography.sizes.xs,
+    fontFamily: THEME.typography.fontFamily.subheading,
   },
   filterScroll: {
     flexGrow: 0,
@@ -750,7 +1009,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    backgroundColor: "#FEFCE8",
+    backgroundColor: THEME.colors.warningLight,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -815,7 +1074,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "#1F2937", // Dark color
+    backgroundColor: THEME.colors.text, // Inverted for contrast
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 30,

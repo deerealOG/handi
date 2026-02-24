@@ -1,6 +1,7 @@
 // app/auth/forgot-password.tsx
 // Forgot password screen for HANDI app
 
+import { DecorativeBlobs } from "@/components/DecorativeBlobs";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -59,7 +60,7 @@ export default function ForgotPasswordScreen() {
       } else {
         setError(response.error || "Something went wrong. Please try again.");
       }
-    } catch (err) {
+    } catch {
       setError("Network error. Please check your connection.");
     } finally {
       setIsLoading(false);
@@ -71,6 +72,9 @@ export default function ForgotPasswordScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={[styles.container, { backgroundColor: colors.background }]}
     >
+      {/* Decorative Blobs */}
+      <DecorativeBlobs />
+
       <StatusBar
         barStyle={colors.text === "#FAFAFA" ? "light-content" : "dark-content"}
       />
@@ -102,7 +106,7 @@ export default function ForgotPasswordScreen() {
           Forgot Password?
         </Text>
         <Text style={[styles.subtitle, { color: colors.muted }]}>
-          No worries! Enter your email address and we'll send you a verification
+          No worries! Enter your email address and we&apos;ll send you a verification
           code to reset your password.
         </Text>
 

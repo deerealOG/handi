@@ -4,18 +4,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { THEME } from "../../constants/theme";
 
@@ -51,7 +51,7 @@ export default function RegisterClientScreen() {
     }
 
     setIsLoading(true);
-    
+
     // Split full name into first and last name
     const nameParts = fullName.trim().split(" ");
     const firstName = nameParts[0];
@@ -79,14 +79,23 @@ export default function RegisterClientScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={[styles.container, { backgroundColor: colors.surface }]}
     >
-      <StatusBar barStyle={colors.text === '#FAFAFA' ? "light-content" : "dark-content"} backgroundColor={colors.surface} />
+      <StatusBar
+        barStyle={colors.text === "#FAFAFA" ? "light-content" : "dark-content"}
+        backgroundColor={colors.surface}
+      />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={[
+              styles.backButton,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -98,7 +107,9 @@ export default function RegisterClientScreen() {
             style={styles.logo}
             resizeMode="contain"
           />
-          <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
+          <Text style={[styles.title, { color: colors.text }]}>
+            Create Account
+          </Text>
           <Text style={[styles.subtitle, { color: colors.muted }]}>
             Join as a Client to find trusted pros
           </Text>
@@ -108,9 +119,24 @@ export default function RegisterClientScreen() {
         <View style={styles.formContainer}>
           {/* Full Name */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Full Name</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}>
-              <Ionicons name="person-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>
+              Full Name
+            </Text>
+            <View
+              style={[
+                styles.inputContainer,
+                {
+                  backgroundColor: colors.primaryLight,
+                  borderColor: colors.primaryLight,
+                },
+              ]}
+            >
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color={colors.muted}
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={[styles.input, { color: colors.text }]}
                 placeholder="Your full name"
@@ -123,9 +149,24 @@ export default function RegisterClientScreen() {
 
           {/* Email */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Email Address</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}>
-              <Ionicons name="mail-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>
+              Email Address
+            </Text>
+            <View
+              style={[
+                styles.inputContainer,
+                {
+                  backgroundColor: colors.primaryLight,
+                  borderColor: colors.primaryLight,
+                },
+              ]}
+            >
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color={colors.muted}
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={[styles.input, { color: colors.text }]}
                 placeholder="you@example.com"
@@ -140,9 +181,24 @@ export default function RegisterClientScreen() {
 
           {/* Phone */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Phone Number</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}>
-              <Ionicons name="call-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>
+              Phone Number
+            </Text>
+            <View
+              style={[
+                styles.inputContainer,
+                {
+                  backgroundColor: colors.primaryLight,
+                  borderColor: colors.primaryLight,
+                },
+              ]}
+            >
+              <Ionicons
+                name="call-outline"
+                size={20}
+                color={colors.muted}
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={[styles.input, { color: colors.text }]}
                 placeholder="Your phone number"
@@ -157,8 +213,21 @@ export default function RegisterClientScreen() {
           {/* Password */}
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Password</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}>
-              <Ionicons name="lock-closed-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+            <View
+              style={[
+                styles.inputContainer,
+                {
+                  backgroundColor: colors.primaryLight,
+                  borderColor: colors.primaryLight,
+                },
+              ]}
+            >
+              <Ionicons
+                name="lock-closed-outline"
+                size={20}
+                color={colors.muted}
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={[styles.input, { color: colors.text }]}
                 placeholder="At least 6 characters"
@@ -168,7 +237,11 @@ export default function RegisterClientScreen() {
                 secureTextEntry={!showPassword}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.muted} />
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color={colors.muted}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -182,16 +255,22 @@ export default function RegisterClientScreen() {
             {isLoading ? (
               <ActivityIndicator color={colors.onPrimary} />
             ) : (
-              <Text style={[styles.buttonText, { color: colors.onPrimary }]}>Sign Up</Text>
+              <Text style={[styles.buttonText, { color: colors.onPrimary }]}>
+                Sign Up
+              </Text>
             )}
           </TouchableOpacity>
         </View>
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.muted }]}>Already have an account? </Text>
+          <Text style={[styles.footerText, { color: colors.muted }]}>
+            Already have an account?{" "}
+          </Text>
           <TouchableOpacity onPress={() => router.push("/auth/login" as any)}>
-            <Text style={[styles.linkText, { color: colors.primary }]}>Log In</Text>
+            <Text style={[styles.linkText, { color: colors.primary }]}>
+              Log In
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

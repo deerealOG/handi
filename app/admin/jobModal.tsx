@@ -1,7 +1,7 @@
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { THEME } from "../../constants/theme";
 
 export default function JobModal() {
@@ -9,57 +9,55 @@ export default function JobModal() {
   const params = useLocalSearchParams();
   const { colors } = useAppTheme();
 
-  // Example of dynamic job data via params
   const job = {
     id: params.id || "N/A",
     title: params.title || "Untitled Job",
     client: params.client || "Unknown Client",
     artisan: params.artisan || "Unknown Artisan",
     status: params.status || "N/A",
-    description:
-      params.description ||
-      "No additional details provided for this job.",
+    description: params.description || "No additional details provided for this job.",
   };
 
-  const isDispute = job.status === "Dispute";
+  const normalizedStatus = String(job.status).toLowerCase();
+  const isDispute = normalizedStatus.includes("dispute");
+  const isCompleted = normalizedStatus.includes("complete");
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      <Text style={[styles.title, { color: colors.text }]}>🧰 Job Details</Text>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}> 
+      <Text style={[styles.title, { color: colors.text }]}>Job Details</Text>
 
-      <View style={[styles.card, { backgroundColor: colors.surface }, styles.shadow]}>
+      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
         <Text style={[styles.jobTitle, { color: colors.secondary }]}>{job.title}</Text>
-        <Text style={[styles.detail, { color: colors.text }]}>
-          Client: <Text style={styles.bold}>{job.client}</Text>
-        </Text>
-        <Text style={[styles.detail, { color: colors.text }]}>
-          Artisan: <Text style={styles.bold}>{job.artisan}</Text>
-        </Text>
-        <Text style={[styles.detail, { color: colors.text }]}>
-          Status:{" "}
-          <Text
-            style={[
-              styles.bold,
-              job.status === "Completed"
-                ? { color: colors.success }
-                : isDispute
-                ? { color: colors.error }
-                : { color: colors.error },
-            ]}
-          >
-            {job.status}
-          </Text>
-        </Text>
+        <Text style={[styles.detail, { color: colors.text }]}>Client: <Text style={styles.bold}>{job.client}</Text></Text>
+        <Text style={[styles.detail, { color: colors.text }]}>Artisan: <Text style={styles.bold}>{job.artisan}</Text></Text>
+        <Text style={[styles.detail, { color: colors.text }]}>Status: <Text
+          style={[
+            styles.bold,
+            isCompleted
+              ? { color: colors.success }
+              : isDispute
+              ? { color: colors.error }
+              : { color: colors.warning },
+          ]}
+        >{String(job.status)}</Text></Text>
         <Text style={[styles.desc, { color: colors.muted }]}>{job.description}</Text>
       </View>
 
       <TouchableOpacity
         style={[
           styles.actionButton,
-          isDispute ? { backgroundColor: colors.error } : { backgroundColor: colors.success },
+          isDispute
+            ? { backgroundColor: colors.error }
+            : { backgroundColor: colors.success },
         ]}
+        onPress={() => {
+          Alert.alert(
+            isDispute ? "Dispute marked for resolution" : "Booking marked completed",
+          );
+          router.back();
+        }}
       >
-        <Text style={[styles.actionText, { color: '#FFFFFF' }]}>
+        <Text style={styles.actionText}>
           {isDispute ? "Resolve Dispute" : "Mark as Completed"}
         </Text>
       </TouchableOpacity>
@@ -88,7 +86,9 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: THEME.radius.lg,
+    borderWidth: 1,
     padding: THEME.spacing.lg,
+    ...THEME.shadow.card,
   },
   jobTitle: {
     fontSize: THEME.typography.sizes.xl,
@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: "700",
+    textTransform: "capitalize",
   },
   actionButton: {
     borderRadius: THEME.radius.md,
@@ -115,6 +116,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontWeight: "700",
+    color: "#FFFFFF",
   },
   closeButton: {
     marginTop: THEME.spacing.lg,
@@ -124,12 +126,5 @@ const styles = StyleSheet.create({
   },
   closeText: {
     fontWeight: "700",
-  },
-  shadow: {
-    shadowColor: "rgba(147,51,234,0.5)",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 3,
   },
 });

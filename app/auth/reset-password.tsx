@@ -3,7 +3,7 @@
 
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
     ActivityIndicator,
@@ -22,8 +22,8 @@ import { authService } from "../../services";
 export default function ResetPasswordScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
-  const { email } = useLocalSearchParams<{ email: string }>();
 
+  const [token, setToken] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -33,6 +33,10 @@ export default function ResetPasswordScreen() {
   const [success, setSuccess] = useState(false);
 
   const validatePassword = (): boolean => {
+    if (!token.trim()) {
+      setError("Reset token is required");
+      return false;
+    }
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
       return false;
@@ -51,7 +55,7 @@ export default function ResetPasswordScreen() {
     setIsLoading(true);
 
     try {
-      const response = await authService.resetPassword(email || "", password);
+      const response = await authService.resetPassword(token.trim(), password);
 
       if (response.success) {
         setSuccess(true);
@@ -62,7 +66,7 @@ export default function ResetPasswordScreen() {
       } else {
         setError(response.error || "Something went wrong. Please try again.");
       }
-    } catch (err) {
+    } catch {
       setError("Network error. Please check your connection.");
     } finally {
       setIsLoading(false);
@@ -123,6 +127,41 @@ export default function ResetPasswordScreen() {
         <Text style={[styles.subtitle, { color: colors.muted }]}>
           Your new password must be different from previously used passwords.
         </Text>
+
+        {/* Reset Token */}
+        <View style={styles.inputContainer}>
+          <Text style={[styles.label, { color: colors.text }]}>
+            Reset Token
+          </Text>
+          <View
+            style={[
+              styles.inputWrapper,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Ionicons
+              name="mail-outline"
+              size={20}
+              color={colors.muted}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={[styles.input, { color: colors.text }]}
+              placeholder="Paste the token from your email"
+              placeholderTextColor={colors.muted}
+              value={token}
+              onChangeText={(text) => {
+                setToken(text);
+                setError("");
+              }}
+              autoCapitalize="none"
+              editable={!isLoading && !success}
+            />
+          </View>
+        </View>
 
         {/* New Password */}
         <View style={styles.inputContainer}>

@@ -3,7 +3,7 @@
 
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
     Alert,
@@ -118,7 +118,6 @@ const resolutionOptions = [
 export default function DisputeDetailScreen() {
   const { colors } = useAppTheme();
   const router = useRouter();
-  const { id } = useLocalSearchParams();
   const [showResolutionModal, setShowResolutionModal] = useState(false);
   const [selectedResolution, setSelectedResolution] = useState<string | null>(
     null,

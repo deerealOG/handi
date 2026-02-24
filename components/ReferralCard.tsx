@@ -40,7 +40,7 @@ export function ReferralCard({
       await Clipboard.setStringAsync(referralCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Could not copy code');
     }
   };

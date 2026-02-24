@@ -4,7 +4,6 @@
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
-import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -84,8 +83,6 @@ export default function JoinAsProScreen() {
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [showCityModal, setShowCityModal] = useState(false);
 
   const STEPS = [
     { title: "Personal Info", icon: "person" },
@@ -97,19 +94,6 @@ export default function JoinAsProScreen() {
 
   const updateForm = (key: keyof FormData, value: any) => {
     setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handlePickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,
-      quality: 0.8,
-    });
-
-    if (!result.canceled) {
-      const uris = result.assets.map((a) => a.uri);
-      updateForm("portfolioImages", [...form.portfolioImages, ...uris]);
-    }
   };
 
   const handlePickDocument = async (type: "id" | "cert") => {
@@ -456,7 +440,12 @@ export default function JoinAsProScreen() {
             styles.selectButton,
             { backgroundColor: colors.surface, borderColor: colors.border },
           ]}
-          onPress={() => setShowCityModal(true)}
+          onPress={() =>
+            Alert.alert(
+              "Select City",
+              "Choose your city from the options below.",
+            )
+          }
         >
           <Text
             style={[

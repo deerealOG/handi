@@ -1,21 +1,14 @@
+import ChatbotWidget from "@/components/ChatbotWidget";
+import CookieConsent from "@/components/CookieConsent";
+import LocationPrompt from "@/components/LocationPrompt";
+import NotificationToast from "@/components/NotificationToast";
 import ScrollToTop from "@/components/ScrollToTop";
+import { AuthProvider } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
+import { NotificationProvider } from "@/context/NotificationContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import type { Metadata } from "next";
-import { Red_Hat_Display, Roboto } from "next/font/google";
 import "./globals.css";
-
-const redHatDisplay = Red_Hat_Display({
-  variable: "--font-heading",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
-const roboto = Roboto({
-  variable: "--font-body",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "HANDI - Find Trusted Service Providers Near You",
@@ -32,9 +25,12 @@ export const metadata: Metadata = {
     "home services",
   ],
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/favicon.ico",
+    icon: [
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/favicon.ico", type: "image/x-icon" },
+    ],
+    shortcut: "/favicon.png",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "HANDI - Find Trusted Service Providers Near You",
@@ -52,11 +48,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${redHatDisplay.variable} ${roboto.variable} antialiased`}
-      >
-        {children}
-        <ScrollToTop />
+      <body className="antialiased">
+        <AuthProvider>
+          <CartProvider>
+            <ThemeProvider>
+              <NotificationProvider>
+                {children}
+                <NotificationToast />
+                <LocationPrompt />
+                <ChatbotWidget />
+                <ScrollToTop />
+                <CookieConsent />
+              </NotificationProvider>
+            </ThemeProvider>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -66,7 +66,6 @@ export default function BookArtisan() {
   const [location, setLocation] = useState<string>("Lekki Phase 1, Lagos");
   const [urgent, setUrgent] = useState<boolean>(false);
   const [uploadedFiles, setUploadedFiles] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
-  const [loading, setLoading] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
 
   const DESCRIPTION_SUGGESTIONS = [
@@ -155,7 +154,6 @@ export default function BookArtisan() {
     }
 
     try {
-      setLoading(true);
       // Format the date and time for the booking
       const scheduledDate = date.toISOString().split('T')[0];
       const scheduledTime = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -188,12 +186,8 @@ export default function BookArtisan() {
     } catch (error) {
       console.error('Error creating booking:', error);
       Alert.alert("Error", "Failed to create booking. Please try again.");
-    } finally {
-      setLoading(false);
     }
-  }, [serviceType, jobTitle, jobDescription, location, date, urgent, uploadedFiles, params]);
-
-  const handleSubmit = handleProceed; // Alias for compatibility with existing code
+  }, [serviceType, jobTitle, jobDescription, location, date, uploadedFiles, params, router]);
   const handleProceedToPayment = handleProceed; // Alias for compatibility with existing code
   const handleEditDetails = () => setShowSummary(false); // Function to handle edit details
 

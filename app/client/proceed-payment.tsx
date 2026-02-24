@@ -36,10 +36,8 @@ export default function ProceedPayment() {
     jobDescription,
     location,
     date,
-    urgent,
     price,
     artisanId,
-    artisanName,
     categoryId,
     categoryName
   } = params;
@@ -57,8 +55,6 @@ export default function ProceedPayment() {
   const [otp, setOtp] = useState("");
 
   // Created booking ID for success screen
-  const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
-
   // Animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -68,7 +64,7 @@ export default function ProceedPayment() {
       duration: 500,
       useNativeDriver: true,
     }).start();
-  }, [step]);
+  }, [step, fadeAnim]);
 
   const handleMethodSelect = (method: string) => {
     setSelectedMethod(method);

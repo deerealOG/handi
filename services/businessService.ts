@@ -1,9 +1,7 @@
 // services/businessService.ts
 // Business service provider operations for HANDI app
-// Businesses are like artisans but at company scale - they OFFER services
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ApiResponse } from "./api";
+import { api, ApiResponse } from "./api";
 
 // ================================
 // Types
@@ -103,13 +101,21 @@ export interface BusinessProfile {
   utilityBillUrl?: string;
 }
 
-// ================================
-// Storage Keys
-// ================================
-const TEAM_KEY = "business_team";
-const SERVICES_KEY = "business_services";
-const JOBS_KEY = "business_jobs";
-const PROFILE_KEY = "business_profile";
+export type ProjectPriority = "low" | "medium" | "high" | "urgent";
+
+export interface CreateProjectData {
+  title: string;
+  description: string;
+  serviceType: string;
+  requiredSkills: string[];
+  budgetMin: number;
+  budgetMax: number;
+  address: string;
+  city: string;
+  state: string;
+  priority: ProjectPriority;
+  artisansNeeded: number;
+}
 
 const DEFAULT_AVAILABILITY: Availability[] = [
   { day: "Monday", isOpen: true, start: "09:00", end: "17:00" },
@@ -121,168 +127,170 @@ const DEFAULT_AVAILABILITY: Availability[] = [
   { day: "Sunday", isOpen: false, start: "09:00", end: "17:00" },
 ];
 
-// ================================
-// Mock Data
-// ================================
-const MOCK_TEAM: TeamMember[] = [
-  {
-    id: "member_001",
-    businessId: "business_001",
-    name: "Chidi Okonkwo",
-    email: "[EMAIL_ADDRESS]",
-    phone: "+234 803 111 2222",
-    role: "technician",
-    skills: ["Electrician", "AC Repair"],
-    isActive: true,
-    joinedAt: "2024-06-15T10:00:00Z",
-  },
-  {
-    id: "member_002",
-    businessId: "business_001",
-    name: "Amaka Eze",
-    email: "[EMAIL_ADDRESS]",
-    phone: "+234 803 333 4444",
-    role: "technician",
-    skills: ["Plumber", "Mason"],
-    isActive: true,
-    joinedAt: "2024-07-20T10:00:00Z",
-  },
-  {
-    id: "member_003",
-    businessId: "business_001",
-    name: "Kunle Adeyemi",
-    email: "[EMAIL_ADDRESS]",
-    phone: "+234 803 555 6666",
-    role: "manager",
-    skills: [],
-    isActive: true,
-    joinedAt: "2024-05-01T10:00:00Z",
-  },
-];
+const normalizeStatus = (status: string): BusinessJob["status"] => {
+  switch (status) {
+    case "PENDING":
+      return "pending";
+    case "ACCEPTED":
+      return "accepted";
+    case "ASSIGNED":
+      return "assigned";
+    case "IN_PROGRESS":
+      return "in_progress";
+    case "COMPLETED":
+      return "completed";
+    case "CANCELLED":
+      return "cancelled";
+    default:
+      return "pending";
+  }
+};
 
-const MOCK_SERVICES: ServiceOffering[] = [
-  {
-    id: "service_001",
-    businessId: "business_001",
-    categoryId: "electrical",
-    categoryName: "Electrical Services",
-    description:
-      "Complete electrical installations, repairs, and maintenance for homes and offices.",
-    basePrice: 15000,
-    priceType: "quote",
-    isActive: true,
-    createdAt: "2024-06-01T10:00:00Z",
-  },
-  {
-    id: "service_002",
-    businessId: "business_001",
-    categoryId: "plumbing",
-    categoryName: "Plumbing Services",
-    description:
-      "Professional plumbing solutions including pipe repairs, installations, and water systems.",
-    basePrice: 12000,
-    priceType: "quote",
-    isActive: true,
-    createdAt: "2024-06-01T10:00:00Z",
-  },
-  {
-    id: "service_003",
-    businessId: "business_001",
-    categoryId: "ac_repair",
-    categoryName: "AC Repair & Maintenance",
-    description:
-      "Air conditioning installation, repair, and regular maintenance services.",
-    basePrice: 20000,
-    priceType: "fixed",
-    isActive: true,
-    createdAt: "2024-06-15T10:00:00Z",
-  },
-];
+const mapRoleFromApi = (role?: string): TeamMember["role"] => {
+  switch (role) {
+    case "MANAGER":
+      return "manager";
+    case "OWNER":
+      return "manager";
+    case "WORKER":
+      return "technician";
+    default:
+      return "technician";
+  }
+};
 
-const MOCK_JOBS: BusinessJob[] = [
-  {
-    id: "bjob_001",
-    businessId: "business_001",
-    clientId: "user_001",
-    clientName: "John Adebayo",
-    clientPhone: "+234 812 345 6789",
-    serviceType: "Electrical Services",
-    description: "Complete office rewiring for 3-story building",
-    address: "123 Victoria Island",
-    city: "Lagos",
-    scheduledDate: "2024-12-18",
-    scheduledTime: "09:00 AM",
-    estimatedPrice: 450000,
-    status: "in_progress",
-    assignedTeamMember: "member_001",
-    assignedMemberName: "Chidi Okonkwo",
-    createdAt: "2024-12-10T10:00:00Z",
-    updatedAt: "2024-12-15T14:00:00Z",
-  },
-  {
-    id: "bjob_002",
-    businessId: "business_001",
-    clientId: "user_002",
-    clientName: "Ada Obi",
-    clientPhone: "+234 815 678 9012",
-    serviceType: "Plumbing Services",
-    description: "Install new water system for residential complex",
-    address: "45 Lekki Phase 1",
-    city: "Lagos",
-    scheduledDate: "2024-12-20",
-    scheduledTime: "10:00 AM",
-    estimatedPrice: 280000,
-    status: "pending",
-    createdAt: "2024-12-14T09:00:00Z",
-    updatedAt: "2024-12-14T09:00:00Z",
-  },
-  {
-    id: "bjob_003",
-    businessId: "business_001",
-    clientId: "user_003",
-    clientName: "Emeka Johnson",
-    clientPhone: "+234 802 111 3333",
-    serviceType: "AC Repair & Maintenance",
-    description: "AC servicing for 10 units in office building",
-    address: "78 Allen Avenue",
-    city: "Lagos",
-    scheduledDate: "2024-12-12",
-    scheduledTime: "11:00 AM",
-    estimatedPrice: 180000,
-    status: "completed",
-    assignedTeamMember: "member_001",
-    assignedMemberName: "Chidi Okonkwo",
-    createdAt: "2024-12-05T08:00:00Z",
-    updatedAt: "2024-12-12T16:00:00Z",
-  },
-];
+const mapRoleToApi = (role: TeamMember["role"]): "MANAGER" | "WORKER" => {
+  return role === "manager" ? "MANAGER" : "WORKER";
+};
+
+const mapPriceTypeFromApi = (priceType?: string): ServiceOffering["priceType"] => {
+  switch (priceType) {
+    case "HOURLY":
+      return "hourly";
+    case "QUOTE":
+      return "quote";
+    case "FIXED":
+    default:
+      return "fixed";
+  }
+};
+
+const mapPriceTypeToApi = (
+  priceType: ServiceOffering["priceType"],
+): "FIXED" | "HOURLY" | "QUOTE" => {
+  switch (priceType) {
+    case "hourly":
+      return "HOURLY";
+    case "quote":
+      return "QUOTE";
+    case "fixed":
+    default:
+      return "FIXED";
+  }
+};
+
+const mapBusinessProfile = (business: any): BusinessProfile => ({
+  id: business.id,
+  businessName: business.name || "",
+  description: business.description || "",
+  address: business.address || "",
+  phone: business.phone || "",
+  email: business.email || "",
+  avatar: business.logo || undefined,
+  coverImage: business.coverImage || undefined,
+  availability: DEFAULT_AVAILABILITY,
+  isVerified: !!business.isVerified,
+  verificationStatus:
+    business.verificationStatus?.toLowerCase() === "in_review"
+      ? "in_review"
+      : business.verificationStatus?.toLowerCase() === "verified"
+        ? "verified"
+        : business.verificationStatus?.toLowerCase() === "rejected"
+          ? "rejected"
+          : business.verificationStatus?.toLowerCase() === "suspended"
+            ? "suspended"
+            : "pending",
+  cacNumber: business.cacNumber || undefined,
+  tinNumber: business.tinNumber || undefined,
+  cacDocumentUrl: business.cacDocumentUrl || undefined,
+  tinDocumentUrl: business.tinDocumentUrl || undefined,
+  utilityBillUrl: business.utilityBillUrl || undefined,
+});
+
+const mapTeamMember = (member: any): TeamMember => {
+  const user = member.user || {};
+  const fullName =
+    user.fullName ||
+    `${user.firstName || ""} ${user.lastName || ""}`.trim();
+
+  return {
+    id: member.userId || member.id,
+    businessId: member.businessId,
+    name: fullName || user.email || "Member",
+    email: user.email || "",
+    phone: user.phone || "",
+    role: mapRoleFromApi(member.role),
+    skills: Array.isArray(user.skills) ? user.skills : [],
+    avatar: user.avatar || undefined,
+    isActive: member.isActive !== undefined ? member.isActive : true,
+    joinedAt: member.createdAt || new Date().toISOString(),
+  };
+};
+
+const mapServiceOffering = (service: any): ServiceOffering => ({
+  id: service.id,
+  businessId: service.businessId,
+  categoryId: service.categoryId,
+  categoryName: service.categoryName,
+  description: service.description,
+  basePrice: Number(service.basePrice || 0),
+  priceType: mapPriceTypeFromApi(service.priceType),
+  isActive: service.isActive,
+  createdAt: service.createdAt || new Date().toISOString(),
+});
+
+const mapBusinessJob = (booking: any): BusinessJob => ({
+  id: booking.id,
+  businessId: booking.businessId || "",
+  clientId: booking.clientId || "",
+  clientName:
+    booking.clientName ||
+    booking.client?.fullName ||
+    booking.client?.name ||
+    "Client",
+  clientPhone:
+    booking.clientPhone || booking.client?.phone || booking.client?.phoneNumber || "",
+  serviceType: booking.serviceType || "",
+  description: booking.description || "",
+  address: booking.address || "",
+  city: booking.city || "",
+  scheduledDate: booking.scheduledDate
+    ? new Date(booking.scheduledDate).toISOString()
+    : new Date().toISOString(),
+  scheduledTime: booking.scheduledTime || "",
+  estimatedPrice: Number(booking.estimatedPrice || 0),
+  status: normalizeStatus(booking.status),
+  assignedTeamMember: booking.assignedMemberId || undefined,
+  assignedMemberName: booking.assignedMemberName || undefined,
+  createdAt: booking.createdAt || new Date().toISOString(),
+  updatedAt: booking.updatedAt || new Date().toISOString(),
+});
 
 // ================================
 // Business Service (Provider Model)
 // ================================
 export const businessService = {
-  /**
-   * Seed mock data for demo
-   */
-  async seedMockData(): Promise<void> {
-    const existing = await AsyncStorage.getItem(JOBS_KEY);
-    if (!existing) {
-      await AsyncStorage.setItem(TEAM_KEY, JSON.stringify(MOCK_TEAM));
-      await AsyncStorage.setItem(SERVICES_KEY, JSON.stringify(MOCK_SERVICES));
-      await AsyncStorage.setItem(JOBS_KEY, JSON.stringify(MOCK_JOBS));
-    }
-  },
-
   // ========== TEAM MANAGEMENT ==========
 
   /**
    * Get team members for a business
    */
   async getTeamMembers(businessId: string): Promise<TeamMember[]> {
-    await this.seedMockData();
-    const teamJson = await AsyncStorage.getItem(TEAM_KEY);
-    const team: TeamMember[] = teamJson ? JSON.parse(teamJson) : [];
-    return team.filter((m) => m.businessId === businessId);
+    const response = await api.get<any[]>("/api/business/members");
+    if (!response.success || !response.data) {
+      return [];
+    }
+    return response.data.map(mapTeamMember);
   },
 
   /**
@@ -292,24 +300,25 @@ export const businessService = {
     businessId: string,
     data: Omit<TeamMember, "id" | "businessId" | "isActive" | "joinedAt">,
   ): Promise<ApiResponse<TeamMember>> {
-    const teamJson = await AsyncStorage.getItem(TEAM_KEY);
-    const team: TeamMember[] = teamJson ? JSON.parse(teamJson) : [];
+    const response = await api.post<any>("/api/business/invite", {
+      email: data.email,
+      role: mapRoleToApi(data.role),
+    });
 
-    const newMember: TeamMember = {
-      id: `member_${Date.now()}`,
-      businessId,
-      ...data,
-      isActive: true,
-      joinedAt: new Date().toISOString(),
-    };
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to invite member" };
+    }
 
-    team.push(newMember);
-    await AsyncStorage.setItem(TEAM_KEY, JSON.stringify(team));
-
+    const member = response.data
+      ? mapTeamMember({
+          ...response.data,
+          user: response.data.user || { email: data.email },
+        })
+      : undefined;
     return {
       success: true,
-      data: newMember,
-      message: "Team member added successfully",
+      data: member,
+      message: response.message || "Team member invited",
     };
   },
 
@@ -320,18 +329,25 @@ export const businessService = {
     memberId: string,
     updates: Partial<TeamMember>,
   ): Promise<ApiResponse<TeamMember>> {
-    const teamJson = await AsyncStorage.getItem(TEAM_KEY);
-    const team: TeamMember[] = teamJson ? JSON.parse(teamJson) : [];
-
-    const index = team.findIndex((m) => m.id === memberId);
-    if (index === -1) {
-      return { success: false, error: "Team member not found" };
+    const payload: Record<string, unknown> = {};
+    if (updates.role) {
+      payload.role = mapRoleToApi(updates.role);
+    }
+    if (updates.isActive !== undefined) {
+      payload.isActive = updates.isActive;
     }
 
-    team[index] = { ...team[index], ...updates };
-    await AsyncStorage.setItem(TEAM_KEY, JSON.stringify(team));
+    const response = await api.patch<any>(`/api/business/members/${memberId}`, payload);
 
-    return { success: true, data: team[index], message: "Team member updated" };
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to update member" };
+    }
+
+    return {
+      success: true,
+      data: response.data ? mapTeamMember(response.data) : undefined,
+      message: response.message || "Team member updated",
+    };
   },
 
   // ========== SERVICE OFFERINGS ==========
@@ -340,12 +356,11 @@ export const businessService = {
    * Get service offerings for a business
    */
   async getServiceOfferings(businessId: string): Promise<ServiceOffering[]> {
-    await this.seedMockData();
-    const servicesJson = await AsyncStorage.getItem(SERVICES_KEY);
-    const services: ServiceOffering[] = servicesJson
-      ? JSON.parse(servicesJson)
-      : [];
-    return services.filter((s) => s.businessId === businessId);
+    const response = await api.get<any[]>("/api/business/services");
+    if (!response.success || !response.data) {
+      return [];
+    }
+    return response.data.map(mapServiceOffering);
   },
 
   /**
@@ -355,49 +370,39 @@ export const businessService = {
     businessId: string,
     data: Omit<ServiceOffering, "id" | "businessId" | "isActive" | "createdAt">,
   ): Promise<ApiResponse<ServiceOffering>> {
-    const servicesJson = await AsyncStorage.getItem(SERVICES_KEY);
-    const services: ServiceOffering[] = servicesJson
-      ? JSON.parse(servicesJson)
-      : [];
+    const response = await api.post<any>("/api/business/services", {
+      categoryId: data.categoryId,
+      categoryName: data.categoryName,
+      description: data.description,
+      basePrice: data.basePrice,
+      priceType: mapPriceTypeToApi(data.priceType),
+    });
 
-    const newService: ServiceOffering = {
-      id: `service_${Date.now()}`,
-      businessId,
-      ...data,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    };
-
-    services.push(newService);
-    await AsyncStorage.setItem(SERVICES_KEY, JSON.stringify(services));
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to create service" };
+    }
 
     return {
       success: true,
-      data: newService,
-      message: "Service added successfully",
+      data: response.data ? mapServiceOffering(response.data) : undefined,
+      message: response.message || "Service added successfully",
     };
   },
 
   /**
    * Toggle service active status
    */
-  async toggleServiceStatus(
-    serviceId: string,
-  ): Promise<ApiResponse<ServiceOffering>> {
-    const servicesJson = await AsyncStorage.getItem(SERVICES_KEY);
-    const services: ServiceOffering[] = servicesJson
-      ? JSON.parse(servicesJson)
-      : [];
+  async toggleServiceStatus(serviceId: string): Promise<ApiResponse<ServiceOffering>> {
+    const response = await api.post<any>(`/api/business/services/${serviceId}/toggle`);
 
-    const index = services.findIndex((s) => s.id === serviceId);
-    if (index === -1) {
-      return { success: false, error: "Service not found" };
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to update service" };
     }
 
-    services[index].isActive = !services[index].isActive;
-    await AsyncStorage.setItem(SERVICES_KEY, JSON.stringify(services));
-
-    return { success: true, data: services[index] };
+    return {
+      success: true,
+      data: response.data ? mapServiceOffering(response.data) : undefined,
+    };
   },
 
   // ========== JOB MANAGEMENT ==========
@@ -409,18 +414,18 @@ export const businessService = {
     businessId: string,
     status?: BusinessJob["status"],
   ): Promise<BusinessJob[]> {
-    await this.seedMockData();
-    const jobsJson = await AsyncStorage.getItem(JOBS_KEY);
-    const jobs: BusinessJob[] = jobsJson ? JSON.parse(jobsJson) : [];
-
-    let filtered = jobs.filter((j) => j.businessId === businessId);
-    if (status) {
-      filtered = filtered.filter((j) => j.status === status);
+    const response = await api.get<any[]>("/api/business/jobs");
+    if (!response.success || !response.data) {
+      return [];
     }
 
-    return filtered.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    let jobs = response.data.map(mapBusinessJob);
+    if (status) {
+      jobs = jobs.filter((j) => j.status === status);
+    }
+
+    return jobs.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
   },
 
@@ -428,19 +433,15 @@ export const businessService = {
    * Accept a job request
    */
   async acceptJob(jobId: string): Promise<ApiResponse<BusinessJob>> {
-    const jobsJson = await AsyncStorage.getItem(JOBS_KEY);
-    const jobs: BusinessJob[] = jobsJson ? JSON.parse(jobsJson) : [];
-
-    const index = jobs.findIndex((j) => j.id === jobId);
-    if (index === -1) {
-      return { success: false, error: "Job not found" };
+    const response = await api.post<any>(`/api/business/jobs/${jobId}/accept`);
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to accept job" };
     }
-
-    jobs[index].status = "accepted";
-    jobs[index].updatedAt = new Date().toISOString();
-    await AsyncStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
-
-    return { success: true, data: jobs[index], message: "Job accepted" };
+    return {
+      success: true,
+      data: response.data ? mapBusinessJob(response.data) : undefined,
+      message: response.message || "Job accepted",
+    };
   },
 
   /**
@@ -450,19 +451,17 @@ export const businessService = {
     jobId: string,
     reason?: string,
   ): Promise<ApiResponse<BusinessJob>> {
-    const jobsJson = await AsyncStorage.getItem(JOBS_KEY);
-    const jobs: BusinessJob[] = jobsJson ? JSON.parse(jobsJson) : [];
-
-    const index = jobs.findIndex((j) => j.id === jobId);
-    if (index === -1) {
-      return { success: false, error: "Job not found" };
+    const response = await api.post<any>(`/api/business/jobs/${jobId}/decline`, {
+      reason,
+    });
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to decline job" };
     }
-
-    jobs[index].status = "cancelled";
-    jobs[index].updatedAt = new Date().toISOString();
-    await AsyncStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
-
-    return { success: true, data: jobs[index], message: "Job declined" };
+    return {
+      success: true,
+      data: response.data ? mapBusinessJob(response.data) : undefined,
+      message: response.message || "Job declined",
+    };
   },
 
   /**
@@ -472,35 +471,18 @@ export const businessService = {
     jobId: string,
     memberId: string,
   ): Promise<ApiResponse<BusinessJob>> {
-    const [jobsJson, teamJson] = await Promise.all([
-      AsyncStorage.getItem(JOBS_KEY),
-      AsyncStorage.getItem(TEAM_KEY),
-    ]);
+    const response = await api.post<any>(`/api/business/assign/${jobId}`, {
+      memberId,
+    });
 
-    const jobs: BusinessJob[] = jobsJson ? JSON.parse(jobsJson) : [];
-    const team: TeamMember[] = teamJson ? JSON.parse(teamJson) : [];
-
-    const jobIndex = jobs.findIndex((j) => j.id === jobId);
-    if (jobIndex === -1) {
-      return { success: false, error: "Job not found" };
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to assign member" };
     }
-
-    const member = team.find((m) => m.id === memberId);
-    if (!member) {
-      return { success: false, error: "Team member not found" };
-    }
-
-    jobs[jobIndex].assignedTeamMember = memberId;
-    jobs[jobIndex].assignedMemberName = member.name;
-    jobs[jobIndex].status = "assigned";
-    jobs[jobIndex].updatedAt = new Date().toISOString();
-
-    await AsyncStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
 
     return {
       success: true,
-      data: jobs[jobIndex],
-      message: `Assigned to ${member.name}`,
+      data: response.data ? mapBusinessJob(response.data) : undefined,
+      message: response.message || "Job assigned",
     };
   },
 
@@ -511,19 +493,20 @@ export const businessService = {
     jobId: string,
     status: BusinessJob["status"],
   ): Promise<ApiResponse<BusinessJob>> {
-    const jobsJson = await AsyncStorage.getItem(JOBS_KEY);
-    const jobs: BusinessJob[] = jobsJson ? JSON.parse(jobsJson) : [];
+    const apiStatus = status === "completed" ? "COMPLETED" : "IN_PROGRESS";
+    const response = await api.patch<any>(`/api/business/jobs/${jobId}/status`, {
+      status: apiStatus,
+    });
 
-    const index = jobs.findIndex((j) => j.id === jobId);
-    if (index === -1) {
-      return { success: false, error: "Job not found" };
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to update status" };
     }
 
-    jobs[index].status = status;
-    jobs[index].updatedAt = new Date().toISOString();
-    await AsyncStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
-
-    return { success: true, data: jobs[index] };
+    return {
+      success: true,
+      data: response.data ? mapBusinessJob(response.data) : undefined,
+      message: response.message || "Status updated",
+    };
   },
 
   // ========== STATISTICS ==========
@@ -532,46 +515,30 @@ export const businessService = {
    * Get business statistics
    */
   async getStats(businessId: string): Promise<BusinessStats> {
-    await this.seedMockData();
-
-    const [jobsJson, teamJson] = await Promise.all([
-      AsyncStorage.getItem(JOBS_KEY),
-      AsyncStorage.getItem(TEAM_KEY),
+    const [jobs, team] = await Promise.all([
+      this.getJobs(businessId),
+      this.getTeamMembers(businessId),
     ]);
 
-    const jobs: BusinessJob[] = jobsJson ? JSON.parse(jobsJson) : [];
-    const team: TeamMember[] = teamJson ? JSON.parse(teamJson) : [];
-
-    const businessJobs = jobs.filter((j) => j.businessId === businessId);
-    const businessTeam = team.filter(
-      (m) => m.businessId === businessId && m.isActive,
-    );
-
-    const completedJobs = businessJobs.filter((j) => j.status === "completed");
-    const activeJobs = businessJobs.filter(
+    const completedJobs = jobs.filter((j) => j.status === "completed");
+    const activeJobs = jobs.filter(
       (j) =>
         j.status === "accepted" ||
         j.status === "assigned" ||
         j.status === "in_progress",
     );
 
-    const totalEarnings = completedJobs.reduce(
-      (sum, j) => sum + j.estimatedPrice,
-      0,
-    );
-    const pendingPayouts = activeJobs.reduce(
-      (sum, j) => sum + j.estimatedPrice,
-      0,
-    );
+    const totalEarnings = completedJobs.reduce((sum, j) => sum + j.estimatedPrice, 0);
+    const pendingPayouts = activeJobs.reduce((sum, j) => sum + j.estimatedPrice, 0);
 
     return {
-      totalJobs: businessJobs.length,
+      totalJobs: jobs.length,
       activeJobs: activeJobs.length,
       completedJobs: completedJobs.length,
       totalEarnings,
       pendingPayouts,
-      teamSize: businessTeam.length,
-      rating: 4.8, // Mock rating
+      teamSize: team.filter((m) => m.isActive).length,
+      rating: 4.8,
       reviewCount: completedJobs.length,
     };
   },
@@ -628,26 +595,22 @@ export const businessService = {
    * Get business profile
    */
   async getProfile(businessId: string): Promise<BusinessProfile> {
-    const profileJson = await AsyncStorage.getItem(PROFILE_KEY);
-    if (profileJson) {
-      return JSON.parse(profileJson);
+    const response = await api.get<any>("/api/business");
+    if (!response.success || !response.data) {
+      return {
+        id: businessId,
+        businessName: "",
+        description: "",
+        address: "",
+        phone: "",
+        email: "",
+        availability: DEFAULT_AVAILABILITY,
+        isVerified: false,
+        verificationStatus: "pending",
+      };
     }
 
-    // Return default/mock profile if none exists
-    const defaultProfile: BusinessProfile = {
-      id: businessId,
-      businessName: "Surespark Cleaning Services",
-      description:
-        "Professional home repair and maintenance services. We specialize in electrical, plumbing, and AC repairs with a team of certified technicians.",
-      address: "123 Victoria Island, Lagos",
-      phone: "+234 800 123 4567",
-      email: "[EMAIL_ADDRESS]",
-      availability: DEFAULT_AVAILABILITY,
-      isVerified: true,
-    };
-
-    await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify(defaultProfile));
-    return defaultProfile;
+    return mapBusinessProfile(response.data);
   },
 
   /**
@@ -657,15 +620,25 @@ export const businessService = {
     businessId: string,
     updates: Partial<BusinessProfile>,
   ): Promise<ApiResponse<BusinessProfile>> {
-    const currentProfile = await this.getProfile(businessId);
-    const updatedProfile = { ...currentProfile, ...updates };
+    const payload: Record<string, unknown> = {};
+    if (updates.businessName !== undefined) payload.name = updates.businessName;
+    if (updates.description !== undefined) payload.description = updates.description;
+    if (updates.address !== undefined) payload.address = updates.address;
+    if (updates.phone !== undefined) payload.phone = updates.phone;
+    if (updates.email !== undefined) payload.email = updates.email;
+    if (updates.avatar !== undefined) payload.logo = updates.avatar;
+    if (updates.coverImage !== undefined) payload.coverImage = updates.coverImage;
 
-    await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify(updatedProfile));
+    const response = await api.patch<any>("/api/business/profile", payload);
+
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to update profile" };
+    }
 
     return {
       success: true,
-      data: updatedProfile,
-      message: "Profile updated successfully",
+      data: response.data ? mapBusinessProfile(response.data) : undefined,
+      message: response.message || "Profile updated",
     };
   },
 
@@ -682,21 +655,16 @@ export const businessService = {
       utilityBillUrl: string;
     },
   ): Promise<ApiResponse<BusinessProfile>> {
-    const currentProfile = await this.getProfile(businessId);
+    const response = await api.post<any>("/api/business/verification", data);
 
-    const updatedProfile: BusinessProfile = {
-      ...currentProfile,
-      ...data,
-      verificationStatus: "in_review",
-      isVerified: false, // Remains false until admin approves
-    };
-
-    await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify(updatedProfile));
+    if (!response.success) {
+      return { success: false, error: response.error || "Failed to submit verification" };
+    }
 
     return {
       success: true,
-      data: updatedProfile,
-      message: "Verification submitted successfully",
+      data: response.data ? mapBusinessProfile(response.data) : undefined,
+      message: response.message || "Verification submitted",
     };
   },
 
@@ -708,6 +676,20 @@ export const businessService = {
   ): Promise<BusinessProfile["verificationStatus"]> {
     const profile = await this.getProfile(businessId);
     return profile.verificationStatus || "pending";
+  },
+
+  /**
+   * Create a project/job posting (not yet supported on backend)
+   */
+  async createProject(
+    businessId: string,
+    data: CreateProjectData,
+  ): Promise<ApiResponse<{ id?: string }>> {
+    const response = await api.post<any>("/api/business/projects", data);
+    if (!response.success) {
+      return { success: false, error: response.error || "Project creation not available yet" };
+    }
+    return { success: true, data: response.data, message: response.message };
   },
 };
 

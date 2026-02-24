@@ -3,8 +3,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { THEME } from "../../../constants/theme";
 
-// Business-specific accent color (blue/purple for enterprise feel)
-const BUSINESS_ACCENT = "#4F46E5"; // Indigo
+// Business-specific accent color (purple for enterprise feel)
+const BUSINESS_ACCENT = THEME.colors.business; // #8B5CF6
 
 export default function BusinessTabs() {
   const { colors } = useAppTheme();

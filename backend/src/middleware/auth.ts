@@ -9,13 +9,17 @@ const prisma = new PrismaClient();
 
 export interface JWTPayload {
   userId: string;
-  email: string;
-  userType: string;
+  email?: string;
+  userType?: string;
 }
 
 export interface AuthRequest extends Request {
   user?: JWTPayload;
 }
+
+export const jwtCheck = (_req: Request, _res: Response, next: NextFunction) => {
+  next();
+};
 
 export const authenticate = async (
   req: AuthRequest,
@@ -23,34 +27,43 @@ export const authenticate = async (
   next: NextFunction,
 ) => {
   try {
-    const authHeader = req.headers.authorization;
+    const authHeader = req.header("authorization");
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.slice("Bearer ".length)
+      : undefined;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!token) {
       return res.status(401).json({
         success: false,
-        error: "No token provided",
+        error: "Missing access token",
         statusCode: 401,
       });
     }
 
-    const token = authHeader.split(" ")[1];
-    const secret = process.env.JWT_SECRET;
-
+    const secret = process.env.JWT_ACCESS_SECRET;
     if (!secret) {
-      throw new Error("JWT_SECRET not configured");
+      return res.status(500).json({
+        success: false,
+        error: "JWT_ACCESS_SECRET is not configured",
+        statusCode: 500,
+      });
     }
 
-    const decoded = jwt.verify(token, secret) as JWTPayload;
+    const payload = jwt.verify(token, secret) as JWTPayload & {
+      sub?: string;
+    };
+    const userId = payload.userId || payload.sub;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: "Invalid token payload",
+        statusCode: 401,
+      });
+    }
 
-    // Verify user still exists
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: {
-        id: true,
-        email: true,
-        userType: true,
-        verificationStatus: true,
-      },
+      where: { id: userId },
+      select: { id: true, email: true, userType: true, verificationStatus: true },
     });
 
     if (!user) {
@@ -69,19 +82,18 @@ export const authenticate = async (
       });
     }
 
-    req.user = decoded;
+    req.user = {
+      userId: user.id,
+      email: user.email,
+      userType: user.userType,
+    };
+
     next();
   } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({
-        success: false,
-        error: "Token expired",
-        statusCode: 401,
-      });
-    }
+    console.error("Auth error:", error);
     return res.status(401).json({
       success: false,
-      error: "Invalid token",
+      error: "Authentication failed",
       statusCode: 401,
     });
   }
@@ -113,6 +125,22 @@ export const requireAdmin = (
     return res.status(403).json({
       success: false,
       error: "Admin access required",
+      statusCode: 403,
+    });
+  }
+  next();
+};
+
+// Middleware to check if user is a business
+export const requireBusiness = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.user?.userType !== "BUSINESS") {
+    return res.status(403).json({
+      success: false,
+      error: "Business access required",
       statusCode: 403,
     });
   }

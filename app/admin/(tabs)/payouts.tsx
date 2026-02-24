@@ -30,7 +30,6 @@ const STATUS_CONFIG: Record<EscrowStatus, { label: string; color: string; bg: st
 export default function AdminPayoutsScreen() {
   const { colors } = useAppTheme();
   const [escrows, setEscrows] = useState<EscrowTransaction[]>([]);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filterStatus, setFilterStatus] = useState<EscrowStatus | 'all'>('all');
   const [selectedEscrow, setSelectedEscrow] = useState<EscrowTransaction | null>(null);
@@ -58,7 +57,6 @@ export default function AdminPayoutsScreen() {
     } catch (error) {
       console.error('Error loading escrows:', error);
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   };

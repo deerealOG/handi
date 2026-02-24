@@ -5,19 +5,14 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 import { Stack } from "expo-router";
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
-
-// Conditionally import web components only on web
-let Sidebar: React.ComponentType<any> | null = null;
-if (Platform.OS === "web") {
-  Sidebar = require("@/components/web/Sidebar").Sidebar;
-}
+import { Sidebar } from "@/components/web/Sidebar";
 
 export default function ArtisanLayout() {
   const { colors } = useAppTheme();
   const isWeb = Platform.OS === "web";
 
   // On web, wrap content with sidebar
-  if (isWeb && Sidebar) {
+  if (isWeb) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Sidebar />

@@ -29,7 +29,6 @@ const STATUS_CONFIG: Record<WithdrawalRequest['status'], { label: string; color:
 export default function AdminWithdrawalsScreen() {
   const { colors } = useAppTheme();
   const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filterStatus, setFilterStatus] = useState<WithdrawalRequest['status'] | 'ALL'>('ALL');
   const [selectedRequest, setSelectedRequest] = useState<WithdrawalRequest | null>(null);
@@ -48,7 +47,6 @@ export default function AdminWithdrawalsScreen() {
     } catch (error) {
       console.error('Error loading withdrawals:', error);
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   };

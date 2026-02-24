@@ -76,10 +76,9 @@ export default function CategoriesSection() {
           ))}
         </div>
 
-        {/* Show All Button */}
         <div className="text-center">
           <Link
-            href="/services"
+            href="/categories"
             className="inline-block text-[var(--color-primary)] font-semibold hover:underline"
           >
             Show All 24 Categories →

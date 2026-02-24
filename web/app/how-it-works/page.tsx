@@ -86,7 +86,7 @@ const BENEFITS = [
 export default function HowItWorksPage() {
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
-      <Navbar activeTab="how-it-works" />
+      <Navbar />
 
       {/* Hero Section */}
       <section className="bg-[var(--color-primary)] py-16 lg:py-20 px-4 sm:px-6 lg:px-8 text-center">

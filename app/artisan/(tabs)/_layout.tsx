@@ -34,10 +34,25 @@ export default function ArtisanTabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "Dashboard",
           tabBarIcon: ({ color, size, focused }) => (
             <MaterialCommunityIcons
-              name={focused ? "home" : "home-outline"}
+              name={focused ? "view-dashboard" : "view-dashboard-outline"}
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      {/* SERVICES */}
+      <Tabs.Screen
+        name="services"
+        options={{
+          title: "Services",
+          tabBarIcon: ({ color, size, focused }) => (
+            <MaterialCommunityIcons
+              name={focused ? "package-variant" : "package-variant-closed"}
               size={size}
               color={color}
             />
@@ -49,10 +64,10 @@ export default function ArtisanTabsLayout() {
       <Tabs.Screen
         name="jobs"
         options={{
-          title: "Jobs",
+          title: "Bookings",
           tabBarIcon: ({ color, size, focused }) => (
             <MaterialCommunityIcons
-              name={focused ? "briefcase" : "briefcase-outline"}
+              name={focused ? "calendar-check" : "calendar-check-outline"}
               size={size}
               color={color}
             />
@@ -64,7 +79,7 @@ export default function ArtisanTabsLayout() {
       <Tabs.Screen
         name="wallet"
         options={{
-          title: "Wallet",
+          title: "Earnings",
           tabBarIcon: ({ color, size, focused }) => (
             <MaterialCommunityIcons
               name={focused ? "wallet" : "wallet-outline"}

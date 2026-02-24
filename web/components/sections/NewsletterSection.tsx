@@ -5,16 +5,17 @@ import { useState } from "react";
 
 export default function NewsletterSection() {
   const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement newsletter subscription
-    alert(`Thank you for subscribing with ${email}!`);
+    setSubscribed(true);
     setEmail("");
+    setTimeout(() => setSubscribed(false), 4000);
   };
 
   return (
-    <section className="py-16 lg:py-24 bg-[var(--color-surface)]">
+    <section className="py-16 lg:py-24">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="font-heading text-2xl lg:text-3xl mb-4">
           Stay Updated with Exclusive Offers
@@ -24,22 +25,32 @@ export default function NewsletterSection() {
           to your inbox.
         </p>
 
-        <form
-          onSubmit={handleSubscribe}
-          className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mb-6"
-        >
-          <input
-            type="email"
-            placeholder="Enter your email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="flex-1 px-5 py-3 rounded-full border border-gray-300 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all"
-          />
-          <button type="submit" className="btn-primary rounded-full cursor-pointer px-5 py-3">
-            Subscribe
-          </button>
-        </form>
+        {subscribed ? (
+          <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl p-4 text-sm max-w-lg mx-auto mb-6">
+            ✅ Thank you for subscribing! You&apos;ll receive our latest
+            updates.
+          </div>
+        ) : (
+          <form
+            onSubmit={handleSubscribe}
+            className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mb-6"
+          >
+            <input
+              type="email"
+              placeholder="Enter your email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="flex-1 px-5 py-3 rounded-full border bg-white focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-all"
+            />
+            <button
+              type="submit"
+              className="btn-primary rounded-full cursor-pointer px-5 py-3"
+            >
+              Subscribe
+            </button>
+          </form>
+        )}
 
         <p className="text-[var(--color-muted)] text-sm mb-6">
           We respect your privacy. Unsubscribe at any time.

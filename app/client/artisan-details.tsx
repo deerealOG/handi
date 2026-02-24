@@ -37,7 +37,7 @@ export default function ArtisanDetails() {
     skill: "Electrician",
     rating: 4.8,
     reviewCount: 127,
-    price: "From ₦5,000",
+    price: "From NGN 5,000",
     experience: "5 years experience",
     description:
       "Golden is a certified electrician specializing in home wiring, appliance repair, and smart home installations. Known for reliability, speed, and professionalism.",
@@ -485,3 +485,4 @@ const styles = StyleSheet.create({
     marginLeft: THEME.spacing.md,
   },
 });
+

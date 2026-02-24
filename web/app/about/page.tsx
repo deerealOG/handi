@@ -38,7 +38,7 @@ const STATS = [
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
-      <Navbar activeTab="about" />
+      <Navbar />
 
       {/* Hero Section */}
       <section className="bg-[var(--color-primary)] py-16 lg:py-24 px-4 sm:px-6 lg:px-8 text-center">
@@ -96,22 +96,6 @@ export default function AboutPage() {
                 <p className="text-[var(--color-muted)] text-sm">
                   {value.description}
                 </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-            {STATS.map((stat) => (
-              <div key={stat.label}>
-                <p className="text-[var(--color-primary)] font-heading text-3xl lg:text-4xl font-bold mb-2">
-                  {stat.number}
-                </p>
-                <p className="text-[var(--color-muted)]">{stat.label}</p>
               </div>
             ))}
           </div>

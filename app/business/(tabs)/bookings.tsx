@@ -5,7 +5,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { BusinessJob, businessService, TeamMember } from "@/services";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
@@ -39,7 +38,6 @@ const STATUS_COLORS: Record<BusinessJob['status'], { bg: string; text: string }>
 };
 
 export default function BusinessJobs() {
-  const router = useRouter();
   const { colors } = useAppTheme();
   const { user } = useAuth();
   

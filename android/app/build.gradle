@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.HANDI'
+    namespace 'ng.com.handiapp'
     defaultConfig {
-        applicationId 'com.anonymous.HANDI'
+        applicationId 'ng.com.handiapp'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -6,7 +6,6 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-    Dimensions,
     Image,
     Linking,
     Platform,
@@ -19,7 +18,6 @@ import {
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { THEME } from "../../constants/theme";
 
-const { width } = Dimensions.get("window");
 
 // Mock Data for Tabs
 const TABS = ["About", "Services", "Our Team", "Reviews"];
@@ -38,7 +36,7 @@ export default function BusinessDetails() {
     skill: params.skill || "Home Renovations",
     rating: params.rating ? Number(params.rating) : 4.8,
     reviewCount: params.reviews ? Number(params.reviews) : 200,
-    price: params.price || "From ₦10,000",
+    price: params.price || "From NGN 10,000",
     distance: params.distance || "1.5 km",
     verificationLevel: (params.verified === 'true' ? "certified" : "none") as VerificationLevel,
     isEmergencyAvailable: true,
@@ -50,9 +48,9 @@ export default function BusinessDetails() {
   };
 
   const services = [
-    { id: "1", name: "Electrical Wiring", price: "₦15,000", description: "Complete house wiring and rewiring." },
-    { id: "2", name: "Plumbing Installation", price: "₦12,000", description: "Installation of sinks, toilets, and showers." },
-    { id: "3", name: "AC Maintenance", price: "₦8,000", description: "Cleaning and gas refill." },
+    { id: "1", name: "Electrical Wiring", price: "NGN 15,000", description: "Complete house wiring and rewiring." },
+    { id: "2", name: "Plumbing Installation", price: "NGN 12,000", description: "Installation of sinks, toilets, and showers." },
+    { id: "3", name: "AC Maintenance", price: "NGN 8,000", description: "Cleaning and gas refill." },
     { id: "4", name: "General Repairs", price: "Quote", description: "Assessment and repair of various household items." },
   ];
 
@@ -510,3 +508,4 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
 });
+

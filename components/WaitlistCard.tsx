@@ -60,7 +60,7 @@ export function WaitlistCard({
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       setIsJoined(true);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Could not join waitlist. Please try again.');
     } finally {
       setIsLoading(false);
@@ -73,9 +73,9 @@ export function WaitlistCard({
         <View style={[styles.successIcon, { backgroundColor: colors.success }]}>
           <Ionicons name="checkmark" size={32} color="#FFFFFF" />
         </View>
-        <Text style={[styles.successTitle, { color: colors.text }]}>You're on the list! 🎉</Text>
+        <Text style={[styles.successTitle, { color: colors.text }]}>You&apos;re on the list! 🎉</Text>
         <Text style={[styles.successText, { color: colors.muted }]}>
-          We'll notify you when HANDI launches in {city}. Get ready for Nigeria's #1 home services app!
+          We&apos;ll notify you when HANDI launches in {city}. Get ready for Nigeria&apos;s #1 home services app!
         </Text>
         <View style={[styles.positionBadge, { backgroundColor: colors.primaryLight }]}>
           <Text style={[styles.positionText, { color: colors.primary }]}>Position #2,847</Text>

@@ -140,6 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (
     credentials: LoginCredentials,
   ): Promise<{ success: boolean; error?: string }> => {
+    // Try real backend auth first
     try {
       const response = await authService.login(credentials);
 
@@ -154,10 +155,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: true };
       }
 
-      return { success: false, error: response.error || "Login failed" };
+      // If backend returned an explicit error, show it in production
+      if (__DEV__ === false) {
+        return { success: false, error: response.error || "Login failed" };
+      }
     } catch (error) {
-      return { success: false, error: "An unexpected error occurred" };
+      // Network error — backend unreachable
+      if (__DEV__ === false) {
+        return { success: false, error: "Unable to connect to server" };
+      }
+      console.warn("Backend unreachable, using dev fallback login");
     }
+
+    // Dev fallback — mock user when backend is offline
+    console.warn("⚠️ Dev fallback login activated");
+
+    // Test account email→type mapping
+    const TEST_ACCOUNTS: Record<string, UserType> = {
+      "client@handi.ng": "client",
+      "provider@handi.ng": "artisan",
+      "admin@handi.ng": "admin",
+      "business@handi.ng": "business",
+    };
+
+    const resolvedType: UserType =
+      TEST_ACCOUNTS[credentials.email.toLowerCase()] ||
+      (credentials.userType as UserType) ||
+      "client";
+
+    const nameMap: Record<string, { first: string; last: string }> = {
+      "client@handi.ng": { first: "Demo", last: "Client" },
+      "provider@handi.ng": { first: "Demo", last: "Provider" },
+      "admin@handi.ng": { first: "Demo", last: "Admin" },
+      "business@handi.ng": { first: "Demo", last: "Business" },
+    };
+    const names = nameMap[credentials.email.toLowerCase()] || {
+      first: credentials.email.split("@")[0],
+      last: "User",
+    };
+
+    const mockUser: User = {
+      id: `dev_${resolvedType}_001`,
+      email: credentials.email,
+      firstName: names.first,
+      lastName: names.last,
+      userType: resolvedType,
+      isVerified: true,
+      createdAt: new Date().toISOString(),
+    } as User;
+    setState({
+      user: mockUser,
+      isLoading: false,
+      isAuthenticated: true,
+      userType: resolvedType,
+      isGuest: false,
+    });
+    return { success: true };
   };
 
   const register = async (

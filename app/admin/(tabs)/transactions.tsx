@@ -9,7 +9,6 @@ import { THEME } from "../../../constants/theme";
 export default function AdminTransactions() {
   const { colors } = useAppTheme();
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -25,7 +24,6 @@ export default function AdminTransactions() {
     } catch (error) {
       console.error("Error fetching transactions:", error);
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   };

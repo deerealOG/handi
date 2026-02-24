@@ -1,206 +1,401 @@
-// app/artisan/(tabs)/profile.tsx
-import { useAuth } from '@/context/AuthContext';
-import { useAppTheme } from '@/hooks/use-app-theme';
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useAuth } from "@/context/AuthContext";
+import { useAppTheme } from "@/hooks/use-app-theme";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { THEME } from "../../../constants/theme";
 
-export default function ArtisanProfile() {
-  const router = useRouter();
+const CERTIFICATIONS = [
+  { name: "NABTEB Certificate", status: "verified" },
+  { name: "Safety Training", status: "pending" },
+];
+
+const OVERFLOW_ITEMS = [
+  { id: "wallet", label: "Wallet & Earnings", icon: "wallet-outline" as const },
+  {
+    id: "edit-profile",
+    label: "Edit Profile",
+    icon: "create-outline" as const,
+  },
+  { id: "portfolio", label: "Portfolio", icon: "images-outline" as const },
+  {
+    id: "promote",
+    label: "Promote Services",
+    icon: "megaphone-outline" as const,
+  },
+  { id: "reviews", label: "Reviews", icon: "star-outline" as const },
+];
+
+const SETTINGS_ITEMS = [
+  {
+    id: "notifications",
+    label: "Notifications",
+    icon: "notifications-outline" as const,
+  },
+  {
+    id: "messages",
+    label: "Messages",
+    icon: "chatbubble-ellipses-outline" as const,
+  },
+  {
+    id: "transactions",
+    label: "Transaction History",
+    icon: "time-outline" as const,
+  },
+  {
+    id: "support",
+    label: "Help & Support",
+    icon: "help-circle-outline" as const,
+  },
+];
+
+export default function ArtisanProfileScreen() {
   const { colors } = useAppTheme();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const overflowRouteMap: Record<string, string> = {
+    wallet: "/artisan/(tabs)/wallet",
+    "edit-profile": "/artisan/edit-profile",
+    portfolio: "/artisan/portfolio",
+    promote: "/artisan/promote",
+    reviews: "/artisan/reviews",
+  };
+
+  const settingsRouteMap: Record<string, string> = {
+    notifications: "/artisan/notifications",
+    messages: "/artisan/messages",
+    transactions: "/artisan/transaction-receipt",
+    support: "/artisan/help",
+  };
 
   const handleLogout = () => {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Logout",
-          style: "destructive",
-          onPress: async () => {
-            await logout();
-          },
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          await logout();
         },
-      ]
-    );
+      },
+    ]);
   };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <Text style={[styles.headerTitle, { color: colors.text }]}>My Profile</Text>
-
-      {/* Profile Info */}
-      <View style={[styles.profileCard, { backgroundColor: colors.surface }]}>
-        <Image
-          source={require("../../../assets/images/profileavatar.png")}
-          style={styles.avatar}
-        />
-        <Text style={[styles.name, { color: colors.text }]}>Emeka Johnson</Text>
-        <Text style={[styles.profession, { color: colors.muted }]}>Electrician</Text>
-        <View style={styles.ratingRow}>
-          <MaterialCommunityIcons
-            name="star"
-            size={18}
-            color="#FACC15"
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
+        <View style={styles.cover}>
+          <View
+            style={[styles.coverGradient, { backgroundColor: colors.primary }]}
           />
-          <Text style={[styles.ratingText, { color: colors.text }]}>4.8 (45 Reviews)</Text>
         </View>
-      </View>
 
-      {/* Action Buttons */}
-      <View style={styles.actionList}>
-        <ProfileButton
-          icon="account-edit-outline"
-          label="Edit Profile"
-            onPress={() => router.push("../edit-profile")}
-            colors={colors}
-        />
-        <ProfileButton
-          icon="cog-outline"
-          label="Settings"
-          onPress={() => router.push("../settings")}
-          colors={colors}
-        />
-        <ProfileButton
-          icon="briefcase-outline"
-          label="Portfolio"
-          onPress={() => router.push("../portfolio")}
-          colors={colors}
-        />
-        <ProfileButton
-          icon="star-outline"
-          label="Reviews"
-          onPress={() => router.push("../reviews")}
-          colors={colors}
-        />
-        <ProfileButton
-          icon="key-outline"
-          label="Change Password"
-          onPress={() => router.push("../change-password")}
-          colors={colors}
-        />
-        <ProfileButton
-          icon="help-circle-outline"
-          label="Help & Support"
-          onPress={() => router.push("../help")}
-          colors={colors}
-        />
-        <ProfileButton
-          icon="logout"
-          label="Logout"
-          color={colors.error}
+        <View
+          style={[
+            styles.profileCard,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <Image
+            source={require("../../../assets/images/profileavatar.png")}
+            style={styles.avatar}
+          />
+          <Text style={[styles.name, { color: colors.text }]}>
+            {user?.firstName || "Provider"} {user?.lastName || ""}
+          </Text>
+          <Text style={[styles.role, { color: colors.muted }]}>
+            Service Provider
+          </Text>
+
+          <View style={styles.statsRow}>
+            <View style={styles.statCol}>
+              <Text style={[styles.statValue, { color: colors.text }]}>
+                4.8
+              </Text>
+              <Text style={[styles.statLabel, { color: colors.muted }]}>
+                Rating
+              </Text>
+            </View>
+            <View
+              style={[styles.divider, { backgroundColor: colors.border }]}
+            />
+            <View style={styles.statCol}>
+              <Text style={[styles.statValue, { color: colors.text }]}>45</Text>
+              <Text style={[styles.statLabel, { color: colors.muted }]}>
+                Jobs
+              </Text>
+            </View>
+            <View
+              style={[styles.divider, { backgroundColor: colors.border }]}
+            />
+            <View style={styles.statCol}>
+              <Text style={[styles.statValue, { color: colors.text }]}>
+                98%
+              </Text>
+              <Text style={[styles.statLabel, { color: colors.muted }]}>
+                Response
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View
+          style={[
+            styles.sectionCard,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Certifications
+          </Text>
+          {CERTIFICATIONS.map((cert) => (
+            <View
+              key={cert.name}
+              style={[styles.certRow, { borderBottomColor: colors.border }]}
+            >
+              <View style={styles.certLeft}>
+                <MaterialCommunityIcons
+                  name={
+                    cert.status === "verified"
+                      ? "check-decagram"
+                      : "clock-outline"
+                  }
+                  size={16}
+                  color={
+                    cert.status === "verified" ? colors.success : colors.warning
+                  }
+                />
+                <Text style={[styles.certName, { color: colors.text }]}>
+                  {cert.name}
+                </Text>
+              </View>
+              <Text
+                style={[
+                  styles.certStatus,
+                  {
+                    color:
+                      cert.status === "verified"
+                        ? colors.success
+                        : colors.warning,
+                  },
+                ]}
+              >
+                {cert.status}
+              </Text>
+            </View>
+          ))}
+        </View>
+
+        <View
+          style={[
+            styles.sectionCard,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Quick Access
+          </Text>
+          {OVERFLOW_ITEMS.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={[styles.settingRow, { borderBottomColor: colors.border }]}
+              onPress={() => {
+                const route = overflowRouteMap[item.id];
+                if (route) {
+                  router.push(route as any);
+                }
+              }}
+            >
+              <View style={styles.settingLeft}>
+                <Ionicons name={item.icon} size={18} color={colors.primary} />
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  {item.label}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.muted} />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View
+          style={[
+            styles.sectionCard,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Settings
+          </Text>
+          {SETTINGS_ITEMS.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={[styles.settingRow, { borderBottomColor: colors.border }]}
+              onPress={() => {
+                const route = settingsRouteMap[item.id];
+                if (route) {
+                  router.push(route as any);
+                }
+              }}
+            >
+              <View style={styles.settingLeft}>
+                <Ionicons name={item.icon} size={18} color={colors.muted} />
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  {item.label}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.muted} />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <TouchableOpacity
+          style={[styles.logoutButton, { backgroundColor: colors.errorLight }]}
           onPress={handleLogout}
-          colors={colors}
-        />
-      </View>
+        >
+          <Ionicons name="log-out-outline" size={18} color={colors.error} />
+          <Text style={[styles.logoutText, { color: colors.error }]}>
+            Log Out
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 }
 
-function ProfileButton({
-  icon,
-  label,
-  color,
-  onPress,
-  colors,
-}: {
-  icon: any;
-  label: string;
-  color?: string;
-  onPress?: () => void;
-  colors: any;
-}) {
-  return (
-    <TouchableOpacity style={[styles.profileButton, { backgroundColor: colors.surface }]} onPress={onPress}>
-      <View style={styles.iconLabel}>
-        <MaterialCommunityIcons
-          name={icon}
-          size={22}
-          color={color || colors.primary}
-        />
-        <Text style={[styles.profileText, { color: color || colors.text }]}>
-          {label}
-        </Text>
-      </View>
-      <MaterialCommunityIcons
-        name="chevron-right"
-        size={22}
-        color={colors.muted}
-      />
-    </TouchableOpacity>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: THEME.colors.background,
-    padding: 16,
+  container: { flex: 1 },
+  content: {
+    paddingTop: 30,
+    paddingHorizontal: THEME.spacing.lg,
+    paddingBottom: 100,
+    gap: 14,
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: THEME.colors.text,
-    marginBottom: 20,
+  cover: {
+    height: 110,
+    borderRadius: THEME.radius.xl,
+    overflow: "hidden",
+  },
+  coverGradient: {
+    flex: 1,
   },
   profileCard: {
+    marginTop: -42,
+    borderWidth: 1,
+    borderRadius: THEME.radius.xl,
+    padding: THEME.spacing.lg,
     alignItems: "center",
-    backgroundColor: THEME.colors.surface,
-    borderRadius: 16,
-    paddingVertical: 24,
-    marginBottom: 30,
-    ...THEME.shadow.base,
+    ...THEME.shadow.card,
   },
   avatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    marginBottom: 10,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    marginBottom: 8,
   },
   name: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: THEME.colors.text,
+    fontSize: THEME.typography.sizes.lg,
+    fontFamily: THEME.typography.fontFamily.heading,
   },
-  profession: {
-    color: THEME.colors.muted,
-    fontSize: 14,
-    marginBottom: 6,
+  role: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+    marginTop: 2,
   },
-  ratingRow: {
+  statsRow: {
+    marginTop: 12,
     flexDirection: "row",
     alignItems: "center",
-  },
-  ratingText: {
-    color: THEME.colors.text,
-    fontSize: 13,
-    marginLeft: 4,
-  },
-  actionList: {
-    marginTop: 10,
-  },
-  profileButton: {
-    flexDirection: "row",
+    width: "100%",
     justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: THEME.colors.surface,
-    padding: 14,
-    borderRadius: 12,
-    marginBottom: 12,
-    ...THEME.shadow.base,
   },
-  iconLabel: {
+  statCol: {
+    alignItems: "center",
+    flex: 1,
+  },
+  statValue: {
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.heading,
+  },
+  statLabel: {
+    fontSize: THEME.typography.sizes.xs,
+    fontFamily: THEME.typography.fontFamily.body,
+    marginTop: 2,
+  },
+  divider: {
+    width: 1,
+    height: 28,
+  },
+  sectionCard: {
+    borderWidth: 1,
+    borderRadius: THEME.radius.lg,
+    padding: THEME.spacing.md,
+    ...THEME.shadow.card,
+  },
+  sectionTitle: {
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    marginBottom: 8,
+  },
+  certRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
   },
-  profileText: {
-    fontSize: 15,
-    fontWeight: "500",
-    marginLeft: 10,
+  certLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  certName: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+  },
+  certStatus: {
+    fontSize: 10,
+    textTransform: "capitalize",
+    fontFamily: THEME.typography.fontFamily.bodyBold,
+  },
+  settingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  settingLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  settingText: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+  },
+  logoutButton: {
+    borderRadius: THEME.radius.pill,
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 6,
+  },
+  logoutText: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.subheading,
   },
 });

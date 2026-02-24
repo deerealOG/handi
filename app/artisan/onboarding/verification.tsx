@@ -6,11 +6,11 @@ import { THEME } from '@/constants/theme';
 import { useAuth } from '@/context/AuthContext';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { legalService, verificationService } from '@/services';
-import { ArtisanVerificationData, GovernmentID, TermsAgreement } from '@/types/legal';
+import { GovernmentID, TermsAgreement } from '@/types/legal';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -63,7 +63,6 @@ export default function VerificationScreen() {
   const { user } = useAuth();
 
   const [currentStep, setCurrentStep] = useState<VerificationStep>('welcome');
-  const [verification, setVerification] = useState<ArtisanVerificationData | null>(null);
   const [loading, setLoading] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [currentAgreement, setCurrentAgreement] = useState<TermsAgreement | null>(null);
@@ -82,13 +81,9 @@ export default function VerificationScreen() {
   const [guarantorRelationship, setGuarantorRelationship] = useState<typeof RELATIONSHIPS[number]>('family');
   const [guarantorAddress, setGuarantorAddress] = useState('');
 
-  useEffect(() => {
-    initializeVerification();
-  }, []);
-
-  const initializeVerification = async () => {
+  const initializeVerification = useCallback(async () => {
     if (!user?.id) return;
-    
+
     let data = await verificationService.getVerification(user.id);
     if (!data) {
       const result = await verificationService.initializeVerification(user.id);
@@ -96,8 +91,11 @@ export default function VerificationScreen() {
         data = result.data;
       }
     }
-    setVerification(data);
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    initializeVerification();
+  }, [initializeVerification]);
 
   const getCurrentStepIndex = () => STEPS.indexOf(currentStep);
   const getProgress = () => (getCurrentStepIndex() / (STEPS.length - 1)) * 100;
@@ -279,7 +277,7 @@ export default function VerificationScreen() {
             </Text>
             
             <View style={styles.requirementsList}>
-              <Text style={[styles.requirementsTitle, { color: colors.text }]}>You'll need:</Text>
+              <Text style={[styles.requirementsTitle, { color: colors.text }]}>You&apos;ll need:</Text>
               {[
                 'Valid government-issued ID',
                 'Phone number for verification',
@@ -311,7 +309,7 @@ export default function VerificationScreen() {
             </View>
             <Text style={[styles.stepTitle, { color: colors.text }]}>Verify Phone Number</Text>
             <Text style={[styles.stepDescription, { color: colors.muted }]}>
-              We've sent a 6-digit code to {user?.phone || 'your phone'}
+              We&apos;ve sent a 6-digit code to {user?.phone || 'your phone'}
             </Text>
             
             <TextInput
@@ -353,7 +351,7 @@ export default function VerificationScreen() {
             </View>
             <Text style={[styles.stepTitle, { color: colors.text }]}>Verify Email Address</Text>
             <Text style={[styles.stepDescription, { color: colors.muted }]}>
-              We've sent a 6-digit code to {user?.email || 'your email'}
+              We&apos;ve sent a 6-digit code to {user?.email || 'your email'}
             </Text>
             
             <TextInput
@@ -684,7 +682,7 @@ export default function VerificationScreen() {
             </View>
             <Text style={[styles.stepTitle, { color: colors.text }]}>Verification Submitted!</Text>
             <Text style={[styles.stepDescription, { color: colors.muted }]}>
-              Your verification documents are being reviewed. This usually takes 24-48 hours. We'll notify you once your account is verified.
+              Your verification documents are being reviewed. This usually takes 24-48 hours. We&apos;ll notify you once your account is verified.
             </Text>
 
             <View style={[styles.statusCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>

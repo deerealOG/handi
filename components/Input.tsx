@@ -2,8 +2,20 @@
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { StyleSheet, Text, TextInput, TextStyle, View, ViewStyle } from "react-native";
-import Animated, { interpolateColor, useAnimatedStyle, useDerivedValue, withTiming } from "react-native-reanimated";
+import {
+    StyleSheet,
+    Text,
+    TextInput,
+    TextStyle,
+    View,
+    ViewStyle,
+} from "react-native";
+import Animated, {
+    interpolateColor,
+    useAnimatedStyle,
+    useDerivedValue,
+    withTiming,
+} from "react-native-reanimated";
 import { THEME } from "../constants/theme";
 
 type InputProps = {
@@ -15,7 +27,12 @@ type InputProps = {
   secureTextEntry?: boolean;
   error?: string;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
-  keyboardType?: "default" | "email-address" | "numeric" | "phone-pad" | "number-pad";
+  keyboardType?:
+    | "default"
+    | "email-address"
+    | "numeric"
+    | "phone-pad"
+    | "number-pad";
 };
 
 export const Input = ({
@@ -31,7 +48,7 @@ export const Input = ({
 }: InputProps) => {
   const { colors } = useAppTheme();
   const [isFocused, setIsFocused] = useState(false);
-  
+
   const focusValue = useDerivedValue(() => {
     return withTiming(isFocused ? 1 : 0, { duration: 200 });
   });
@@ -40,13 +57,15 @@ export const Input = ({
     const borderColor = interpolateColor(
       focusValue.value,
       [0, 1],
-      [error ? colors.error : colors.primaryLight, colors.primary]
+      [error ? colors.error : colors.primaryLight, colors.primary],
     );
 
     return {
       borderColor,
       borderWidth: withTiming(isFocused ? 1.5 : 1, { duration: 200 }),
-      transform: [{ scale: withTiming(isFocused ? 1.01 : 1, { duration: 200 }) }],
+      transform: [
+        { scale: withTiming(isFocused ? 1.01 : 1, { duration: 200 }) },
+      ],
       elevation: withTiming(isFocused ? 4 : 0, { duration: 200 }),
       shadowOpacity: withTiming(isFocused ? 0.1 : 0, { duration: 200 }),
     };
@@ -65,7 +84,7 @@ export const Input = ({
           styles.inputContainer as ViewStyle,
           containerAnimatedStyle,
           {
-            backgroundColor: colors.primaryLight,
+            backgroundColor: colors.inputBackground,
           },
         ]}
       >
@@ -91,7 +110,9 @@ export const Input = ({
         />
       </Animated.View>
 
-      {error && <Text style={[styles.error, { color: colors.error }]}>{error}</Text>}
+      {error && (
+        <Text style={[styles.error, { color: colors.error }]}>{error}</Text>
+      )}
     </View>
   );
 };

@@ -40,7 +40,7 @@ export default function BusinessProfileScreen() {
       const data = await businessService.getProfile(businessId);
       setProfile(data);
       setEditForm(data);
-    } catch (error) {
+    } catch {
       console.error('Error loading profile:', error);
     } finally {
       setLoading(false);
@@ -65,7 +65,7 @@ export default function BusinessProfileScreen() {
       Alert.alert('Success', 'Profile updated successfully');
       setIsEditing(false);
       loadProfile();
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to update profile');
     } finally {
       setLoading(false);

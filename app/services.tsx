@@ -4,12 +4,10 @@
 import WebFooter from "@/components/web/WebFooter";
 import WebNavbar from "@/components/web/WebNavbar";
 import { useAppTheme } from "@/hooks/use-app-theme";
-import mockApi, { getServices, searchAll, Service } from "@/services/mockApi";
+import { getServices, searchAll } from "@/services/mockApi";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
-import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  Alert,
   Platform,
   ScrollView,
   StyleSheet,
@@ -56,19 +54,17 @@ const SERVICE_CATEGORIES = [
 const CATEGORY_GRID = SERVICE_CATEGORIES.slice(1, 17); // First 16 categories for grid
 
 export default function ServicesPage() {
-  const router = useRouter();
   const { colors } = useAppTheme();
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("Lagos");
-  const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [resultCount, setResultCount] = useState(0);
 
   // Load initial services
   useEffect(() => {
     loadServices();
-  }, [activeCategory]);
+  }, [loadServices]);
 
   const loadServices = useCallback(async () => {
     setIsLoading(true);
@@ -77,7 +73,6 @@ export default function ServicesPage() {
         category: activeCategory !== "all" ? activeCategory : undefined,
         location: locationQuery || undefined,
       });
-      setServices(results);
       setResultCount(results.length);
     } catch (error) {
       console.error("Error loading services:", error);
@@ -98,7 +93,6 @@ export default function ServicesPage() {
         category: activeCategory !== "all" ? activeCategory : undefined,
         location: locationQuery || undefined,
       });
-      setServices(results.services);
       setResultCount(results.services.length);
     } catch (error) {
       console.error("Error searching:", error);
@@ -106,25 +100,6 @@ export default function ServicesPage() {
       setIsLoading(false);
     }
   }, [searchQuery, activeCategory, locationQuery, loadServices]);
-
-  const handleBookService = useCallback(
-    async (service: Service) => {
-      const result = await mockApi.bookService({
-        serviceId: service.id,
-        providerId: service.provider,
-        date: new Date().toISOString(),
-        time: "10:00",
-        address: locationQuery || "Lagos, Nigeria",
-      });
-
-      if (Platform.OS === "web") {
-        alert(result.message);
-      } else {
-        Alert.alert("Booking", result.message);
-      }
-    },
-    [locationQuery],
-  );
 
   const handleClearFilters = useCallback(() => {
     setSearchQuery("");
@@ -758,7 +733,7 @@ const styles = StyleSheet.create({
     paddingVertical: THEME.spacing["3xl"],
     paddingHorizontal: THEME.spacing.xl,
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: THEME.colors.background,
   },
   browseSectionTitle: {
     fontSize: THEME.typography.sizes["2xl"],

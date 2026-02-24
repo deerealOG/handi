@@ -84,7 +84,7 @@ export function JoinTeamModal({ visible, onClose }: JoinTeamModalProps) {
     setIsSubmitting(false);
     Alert.alert(
       "Application Submitted! 🎉",
-      "Thank you for your interest in joining the HANDI team! We'll review your application and get back to you soon.",
+      "Thank you for your interest in joining the HANDI team! We&apos;ll review your application and get back to you soon.",
       [{ text: "OK", onPress: onClose }],
     );
 
@@ -119,7 +119,7 @@ export function JoinTeamModal({ visible, onClose }: JoinTeamModalProps) {
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           <Text style={[styles.description, { color: colors.muted }]}>
-            We're always looking for talented individuals to join our mission of
+            We&apos;re always looking for talented individuals to join our mission of
             transforming home services in Nigeria. 🇳🇬
           </Text>
 
@@ -284,7 +284,7 @@ export function JoinTeamModal({ visible, onClose }: JoinTeamModalProps) {
                   color: colors.text,
                 },
               ]}
-              placeholder="Tell us what excites you about HANDI and why you'd be a great fit..."
+              placeholder="Tell us what excites you about HANDI and why you&apos;d be a great fit..."
               placeholderTextColor={colors.muted}
               value={form.motivation}
               onChangeText={(v) => updateForm("motivation", v)}

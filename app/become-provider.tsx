@@ -5,7 +5,6 @@ import WebFooter from "@/components/web/WebFooter";
 import WebNavbar from "@/components/web/WebNavbar";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
-import { useRouter } from "expo-router";
 import React from "react";
 import {
     Platform,
@@ -79,7 +78,6 @@ const STEPS = [
 
 export default function BecomeProviderPage() {
   const { colors } = useAppTheme();
-  const router = useRouter();
 
   return (
     <ScrollView

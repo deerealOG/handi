@@ -85,7 +85,7 @@ export default function TermsPage() {
           <h2>8. Contact Information</h2>
           <p>
             If you have any questions about these Terms, please contact us at{" "}
-            <a href="mailto:legal@handi.ng">legal@handi.ng</a>.
+            <a href="mailto:legal@handiapp.com.ng" className="text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] transition-colors">legal@handiapp.com.ng</a>.
           </p>
         </div>
       </section>

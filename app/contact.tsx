@@ -4,7 +4,7 @@
 import WebFooter from "@/components/web/WebFooter";
 import WebNavbar from "@/components/web/WebNavbar";
 import { useAppTheme } from "@/hooks/use-app-theme";
-import mockApi from "@/services/mockApi";
+import { submitContactForm } from "@/services/mockApi";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import React, { useState } from "react";
 import {
@@ -57,13 +57,17 @@ export default function ContactPage() {
   const handleSubmit = async () => {
     if (!name || !email || !message) {
       const msg = "Please fill in all required fields.";
-      Platform.OS === "web" ? alert(msg) : Alert.alert("Error", msg);
+      if (Platform.OS === "web") {
+        alert(msg);
+      } else {
+        Alert.alert("Error", msg);
+      }
       return;
     }
 
     setIsLoading(true);
     try {
-      const result = await mockApi.submitContactForm({
+      const result = await submitContactForm({
         email,
         name,
         message: `Subject: ${subject}\n\n${message}`,
@@ -71,9 +75,11 @@ export default function ContactPage() {
       });
 
       const alertMsg = result.message;
-      Platform.OS === "web"
-        ? alert(alertMsg)
-        : Alert.alert("Success", alertMsg);
+      if (Platform.OS === "web") {
+        alert(alertMsg);
+      } else {
+        Alert.alert("Success", alertMsg);
+      }
 
       if (result.success) {
         setName("");
@@ -81,9 +87,13 @@ export default function ContactPage() {
         setSubject("");
         setMessage("");
       }
-    } catch (error) {
+    } catch {
       const msg = "Something went wrong. Please try again.";
-      Platform.OS === "web" ? alert(msg) : Alert.alert("Error", msg);
+      if (Platform.OS === "web") {
+        alert(msg);
+      } else {
+        Alert.alert("Error", msg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -100,7 +110,7 @@ export default function ContactPage() {
       <View style={[styles.heroSection, { backgroundColor: colors.primary }]}>
         <Text style={styles.heroTitle}>Contact Us</Text>
         <Text style={styles.heroSubtitle}>
-          We'd love to hear from you. Get in touch with our team.
+          We&apos;d love to hear from you. Get in touch with our team.
         </Text>
       </View>
 

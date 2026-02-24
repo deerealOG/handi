@@ -25,7 +25,7 @@ export default function TrackArtisanScreen() {
     const { artisan, skill, id } = params;
 
     // Mock Artisan Location (Lagos, Nigeria coordinates roughly)
-    const [artisanLocation, setArtisanLocation] = useState({
+    const [artisanLocation] = useState({
         latitude: 6.5244,
         longitude: 3.3792,
         latitudeDelta: 0.01,
@@ -33,12 +33,12 @@ export default function TrackArtisanScreen() {
     });
 
     // Mock User Location
-    const [userLocation, setUserLocation] = useState({
+    const [userLocation] = useState({
         latitude: 6.5200,
         longitude: 3.3750,
     });
 
-    const [arrivalTime, setArrivalTime] = useState("15 mins");
+    const [arrivalTime] = useState("15 mins");
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>

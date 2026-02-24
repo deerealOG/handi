@@ -1,25 +1,13 @@
-// components/EnhancedArtisanCard.tsx
-// Enhanced artisan card with prominent ratings, verification, and emergency badges
-
 import { useLikedItems } from "@/context/LikedItemsContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { THEME } from "../constants/theme";
 import { EmergencyBadge } from "./EmergencyBadge";
 import { VerificationBadge, VerificationLevel } from "./VerificationBadge";
 
-// ================================
-// Types
-// ================================
 export interface ArtisanData {
   id: number | string;
   name: string;
@@ -35,7 +23,7 @@ export interface ArtisanData {
   avatar?: any;
   latitude?: number;
   longitude?: number;
-  type?: 'individual' | 'business';
+  type?: "individual" | "business";
 }
 
 interface EnhancedArtisanCardProps {
@@ -47,9 +35,16 @@ interface EnhancedArtisanCardProps {
   compact?: boolean;
 }
 
-// ================================
-// Component
-// ================================
+const formatServicePrice = (value: string | number) => {
+  const text = String(value ?? "").trim();
+  if (!text) return "NGN 0";
+  if (/^ngn\s/i.test(text)) return text;
+  if (!/\d/.test(text)) return text;
+  const numeric = text.replace(/[^\d.,]/g, "");
+  const prefixed = `NGN ${numeric}`;
+  return /^from\s/i.test(text) ? `From ${prefixed}` : prefixed;
+};
+
 export function EnhancedArtisanCard({
   artisan,
   onPress,
@@ -61,68 +56,73 @@ export function EnhancedArtisanCard({
   const { colors } = useAppTheme();
   const router = useRouter();
   const { isLiked, toggleLike } = useLikedItems();
-  
+
   const isItemLiked = isLiked(artisan.id);
 
   const handleFavorite = () => {
     if (onFavoritePress) {
       onFavoritePress();
-    } else {
-      toggleLike(artisan);
+      return;
     }
+    toggleLike(artisan);
   };
 
   const handlePress = () => {
     if (onPress) {
       onPress();
-    } else {
-      if (artisan.type === 'business') {
-        router.push({
-          pathname: "/client/business-details",
-          params: { 
-            id: artisan.id,
-            name: artisan.name,
-            businessName: artisan.name,
-            skill: artisan.skill, // or primary service category
-            rating: artisan.rating,
-            reviews: artisan.reviews,
-            distance: artisan.distance,
-            verified: artisan.verificationLevel !== 'none' ? 'true' : 'false',
-          },
-        });
-      } else {
-        router.push({
-          pathname: "/client/artisan-details",
-          params: { 
-            id: artisan.id, 
-            name: artisan.name, 
-            skill: artisan.skill, 
-            price: artisan.price, 
-            rating: artisan.rating, 
-            reviews: artisan.reviews, 
-            distance: artisan.distance, 
-            verified: artisan.verificationLevel !== 'none' ? 'true' : 'false',
-          },
-        });
-      }
+      return;
     }
+
+    if (artisan.type === "business") {
+      router.push({
+        pathname: "/client/business-details",
+        params: {
+          id: artisan.id,
+          name: artisan.name,
+          businessName: artisan.name,
+          skill: artisan.skill,
+          rating: artisan.rating,
+          reviews: artisan.reviews,
+          distance: artisan.distance,
+          verified: artisan.verificationLevel !== "none" ? "true" : "false",
+        },
+      });
+      return;
+    }
+
+    router.push({
+      pathname: "/client/artisan-details",
+      params: {
+        id: artisan.id,
+        name: artisan.name,
+        skill: artisan.skill,
+        price: artisan.price,
+        rating: artisan.rating,
+        reviews: artisan.reviews,
+        distance: artisan.distance,
+        verified: artisan.verificationLevel !== "none" ? "true" : "false",
+      },
+    });
   };
 
   const handleBook = () => {
     if (onBookPress) {
       onBookPress();
-    } else {
-      router.push({
-        pathname: "/client/book-artisan",
-        params: { artisan: artisan.name, skill: artisan.skill },
-      });
+      return;
     }
+    router.push({
+      pathname: "/client/book-artisan",
+      params: { artisan: artisan.name, skill: artisan.skill },
+    });
   };
 
   if (compact) {
     return (
       <TouchableOpacity
-        style={[styles.compactCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        style={[
+          styles.compactCard,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+        ]}
         onPress={handlePress}
         activeOpacity={0.7}
       >
@@ -135,7 +135,7 @@ export function EnhancedArtisanCard({
             <Text style={[styles.compactName, { color: colors.text }]} numberOfLines={1}>
               {artisan.name}
             </Text>
-            {artisan.verificationLevel !== 'none' && (
+            {artisan.verificationLevel !== "none" && (
               <VerificationBadge level={artisan.verificationLevel} size="small" showLabel={false} />
             )}
             {artisan.isEmergencyAvailable && (
@@ -151,7 +151,9 @@ export function EnhancedArtisanCard({
             <Text style={[styles.compactDistance, { color: colors.muted }]}>{artisan.distance}</Text>
           </View>
         </View>
-        <Text style={[styles.compactPrice, { color: colors.primary }]}>₦{artisan.price}</Text>
+        <Text style={[styles.compactPrice, { color: colors.primary }]}>
+          {formatServicePrice(artisan.price)}
+        </Text>
       </TouchableOpacity>
     );
   }
@@ -162,48 +164,42 @@ export function EnhancedArtisanCard({
       onPress={handlePress}
       activeOpacity={0.7}
     >
-      {/* Top Row: Avatar, Favorite, Badges */}
       <View style={styles.topRow}>
         <View style={styles.avatarContainer}>
           <Image
             source={artisan.avatar || require("../assets/images/profileavatar.png")}
             style={styles.avatar}
           />
-          {/* Verification indicator on avatar */}
-          {artisan.verificationLevel !== 'none' && (
+          {artisan.verificationLevel !== "none" && (
             <View style={[styles.verifiedIndicator, { backgroundColor: colors.surface }]}>
               <MaterialCommunityIcons
                 name="check-decagram"
                 size={18}
-                color={artisan.verificationLevel === 'certified' ? '#8B5CF6' : '#10B981'}
+                color={artisan.verificationLevel === "certified" ? "#8B5CF6" : "#10B981"}
               />
             </View>
           )}
         </View>
 
-        <TouchableOpacity 
-          style={[styles.favoriteButton, { backgroundColor: colors.background }]} 
+        <TouchableOpacity
+          style={[styles.favoriteButton, { backgroundColor: colors.background }]}
           onPress={handleFavorite}
         >
-          <Ionicons 
-            name={isItemLiked || isFavorite ? "heart" : "heart-outline"} 
-            size={20} 
-            color={isItemLiked || isFavorite ? colors.error : colors.muted} 
+          <Ionicons
+            name={isItemLiked || isFavorite ? "heart" : "heart-outline"}
+            size={20}
+            color={isItemLiked || isFavorite ? colors.error : colors.muted}
           />
         </TouchableOpacity>
       </View>
 
-      {/* Badges Row */}
       <View style={styles.badgesRow}>
-        {artisan.verificationLevel !== 'none' && (
+        {artisan.verificationLevel !== "none" && (
           <VerificationBadge level={artisan.verificationLevel} size="small" />
         )}
-        {artisan.isEmergencyAvailable && (
-          <EmergencyBadge size="small" />
-        )}
+        {artisan.isEmergencyAvailable && <EmergencyBadge size="small" />}
       </View>
 
-      {/* Name & Skill */}
       <View style={styles.nameRow}>
         <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
           {artisan.name}
@@ -211,8 +207,12 @@ export function EnhancedArtisanCard({
       </View>
       <Text style={[styles.skill, { color: colors.muted }]}>{artisan.skill}</Text>
 
-      {/* PROMINENT Rating Section */}
-      <View style={[styles.ratingSection, { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}>
+      <View
+        style={[
+          styles.ratingSection,
+          { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+        ]}
+      >
         <View style={styles.ratingMain}>
           <Ionicons name="star" size={18} color="#FACC15" />
           <Text style={[styles.ratingValue, { color: colors.text }]}>{artisan.rating}</Text>
@@ -226,7 +226,6 @@ export function EnhancedArtisanCard({
         )}
       </View>
 
-      {/* Distance & Response Time */}
       <View style={styles.metricsRow}>
         <View style={styles.metricItem}>
           <Ionicons name="location-outline" size={14} color={colors.muted} />
@@ -240,12 +239,11 @@ export function EnhancedArtisanCard({
         )}
       </View>
 
-      {/* Price & Book Button */}
       <View style={[styles.bottomRow, { borderTopColor: colors.border }]}>
         <View>
           <Text style={[styles.priceLabel, { color: colors.muted }]}>From</Text>
           <Text style={[styles.priceValue, { color: colors.primary }]}>
-            {artisan.price.toString().startsWith('₦') ? artisan.price : `₦${artisan.price}`}
+            {formatServicePrice(artisan.price)}
           </Text>
         </View>
         <TouchableOpacity
@@ -260,9 +258,6 @@ export function EnhancedArtisanCard({
   );
 }
 
-// ================================
-// Styles
-// ================================
 const styles = StyleSheet.create({
   card: {
     borderRadius: THEME.radius.lg,
@@ -271,16 +266,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     ...THEME.shadow.card,
   },
-
-  // Top Row
   topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: THEME.spacing.sm,
   },
   avatarContainer: {
-    position: 'relative',
+    position: "relative",
   },
   avatar: {
     width: 60,
@@ -288,7 +281,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   verifiedIndicator: {
-    position: 'absolute',
+    position: "absolute",
     bottom: -2,
     right: -2,
     borderRadius: 10,
@@ -298,19 +291,15 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 20,
   },
-
-  // Badges
   badgesRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: THEME.spacing.xs,
     marginBottom: THEME.spacing.sm,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
   },
-
-  // Name
   nameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   name: {
@@ -323,20 +312,18 @@ const styles = StyleSheet.create({
     fontFamily: THEME.typography.fontFamily.body,
     marginBottom: THEME.spacing.sm,
   },
-
-  // Rating Section - PROMINENT
   ratingSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: THEME.spacing.sm,
     borderRadius: THEME.radius.sm,
     marginBottom: THEME.spacing.sm,
     borderWidth: 1,
   },
   ratingMain: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   ratingValue: {
@@ -348,37 +335,33 @@ const styles = StyleSheet.create({
     fontFamily: THEME.typography.fontFamily.body,
   },
   jobsCompleted: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   jobsText: {
     fontSize: THEME.typography.sizes.xs,
     fontFamily: THEME.typography.fontFamily.body,
   },
-
-  // Metrics
   metricsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: THEME.spacing.md,
     marginBottom: THEME.spacing.sm,
   },
   metricItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   metricText: {
     fontSize: THEME.typography.sizes.xs,
     fontFamily: THEME.typography.fontFamily.body,
   },
-
-  // Bottom
   bottomRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     borderTopWidth: 1,
     paddingTop: THEME.spacing.md,
     marginTop: THEME.spacing.sm,
@@ -401,11 +384,9 @@ const styles = StyleSheet.create({
     fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.subheading,
   },
-
-  // Compact Version
   compactCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: THEME.spacing.sm,
     borderRadius: THEME.radius.md,
     borderWidth: 1,
@@ -421,8 +402,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   compactNameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   compactName: {
@@ -434,14 +415,14 @@ const styles = StyleSheet.create({
     fontFamily: THEME.typography.fontFamily.body,
   },
   compactMetrics: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: THEME.spacing.sm,
     marginTop: 2,
   },
   ratingBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 2,
   },
   compactRating: {

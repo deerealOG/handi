@@ -17,37 +17,40 @@ import { THEME } from "../../../constants/theme";
 export default function ClientProfile() {
   const router = useRouter();
   const { colors } = useAppTheme();
-  const { logout } = useAuth();
+  const { logout, user, userType } = useAuth();
 
   const handleLogout = () => {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Logout",
-          style: "destructive",
-          onPress: async () => {
-            await logout();
-            // The AuthContext will handle navigation to /welcome
-          },
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          await logout();
+          // The AuthContext will handle navigation to /welcome
         },
-      ]
-    );
+      },
+    ]);
   };
-
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-              {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>My Profile</Text>
-          <View style={{ width: 40 }} />
-        </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={[
+            styles.backButton,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>
+          My Profile
+        </Text>
+        <View style={{ width: 40 }} />
+      </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Profile Info */}
@@ -56,10 +59,29 @@ export default function ClientProfile() {
             source={require("../../../assets/images/profileavatar.png")}
             style={[styles.avatar, { borderColor: colors.surface }]}
           />
-          <Text style={[styles.name, { color: colors.text }]}>Golden Amadi</Text>
-          <Text style={[styles.email, { color: colors.muted }]}>golden.amadi@example.com</Text>
-          <View style={[styles.badge, { backgroundColor: colors.successLight }]}>
-            <Text style={[styles.badgeText, { color: colors.primary }]}>Client Account</Text>
+          <Text style={[styles.name, { color: colors.text }]}>
+            {user?.firstName && user?.lastName
+              ? `${user.firstName} ${user.lastName}`
+              : user?.firstName || "User"}
+          </Text>
+          <Text style={[styles.email, { color: colors.muted }]}>
+            {user?.email || "No email set"}
+          </Text>
+          {user?.phone ? (
+            <Text
+              style={[styles.email, { color: colors.muted, marginBottom: 0 }]}
+            >
+              {user.phone}
+            </Text>
+          ) : null}
+          <View
+            style={[styles.badge, { backgroundColor: colors.successLight }]}
+          >
+            <Text style={[styles.badgeText, { color: colors.primary }]}>
+              {userType
+                ? `${userType.charAt(0).toUpperCase()}${userType.slice(1)} Account`
+                : "Account"}
+            </Text>
           </View>
         </View>
 
@@ -81,36 +103,56 @@ export default function ClientProfile() {
             icon="shield-check-outline"
             label="Security"
             onPress={() => router.push("/client/profile/security")}
-             colors={colors}
+            colors={colors}
           />
           <ProfileButton
             icon="bell-outline"
             label="Notifications"
             onPress={() => router.push("/client/notifications")}
-             colors={colors}
+            colors={colors}
+          />
+          <ProfileButton
+            icon="wallet-outline"
+            label="Wallet"
+            onPress={() => router.push("/client/wallet" as any)}
+            colors={colors}
+          />
+          <ProfileButton
+            icon="account-search-outline"
+            label="Find Providers"
+            onPress={() => router.push("/providers" as any)}
+            colors={colors}
+          />
+          <ProfileButton
+            icon="information-outline"
+            label="How It Works"
+            onPress={() => router.push("/how-it-works" as any)}
+            colors={colors}
           />
           <ProfileButton
             icon="help-circle-outline"
             label="Help & Support"
             onPress={() => router.push("/client/profile/help")}
-             colors={colors}
+            colors={colors}
           />
           <ProfileButton
             icon="information-outline"
             label="About App"
             onPress={() => router.push("/client/profile/about")}
-             colors={colors}
+            colors={colors}
           />
           <ProfileButton
             icon="logout"
             label="Logout"
             color={colors.error}
             onPress={handleLogout}
-             colors={colors}
+            colors={colors}
           />
         </View>
-        
-        <Text style={[styles.versionText, { color: colors.muted }]}>Version 1.0.0</Text>
+
+        <Text style={[styles.versionText, { color: colors.muted }]}>
+          Version 1.0.0
+        </Text>
       </ScrollView>
     </View>
   );
@@ -130,7 +172,10 @@ function ProfileButton({
   colors: any;
 }) {
   return (
-    <TouchableOpacity style={[styles.profileButton, { backgroundColor: colors.surface }]} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.profileButton, { backgroundColor: colors.surface }]}
+      onPress={onPress}
+    >
       <View style={styles.iconLabel}>
         <MaterialCommunityIcons
           name={icon}
@@ -157,7 +202,7 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingTop: 30,
   },
-    header: {
+  header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

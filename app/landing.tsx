@@ -1,5 +1,5 @@
 // app/landing.tsx
-// Web Landing Page for HANDI
+// Web Landing Page for HANDI - Jumia/Jiji Style Marketplace
 
 import WebFooter from "@/components/web/WebFooter";
 import WebNavbar from "@/components/web/WebNavbar";
@@ -7,26 +7,29 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Dimensions,
-  Image,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    Image,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, {
-  FadeIn,
-  FadeInDown,
-  FadeInUp,
+    FadeIn,
+    FadeInDown,
+    FadeInUp,
 } from "react-native-reanimated";
 import { Colors, THEME } from "../constants/theme";
 
 const { width } = Dimensions.get("window");
-const isDesktop = Platform.OS === "web" && width > 768;
+const isDesktop = Platform.OS === "web" && width > 1024;
+const isTablet = Platform.OS === "web" && width > 768 && width <= 1024;
+const isMobile = Platform.OS !== "web" || width <= 768;
 
+// Service Categories
 const SERVICE_CATEGORIES = [
   { id: "electrical", label: "Electrical", icon: "lightning-bolt" },
   { id: "plumbing", label: "Plumbing", icon: "water-pump" },
@@ -37,41 +40,187 @@ const SERVICE_CATEGORIES = [
   { id: "construction", label: "Construction", icon: "hammer" },
   { id: "technology", label: "Technology", icon: "laptop" },
   { id: "automotive", label: "Automotive", icon: "car" },
-  { id: "gardening", label: "Gardening & Landscaping", icon: "flower" },
+  { id: "gardening", label: "Gardening", icon: "flower" },
   { id: "pest", label: "Pest Control", icon: "bug" },
   { id: "event", label: "Event & Party", icon: "party-popper" },
-  { id: "moving", label: "Moving & Haulage", icon: "truck" },
+  { id: "moving", label: "Moving", icon: "truck" },
   { id: "security", label: "Security", icon: "shield-lock" },
+  { id: "appliance", label: "Appliance Repair", icon: "washing-machine" },
+  { id: "fitness", label: "Fitness", icon: "dumbbell" },
+];
+
+// Mock Provider Data
+const MOCK_PROVIDERS = [
   {
-    id: "appliance",
-    label: "Appliance Installation & Repair",
-    icon: "washing-machine",
+    id: "1",
+    name: "Adebayo Electricals",
+    category: "Electrical",
+    image: null,
+    location: "Ikeja, Lagos",
+    rating: 4.8,
+    reviews: 156,
+    price: "₦5,000 - ₦50,000",
+    isOnline: true,
+    badge: "Top Rated",
   },
-  { id: "fitness", label: "Fitness & Personal Training", icon: "dumbbell" },
+  {
+    id: "2",
+    name: "QueenB Beauty Lounge",
+    category: "Beauty & Wellness",
+    image: null,
+    location: "Lekki, Lagos",
+    rating: 4.9,
+    reviews: 312,
+    price: "₦3,000 - ₦25,000",
+    isOnline: true,
+    badge: "Featured",
+  },
+  {
+    id: "3",
+    name: "FastFix Plumbing",
+    category: "Plumbing",
+    image: null,
+    location: "Yaba, Lagos",
+    rating: 4.6,
+    reviews: 89,
+    price: "₦8,000 - ₦80,000",
+    isOnline: false,
+    badge: null,
+  },
+  {
+    id: "4",
+    name: "CleanPro Services",
+    category: "Cleaning",
+    image: null,
+    location: "Victoria Island, Lagos",
+    rating: 4.7,
+    reviews: 203,
+    price: "₦10,000 - ₦60,000",
+    isOnline: true,
+    badge: "Verified",
+  },
+  {
+    id: "5",
+    name: "TechMasters NG",
+    category: "Technology",
+    image: null,
+    location: "Surulere, Lagos",
+    rating: 4.5,
+    reviews: 67,
+    price: "₦15,000 - ₦100,000",
+    isOnline: true,
+    badge: null,
+  },
+  {
+    id: "6",
+    name: "AutoCare Mechanics",
+    category: "Automotive",
+    image: null,
+    location: "Agege, Lagos",
+    rating: 4.4,
+    reviews: 124,
+    price: "₦20,000 - ₦200,000",
+    isOnline: false,
+    badge: "Specialist",
+  },
+  {
+    id: "7",
+    name: "HomeStyle Interiors",
+    category: "Home Improvement",
+    image: null,
+    location: "Ikoyi, Lagos",
+    rating: 4.9,
+    reviews: 78,
+    price: "₦50,000 - ₦500,000",
+    isOnline: true,
+    badge: "Premium",
+  },
+  {
+    id: "8",
+    name: "GreenThumb Gardens",
+    category: "Gardening",
+    image: null,
+    location: "Magodo, Lagos",
+    rating: 4.3,
+    reviews: 45,
+    price: "₦15,000 - ₦80,000",
+    isOnline: true,
+    badge: null,
+  },
+  {
+    id: "9",
+    name: "EventPro Planners",
+    category: "Event & Party",
+    image: null,
+    location: "Ajah, Lagos",
+    rating: 4.8,
+    reviews: 167,
+    price: "₦100,000 - ₦2,000,000",
+    isOnline: true,
+    badge: "Top Rated",
+  },
+  {
+    id: "10",
+    name: "SecureGuard Services",
+    category: "Security",
+    image: null,
+    location: "Oshodi, Lagos",
+    rating: 4.6,
+    reviews: 92,
+    price: "₦30,000 - ₦150,000",
+    isOnline: false,
+    badge: "Verified",
+  },
+  {
+    id: "11",
+    name: "FitLife Personal Training",
+    category: "Fitness",
+    image: null,
+    location: "Gbagada, Lagos",
+    rating: 4.7,
+    reviews: 134,
+    price: "₦20,000 - ₦100,000",
+    isOnline: true,
+    badge: null,
+  },
+  {
+    id: "12",
+    name: "BuildRight Construction",
+    category: "Construction",
+    image: null,
+    location: "Ojota, Lagos",
+    rating: 4.5,
+    reviews: 56,
+    price: "₦500,000 - ₦10,000,000",
+    isOnline: true,
+    badge: "Specialist",
+  },
 ];
 
 export default function LandingPage() {
   const router = useRouter();
-  // Marketing pages always use light theme for consistent branding
   const colors = Colors.light;
   const [searchQuery, setSearchQuery] = useState("");
-  const [locationQuery, setLocationQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showMobileCategories, setShowMobileCategories] = useState(false);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      router.push(
-        `/search?q=${encodeURIComponent(searchQuery)}&location=${encodeURIComponent(locationQuery)}` as any,
-      );
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}` as any);
     }
   };
 
-  const popularSearches = [
-    "Plumber",
-    "Hair Salon",
-    "Massage Therapy",
-    "House Cleaning",
-    "Photography",
-  ];
+  const filteredProviders = selectedCategory
+    ? MOCK_PROVIDERS.filter(
+        (p) => p.category.toLowerCase() === selectedCategory.toLowerCase(),
+      )
+    : MOCK_PROVIDERS;
+
+  const getGridColumns = () => {
+    if (isDesktop) return 3;
+    if (isTablet) return 2;
+    return 1;
+  };
 
   return (
     <ScrollView
@@ -82,385 +231,420 @@ export default function LandingPage() {
       <WebNavbar activeTab="home" />
 
       {/* ========================================
-          HERO SECTION
+          TOP BANNER / SEARCH BAR
       ======================================== */}
-      <Animated.View
-        entering={FadeIn.duration(1000)}
-        style={[styles.heroSection, { backgroundColor: colors.surface }]}
-      >
-        {/* Hero Content - Split Layout */}
-        <View style={styles.heroSplit}>
-          {/* Left Side - Text Content */}
+      <View style={styles.topBanner}>
+        <View style={styles.topBannerContent}>
+          <Text style={styles.bannerTitle}>
+            Find Trusted{" "}
+            <Text style={styles.bannerHighlight}>Service Providers</Text>
+          </Text>
+          <View style={styles.searchBar}>
+            <Icon name="magnify" size={20} color={THEME.colors.muted} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search for services, providers..."
+              placeholderTextColor={THEME.colors.muted}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              onSubmitEditing={handleSearch}
+            />
+            <TouchableOpacity
+              style={styles.searchButton}
+              onPress={handleSearch}
+            >
+              <Text style={styles.searchButtonText}>Search</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+
+      {/* ========================================
+          MAIN THREE-COLUMN LAYOUT
+      ======================================== */}
+      <View style={styles.mainLayout}>
+        {/* LEFT SIDEBAR - Categories */}
+        {(isDesktop || isTablet) && (
           <Animated.View
-            entering={FadeInUp.delay(300).duration(800)}
-            style={styles.heroLeft}
+            entering={FadeIn.duration(600)}
+            style={styles.leftSidebar}
           >
-            <Text style={[styles.heroTitle, { color: THEME.colors.text }]}>
-              Let's connect you to reliable{" "}
-              <Text style={styles.heroTitleHighlight}>service providers</Text>
-              {"\n"}
-            </Text>
-            <Text style={[styles.heroSubtitle, { color: THEME.colors.text }]}>
-              Connect with trusted local businesses and service providers,
-              manage bookings effortlessly, and grow your business with our
-              all-in-one platform designed for success.
-            </Text>
-
-            {/* Search Bar */}
-            <View style={styles.searchContainer}>
-              <View style={styles.searchInputGroup}>
-                <Icon name="magnify" size={20} color={THEME.colors.primary} />
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="What service do you need?"
-                  placeholderTextColor={THEME.colors.muted}
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  onSubmitEditing={handleSearch}
-                />
-              </View>
-
-              <View style={styles.searchInputGroup}>
+            <Text style={styles.sidebarTitle}>Categories</Text>
+            <ScrollView
+              style={styles.categoryList}
+              showsVerticalScrollIndicator={false}
+            >
+              <TouchableOpacity
+                style={[
+                  styles.categoryItem,
+                  !selectedCategory && styles.categoryItemActive,
+                ]}
+                onPress={() => setSelectedCategory(null)}
+              >
                 <Icon
-                  name="map-marker-outline"
-                  size={20}
-                  color={THEME.colors.primary}
-                />
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Enter location"
-                  placeholderTextColor={THEME.colors.muted}
-                  value={locationQuery}
-                  onChangeText={setLocationQuery}
-                  onSubmitEditing={handleSearch}
-                />
-              </View>
-
-              <TouchableOpacity style={styles.filtersButton}>
-                <Icon
-                  name="tune-variant"
+                  name="view-grid"
                   size={18}
-                  color={THEME.colors.primary}
+                  color={
+                    !selectedCategory
+                      ? THEME.colors.primary
+                      : THEME.colors.muted
+                  }
                 />
-                <Text style={styles.filtersText}>Filters</Text>
+                <Text
+                  style={[
+                    styles.categoryItemText,
+                    !selectedCategory && styles.categoryItemTextActive,
+                  ]}
+                >
+                  All Services
+                </Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.searchButton}
-                onPress={handleSearch}
-              >
-                <Icon name="magnify" size={18} color={THEME.colors.surface} />
-                <Text style={styles.searchButtonText}>Search</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Popular Searches */}
-            <View style={styles.popularSearches}>
-              <Text
-                style={[styles.popularLabel, { color: THEME.colors.primary }]}
-              >
-                Popular searches:
-              </Text>
-              <View style={styles.popularChips}>
-                {popularSearches.map((search, index) => (
-                  <TouchableOpacity
-                    key={index}
+              {SERVICE_CATEGORIES.map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[
+                    styles.categoryItem,
+                    selectedCategory === cat.id && styles.categoryItemActive,
+                  ]}
+                  onPress={() => setSelectedCategory(cat.id)}
+                >
+                  <Icon
+                    name={cat.icon as any}
+                    size={18}
+                    color={
+                      selectedCategory === cat.id
+                        ? THEME.colors.primary
+                        : THEME.colors.muted
+                    }
+                  />
+                  <Text
                     style={[
-                      styles.popularChip,
-                      { borderColor: THEME.colors.primary },
+                      styles.categoryItemText,
+                      selectedCategory === cat.id &&
+                        styles.categoryItemTextActive,
                     ]}
-                    onPress={() => {
-                      setSearchQuery(search);
-                      handleSearch();
-                    }}
                   >
-                    <Text
-                      style={[
-                        styles.popularChipText,
-                        { color: THEME.colors.primary },
-                      ]}
-                    >
-                      {search}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+                    {cat.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </Animated.View>
+        )}
 
-            {/* CTA Buttons */}
-            <View style={styles.ctaButtons}>
+        {/* CENTER - Provider Grid */}
+        <View style={styles.centerContent}>
+          {/* Mobile Category Toggle */}
+          {isMobile && (
+            <TouchableOpacity
+              style={styles.mobileCategoryToggle}
+              onPress={() => setShowMobileCategories(!showMobileCategories)}
+            >
+              <Icon name="menu" size={20} color={THEME.colors.primary} />
+              <Text style={styles.mobileCategoryText}>
+                {selectedCategory
+                  ? SERVICE_CATEGORIES.find((c) => c.id === selectedCategory)
+                      ?.label
+                  : "All Categories"}
+              </Text>
+              <Icon
+                name={showMobileCategories ? "chevron-up" : "chevron-down"}
+                size={20}
+                color={THEME.colors.primary}
+              />
+            </TouchableOpacity>
+          )}
+
+          {/* Mobile Categories Dropdown */}
+          {isMobile && showMobileCategories && (
+            <View style={styles.mobileCategoryDropdown}>
               <TouchableOpacity
-                style={styles.ctaPrimary}
-                onPress={() => router.push("/auth/register-client" as any)}
+                style={[
+                  styles.mobileCategoryItem,
+                  !selectedCategory && styles.mobileCategoryItemActive,
+                ]}
+                onPress={() => {
+                  setSelectedCategory(null);
+                  setShowMobileCategories(false);
+                }}
               >
-                <Text style={styles.ctaPrimaryText}>Get Started Free</Text>
-                <Icon name="arrow-right" size={18} color={THEME.colors.text} />
+                <Text style={styles.mobileCategoryItemText}>All Services</Text>
               </TouchableOpacity>
+              {SERVICE_CATEGORIES.map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[
+                    styles.mobileCategoryItem,
+                    selectedCategory === cat.id &&
+                      styles.mobileCategoryItemActive,
+                  ]}
+                  onPress={() => {
+                    setSelectedCategory(cat.id);
+                    setShowMobileCategories(false);
+                  }}
+                >
+                  <Text style={styles.mobileCategoryItemText}>{cat.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
 
+          {/* Hero Banner */}
+          <Animated.View
+            entering={FadeInDown.delay(200).duration(600)}
+            style={styles.heroBanner}
+          >
+            <View style={styles.heroBannerContent}>
+              <Text style={styles.heroBannerTitle}>
+                Professional Services,{"\n"}
+                <Text style={styles.heroBannerHighlight}>
+                  Right at Your Fingertips
+                </Text>
+              </Text>
+              <Text style={styles.heroBannerSubtitle}>
+                Connect with verified professionals today
+              </Text>
               <TouchableOpacity
-                style={styles.ctaSecondary}
+                style={styles.heroBannerButton}
                 onPress={() => router.push("/services" as any)}
               >
-                <Icon
-                  name="calendar-check"
-                  size={18}
-                  color={THEME.colors.primary}
-                />
-                <Text style={styles.ctaSecondaryText}>Book Services</Text>
+                <Text style={styles.heroBannerButtonText}>
+                  Explore Services
+                </Text>
+                <Icon name="arrow-right" size={16} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+            <Image
+              source={require("../assets/images/hero-nigerian-family.png")}
+              style={styles.heroBannerImage}
+              resizeMode="cover"
+            />
+          </Animated.View>
+
+          {/* Results Header */}
+          <View style={styles.resultsHeader}>
+            <Text style={styles.resultsTitle}>
+              {filteredProviders.length} Provider
+              {filteredProviders.length !== 1 ? "s" : ""} Available
+            </Text>
+            <TouchableOpacity style={styles.sortButton}>
+              <Icon name="sort" size={18} color={THEME.colors.text} />
+              <Text style={styles.sortButtonText}>Sort</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Provider Grid */}
+          <Animated.View
+            entering={FadeInUp.delay(400).duration(600)}
+            style={[
+              styles.providerGrid,
+              {
+                // @ts-ignore - web-only CSS
+                gridTemplateColumns:
+                  Platform.OS === "web"
+                    ? `repeat(${getGridColumns()}, 1fr)`
+                    : undefined,
+              },
+            ]}
+          >
+            {filteredProviders.map((provider) => (
+              <TouchableOpacity
+                key={provider.id}
+                style={styles.providerCard}
+                onPress={() => router.push(`/providers/${provider.id}` as any)}
+              >
+                {/* Badge */}
+                {provider.badge && (
+                  <View style={styles.providerBadge}>
+                    <Text style={styles.providerBadgeText}>
+                      {provider.badge}
+                    </Text>
+                  </View>
+                )}
+
+                {/* Image Placeholder */}
+                <View style={styles.providerImageContainer}>
+                  <Icon name="account" size={48} color={THEME.colors.muted} />
+                </View>
+
+                {/* Content */}
+                <View style={styles.providerContent}>
+                  <Text style={styles.providerName} numberOfLines={1}>
+                    {provider.name}
+                  </Text>
+                  <Text style={styles.providerCategory}>
+                    {provider.category}
+                  </Text>
+
+                  <View style={styles.providerLocationRow}>
+                    <Icon
+                      name="map-marker"
+                      size={14}
+                      color={THEME.colors.muted}
+                    />
+                    <Text style={styles.providerLocation} numberOfLines={1}>
+                      {provider.location}
+                    </Text>
+                  </View>
+
+                  <View style={styles.providerRatingRow}>
+                    <View style={styles.starsContainer}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Icon
+                          key={star}
+                          name={
+                            star <= Math.floor(provider.rating)
+                              ? "star"
+                              : "star-outline"
+                          }
+                          size={14}
+                          color="#FACC15"
+                        />
+                      ))}
+                    </View>
+                    <Text style={styles.providerReviews}>
+                      ({provider.reviews})
+                    </Text>
+                  </View>
+
+                  <Text style={styles.providerPrice}>{provider.price}</Text>
+
+                  <View style={styles.providerStatus}>
+                    <View
+                      style={[
+                        styles.statusDot,
+                        {
+                          backgroundColor: provider.isOnline
+                            ? "#22C55E"
+                            : "#9CA3AF",
+                        },
+                      ]}
+                    />
+                    <Text
+                      style={[
+                        styles.statusText,
+                        { color: provider.isOnline ? "#22C55E" : "#9CA3AF" },
+                      ]}
+                    >
+                      {provider.isOnline ? "Available" : "Offline"}
+                    </Text>
+                  </View>
+
+                  {/* Actions */}
+                  <View style={styles.providerActions}>
+                    <TouchableOpacity style={styles.callButton}>
+                      <Icon name="phone" size={14} color="#FFFFFF" />
+                      <Text style={styles.callButtonText}>Call</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.viewButton}>
+                      <Text style={styles.viewButtonText}>View</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+
+          {/* Load More */}
+          <TouchableOpacity style={styles.loadMoreButton}>
+            <Text style={styles.loadMoreText}>Load More Providers</Text>
+            <Icon name="chevron-down" size={18} color={THEME.colors.primary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* RIGHT SIDEBAR - CTAs (Desktop Only) */}
+        {isDesktop && (
+          <Animated.View
+            entering={FadeIn.delay(300).duration(600)}
+            style={styles.rightSidebar}
+          >
+            {/* Call to Order */}
+            <View style={styles.rightSidebarCard}>
+              <View style={styles.ctaIconCircle}>
+                <Icon name="phone" size={24} color={THEME.colors.primary} />
+              </View>
+              <Text style={styles.ctaCardTitle}>Need Help?</Text>
+              <Text style={styles.ctaCardPhone}>0800-HANDI-NG</Text>
+              <Text style={styles.ctaCardSubtitle}>24/7 Customer Support</Text>
+            </View>
+
+            {/* Become a Provider */}
+            <View
+              style={[
+                styles.rightSidebarCard,
+                { backgroundColor: THEME.colors.primary },
+              ]}
+            >
+              <Icon name="account-plus" size={32} color="#FFFFFF" />
+              <Text style={[styles.ctaCardTitle, { color: "#FFFFFF" }]}>
+                Become a Provider
+              </Text>
+              <Text
+                style={[
+                  styles.ctaCardSubtitle,
+                  { color: "rgba(255,255,255,0.8)" },
+                ]}
+              >
+                Start earning by offering your services
+              </Text>
+              <TouchableOpacity
+                style={styles.ctaCardButton}
+                onPress={() => router.push("/auth/register-provider" as any)}
+              >
+                <Text style={styles.ctaCardButtonText}>Sign Up Free</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Rating */}
-            <View style={styles.ratingSection}>
-              <View style={styles.stars}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Icon key={star} name="star" size={16} color="#FACC15" />
-                ))}
-              </View>
-              <Text style={[styles.ratingText, { color: colors.text }]}>
-                <Text style={styles.ratingBold}>4.9/5</Text>
-                {"  "}From platform reviews
-              </Text>
-            </View>
-          </Animated.View>
-
-          {/* Right Side - Hero Image with Floating Cards */}
-          <Animated.View
-            entering={FadeIn.delay(500).duration(1000)}
-            style={styles.heroRight}
-          >
-            {/* Floating Card - Booking Confirmed */}
-            <View style={styles.floatingCardTop}>
-              <View style={styles.floatingCardIcon}>
+            {/* Trust Badges */}
+            <View style={styles.rightSidebarCard}>
+              <Text style={styles.ctaCardTitle}>Why Choose HANDI?</Text>
+              <View style={styles.trustBadge}>
                 <Icon
-                  name="check-circle"
-                  size={20}
+                  name="shield-check"
+                  size={18}
                   color={THEME.colors.primary}
                 />
+                <Text style={styles.trustBadgeText}>Verified Providers</Text>
               </View>
-              <View>
-                <Text style={styles.floatingCardTitle}>Booking Confirmed</Text>
-                <Text style={styles.floatingCardSubtitle}>
-                  Hair appointment at 2 PM
-                </Text>
+              <View style={styles.trustBadge}>
+                <Icon name="cash-lock" size={18} color={THEME.colors.primary} />
+                <Text style={styles.trustBadgeText}>Secure Payments</Text>
               </View>
-            </View>
-
-            {/* Hero Image */}
-            <Image
-              source={require("../assets/images/hero-nigerian-family.png")}
-              style={styles.heroImage}
-              resizeMode="cover"
-            />
-
-            {/* Floating Card - Payment Received */}
-            <View style={styles.floatingCardBottom}>
-              <View
-                style={[
-                  styles.floatingCardIcon,
-                  { backgroundColor: "#EBF5FF" },
-                ]}
-              >
-                <Icon
-                  name="currency-ngn"
-                  size={20}
-                  color={THEME.colors.primary}
-                />
+              <View style={styles.trustBadge}>
+                <Icon name="headset" size={18} color={THEME.colors.primary} />
+                <Text style={styles.trustBadgeText}>24/7 Support</Text>
               </View>
-              <View>
-                <Text style={styles.floatingCardTitle}>Payment Received</Text>
-                <Text style={styles.floatingCardSubtitle}>
-                  ₦150,000 from Sarah M.
-                </Text>
+              <View style={styles.trustBadge}>
+                <Icon name="star" size={18} color={THEME.colors.primary} />
+                <Text style={styles.trustBadgeText}>Top-Rated Services</Text>
               </View>
             </View>
           </Animated.View>
-        </View>
-      </Animated.View>
-
-
-      {/* ========================================
-          SERVICE CATEGORIES SECTION
-      ======================================== */}
-      <Animated.View
-        entering={FadeInDown.delay(600).duration(800)}
-        style={styles.categoriesSection}
-      >
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          Service Categories
-        </Text>
-        <Text style={[styles.sectionSubtitle, { color: colors.muted }]}>
-          Discover Amazing Services Near You
-        </Text>
-        <Text style={[styles.sectionDescription, { color: colors.muted }]}>
-          From everyday needs to special occasions, find verified professionals
-          who deliver exceptional results every time.
-        </Text>
-
-        <View style={styles.categoriesGrid}>
-          {SERVICE_CATEGORIES.map((category, index) => (
-            <TouchableOpacity
-              key={category.id}
-              style={styles.categoryCard}
-              onPress={() =>
-                router.push(`/services?category=${category.id}` as any)
-              }
-            >
-              <View style={styles.categoryIconContainer}>
-                <Icon
-                  name={category.icon as any}
-                  size={28}
-                  color={THEME.colors.primary}
-                />
-              </View>
-              <Text style={[styles.categoryLabel, { color: colors.text }]}>
-                {category.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <TouchableOpacity style={styles.showAllButton}>
-          <Text style={styles.showAllText}>Show All 24 Categories</Text>
-        </TouchableOpacity>
-
-        <Text style={[styles.categoriesStats, { color: colors.muted }]}>
-          24+ categories • 1000+ service providers • 4.5+ average rating
-        </Text>
-      </Animated.View>
+        )}
+      </View>
 
       {/* ========================================
-          READY TO GET STARTED CTA
+          BOTTOM CTA SECTION
       ======================================== */}
-      <View style={styles.readySection}>
-        <Text style={[styles.readyTitle, { color: colors.text }]}>
-          Ready to Get Started?
+      <View style={styles.bottomCta}>
+        <Text style={styles.bottomCtaTitle}>Ready to Get Started?</Text>
+        <Text style={styles.bottomCtaSubtitle}>
+          Join thousands of satisfied customers and providers on HANDI
         </Text>
-        <Text style={[styles.readySubtitle, { color: colors.text }]}>
-          Transform Your Service Experience Today
-        </Text>
-        <Text style={[styles.readyDescription, { color: colors.text }]}>
-          Join the growing list of satisfied customers who have discovered the
-          easiest way to book professional services. Your perfect service
-          provider is just a click away.
-        </Text>
-
-        <View style={styles.readyButtons}>
+        <View style={styles.bottomCtaButtons}>
           <TouchableOpacity
-            style={styles.readyPrimaryBtn}
-            onPress={() => router.push("/services" as any)}
+            style={styles.bottomCtaPrimary}
+            onPress={() => router.push("/auth/register-client" as any)}
           >
-            <Text style={styles.readyPrimaryText}>Book Your First Service</Text>
+            <Text style={styles.bottomCtaPrimaryText}>Find Services</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.readySecondaryBtn}>
-            <Text style={styles.readySecondaryText}>Explore Features</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={[styles.readyNote, { color: colors.text }]}>
-          No setup fees • Cancel anytime • 100% satisfaction guaranteed
-        </Text>
-      </View>
-
-      {/* ========================================
-          BENEFITS SECTION
-      ======================================== */}
-      <View style={styles.benefitsSection}>
-        <View style={styles.benefitCard}>
-          <View style={[styles.benefitIcon, { backgroundColor: "#E8F5E9" }]}>
-            <Icon name="sale" size={24} color={THEME.colors.primary} />
-          </View>
-          <Text style={[styles.benefitTitle, { color: colors.text }]}>
-            Some Providers offer 20% Off First Booking
-          </Text>
-          <Text style={[styles.benefitText, { color: colors.muted }]}>
-            Most of our providers give new customers instant discount
-          </Text>
-        </View>
-
-        <View style={styles.benefitCard}>
-          <View style={[styles.benefitIcon, { backgroundColor: "#E8F5E9" }]}>
-            <Icon name="shield-check" size={24} color={THEME.colors.primary} />
-          </View>
-          <Text style={[styles.benefitTitle, { color: colors.text }]}>
-            100% Satisfaction Guarantee
-          </Text>
-          <Text style={[styles.benefitText, { color: colors.muted }]}>
-            Your happiness is our priority
-          </Text>
-        </View>
-
-        <View style={styles.benefitCard}>
-          <View style={[styles.benefitIcon, { backgroundColor: "#E8F5E9" }]}>
-            <Icon name="headset" size={24} color={THEME.colors.primary} />
-          </View>
-          <Text style={[styles.benefitTitle, { color: colors.text }]}>
-            24/7 Customer Support
-          </Text>
-          <Text style={[styles.benefitText, { color: colors.muted }]}>
-            We're here whenever you need us
-          </Text>
-        </View>
-      </View>
-
-      {/* ========================================
-          NEWSLETTER SECTION
-      ======================================== */}
-      <View style={styles.newsletterSection}>
-        <Text style={[styles.newsletterTitle, { color: colors.text }]}>
-          Stay Updated with Exclusive Offers
-        </Text>
-        <Text style={[styles.newsletterSubtitle, { color: colors.muted }]}>
-          Get the latest updates, special discounts, and insider tips delivered
-          to your inbox.
-        </Text>
-
-        <View style={styles.newsletterForm}>
-          <TextInput
-            style={styles.newsletterInput}
-            placeholder="Enter your email address"
-            placeholderTextColor={THEME.colors.muted}
-            keyboardType="email-address"
-          />
-          <TouchableOpacity style={styles.newsletterButton}>
-            <Text style={styles.newsletterButtonText}>Subscribe</Text>
+          <TouchableOpacity
+            style={styles.bottomCtaSecondary}
+            onPress={() => router.push("/auth/register-provider" as any)}
+          >
+            <Text style={styles.bottomCtaSecondaryText}>Become a Provider</Text>
           </TouchableOpacity>
         </View>
-
-        <Text style={[styles.newsletterNote, { color: colors.muted }]}>
-          We respect your privacy. Unsubscribe at any time.
-        </Text>
-
-        <View style={styles.newsletterRating}>
-          <View style={styles.stars}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Icon key={star} name="star" size={16} color="#FACC15" />
-            ))}
-          </View>
-          <Text style={[styles.newsletterRatingText, { color: colors.text }]}>
-            Rated 4.9/5 by over customers
-          </Text>
-        </View>
-      </View>
-
-      {/* ========================================
-          FINAL CTA SECTION
-      ======================================== */}
-      <View
-        style={[styles.finalCtaSection, { backgroundColor: colors.primary }]}
-      >
-        <Text style={styles.finalCtaTitle}>What Are You Waiting For?</Text>
-        <Text style={styles.finalCtaSubtitle}>
-          Join the service revolution today and experience the difference of
-          professional, reliable, and convenient service booking.
-        </Text>
-        <TouchableOpacity
-          style={styles.finalCtaButton}
-          onPress={() => router.push("/auth/register-client" as any)}
-        >
-          <Text style={styles.finalCtaButtonText}>Get Started Now</Text>
-          <Icon name="arrow-right" size={18} color={THEME.colors.primary} />
-        </TouchableOpacity>
       </View>
 
       {/* Footer */}
@@ -477,759 +661,506 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
 
-  // ========== NAV HEADER ==========
-  navHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: THEME.spacing.xl,
-    paddingTop: Platform.OS === "web" ? 24 : 60,
-    paddingBottom: THEME.spacing.md,
+  // ========== TOP BANNER ==========
+  topBanner: {
     backgroundColor: THEME.colors.primary,
+    paddingVertical: THEME.spacing.lg,
+    paddingHorizontal: THEME.spacing.xl,
   },
-  navLogo: {
-    width: 70,
-    height: 70,
-  },
-  navItems: {
-    flexDirection: "row",
-    gap: THEME.spacing.lg,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  navLinks: {
-    flexDirection: "row",
-    gap: THEME.spacing.lg,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  navButtons: {
-    flexDirection: "row",
-    gap: THEME.spacing.lg,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  navLink: {
-    color: THEME.colors.secondary,
-    fontFamily: THEME.typography.fontFamily.bodyMedium, // Roboto-Regular
-    fontSize: THEME.typography.sizes.base,
-  },
-  navLinkText: {
-    color: THEME.colors.surface,
-    fontFamily: THEME.typography.fontFamily.bodyMedium, // Roboto-Regular
-    fontSize: THEME.typography.sizes.base,
-  },
-  navLinkActive: {
-    color: THEME.colors.secondary,
-  },
-  signUpButton: {
-    backgroundColor: THEME.colors.secondary,
-    paddingHorizontal: THEME.spacing.md,
-    paddingVertical: THEME.spacing.sm,
-    borderRadius: THEME.radius.pill,
-  },
-  signUpButtonText: {
-    color: "#1F2937",
-    fontFamily: THEME.typography.fontFamily.heading,
-    fontSize: THEME.typography.sizes.base,
-  },
-
-  // ========== HERO SECTION ==========
-  heroSection: {
-    minHeight: Platform.OS === "web" ? 600 : "auto",
-    backgroundColor: THEME.colors.surface,
-    overflow: "hidden",
-  },
-  heroTitle: {
-    fontSize: Platform.OS === "web" && width > 900 ? 48 : 32,
-    fontFamily: THEME.typography.fontFamily.heading,
-    lineHeight: Platform.OS === "web" && width > 900 ? 58 : 42,
-    marginBottom: THEME.spacing.lg,
-    textAlign: Platform.OS === "web" && width > 900 ? "left" : "center",
-  },
-  heroSubtitle: {
-    fontSize: THEME.typography.sizes.md,
-    fontFamily: THEME.typography.fontFamily.body,
-    lineHeight: 26,
-    marginBottom: THEME.spacing.lg,
-    maxWidth: 500,
-    textAlign: Platform.OS === "web" && width > 900 ? "left" : "center",
-  },
-  // ========== HERO SPLIT LAYOUT ==========
-  heroSplit: {
-    flexDirection:
-      Platform.OS === "web" && width > 900 ? "row" : "column-reverse",
-    paddingHorizontal:
-      Platform.OS === "web" ? THEME.spacing["2xl"] : THEME.spacing.md,
-    paddingTop: Platform.OS === "web" ? THEME.spacing["2xl"] : THEME.spacing.lg,
-    paddingBottom: THEME.spacing["2xl"],
-    gap:
-      Platform.OS === "web" && width > 900
-        ? THEME.spacing["2xl"]
-        : THEME.spacing.lg,
-    alignItems: "center",
+  topBannerContent: {
+    maxWidth: 1200,
     alignSelf: "center",
     width: "100%",
-    maxWidth: 1400,
-    backgroundColor: THEME.colors.surface,
-  },
-  heroLeft: {
-    flex: 1,
-    maxWidth: Platform.OS === "web" && width > 900 ? 600 : "100%",
-    alignItems: Platform.OS === "web" && width > 900 ? "flex-start" : "center",
-  },
-  heroRight: {
-    flex: Platform.OS === "web" && width > 900 ? 1 : 0,
     alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-    width: Platform.OS === "web" && width > 900 ? "auto" : "100%",
   },
-  heroTitleHighlight: {
+  bannerTitle: {
+    fontSize: Platform.OS === "web" && width > 768 ? 28 : 20,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: "#FFFFFF",
+    marginBottom: THEME.spacing.md,
+    textAlign: "center",
+  },
+  bannerHighlight: {
     color: THEME.colors.secondary,
   },
-  heroImage: {
-    width: Platform.OS === "web" && width > 900 ? 600 : "100%",
-    height: Platform.OS === "web" && width > 900 ? 600 : 320,
-    borderRadius: 20,
-    maxWidth: "100%",
-  },
-
-  // ========== SEARCH BAR ==========
-  searchContainer: {
-    flexDirection: Platform.OS === "web" ? "row" : "column",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surface,
-
-    borderRadius: THEME.radius.pill,
-    borderWidth: 1,
-    borderColor: THEME.colors.primary,
-    paddingHorizontal: THEME.spacing.md,
-    paddingVertical: THEME.spacing.sm,
-    gap: THEME.spacing.md,
-    width: "100%",
-    ...THEME.shadow.card,
-  },
-  searchInputGroup: {
+  searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    flex: 1,
-    gap: THEME.spacing.sm,
-  },
-  searchIcon: {
-    fontSize: 18,
+    backgroundColor: "#FFFFFF",
+    borderRadius: THEME.radius.pill,
+    paddingHorizontal: THEME.spacing.md,
+    paddingVertical: THEME.spacing.sm,
+    width: "100%",
+    maxWidth: 600,
+    ...THEME.shadow.card,
   },
   searchInput: {
     flex: 1,
     fontFamily: THEME.typography.fontFamily.body,
     fontSize: THEME.typography.sizes.base,
     paddingVertical: THEME.spacing.sm,
-    color: THEME.colors.surface,
-  },
-
-  filtersButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: THEME.spacing.xs,
-    paddingHorizontal: THEME.spacing.sm,
-    paddingVertical: THEME.spacing.md,
-    borderWidth: 1,
-    borderColor: THEME.colors.primary,
-    borderRadius: 50,
-    backgroundColor: THEME.colors.surface,
-  },
-
-  filtersText: {
-    fontFamily: THEME.typography.fontFamily.body,
-    fontSize: THEME.typography.sizes.base,
-    color: THEME.colors.primary,
+    marginLeft: THEME.spacing.sm,
+    color: THEME.colors.text,
   },
   searchButton: {
+    backgroundColor: THEME.colors.primary,
+    paddingHorizontal: THEME.spacing.lg,
+    paddingVertical: THEME.spacing.sm,
+    borderRadius: THEME.radius.pill,
+  },
+  searchButtonText: {
+    color: "#FFFFFF",
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    fontSize: THEME.typography.sizes.sm,
+  },
+
+  // ========== MAIN LAYOUT ==========
+  mainLayout: {
+    flexDirection: Platform.OS === "web" && width > 768 ? "row" : "column",
+    maxWidth: 1400,
+    alignSelf: "center",
+    width: "100%",
+    paddingHorizontal: THEME.spacing.md,
+    paddingVertical: THEME.spacing.lg,
+    gap: THEME.spacing.lg,
+  },
+
+  // ========== LEFT SIDEBAR ==========
+  leftSidebar: {
+    width: 220,
+    backgroundColor: "#FFFFFF",
+    borderRadius: THEME.radius.md,
+    padding: THEME.spacing.md,
+    ...THEME.shadow.card,
+    maxHeight: 700,
+  },
+  sidebarTitle: {
+    fontSize: THEME.typography.sizes.md,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.text,
+    marginBottom: THEME.spacing.md,
+    paddingBottom: THEME.spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+  },
+  categoryList: {
+    flex: 1,
+  },
+  categoryItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: THEME.spacing.sm,
+    paddingVertical: THEME.spacing.sm,
+    paddingHorizontal: THEME.spacing.sm,
+    borderRadius: THEME.radius.sm,
+    marginBottom: THEME.spacing.xs,
+  },
+  categoryItemActive: {
+    backgroundColor: THEME.colors.primary + "15",
+  },
+  categoryItemText: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.text,
+    flex: 1,
+  },
+  categoryItemTextActive: {
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: THEME.colors.primary,
+  },
+
+  // ========== CENTER CONTENT ==========
+  centerContent: {
+    flex: 1,
+  },
+
+  // Mobile Category Toggle
+  mobileCategoryToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: THEME.spacing.sm,
+    backgroundColor: "#FFFFFF",
+    padding: THEME.spacing.md,
+    borderRadius: THEME.radius.md,
+    marginBottom: THEME.spacing.md,
+    ...THEME.shadow.card,
+  },
+  mobileCategoryText: {
+    flex: 1,
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: THEME.colors.text,
+  },
+  mobileCategoryDropdown: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: THEME.radius.md,
+    marginBottom: THEME.spacing.md,
+    ...THEME.shadow.card,
+    maxHeight: 300,
+    overflow: "hidden",
+  },
+  mobileCategoryItem: {
+    paddingVertical: THEME.spacing.sm,
+    paddingHorizontal: THEME.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  mobileCategoryItemActive: {
+    backgroundColor: THEME.colors.primary + "15",
+  },
+  mobileCategoryItemText: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.text,
+  },
+
+  // Hero Banner
+  heroBanner: {
+    flexDirection: Platform.OS === "web" && width > 768 ? "row" : "column",
+    backgroundColor: "#FFF9F0",
+    borderRadius: THEME.radius.lg,
+    overflow: "hidden",
+    marginBottom: THEME.spacing.lg,
+    ...THEME.shadow.card,
+  },
+  heroBannerContent: {
+    flex: 1,
+    padding: THEME.spacing.xl,
+    justifyContent: "center",
+  },
+  heroBannerTitle: {
+    fontSize: Platform.OS === "web" && width > 768 ? 28 : 22,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.text,
+    marginBottom: THEME.spacing.sm,
+  },
+  heroBannerHighlight: {
+    color: THEME.colors.primary,
+  },
+  heroBannerSubtitle: {
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.muted,
+    marginBottom: THEME.spacing.lg,
+  },
+  heroBannerButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: THEME.spacing.sm,
+    backgroundColor: THEME.colors.primary,
+    paddingHorizontal: THEME.spacing.lg,
+    paddingVertical: THEME.spacing.sm,
+    borderRadius: THEME.radius.pill,
+    alignSelf: "flex-start",
+  },
+  heroBannerButtonText: {
+    color: "#FFFFFF",
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    fontSize: THEME.typography.sizes.sm,
+  },
+  heroBannerImage: {
+    width: Platform.OS === "web" && width > 768 ? 280 : "100%",
+    height: Platform.OS === "web" && width > 768 ? 200 : 180,
+  },
+
+  // Results Header
+  resultsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: THEME.spacing.md,
+  },
+  resultsTitle: {
+    fontSize: THEME.typography.sizes.lg,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.text,
+  },
+  sortButton: {
     flexDirection: "row",
     alignItems: "center",
     gap: THEME.spacing.xs,
-    backgroundColor: THEME.colors.primary,
-    paddingHorizontal: THEME.spacing.lg,
-    paddingVertical: THEME.spacing.md,
-    borderRadius: 50,
-  },
-  searchButtonText: {
-    color: THEME.colors.surface,
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
-    fontSize: THEME.typography.sizes.base,
-  },
-
-  // ========== POPULAR SEARCHES ==========
-  popularSearches: {
-    marginTop: THEME.spacing.xl,
-    alignItems: Platform.OS === "web" && width > 900 ? "flex-start" : "center",
-    width: "100%",
-  },
-  popularLabel: {
-    fontFamily: THEME.typography.fontFamily.body,
-    fontSize: THEME.typography.sizes.md,
-    marginBottom: THEME.spacing.md,
-    alignSelf: Platform.OS === "web" && width > 900 ? "flex-start" : "center",
-  },
-  popularChips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: THEME.spacing.sm,
-  },
-  popularChip: {
     paddingHorizontal: THEME.spacing.md,
     paddingVertical: THEME.spacing.sm,
-    borderRadius: THEME.radius.pill,
-    borderWidth: 1,
-    backgroundColor: THEME.colors.surface,
-  },
-  popularChipText: {
-    fontFamily: THEME.typography.fontFamily.body,
-    fontSize: THEME.typography.sizes.sm,
-  },
-
-  // ========== CTA BUTTONS ==========
-  ctaButtons: {
-    flexDirection: "row",
-    gap: THEME.spacing.md,
-    marginTop: THEME.spacing.lg,
-    flexWrap: "wrap",
-    justifyContent:
-      Platform.OS === "web" && width > 900 ? "flex-start" : "center",
-  },
-  ctaPrimary: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: THEME.spacing.sm,
-    backgroundColor: THEME.colors.secondary,
-    paddingHorizontal: THEME.spacing.lg,
-    paddingVertical: THEME.spacing.md,
-    borderRadius: 50,
-  },
-  ctaPrimaryText: {
-    color: THEME.colors.text,
-    fontFamily: THEME.typography.fontFamily.subheading,
-    fontSize: THEME.typography.sizes.md,
-  },
-  ctaSecondary: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: THEME.spacing.sm,
-    backgroundColor: THEME.colors.surface,
-    paddingHorizontal: THEME.spacing.lg,
-    paddingVertical: THEME.spacing.md,
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: THEME.colors.primary,
-    color: THEME.colors.primary,
-  },
-  ctaSecondaryText: {
-    color: THEME.colors.primary,
-    fontFamily: THEME.typography.fontFamily.subheading,
-    fontSize: THEME.typography.sizes.md,
-  },
-
-  // ========== RATING SECTION ==========
-  ratingSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: THEME.spacing.sm,
-    marginTop: THEME.spacing.xl,
-    justifyContent:
-      Platform.OS === "web" && width > 900 ? "flex-start" : "center",
-  },
-  stars: {
-    flexDirection: "row",
-    gap: 2,
-  },
-  ratingText: {
-    fontFamily: THEME.typography.fontFamily.body,
-    fontSize: THEME.typography.sizes.sm,
-  },
-  ratingBold: {
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
-  },
-
-  // ========== FLOATING CARDS ==========
-  floatingCardTop: {
-    position: "absolute",
-    top: 80,
-    right: Platform.OS === "web" ? -20 : 0,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: THEME.spacing.sm,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: THEME.spacing.md,
-    paddingVertical: THEME.spacing.sm,
-    borderRadius: THEME.radius.md,
-    ...THEME.shadow.float,
-    zIndex: 10,
-    display: Platform.OS === "web" && width > 900 ? "flex" : "none",
-  },
-  floatingCardBottom: {
-    position: "absolute",
-    bottom: 140,
-    right: Platform.OS === "web" ? 0 : 20,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: THEME.spacing.sm,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: THEME.spacing.md,
-    paddingVertical: THEME.spacing.sm,
-    borderRadius: THEME.radius.md,
-    ...THEME.shadow.float,
-    zIndex: 10,
-    display: Platform.OS === "web" && width > 900 ? "flex" : "none",
-  },
-  floatingCardIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#E8F5E9",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  floatingCardTitle: {
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
-    fontSize: THEME.typography.sizes.sm,
-    color: THEME.colors.text,
-  },
-  floatingCardSubtitle: {
-    fontFamily: THEME.typography.fontFamily.body,
-    fontSize: THEME.typography.sizes.xs,
-    color: THEME.colors.muted,
-  },
-
-  // ========== TRUSTED BY SECTION ==========
-  trustedSection: {
-    backgroundColor: "#FFFFFF",
-    paddingVertical: THEME.spacing.xl,
-    paddingHorizontal: THEME.spacing.xl,
-    alignItems: "center",
-  },
-  trustedLabel: {
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.body,
-    letterSpacing: 1,
-    marginBottom: THEME.spacing.md,
-  },
-  trustedLogos: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: THEME.spacing.xl,
-  },
-  trustedLogo: {
-    fontSize: THEME.typography.sizes.lg,
-    fontFamily: THEME.typography.fontFamily.heading,
-    color: "#9CA3AF",
-  },
-
-  // ========== CATEGORIES SECTION ==========
-  categoriesSection: {
-    paddingVertical: THEME.spacing["3xl"],
-    paddingHorizontal: THEME.spacing.xl,
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-  },
-  sectionTitle: {
-    fontSize: THEME.typography.sizes["2xl"],
-    fontFamily: THEME.typography.fontFamily.heading,
-    marginBottom: THEME.spacing.xs,
-    textAlign: "center",
-  },
-  sectionSubtitle: {
-    fontSize: THEME.typography.sizes.xl,
-    fontFamily: THEME.typography.fontFamily.heading,
-    marginBottom: THEME.spacing.md,
-    textAlign: "center",
-  },
-  sectionDescription: {
-    fontSize: THEME.typography.sizes.base,
-    fontFamily: THEME.typography.fontFamily.body,
-    textAlign: "center",
-    lineHeight: 24,
-    maxWidth: 600,
-    marginBottom: THEME.spacing.xl,
-  },
-  categoriesGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: THEME.spacing.md,
-    maxWidth: 900,
-    marginBottom: THEME.spacing.lg,
-  },
-  categoryCard: {
-    width: Platform.OS === "web" ? 140 : "45%",
-    padding: THEME.spacing.lg,
-    backgroundColor: THEME.colors.primary + "10",
-    borderRadius: THEME.radius.md,
-    alignItems: "center",
-  },
-  categoryIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: THEME.spacing.sm,
-    backgroundColor: "#E8F5E9",
-  },
-  categoryLabel: {
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
-    textAlign: "center",
-  },
-  showAllButton: {
-    marginVertical: THEME.spacing.lg,
-    paddingHorizontal: THEME.spacing.xl,
-    paddingVertical: THEME.spacing.md,
     borderWidth: 1,
     borderColor: "#E5E7EB",
     borderRadius: THEME.radius.sm,
   },
-  showAllText: {
-    fontSize: THEME.typography.sizes.base,
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
-    color: THEME.colors.text,
-  },
-  categoriesStats: {
+  sortButtonText: {
     fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.body,
-    marginTop: THEME.spacing.md,
-  },
-
-  // ========== READY CTA SECTION ==========
-  readySection: {
-    paddingVertical: THEME.spacing["3xl"],
-    paddingHorizontal: THEME.spacing.xl,
-    alignItems: "center",
-    backgroundColor: "#8ea733",
-  },
-  readyTitle: {
-    fontSize: THEME.typography.sizes.xl,
-    fontFamily: THEME.typography.fontFamily.heading,
-    marginBottom: THEME.spacing.xs,
-    textAlign: "center",
-  },
-  readySubtitle: {
-    fontSize: THEME.typography.sizes["2xl"],
-    fontFamily: THEME.typography.fontFamily.heading,
-    marginBottom: THEME.spacing.md,
-    textAlign: "center",
-  },
-  readyDescription: {
-    fontSize: THEME.typography.sizes.base,
-    fontFamily: THEME.typography.fontFamily.body,
-    textAlign: "center",
-    lineHeight: 24,
-    maxWidth: 600,
-    marginBottom: THEME.spacing.xl,
     color: THEME.colors.text,
   },
-  readyButtons: {
-    flexDirection: Platform.OS === "web" ? "row" : "column",
-    gap: THEME.spacing.md,
-    marginBottom: THEME.spacing.lg,
+
+  // Provider Grid
+  providerGrid: {
+    ...(Platform.OS === "web"
+      ? ({
+          display: "grid",
+          gap: 16,
+        } as any)
+      : {
+          flexDirection: "column",
+          gap: 16,
+        }),
   },
-  readyPrimaryBtn: {
-    backgroundColor: THEME.colors.primary,
-    paddingHorizontal: THEME.spacing.xl,
-    paddingVertical: THEME.spacing.md,
-    borderRadius: 50,
-  },
-  readyPrimaryText: {
-    color: THEME.colors.surface,
-    fontFamily: THEME.typography.fontFamily.subheading,
-    fontSize: THEME.typography.sizes.base,
-  },
-  readySecondaryBtn: {
+
+  // Provider Card
+  providerCard: {
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: THEME.spacing.xl,
-    paddingVertical: THEME.spacing.md,
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  readySecondaryText: {
-    color: THEME.colors.text,
-    fontFamily: THEME.typography.fontFamily.subheading,
-    fontSize: THEME.typography.sizes.base,
-  },
-  readyNote: {
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.body,
-    textAlign: "center",
-    color: THEME.colors.text,
-  },
-
-  // ========== BENEFITS SECTION ==========
-  benefitsSection: {
-    flexDirection: Platform.OS === "web" ? "row" : "column",
-    justifyContent: "center",
-    gap: THEME.spacing.xl,
-    paddingVertical: THEME.spacing["2xl"],
-    paddingHorizontal: THEME.spacing.xl,
-    backgroundColor: "#FFFFFF",
-  },
-  benefitCard: {
-    width: Platform.OS === "web" ? 300 : "100%",
-    padding: THEME.spacing.xl,
-    backgroundColor: "#F9FAFB",
-    borderRadius: THEME.radius.lg,
-    alignItems: "center",
-  },
-  benefitIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: THEME.spacing.md,
-  },
-  benefitTitle: {
-    fontSize: THEME.typography.sizes.md,
-    fontFamily: THEME.typography.fontFamily.heading,
-    textAlign: "center",
-    marginBottom: THEME.spacing.sm,
-  },
-  benefitText: {
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.body,
-    textAlign: "center",
-  },
-
-  // ========== FAQ SECTION ==========
-  faqSection: {
-    paddingVertical: THEME.spacing["3xl"],
-    paddingHorizontal: THEME.spacing.xl,
-    alignItems: "center",
-    backgroundColor: "#F9FAFB",
-  },
-  faqTitle: {
-    fontSize: THEME.typography.sizes["2xl"],
-    fontFamily: THEME.typography.fontFamily.heading,
-    marginBottom: THEME.spacing.sm,
-    textAlign: "center",
-  },
-  faqSubtitle: {
-    fontSize: THEME.typography.sizes.base,
-    fontFamily: THEME.typography.fontFamily.body,
-    textAlign: "center",
-    marginBottom: THEME.spacing.xl,
-    maxWidth: 500,
-  },
-  faqList: {
-    width: "100%",
-    maxWidth: 800,
-    gap: THEME.spacing.md,
-  },
-  faqItem: {
-    padding: THEME.spacing.xl,
-    borderRadius: THEME.radius.lg,
-    borderLeftWidth: 4,
-    borderLeftColor: THEME.colors.primary,
+    borderRadius: THEME.radius.md,
+    overflow: "hidden",
     ...THEME.shadow.card,
   },
-  faqQuestion: {
-    fontSize: THEME.typography.sizes.md,
-    fontFamily: THEME.typography.fontFamily.subheading,
-    marginBottom: THEME.spacing.sm,
+  providerBadge: {
+    position: "absolute",
+    top: THEME.spacing.sm,
+    left: THEME.spacing.sm,
+    backgroundColor: THEME.colors.primary,
+    paddingHorizontal: THEME.spacing.sm,
+    paddingVertical: THEME.spacing.xs,
+    borderRadius: THEME.radius.pill,
+    zIndex: 1,
   },
-  faqAnswer: {
-    fontSize: THEME.typography.sizes.base,
-    fontFamily: THEME.typography.fontFamily.body,
-    lineHeight: 24,
+  providerBadgeText: {
+    fontSize: THEME.typography.sizes.xs,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: "#FFFFFF",
   },
-
-  // ========== NEWSLETTER SECTION ==========
-  newsletterSection: {
-    paddingVertical: THEME.spacing["3xl"],
-    paddingHorizontal: THEME.spacing.xl,
+  providerImageContainer: {
+    height: 140,
+    backgroundColor: "#F3F4F6",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
   },
-  newsletterTitle: {
-    fontSize: THEME.typography.sizes["2xl"],
+  providerContent: {
+    padding: THEME.spacing.md,
+  },
+  providerName: {
+    fontSize: THEME.typography.sizes.md,
     fontFamily: THEME.typography.fontFamily.heading,
-    marginBottom: THEME.spacing.sm,
-    textAlign: "center",
+    color: THEME.colors.text,
+    marginBottom: THEME.spacing.xs,
   },
-  newsletterSubtitle: {
-    fontSize: THEME.typography.sizes.base,
+  providerCategory: {
+    fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.body,
-    textAlign: "center",
-    marginBottom: THEME.spacing.xl,
-    maxWidth: 500,
+    color: THEME.colors.primary,
+    marginBottom: THEME.spacing.sm,
   },
-  newsletterForm: {
-    flexDirection: Platform.OS === "web" ? "row" : "column",
-    gap: THEME.spacing.sm,
-    width: "100%",
-    maxWidth: 500,
+  providerLocationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: THEME.spacing.sm,
+  },
+  providerLocation: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.muted,
+    flex: 1,
+  },
+  providerRatingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: THEME.spacing.xs,
+    marginBottom: THEME.spacing.sm,
+  },
+  starsContainer: {
+    flexDirection: "row",
+  },
+  providerReviews: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.muted,
+  },
+  providerPrice: {
+    fontSize: THEME.typography.sizes.md,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: THEME.colors.text,
+    marginBottom: THEME.spacing.sm,
+  },
+  providerStatus: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: THEME.spacing.xs,
     marginBottom: THEME.spacing.md,
   },
-  newsletterInput: {
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  statusText: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+  },
+  providerActions: {
+    flexDirection: "row",
+    gap: THEME.spacing.sm,
+  },
+  callButton: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: THEME.spacing.lg,
-    paddingVertical: THEME.spacing.md,
-    borderRadius: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: THEME.spacing.xs,
+    backgroundColor: THEME.colors.primary,
+    paddingVertical: THEME.spacing.sm,
+    borderRadius: THEME.radius.sm,
+  },
+  callButtonText: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: "#FFFFFF",
+  },
+  viewButton: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: THEME.spacing.sm,
+    borderRadius: THEME.radius.sm,
     borderWidth: 1,
     borderColor: "#E5E7EB",
-    fontFamily: THEME.typography.fontFamily.body,
-    fontSize: THEME.typography.sizes.base,
   },
-  newsletterButton: {
+  viewButtonText: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: THEME.colors.text,
+  },
+
+  // Load More
+  loadMoreButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: THEME.spacing.sm,
+    paddingVertical: THEME.spacing.lg,
+    marginTop: THEME.spacing.lg,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: THEME.radius.md,
+  },
+  loadMoreText: {
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: THEME.colors.primary,
+  },
+
+  // ========== RIGHT SIDEBAR ==========
+  rightSidebar: {
+    width: 280,
+    gap: THEME.spacing.md,
+  },
+  rightSidebarCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: THEME.radius.md,
+    padding: THEME.spacing.lg,
+    alignItems: "center",
+    ...THEME.shadow.card,
+  },
+  ctaIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: THEME.colors.primary + "15",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: THEME.spacing.md,
+  },
+  ctaCardTitle: {
+    fontSize: THEME.typography.sizes.md,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.text,
+    marginBottom: THEME.spacing.xs,
+    textAlign: "center",
+  },
+  ctaCardPhone: {
+    fontSize: THEME.typography.sizes.lg,
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.primary,
+    marginBottom: THEME.spacing.xs,
+  },
+  ctaCardSubtitle: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.muted,
+    textAlign: "center",
+  },
+  ctaCardButton: {
+    marginTop: THEME.spacing.md,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: THEME.spacing.lg,
+    paddingVertical: THEME.spacing.sm,
+    borderRadius: THEME.radius.pill,
+  },
+  ctaCardButtonText: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+    color: THEME.colors.primary,
+  },
+  trustBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: THEME.spacing.sm,
+    width: "100%",
+    paddingVertical: THEME.spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  trustBadgeText: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.text,
+  },
+
+  // ========== BOTTOM CTA ==========
+  bottomCta: {
+    backgroundColor: THEME.colors.secondary,
+    paddingVertical: THEME.spacing["2xl"],
+    paddingHorizontal: THEME.spacing.xl,
+    alignItems: "center",
+  },
+  bottomCtaTitle: {
+    fontSize: THEME.typography.sizes["2xl"],
+    fontFamily: THEME.typography.fontFamily.heading,
+    color: THEME.colors.text,
+    marginBottom: THEME.spacing.sm,
+    textAlign: "center",
+  },
+  bottomCtaSubtitle: {
+    fontSize: THEME.typography.sizes.base,
+    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.text,
+    marginBottom: THEME.spacing.lg,
+    textAlign: "center",
+    maxWidth: 500,
+  },
+  bottomCtaButtons: {
+    flexDirection: Platform.OS === "web" ? "row" : "column",
+    gap: THEME.spacing.md,
+  },
+  bottomCtaPrimary: {
     backgroundColor: THEME.colors.primary,
     paddingHorizontal: THEME.spacing.xl,
     paddingVertical: THEME.spacing.md,
-    borderRadius: 50,
-    alignItems: "center",
+    borderRadius: THEME.radius.pill,
   },
-  newsletterButtonText: {
-    color: "#FFFFFF",
-    fontFamily: THEME.typography.fontFamily.subheading,
+  bottomCtaPrimaryText: {
     fontSize: THEME.typography.sizes.base,
-  },
-  newsletterNote: {
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.body,
-    marginBottom: THEME.spacing.lg,
-  },
-  newsletterRating: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: THEME.spacing.sm,
-  },
-  newsletterRatingText: {
-    fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.bodyMedium,
-  },
-
-  // ========== FINAL CTA SECTION ==========
-  finalCtaSection: {
-    paddingVertical: THEME.spacing["3xl"],
-    paddingHorizontal: THEME.spacing.xl,
-    alignItems: "center",
-  },
-  finalCtaTitle: {
-    fontSize: THEME.typography.sizes["2xl"],
-    fontFamily: THEME.typography.fontFamily.heading,
     color: "#FFFFFF",
-    marginBottom: THEME.spacing.md,
-    textAlign: "center",
   },
-  finalCtaSubtitle: {
-    fontSize: THEME.typography.sizes.base,
-    fontFamily: THEME.typography.fontFamily.body,
-    color: "rgba(255,255,255,0.9)",
-    textAlign: "center",
-    lineHeight: 24,
-    maxWidth: 600,
-    marginBottom: THEME.spacing.xl,
-  },
-  finalCtaButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: THEME.spacing.sm,
-    backgroundColor: THEME.colors.secondary,
+  bottomCtaSecondary: {
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: THEME.spacing.xl,
     paddingVertical: THEME.spacing.md,
-    borderRadius: 50,
+    borderRadius: THEME.radius.pill,
+    borderWidth: 1,
+    borderColor: THEME.colors.text,
   },
-  finalCtaButtonText: {
-    color: THEME.colors.text,
-    fontFamily: THEME.typography.fontFamily.subheading,
+  bottomCtaSecondaryText: {
     fontSize: THEME.typography.sizes.base,
-  },
-
-  // ========== FOOTER ==========
-  footer: {
-    paddingVertical: THEME.spacing["2xl"],
-    paddingHorizontal: THEME.spacing.xl,
-    backgroundColor: "#1F2937",
-  },
-  footerMain: {
-    flexDirection: Platform.OS === "web" ? "row" : "column",
-    gap: THEME.spacing["2xl"],
-    marginBottom: THEME.spacing["2xl"],
-  },
-  footerBrand: {
-    maxWidth: 300,
-  },
-  footerLogo: {
-    width: 60,
-    height: 60,
-    marginBottom: THEME.spacing.md,
-  },
-  footerBrandText: {
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.body,
-    lineHeight: 20,
-  },
-  footerLinks: {
-    flex: 1,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: THEME.spacing.xl,
-  },
-  footerColumn: {
-    minWidth: 120,
-  },
-  footerColumnTitle: {
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.heading,
-    marginBottom: THEME.spacing.md,
-  },
-  footerLink: {
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.body,
-    color: "#9CA3AF",
-    marginBottom: THEME.spacing.sm,
-  },
-  footerPayment: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: THEME.spacing.md,
-    paddingVertical: THEME.spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.1)",
-    marginBottom: THEME.spacing.lg,
-  },
-  footerPaymentLabel: {
-    fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.bodyMedium,
-  },
-  footerPaymentIcons: {
-    flexDirection: "row",
-    gap: THEME.spacing.sm,
-  },
-  paymentIcon: {
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.bodyMedium,
-    color: "#9CA3AF",
-    backgroundColor: "#374151",
-    paddingHorizontal: THEME.spacing.sm,
-    paddingVertical: THEME.spacing.xs,
-    borderRadius: 4,
-  },
-  footerBottom: {
-    alignItems: "center",
-    paddingTop: THEME.spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.1)",
-  },
-  footerCopyright: {
-    fontSize: THEME.typography.sizes.sm,
-    fontFamily: THEME.typography.fontFamily.body,
-    marginBottom: THEME.spacing.xs,
-  },
-  footerCompany: {
-    fontSize: THEME.typography.sizes.xs,
-    fontFamily: THEME.typography.fontFamily.body,
+    color: THEME.colors.text,
   },
 });

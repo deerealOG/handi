@@ -1,6 +1,7 @@
 // app/_layout.tsx
 import { ThemedStatusBar } from "@/components/ThemedStatusBar";
 import { AuthProvider } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { LikedItemsProvider } from "@/context/LikedItemsContext";
 import { LocationProvider } from "@/context/LocationContext";
@@ -99,14 +100,16 @@ export default function RootLayout() {
     <ThemeProvider>
       <LanguageProvider>
         <AuthProvider>
-          <LikedItemsProvider>
-            <LocationProvider>
-              <NotificationProvider>
-                <ThemedStatusBar />
-                <Slot />
-              </NotificationProvider>
-            </LocationProvider>
-          </LikedItemsProvider>
+          <CartProvider>
+            <LikedItemsProvider>
+              <LocationProvider>
+                <NotificationProvider>
+                  <ThemedStatusBar />
+                  <Slot />
+                </NotificationProvider>
+              </LocationProvider>
+            </LikedItemsProvider>
+          </CartProvider>
         </AuthProvider>
       </LanguageProvider>
     </ThemeProvider>

@@ -1,12 +1,10 @@
 // ==============================================
-// 🎨 DETAILED COLOR PALETTE
+// 🎨 HANDI COLOR PALETTE & THEME
 // ==============================================
 
 import { Platform } from "react-native";
 
 // Platform-aware font families
-// On web, we use CSS font-family names
-// On native, we use the Expo font names
 const isWeb = Platform.OS === "web";
 
 const FONT_FAMILIES = {
@@ -16,73 +14,156 @@ const FONT_FAMILIES = {
     : "RedHatDisplay-SemiBold",
   body: isWeb ? "'Roboto', sans-serif" : "Roboto-Regular",
   bodyMedium: isWeb ? "'Roboto', sans-serif" : "Roboto-Medium",
+  bodyBold: isWeb ? "'Roboto', sans-serif" : "Roboto-Bold",
   bodyLight: isWeb ? "'Roboto', sans-serif" : "Roboto-Light",
 };
 
+// ==============================================
+// 🎨 FULL COLOR PALETTE WITH LABELS
+// ==============================================
 export const PALETTE = {
+  // Primary Green (HANDI Brand)
   primary: {
-    50: "#F2F9F5", // Very light tint (Backgrounds)
-    100: "#E1F2E8", // Light background (Hover states)
-    200: "#C3E7D2", // Soft background (Accents)
-    300: "#94D6B3", // Borders / UI Elements
-    400: "#4ADE80", // [Dark Mode] Primary Brand Color
-    500: "#22C55E", // [Dark Mode] Primary Dark / Pressed
-    600: "#16A34A", // Success / Vibrant Brand
-    700: "#1B7F49", // Deep Green
-    800: "#245E37", // [Light Mode] Primary Brand Color
-    900: "#1D4B30", // [Light Mode] Primary Dark / Pressed
-    950: "#0F291A", // Deepest Text / Contrast
+    50: "#F0FDF4", // Lightest Tint - Subtle backgrounds
+    100: "#DCFCE7", // Light Tint - Hover states, badges
+    200: "#BBF7D0", // Soft - Tag backgrounds, chips
+    300: "#86EFAC", // Medium Light - Borders, dividers
+    400: "#4ADE80", // Vibrant - Dark mode primary
+    500: "#22C55E", // Bright - Success states
+    600: "#16A34A", // Standard - Icons, links
+    700: "#15803D", // Deep - Emphasis
+    800: "#368951", // HANDI Primary (Light Mode) ← Brand Color
+    900: "#14532D", // Dark - Pressed states
+    950: "#052E16", // Darkest - High contrast text
   },
+
+  // Secondary Gold (Accent)
+  secondary: {
+    50: "#FFFBEB", // Lightest Gold
+    100: "#FEF3C7", // Light Gold - Badges
+    200: "#FDE68A", // Soft Gold
+    300: "#FCD34D", // Medium Gold
+    400: "#FBBF24", // Vibrant Gold
+    500: "#F59E0B", // Standard Gold
+    600: "#9DB541", // HANDI Secondary ← Accent Color
+    700: "#B45309", // Deep Gold
+    800: "#92400E", // Dark Gold
+    900: "#78350F", // Darkest Gold
+  },
+
+  // Neutral Grays
+  neutral: {
+    50: "#FAFAFA", // Page Background (alt)
+    100: "#F4F5F7", // App Background ← Main BG
+    200: "#E5E7EB", // Borders, dividers
+    300: "#D1D5DB", // Disabled states
+    400: "#9CA3AF", // Placeholder text
+    500: "#6B7280", // Muted text ← Secondary text
+    600: "#4B5563", // Body text
+    700: "#374151", // Headings
+    800: "#1F2937", // Primary text ← Main text
+    900: "#111827", // High contrast
+    950: "#030712", // Darkest
+  },
+
+  // Status Colors
+  error: {
+    50: "#FEF2F2", // Light error background
+    100: "#FEE2E2", // Error badge bg
+    500: "#EF4444", // Standard error
+    600: "#DC2626", // Error text ← Main error
+    700: "#B91C1C", // Dark error
+  },
+
+  success: {
+    50: "#F0FDF4", // Light success background
+    100: "#DCFCE7", // Success badge bg
+    500: "#22C55E", // Standard success
+    600: "#16A34A", // Success text ← Main success
+    700: "#15803D", // Dark success
+  },
+
+  warning: {
+    50: "#FFFBEB", // Light warning background
+    100: "#FEF3C7", // Warning badge bg
+    500: "#F59E0B", // Standard warning ← Main warning
+    600: "#D97706", // Warning text
+    700: "#B45309", // Dark warning
+  },
+
+  // Special
+  star: "#FACC15", // Rating stars
+  white: "#FFFFFF", // Pure white
+  black: "#000000", // Pure black
 };
+
+// ==============================================
+// 🎨 THEME CONFIGURATION
+// ==============================================
 export const THEME = {
-  // ================================
-  // 🎨 COLOR PALETTE - HANDI Brand Colors
-  // ================================
   colors: {
-    primary: PALETTE.primary[800], // #3a8b55ff - HANDI brand emerald green
-    primaryDark: PALETTE.primary[900], // #1D4B30 - Darker shade for pressed buttons
-    secondary: "#9db541", // Warm gold accent — highlights, CTA contrast
+    // Brand Colors
+    primary: PALETTE.primary[800], // #368951 - HANDI Green
+    primaryLight: PALETTE.primary[100], // Light green for backgrounds
+    primaryDark: PALETTE.primary[900], // Dark green for pressed states
+    secondary: PALETTE.secondary[600], // #9DB541 - Accent gold-green
 
-    background: "#F4F5F7", // App background (light gray - more contrast)
-    surface: "#FFFFFF", // Cards, modals, containers
-    text: "#1F2937", // Primary text (dark neutral)
-    muted: "#6B7280", // Secondary text, placeholders, captions
-    border: "#E5E7EB", // Dividers, input borders
-    overlay: "rgba(0,0,0,0.45)", // Semi-transparent modal overlay
+    // Backgrounds
+    background: PALETTE.neutral[100], // #F4F5F7 - App background
+    surface: PALETTE.white, // #FFFFFF - Cards, containers
+    surfaceElevated: PALETTE.neutral[50], // #FAFAFA - Elevated cards
 
-    error: "#DC2626", // Error & alert color
-    success: "#16A34A", // Success state (used for confirmations)
+    // Text
+    text: PALETTE.neutral[800], // #1F2937 - Primary text
+    muted: PALETTE.neutral[500], // #6B7280 - Secondary text
+    placeholder: PALETTE.neutral[400], // #9CA3AF - Placeholder
 
-    inputBackground: PALETTE.primary[50] + "0D", // 5% opacity of primary
+    // Borders
+    border: PALETTE.neutral[200], // #E5E7EB - Standard border
+    borderLight: PALETTE.neutral[300], // #D1D5DB - Light border
+
+    // Overlays
+    overlay: "rgba(0, 0, 0, 0.45)", // Modal overlay
+
+    // Status Colors
+    error: PALETTE.error[600], // #DC2626
+    errorLight: PALETTE.error[100], // Light error bg
+    success: PALETTE.success[600], // #16A34A
+    successLight: PALETTE.success[100], // Light success bg
+    warning: PALETTE.warning[500], // #F59E0B
+    warningLight: PALETTE.warning[100], // Light warning bg
+    star: PALETTE.star, // #FACC15
+
+    // Input Fields - No primary tint, clean white
+    inputBackground: PALETTE.white, // Clean white input background
+    inputBorder: PALETTE.neutral[200], // Standard gray border
+    inputFocusBorder: PALETTE.primary[800], // Primary on focus
+
+    // Dashboard Role Colors
+    client: PALETTE.primary[800], // Green for clients
+    artisan: "#3B82F6", // Blue for artisans/providers
+    business: "#8B5CF6", // Purple for business
+    admin: "#EF4444", // Red for admin
   },
 
-  // ================================
-  // TYPOGRAPHY
-  // ================================
   typography: {
     fontFamily: FONT_FAMILIES,
-
-    // Font Sizes - Restored to balanced scale
     sizes: {
       xxs: 10,
       xs: 12,
       sm: 14,
       base: 16,
       md: 18,
-      lg: 20, // Reduced from 22 for better fit
-      xl: 24, // Reduced from 28
-      "2xl": 30, // Reduced from 34
-      "3xl": 38, // Reduced from 42
+      lg: 20,
+      xl: 24,
+      "2xl": 30,
+      "3xl": 38,
     },
-
-    // 📏 Line Heights — spacing within text blocks
     lineHeights: {
       compact: 1.2,
-      normal: 1.5, // Reduced from 1.6 for tighter look
+      normal: 1.5,
       relaxed: 1.75,
     },
-
-    // Letter Spacing
     letterSpacing: {
       tighter: -0.5,
       tight: -0.25,
@@ -92,53 +173,43 @@ export const THEME = {
     },
   },
 
-  // ================================
-  // SPACING - Balanced White Space
-  // ================================
-  // Using a 4pt grid system, but with more generous default gaps
   spacing: {
-    xxs: 2, // Minimal alignment adjustments
-    xs: 4, // Tight grouping (text + icon)
-    sm: 8, // Related elements (label + input)
-    md: 16, // Standard component padding (Buttons, Inputs, Cards) - Was 12
-    lg: 24, // Section separation / Container padding - Was 16/20
-    xl: 32, // Major section breaks
-    "2xl": 48, // Screen edges or hero spacing
-    "3xl": 64, // Large vertical whitespace
+    xxs: 2,
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    "2xl": 48,
+    "3xl": 64,
   },
 
-  // ================================
-  // CORNER RADII
-  // ================================
   radius: {
-    xs: 6, // Tiny elements
-    sm: 10, // Inputs & chips (Softer look)
-    md: 16, // Cards, modals
-    lg: 24, // Bottom sheets, large buttons
-    xl: 32, // Extra large surfaces
-    pill: 9999, // Fully rounded
+    xs: 6,
+    sm: 10,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    pill: 9999,
   },
 
-  // ================================
-  // ELEVATION SHADOWS
-  // ================================
   shadow: {
     base: {
-      shadowColor: PALETTE.primary[700],
-      shadowOffset: { width: 0, height: 4 }, // Slightly deeper for depth
+      shadowColor: PALETTE.neutral[900],
+      shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.08,
-      shadowRadius: 6, // Softer shadow
+      shadowRadius: 6,
       elevation: 3,
     },
     card: {
-      shadowColor: PALETTE.primary[700],
+      shadowColor: PALETTE.neutral[900],
       shadowOffset: { width: 0, height: 3 },
       shadowOpacity: 0.1,
       shadowRadius: 8,
       elevation: 3,
     },
     float: {
-      shadowColor: PALETTE.primary[700],
+      shadowColor: PALETTE.neutral[900],
       shadowOffset: { width: 0, height: 8 },
       shadowOpacity: 0.12,
       shadowRadius: 12,
@@ -146,83 +217,70 @@ export const THEME = {
     },
   },
 
-  // Expose the full palette for advanced usage
   palette: PALETTE,
 };
 
+// ==============================================
+// 🌙 LIGHT & DARK MODE COLORS
+// ==============================================
 export const Colors = {
   light: {
     ...THEME.colors,
-    // Additional properties for consistency with dark theme
-    surfaceElevated: "#F3F4F6", // Slightly darker than surface for elevation
-    placeholder: "#9CA3AF", // Placeholder text color
-    borderLight: "#D1D5DB", // Lighter/alternate border
-    warning: "#F59E0B", // Warning color
-
-    // Utility backgrounds for states
-    successLight: "#DCFCE7", // Light green background
-    primaryLight: PALETTE.primary[100], // Light primary background
-    warningLight: "#FEF3C7", // Light warning background
-    errorLight: "#FEE2E2", // Light error background
-    star: "#FACC15", // Star/rating color
-
     tint: THEME.colors.primary,
     icon: THEME.colors.muted,
     tabIconDefault: THEME.colors.muted,
     tabIconSelected: THEME.colors.primary,
-
-    // Button text color on primary background
-    onPrimary: "#FFFFFF", // White text on dark green buttons
+    onPrimary: PALETTE.white,
   },
   dark: {
-    // ========================================
-    // 🌙 OLED BLACK MODE + BRAND ACCENT
-    // ========================================
+    // Brand Colors (Brighter for dark bg)
+    primary: PALETTE.primary[400], // #4ADE80 - Vibrant green
+    primaryLight: "rgba(74, 222, 128, 0.15)",
+    primaryDark: PALETTE.primary[500], // #22C55E
+    secondary: "#FFC857", // Warm gold
 
-    // Brand colors - vibrant green for dark backgrounds
-    primary: PALETTE.primary[400], // #4ADE80 - HANDI brand mint green
-    primaryDark: PALETTE.primary[500], // #22C55E - Darker green for pressed states
-    secondary: "#FFC857", // Warm gold accent
+    // Backgrounds (OLED Black)
+    background: PALETTE.black, // Pure black
+    surface: "#121212", // Dark gray cards
+    surfaceElevated: "#1A1A1A", // Elevated surfaces
 
-    // Background hierarchy - OLED pure black
-    background: "#000000", // Pure black (OLED power saving)
-    surface: "#121212", // Dark gray for cards (better contrast)
-    surfaceElevated: "#1A1A1A", // Subtle elevation for modals
+    // Text
+    text: PALETTE.white, // Pure white
+    muted: "#999999", // Medium gray
+    placeholder: "#666666", // Dark gray
 
-    // Text - pure white and grays
-    text: "#FFFFFF", // Pure white text
-    muted: "#999999", // Medium gray for secondary text
-    placeholder: "#666666", // Darker gray for placeholders
-
-    // Borders - subtle gray
-    border: "#222222", // Very dark border
-    borderLight: "#333333", // Slightly lighter border
+    // Borders
+    border: "#222222", // Very dark
+    borderLight: "#333333", // Slightly lighter
 
     // Overlay
-    overlay: "rgba(0, 0, 0, 0.90)", // Deep overlay for modals
+    overlay: "rgba(0, 0, 0, 0.90)",
 
-    // Status colors - bright and accessible
-    error: "#FF6B6B", // Soft coral red
-    success: PALETTE.primary[400], // Brand green for success
-    warning: "#FBBF24", // Bright amber
+    // Status Colors
+    error: "#FF6B6B",
+    errorLight: "rgba(255, 107, 107, 0.15)",
+    success: PALETTE.primary[400],
+    successLight: "rgba(74, 222, 128, 0.15)",
+    warning: "#FBBF24",
+    warningLight: "rgba(251, 191, 36, 0.15)",
+    star: PALETTE.star,
 
-    // Utility backgrounds for states (dark mode versions)
-    successLight: "rgba(74, 222, 128, 0.15)", // Dark mode success bg
-    primaryLight: "rgba(74, 222, 128, 0.10)", // Dark mode primary bg
-    warningLight: "rgba(251, 191, 36, 0.15)", // Dark mode warning bg
-    errorLight: "rgba(255, 107, 107, 0.15)", // Dark mode error bg
-    star: "#FACC15", // Star/rating color
+    // Input Fields
+    inputBackground: "rgba(255, 255, 255, 0.06)",
+    inputBorder: "#333333",
+    inputFocusBorder: PALETTE.primary[400],
 
-    // Input styling
-    inputBackground: "rgba(255, 255, 255, 0.06)", // Subtle white tint
+    // Dashboard Role Colors
+    client: PALETTE.primary[400],
+    artisan: "#60A5FA", // Lighter blue
+    business: "#A78BFA", // Lighter purple
+    admin: "#F87171", // Lighter red
 
-    // System/Tab colors - brand green accent
+    // System
     tint: PALETTE.primary[400],
     icon: "#888888",
     tabIconDefault: "#555555",
     tabIconSelected: PALETTE.primary[400],
-
-    // Button text color on primary background
-    onPrimary: "#000000", // Black text on bright green buttons
+    onPrimary: PALETTE.black,
   },
 };

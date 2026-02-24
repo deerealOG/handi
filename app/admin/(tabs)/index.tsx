@@ -1,201 +1,232 @@
-import { useAuth } from "@/context/AuthContext";
+import {
+  ADMIN_ACTIVITY,
+  ADMIN_DECISION_LOG,
+  ADMIN_PLATFORM_STATS,
+} from "@/constants/role-dashboard-data";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import BarChartCard from "../../../components/BarChartCard";
 import { THEME } from "../../../constants/theme";
 
-export default function AdminDashboard() {
+const OVERVIEW_STATS = [
+  { id: "users", label: "Total Users", value: ADMIN_PLATFORM_STATS.totalUsers.toLocaleString(), icon: "people-outline" as const },
+  { id: "providers", label: "Providers", value: ADMIN_PLATFORM_STATS.totalProviders.toLocaleString(), icon: "briefcase-outline" as const },
+  { id: "bookings", label: "Bookings", value: ADMIN_PLATFORM_STATS.totalBookings.toLocaleString(), icon: "calendar-outline" as const },
+  { id: "revenue", label: "Revenue", value: ADMIN_PLATFORM_STATS.revenue, icon: "trending-up-outline" as const },
+];
+
+export default function AdminOverviewScreen() {
   const { colors } = useAppTheme();
-  const { logout } = useAuth();
-
-  const stats = {
-    users: 1240,
-    activeJobs: 328,
-    completedJobs: 2845,
-    disputes: 12,
-    transactions: "₦1.45M",
-    revenue: [12, 18, 9, 22, 27, 15, 19],
-  };
-
-  const loading = false;
-  const refreshing = false;
-
-  const onRefresh = () => {};
-
-  const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: async () => {
-          await logout();
-        },
-      },
-    ]);
-  };
-
-  if (loading) {
-    return (
-      <View
-        style={[styles.loaderContainer, { backgroundColor: colors.background }]}
-      >
-        <ActivityIndicator size="large" color={colors.secondary} />
-        <Text style={[styles.loaderText, { color: colors.text }]}>
-          Loading dashboard...
-        </Text>
-      </View>
-    );
-  }
+  const router = useRouter();
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={styles.contentContainer}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          colors={[colors.secondary]}
-        />
-      }
-    >
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>
-          Admin Dashboard 📊
-        </Text>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Ionicons name="log-out-outline" size={24} color={colors.error} />
-        </TouchableOpacity>
-      </View>
+    <View style={[styles.container, { backgroundColor: colors.background }]}> 
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        <View>
+          <Text style={[styles.title, { color: colors.text }]}>Admin Dashboard</Text>
+          <Text style={[styles.subtitle, { color: colors.muted }]}>Platform overview and management</Text>
+        </View>
 
-      {/* Stats grid */}
-      <View style={styles.statsGrid}>
-        {[
-          { title: "Total Users", value: stats.users, emoji: "👥" },
-          { title: "Active Jobs", value: stats.activeJobs, emoji: "🧰" },
-          { title: "Completed Jobs", value: stats.completedJobs, emoji: "✅" },
-          { title: "Pending Disputes", value: stats.disputes, emoji: "⚠️" },
-          { title: "Transactions", value: stats.transactions, emoji: "💳" },
-        ].map((s, i) => (
-          <View
-            key={i}
-            style={[
-              styles.card,
-              { backgroundColor: colors.surface },
-              styles.shadow,
-            ]}
+        <View style={styles.statsGrid}>
+          {OVERVIEW_STATS.map((stat) => (
+            <View key={stat.id} style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <View style={[styles.statIcon, { backgroundColor: colors.primaryLight }]}>
+                <Ionicons name={stat.icon} size={16} color={colors.primary} />
+              </View>
+              <Text style={[styles.statValue, { color: colors.text }]}>{stat.value}</Text>
+              <Text style={[styles.statLabel, { color: colors.muted }]}>{stat.label}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.alertRow}>
+          <TouchableOpacity
+            style={[styles.alertCard, { backgroundColor: colors.errorLight }]}
+            onPress={() => router.push("/admin/(tabs)/disputes" as any)}
           >
-            <Text style={styles.cardEmoji}>{s.emoji}</Text>
-            <Text style={[styles.cardValue, { color: colors.secondary }]}>
-              {s.value}
-            </Text>
-            <Text style={[styles.cardTitle, { color: colors.muted }]}>
-              {s.title}
-            </Text>
+            <Text style={[styles.alertTitle, { color: colors.error }]}>Active Disputes</Text>
+            <Text style={[styles.alertCount, { color: colors.error }]}>{ADMIN_PLATFORM_STATS.activeDisputes}</Text>
+            <Text style={[styles.alertMeta, { color: colors.error }]}>Requires immediate attention</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.alertCard, { backgroundColor: colors.warningLight }]}
+            onPress={() => router.push("/admin/(tabs)/users" as any)}
+          >
+            <Text style={[styles.alertTitle, { color: colors.warning }]}>Pending Providers</Text>
+            <Text style={[styles.alertCount, { color: colors.warning }]}>{ADMIN_PLATFORM_STATS.pendingProviders}</Text>
+            <Text style={[styles.alertMeta, { color: colors.warning }]}>Awaiting verification</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={[styles.sectionCard, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Admin Decision Log</Text>
+          {ADMIN_DECISION_LOG.map((item) => (
+            <TouchableOpacity
+              key={item}
+              style={[styles.rowItem, { borderBottomColor: colors.border }]}
+              onPress={() => router.push("/admin/(tabs)/reports" as any)}
+            >
+              <Ionicons name="shield-checkmark-outline" size={14} color={colors.primary} />
+              <Text style={[styles.rowText, { color: colors.text }]}>{item}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={[styles.sectionCard, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
+          {ADMIN_ACTIVITY.map((item) => (
+            <TouchableOpacity
+              key={item}
+              style={[styles.rowItem, { borderBottomColor: colors.border }]}
+              onPress={() => router.push("/admin/(tabs)/jobs" as any)}
+            >
+              <Ionicons name="pulse-outline" size={14} color={colors.muted} />
+              <Text style={[styles.rowText, { color: colors.text }]}>{item}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={[styles.sectionCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>More Admin Tools</Text>
+          <View style={styles.toolsGrid}>
+            {[
+              { id: "payouts", label: "Payouts", icon: "card-outline", route: "/admin/(tabs)/payouts" },
+              { id: "withdrawals", label: "Withdrawals", icon: "wallet-outline", route: "/admin/(tabs)/withdrawals" },
+              { id: "wallets", label: "Wallets", icon: "apps-outline", route: "/admin/(tabs)/wallets" },
+              { id: "transactions", label: "Transactions", icon: "swap-horizontal-outline", route: "/admin/(tabs)/transactions" },
+              { id: "reports", label: "Reports", icon: "bar-chart-outline", route: "/admin/(tabs)/reports" },
+            ].map((tool) => (
+              <TouchableOpacity
+                key={tool.id}
+                style={[styles.toolBtn, { borderColor: colors.border, backgroundColor: colors.background }]}
+                onPress={() => router.push(tool.route as any)}
+              >
+                <Ionicons name={tool.icon as any} size={14} color={colors.primary} />
+                <Text style={[styles.toolBtnText, { color: colors.text }]}>{tool.label}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
-        ))}
-      </View>
-
-      <BarChartCard data={stats.revenue} />
-
-      <View
-        style={[
-          styles.overviewBox,
-          { backgroundColor: colors.surface },
-          styles.shadow,
-        ]}
-      >
-        <Text style={[styles.overviewText, { color: colors.text }]}>
-          HANDI connects clients and artisans efficiently while ensuring
-          transparency through admin oversight. System uptime is stable, and
-          user engagement continues to grow steadily. 🚀
-        </Text>
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: THEME.spacing.md,
-    paddingTop: THEME.spacing.lg, // Added extra top padding for better alignment
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: THEME.spacing.md,
-  },
-  logoutButton: {
-    padding: 8,
-  },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loaderText: {
-    marginTop: THEME.spacing.sm,
+  container: { flex: 1 },
+  content: {
+    paddingTop: 48,
+    paddingHorizontal: THEME.spacing.lg,
+    paddingBottom: 100,
+    gap: 14,
   },
   title: {
     fontSize: THEME.typography.sizes.xl,
-    fontWeight: "700",
+    fontFamily: THEME.typography.fontFamily.heading,
+  },
+  subtitle: {
+    fontSize: THEME.typography.sizes.sm,
+    fontFamily: THEME.typography.fontFamily.body,
+    marginTop: 2,
   },
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    gap: 8,
   },
-  card: {
+  statCard: {
     width: "48%",
+    borderWidth: 1,
+    borderRadius: THEME.radius.lg,
+    padding: 12,
+    ...THEME.shadow.card,
+  },
+  statIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  statValue: {
+    fontSize: THEME.typography.sizes.lg,
+    fontFamily: THEME.typography.fontFamily.heading,
+  },
+  statLabel: {
+    fontSize: THEME.typography.sizes.xs,
+    fontFamily: THEME.typography.fontFamily.body,
+    marginTop: 2,
+  },
+  alertRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  alertCard: {
+    flex: 1,
+    borderRadius: THEME.radius.lg,
+    padding: 12,
+  },
+  alertTitle: {
+    fontSize: THEME.typography.sizes.xs,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
+  },
+  alertCount: {
+    fontSize: 22,
+    fontFamily: THEME.typography.fontFamily.heading,
+    marginVertical: 2,
+  },
+  alertMeta: {
+    fontSize: 10,
+    fontFamily: THEME.typography.fontFamily.body,
+  },
+  sectionCard: {
+    borderWidth: 1,
     borderRadius: THEME.radius.lg,
     padding: THEME.spacing.md,
-    marginBottom: THEME.spacing.md,
-    alignItems: "center", // Center content aligned
+    ...THEME.shadow.card,
   },
-  cardEmoji: {
-    fontSize: 30,
-    textAlign: "center",
-    marginBottom: 4,
-  },
-  cardValue: {
-    fontWeight: "700",
-    fontSize: THEME.typography.sizes.xl,
-    textAlign: "center",
-  },
-  cardTitle: {
-    textAlign: "center",
-    marginTop: 4,
-  },
-  overviewBox: {
-    borderRadius: THEME.radius.lg,
-    padding: THEME.spacing.lg,
-    marginTop: THEME.spacing.lg,
-  },
-  overviewText: {
+  sectionTitle: {
     fontSize: THEME.typography.sizes.base,
-    lineHeight: 22,
+    fontFamily: THEME.typography.fontFamily.subheading,
+    marginBottom: 8,
   },
-  shadow: {
-    shadowColor: "rgba(28,140,75,0.6)",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 3,
+  rowItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
+  rowText: {
+    flex: 1,
+    fontSize: THEME.typography.sizes.xs,
+    fontFamily: THEME.typography.fontFamily.body,
+  },
+  toolsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  toolBtn: {
+    borderWidth: 1,
+    borderRadius: THEME.radius.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  toolBtnText: {
+    fontSize: THEME.typography.sizes.xs,
+    fontFamily: THEME.typography.fontFamily.bodyMedium,
   },
 });

@@ -126,7 +126,7 @@ export default function WithdrawScreen() {
       } else {
         Alert.alert("Error", res.error || "Withdrawal failed");
       }
-    } catch (e) {
+    } catch {
       Alert.alert("Error", "An error occurred");
     } finally {
       setLoading(false);

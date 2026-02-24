@@ -3,7 +3,6 @@
 
 import { APP_CONFIG } from "@/constants/config";
 import { THEME } from "@/constants/theme";
-import { useTheme } from "@/context/ThemeContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { usePathname, useRouter } from "expo-router";
@@ -34,8 +33,7 @@ interface WebNavbarProps {
 export default function WebNavbar({ activeTab }: WebNavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { colors, theme } = useAppTheme();
-  const { toggleTheme } = useTheme();
+  const { colors } = useAppTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width,
@@ -139,6 +137,7 @@ export default function WebNavbar({ activeTab }: WebNavbarProps) {
           <View style={styles.navButtons}>
             {/* Download App */}
             <TouchableOpacity
+            className="cursor-pointer"
               style={[
                 styles.downloadButton,
                 {
@@ -159,6 +158,7 @@ export default function WebNavbar({ activeTab }: WebNavbarProps) {
 
             {/* Get Started - Download App */}
             <TouchableOpacity
+            className="cursor-pointer"
               style={[
                 styles.signUpButton,
                 {

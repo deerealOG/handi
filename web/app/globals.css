@@ -1,5 +1,45 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Urbanist";
+  src: url("/fonts/Urbanist-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Urbanist";
+  src: url("/fonts/Urbanist-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* =============================================
    HANDI Theme - Custom CSS Variables
    ============================================= */
@@ -28,10 +68,127 @@
   --color-warning: #f59e0b;
   --color-star: #facc15;
 
+  /* Tag Badges */
+  --tag-hot: #e74c3c;
+  --tag-deal: #e67e22;
+  --tag-new: #2ecc71;
+  --tag-trending: #9b59b6;
+  --tag-best-seller: #f39c12;
+  --tag-off: #e74c3c;
+
   /* Shadows */
   --shadow-base: 0 4px 6px -1px rgba(27, 127, 73, 0.08);
   --shadow-card: 0 3px 8px rgba(27, 127, 73, 0.1);
   --shadow-float: 0 8px 12px rgba(27, 127, 73, 0.12);
+}
+
+/* =============================================
+   Dark Mode Theme
+   ============================================= */
+
+:root.dark {
+  /* Brand Colors (keep primary consistent) */
+  --color-primary: #2d7a46;
+  --color-primary-dark: #245e37;
+  --color-primary-light: #1a3a28;
+  --color-secondary: #7a9132;
+
+  /* Backgrounds */
+  --color-background: #0f1117;
+  --color-surface: #1a1d27;
+
+  /* Text */
+  --color-text: #e5e7eb;
+  --color-muted: #9ca3af;
+
+  /* Borders */
+  --color-border: #2d3040;
+
+  /* Status */
+  --color-error: #ef4444;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-star: #facc15;
+
+  /* Shadows */
+  --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 3px 8px rgba(0, 0, 0, 0.4);
+  --shadow-float: 0 8px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Dark mode overrides for common Tailwind utility colors */
+:root.dark body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+:root.dark .bg-white {
+  background-color: var(--color-surface) !important;
+}
+
+:root.dark .bg-gray-50 {
+  background-color: #151821 !important;
+}
+
+:root.dark .bg-gray-100 {
+  background-color: #1a1d27 !important;
+}
+
+:root.dark .text-gray-900 {
+  color: #f3f4f6 !important;
+}
+
+:root.dark .text-gray-800 {
+  color: #e5e7eb !important;
+}
+
+:root.dark .text-gray-700 {
+  color: #d1d5db !important;
+}
+
+:root.dark .text-gray-600 {
+  color: #9ca3af !important;
+}
+
+:root.dark .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+:root.dark .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+:root.dark .border-gray-200,
+:root.dark .border-gray-100 {
+  border-color: var(--color-border) !important;
+}
+
+:root.dark .shadow-sm {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+:root.dark .shadow-md {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5) !important;
+}
+
+:root.dark .shadow-xl {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6) !important;
+}
+
+:root.dark input,
+:root.dark textarea,
+:root.dark select {
+  background-color: #1a1d27 !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+:root.dark .hover\:bg-gray-50:hover {
+  background-color: #1e2130 !important;
+}
+
+:root.dark .hover\:bg-gray-100:hover {
+  background-color: #22253a !important;
 }
 
 /* =============================================
@@ -43,8 +200,8 @@
   --color-foreground: var(--color-text);
 
   /* Font families */
-  --font-heading: "Red Hat Display", sans-serif;
-  --font-body: "Roboto", sans-serif;
+  --font-heading: "Urbanist", sans-serif;
+  --font-body: "Inter", sans-serif;
 }
 
 /* =============================================
@@ -223,4 +380,437 @@ h6 {
 }
 .animate-delay-500 {
   animation-delay: 0.5s;
+}
+
+/* =============================================
+   Toast Slide-in Animation
+   ============================================= */
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* =============================================
+   Modal Animations
+   ============================================= */
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* =============================================
+   Category Pills – Hide Scrollbar
+   ============================================= */
+
+.no-scrollbar,
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tag color utilities */
+.tag-hot {
+  background-color: #e74c3c;
+  color: #fff;
+}
+.tag-deal {
+  background-color: #e67e22;
+  color: #fff;
+}
+.tag-new {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+.tag-trending {
+  background-color: #8e44ad;
+  color: #fff;
+}
+.tag-best-seller {
+  background-color: var(--color-secondary);
+  color: #1f2937;
+}
+.tag-off {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+/* =============================================
+   UX Enhancement Animations
+   ============================================= */
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+.animate-slideInLeft {
+  animation: slideInLeft 0.3s ease-out forwards;
+}
+.animate-slideDown {
+  animation: slideDown 0.2s ease-out forwards;
+}
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out forwards;
+}
+.animate-bounceIn {
+  animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+.animate-scaleIn {
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+:root.dark .skeleton {
+  background: linear-gradient(90deg, #1a1d27 25%, #22253a 50%, #1a1d27 75%);
+  background-size: 200% 100%;
+}
+
+.hover-lift {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.hover-press {
+  transition: transform 0.15s ease;
+}
+.hover-press:active {
+  transform: scale(0.97);
+}
+
+.tab-content {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-delay-600 {
+  animation-delay: 0.6s;
+}
+.animate-delay-700 {
+  animation-delay: 0.7s;
+}
+.animate-delay-800 {
+  animation-delay: 0.8s;
+}
+
+.transition-smooth {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* =============================================
+   Dropdown Option Hover Color
+   ============================================= */
+
+select option:checked,
+select option:hover {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+}
+
+select option {
+  padding: 8px 12px;
+}
+
+/* =============================================
+   Scrollable Category Pills
+   ============================================= */
+
+.pills-container {
+  position: relative;
+}
+
+.pills-scroll-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.15s ease;
+}
+
+.pills-scroll-btn:hover {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.pills-scroll-btn.left {
+  left: -4px;
+}
+.pills-scroll-btn.right {
+  right: -4px;
+}
+
+:root.dark .pills-scroll-btn {
+  background: #1a1d27;
+  border-color: #2d3040;
+  color: #e5e7eb;
+}
+
+:root.dark .pills-scroll-btn:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* ============================================
+   Dark Mode Contrast Guide (Item 19)
+   ============================================
+   WCAG 2.1 AA minimum contrast ratios:
+   - Normal text:  4.5:1
+   - Large text:   3:1  (≥18px regular or ≥14px bold)
+   - UI components: 3:1
+   
+   Our dark surface colors:
+   - bg-surface:  #0f1117 (darkest background)
+   - bg-card:     #1a1d27 (card backgrounds)
+   - bg-elevated: #22252f (elevated surfaces, hover)
+   
+   Our dark text colors (against #1a1d27 card):
+   - text-primary:   #f3f4f6  → 14.2:1 ✅
+   - text-secondary:  #d1d5db  → 10.5:1 ✅
+   - text-tertiary:  #9ca3af  →  6.3:1 ✅
+   - text-muted:     #6b7280  →  3.8:1 ✅ (UI only)
+   - text-disabled:  #4b5563  →  2.5:1 ⚠️ (disabled only)
+   ============================================ */
+
+/* Cards & surfaces with adequate contrast */
+:root.dark .bg-emerald-50,
+:root.dark .bg-green-50 {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+:root.dark .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+:root.dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+:root.dark .bg-yellow-50 {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+}
+
+:root.dark .bg-purple-50 {
+  background-color: rgba(168, 85, 247, 0.1) !important;
+}
+
+/* Status badges contrast fix */
+:root.dark .bg-green-100 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+:root.dark .bg-red-100 {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+:root.dark .bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+:root.dark .bg-yellow-100 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+}
+
+:root.dark .bg-purple-100 {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+}
+
+/* Ensure modal overlays have proper dark glass effect */
+:root.dark .backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+}
+
+/* Ring / outline contrast */
+:root.dark .ring-gray-200 {
+  --tw-ring-color: #2d3040;
+}
+
+/* Gradient backgrounds in dark mode */
+:root.dark .bg-gradient-to-r {
+  opacity: 0.9;
+}
+
+/* ============================================
+   Quick-Nav Breadcrumb Bar (Item 18)
+   ============================================ */
+.quick-nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+  overflow-x: auto;
+}
+
+.quick-nav-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.quick-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 9999px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid #e5e7eb;
+  background: white;
+  color: #6b7280;
+}
+
+.quick-nav-pill:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.quick-nav-pill.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+:root.dark .quick-nav-pill {
+  background: #1a1d27;
+  border-color: #2d3040;
+  color: #9ca3af;
+}
+
+:root.dark .quick-nav-pill:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+:root.dark .quick-nav-pill.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
 }

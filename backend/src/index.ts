@@ -1,6 +1,7 @@
 // src/index.ts
 // HANDI Backend API Entry Point
 
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
@@ -29,13 +30,41 @@ const PORT = process.env.PORT || 3001;
 // ================================
 // Middleware
 // ================================
+const allowedOrigins = (process.env.FRONTEND_URL || "")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "*",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.length === 0) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   }),
 );
+app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
+
+// Cache-Control — reduce egress for repeated reads
+app.use((req, res, next) => {
+  if (req.method === "GET") {
+    if (req.path.startsWith("/api/auth")) {
+      res.setHeader("Cache-Control", "no-store");
+    } else {
+      res.setHeader(
+        "Cache-Control",
+        "private, max-age=60, stale-while-revalidate=30",
+      );
+    }
+  } else {
+    res.setHeader("Cache-Control", "no-store");
+  }
+  next();
+});
 
 // ================================
 // Health Check

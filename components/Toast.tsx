@@ -1,17 +1,14 @@
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
     Animated,
-    Dimensions,
     PanResponder,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from "react-native";
-
-const { width } = Dimensions.get("window");
 
 interface ToastProps {
   visible: boolean;
@@ -24,6 +21,17 @@ export default function Toast({ visible, message, type = "info", onDismiss }: To
   const { colors } = useAppTheme();
   const translateY = useRef(new Animated.Value(-100)).current;
   const [show, setShow] = useState(visible);
+
+  const handleDismiss = useCallback(() => {
+    Animated.timing(translateY, {
+      toValue: -100,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setShow(false);
+      onDismiss();
+    });
+  }, [onDismiss, translateY]);
 
   useEffect(() => {
     if (visible) {
@@ -43,18 +51,7 @@ export default function Toast({ visible, message, type = "info", onDismiss }: To
     } else {
       handleDismiss();
     }
-  }, [visible]);
-
-  const handleDismiss = () => {
-    Animated.timing(translateY, {
-      toValue: -100,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setShow(false);
-      onDismiss();
-    });
-  };
+  }, [visible, handleDismiss, translateY]);
 
   const panResponder = useRef(
     PanResponder.create({

@@ -29,7 +29,7 @@ export default function CalendarScreen() {
   const now = new Date();
   const [currentDate, setCurrentDate] = useState(new Date(now.getFullYear(), now.getMonth(), 1));
   const [selectedDate, setSelectedDate] = useState(now.getDate());
-  const [schedules, setSchedules] = useState<ScheduleItem[]>([
+  const [schedules] = useState<ScheduleItem[]>([
     { id: '1', date: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`, title: 'Plumbing Job', time: '10:00 AM', status: 'booked', clientName: 'John Doe' },
     { id: '2', date: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate() + 1).padStart(2, '0')}`, title: 'Maintenance', time: '2:00 PM', status: 'booked', clientName: 'Jane Smith' },
   ]);

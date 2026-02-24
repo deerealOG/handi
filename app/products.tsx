@@ -304,10 +304,16 @@ export default function ProductsPage() {
                   {product.location}
                 </Text>
                 <View style={styles.productCardButtons}>
-                  <TouchableOpacity style={styles.addToCartButton}>
+                  <TouchableOpacity
+                    style={styles.addToCartButton}
+                    onPress={() => router.push("/client/cart" as any)}
+                  >
                     <Text style={styles.addToCartText}>Add to Cart</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.viewButton}>
+                  <TouchableOpacity
+                    style={styles.viewButton}
+                    onPress={() => router.push("/client/product-detail" as any)}
+                  >
                     <Text style={styles.viewButtonText}>View</Text>
                   </TouchableOpacity>
                 </View>
@@ -385,10 +391,16 @@ export default function ProductsPage() {
                 Liverpool
               </Text>
               <View style={styles.productCardButtons}>
-                <TouchableOpacity style={styles.addToCartButton}>
+                <TouchableOpacity
+                  style={styles.addToCartButton}
+                  onPress={() => router.push("/client/cart" as any)}
+                >
                   <Text style={styles.addToCartText}>Add to Cart</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.viewButton}>
+                <TouchableOpacity
+                  style={styles.viewButton}
+                  onPress={() => router.push("/client/product-detail" as any)}
+                >
                   <Text style={styles.viewButtonText}>View</Text>
                 </TouchableOpacity>
               </View>

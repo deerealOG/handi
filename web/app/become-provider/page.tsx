@@ -137,7 +137,7 @@ export default function BecomeProviderPage() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
-              href="https://expo.dev/accounts/goldendove/projects/HANDI/builds"
+              href=""
               target="_blank"
               rel="noopener noreferrer"
               className="bg-gray-900 text-white font-semibold px-8 py-4 rounded-[50px] hover:bg-gray-800 transition-colors"

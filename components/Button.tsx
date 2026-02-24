@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     paddingVertical: THEME.spacing.md,
     paddingHorizontal: THEME.spacing.lg,
     borderRadius: THEME.radius.lg,
-    borderWidth: 1.5,
+    borderWidth: 0.1,
     alignItems: "center",
     justifyContent: "center",
     ...THEME.shadow.base,

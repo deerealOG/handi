@@ -119,7 +119,7 @@ export default function FeaturesPage() {
           <div className="text-center">
             <Link
               href="/become-provider"
-              className="btn-primary inline-flex items-center gap-2"
+              className="btn-primary inline-flex items-center gap-2 cursor-pointer rounded-full px-6 py-3"
             >
               Become a Provider
               <ArrowRight size={18} />

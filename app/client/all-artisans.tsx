@@ -1,7 +1,7 @@
 // app/client/all-artisans.tsx
 // Screen to display all professionals with filters
 
-import EnhancedArtisanCard from "@/components/EnhancedArtisanCard";
+import { EnhancedArtisanCard } from "@/components/EnhancedArtisanCard";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -33,7 +33,6 @@ export default function AllArtisansScreen() {
   const { colors } = useAppTheme();
   const params = useLocalSearchParams();
   const title = (params.title as string) || "All Professionals";
-  const filterType = params.filter as string; // 'top-rated', 'nearby', etc.
 
   const [searchQuery, setSearchQuery] = useState("");
 

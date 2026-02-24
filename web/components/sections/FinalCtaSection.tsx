@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 export default function FinalCtaSection() {
   const handleDownloadApp = () => {
     window.open(
-      "https://expo.dev/accounts/goldendove/projects/HANDI/builds",
+      "",
       "_blank",
     );
   };

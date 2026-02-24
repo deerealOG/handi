@@ -359,7 +359,7 @@ export default function HowItWorksPage() {
             </Text>
             <Text style={[styles.faqAnswer, { color: colors.muted }]}>
               Yes! Our customer support team is available 24/7 through chat,
-              email, and phone. We're here to help with any questions or issues
+              email, and phone. We&apos;re here to help with any questions or issues
               you might have.
             </Text>
           </View>

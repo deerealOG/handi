@@ -68,7 +68,7 @@ export default function AboutPage() {
         <Text style={[styles.sectionText, { color: colors.muted }]}>
           Our platform brings together skilled artisans, tradespeople, and
           service providers with customers who need their expertise. By creating
-          a trusted marketplace, we're empowering local businesses while making
+          a trusted marketplace, we&apos;re empowering local businesses while making
           life easier for millions of Nigerians.
         </Text>
       </View>

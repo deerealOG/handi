@@ -60,6 +60,8 @@ export type {
     BusinessJob,
     BusinessProfile,
     BusinessStats,
+    CreateProjectData,
+    ProjectPriority,
     ServiceOffering,
     TeamMember
 } from "./businessService";

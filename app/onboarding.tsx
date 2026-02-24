@@ -1,5 +1,6 @@
 // app/onboarding.tsx
 import { Button } from "@/components/Button";
+import { DecorativeBlobs } from "@/components/DecorativeBlobs";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
@@ -32,13 +33,7 @@ const SLIDES = [
     title: "Find Professionals Near You",
     description:
       "Discover, book, and schedule trusted service providers in your area.",
-    image: require("../assets/images/onboarding-2.jpg"), // Swapped image to match context if needed, assuming 2 is user facing? Original 1 was "Get More Jobs" (provider focused). Let's keep images as is but reorder or rename?
-    // Actually, Slide 1 was Provider focused ("Get More Jobs"). Slide 2 was User focused ("Find Trusted Artisans").
-    // Let's make Slide 1 User focused first? Or follow the flow?
-    // "HANDI connects people... and helps professionals". People first.
-    // So Slide 1: User focused.
-    // Original Slide 2 is User focused.
-    // Let's swap the content effectively.
+    image: require("../assets/images/onboarding-2.jpg"),
   },
   {
     id: 2,
@@ -198,6 +193,9 @@ export default function OnboardingScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      {/* Decorative Blobs */}
+      <DecorativeBlobs />
+
       <StatusBar
         barStyle={colors.text === "#FAFAFA" ? "light-content" : "dark-content"}
         backgroundColor={colors.surface}
@@ -239,7 +237,7 @@ export default function OnboardingScreen() {
       />
 
       {/* Pagination */}
-      <PaginationDots scrollX={scrollX} color={colors.primary} />
+      <PaginationDots scrollX={scrollX} color={THEME.colors.primary} />
 
       {/* Navigation */}
       <View style={styles.navigationContainer}>

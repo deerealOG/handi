@@ -28,7 +28,7 @@ export default function SplashScreen() {
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, [router]);
+  }, [router, scale, opacity]);
 
   const logoAnimatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

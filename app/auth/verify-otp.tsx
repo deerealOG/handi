@@ -110,7 +110,7 @@ export default function VerifyOtpScreen() {
       } else {
         setError(response.error || "Invalid verification code");
       }
-    } catch (err) {
+    } catch {
       setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
@@ -127,7 +127,7 @@ export default function VerifyOtpScreen() {
     try {
       await authService.forgotPassword(email || "");
       // Show toast or feedback
-    } catch (err) {
+    } catch {
       setError("Failed to resend code. Please try again.");
       setCanResend(true);
     }
@@ -173,7 +173,7 @@ export default function VerifyOtpScreen() {
           Verify Your Email
         </Text>
         <Text style={[styles.subtitle, { color: colors.muted }]}>
-          We've sent a 6-digit verification code to{"\n"}
+          We&apos;ve sent a 6-digit verification code to{"\n"}
           <Text style={{ fontFamily: THEME.typography.fontFamily.bodyMedium }}>
             {maskedEmail}
           </Text>
@@ -236,7 +236,7 @@ export default function VerifyOtpScreen() {
         {/* Resend */}
         <View style={styles.resendContainer}>
           <Text style={[styles.resendText, { color: colors.muted }]}>
-            Didn't receive the code?{" "}
+            Didn&apos;t receive the code?{" "}
           </Text>
           {canResend ? (
             <TouchableOpacity onPress={handleResend}>

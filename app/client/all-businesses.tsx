@@ -1,7 +1,7 @@
 // app/client/all-businesses.tsx
 // Screen to display all businesses
 
-import EnhancedArtisanCard from "@/components/EnhancedArtisanCard";
+import { EnhancedArtisanCard } from "@/components/EnhancedArtisanCard";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";

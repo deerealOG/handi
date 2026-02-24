@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowRight,
   Calendar,
   CheckCircle,
   MapPin,
@@ -57,7 +58,7 @@ export default function HeroSection() {
             {/* Mobile: Stacked Layout */}
             <form
               onSubmit={handleSearch}
-              className="sm:hidden space-y-3 p-4 bg-white rounded-2xl shadow-card mb-6"
+              className="sm:hidden space-y-3 p-4 rounded-2xl shadow-card mb-6"
             >
               <div className="flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-[50px]">
                 <Search size={18} className="text-gray-400 shrink-0" />
@@ -68,6 +69,13 @@ export default function HeroSection() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex-1 outline-none text-sm"
                 />
+                <button
+                  type="submit"
+                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 px-4 bg-[var(--color-primary)] text-white rounded-[50px] text-sm font-medium"
+                >
+                  <Search size={16} />
+                  Search
+                </button>
               </div>
               <div className="flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-[50px]">
                 <MapPin size={18} className="text-gray-400 shrink-0" />
@@ -87,13 +95,7 @@ export default function HeroSection() {
                   <SlidersHorizontal size={16} />
                   Filters
                 </button>
-                <button
-                  type="submit"
-                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 px-4 bg-[var(--color-secondary)] text-gray-900 rounded-[50px] text-sm font-medium"
-                >
-                  <Search size={16} />
-                  Search
-                </button>
+                
               </div>
             </form>
 
@@ -169,14 +171,15 @@ export default function HeroSection() {
             <div className="flex flex-wrap gap-4 justify-center lg:justify-start mb-6">
               <button
                 onClick={() => router.push("/signup")}
-                className="inline-flex items-center justify-center gap-2 h-12 px-8 rounded-[50px] bg-[var(--color-secondary)] text-gray-900 font-medium hover:opacity-90 transition-opacity"
+                className="cursor-pointer inline-flex items-center justify-center gap-2 h-12 px-8 rounded-[50px] bg-[var(--color-primary)] text-white font-medium hover:opacity-90 transition-opacity"
               >
                 Get Started
+                <ArrowRight size={18} />
               </button>
 
               <Link
                 href="/services"
-                className="inline-flex items-center justify-center gap-2 h-12 px-8 rounded-[50px] border-2 border-[var(--color-primary)] text-[var(--color-primary)] font-medium hover:bg-[var(--color-primary-light)] transition-colors"
+                className="cursor-pointer inline-flex items-center justify-center gap-2 h-12 px-8 rounded-[50px] border-2 border-[var(--color-primary)] text-[var(--color-primary)] font-medium hover:bg-[var(--color-primary-light)] transition-colors"
               >
                 <Calendar size={18} />
                 Book Services

@@ -1,6 +1,7 @@
 // app/admin/_layout.tsx
 // Admin section layout with sidebar
 
+import { useAuth } from "@/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, usePathname, useRouter } from "expo-router";
@@ -28,6 +29,7 @@ const navItems: NavItem[] = [
 
 function AdminSidebar() {
   const { colors } = useAppTheme();
+  const { logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -79,10 +81,7 @@ function AdminSidebar() {
       </View>
 
       <View style={styles.footer}>
-        <Pressable
-          style={styles.logoutButton}
-          onPress={() => router.replace("/login")}
-        >
+        <Pressable style={styles.logoutButton} onPress={() => logout()}>
           <Ionicons name="log-out-outline" size={20} color={colors.error} />
           <Text style={[styles.logoutText, { color: colors.error }]}>
             Logout

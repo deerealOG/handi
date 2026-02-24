@@ -21,6 +21,24 @@ enum UserType {
   ADMIN
 }
 
+enum ProviderSubType {
+  INDIVIDUAL
+  BUSINESS
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  MODERATOR
+  SUPPORT
+  FINANCE
+}
+
+enum VerificationLevel {
+  BASIC
+  VERIFIED
+  CERTIFIED
+}
+
 enum VerificationStatus {
   PENDING
   VERIFIED
@@ -34,16 +52,19 @@ enum VerificationStatus {
 model User {
   id                 String             @id @default(uuid())
   email              String             @unique
-  phone              String             @unique
-  passwordHash       String
+  phone              String?            @unique
+  passwordHash       String?
   firstName          String
   lastName           String
   avatar             String?
   userType           UserType
+  providerSubType    ProviderSubType?
+  adminRole          AdminRole?
   isVerified         Boolean            @default(false)
   isEmailVerified    Boolean            @default(false)
   isPhoneVerified    Boolean            @default(false)
   verificationStatus VerificationStatus @default(PENDING)
+  verificationLevel  VerificationLevel  @default(BASIC)
 
   // Location
   city      String?
@@ -52,30 +73,111 @@ model User {
   latitude  Float?
   longitude Float?
 
-  // Artisan-specific fields (JSON strings for SQLite)
-  skills         Json    @default("[]")
-  bio            String?
-  rating         Float   @default(0)
-  totalJobs      Int     @default(0)
-  certifications Json    @default("[]")
-  isOnline       Boolean @default(false)
+  // Profile fields
+  skills              Json    @default("[]")
+  bio                 String?
+  rating              Float   @default(0)
+  totalJobs           Int     @default(0)
+  preferredCategories Json    @default("[]")
+  isOnline            Boolean @default(false)
+
+  // Identity verification
+  nin               String? // National Identification Number (required for individual providers)
+  businessRegNumber String? // RC Number or Business Name Registration (for business accounts)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  clientBookings   Booking[]      @relation("ClientBookings")
-  artisanBookings  Booking[]      @relation("ArtisanBookings")
-  wallet           Wallet?
-  sentMessages     Message[]      @relation("SentMessages")
-  receivedMessages Message[]      @relation("ReceivedMessages")
-  notifications    Notification[]
-  refreshTokens    RefreshToken[]
+  clientBookings      Booking[]            @relation("ClientBookings")
+  artisanBookings     Booking[]            @relation("ArtisanBookings")
+  wallet              Wallet?
+  sentMessages        Message[]            @relation("SentMessages")
+  receivedMessages    Message[]            @relation("ReceivedMessages")
+  notifications       Notification[]
+  refreshTokens       RefreshToken[]
+  verificationCodes   VerificationCode[]
+  passwordResetTokens PasswordResetToken[]
+  certifications      UserCertification[]
+  workExperiences     WorkExperience[]
+  nextOfKin           NextOfKin?
 
   @@index([email])
   @@index([phone])
   @@index([userType])
   @@index([city, state])
+}
+
+enum VerificationCodePurpose {
+  EMAIL_VERIFY
+  PHONE_VERIFY
+}
+
+model VerificationCode {
+  id        String                  @id @default(uuid())
+  userId    String
+  user      User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String
+  purpose   VerificationCodePurpose
+  expiresAt DateTime
+  createdAt DateTime                @default(now())
+
+  @@index([userId])
+  @@index([purpose])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model UserCertification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  type      String?
+  issuer    String?
+  year      String?
+  fileName  String?
+  fileUrl   String?
+  status    String? // pending, verified, rejected
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model WorkExperience {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  company     String
+  duration    String
+  description String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model NextOfKin {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  relationship String
+  phone        String
+  address      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 // ================================
@@ -99,6 +201,7 @@ model RefreshToken {
 enum BookingStatus {
   PENDING
   ACCEPTED
+  ASSIGNED
   IN_PROGRESS
   COMPLETED
   CANCELLED
@@ -120,10 +223,14 @@ model Booking {
   id String @id @default(uuid())
 
   // Participants
-  clientId  String
-  client    User   @relation("ClientBookings", fields: [clientId], references: [id])
-  artisanId String
-  artisan   User   @relation("ArtisanBookings", fields: [artisanId], references: [id])
+  clientId           String
+  client             User      @relation("ClientBookings", fields: [clientId], references: [id])
+  artisanId          String
+  artisan            User      @relation("ArtisanBookings", fields: [artisanId], references: [id])
+  businessId         String?
+  business           Business? @relation(fields: [businessId], references: [id])
+  assignedMemberId   String?
+  assignedMemberName String?
 
   // Job details
   categoryId   String
@@ -438,21 +545,52 @@ model Dispute {
 // ================================
 // Business / Agency Management
 // ================================
-model Business {
-  id          String   @id @default(uuid())
-  name        String
-  ownerId     String   @unique
-  description String?
-  logo        String?
-  address     String?
-  city        String?
-  phone       String?
-  email       String?
-  isVerified  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+enum BusinessVerificationStatus {
+  PENDING
+  IN_REVIEW
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
 
-  members BusinessMember[]
+enum PriceType {
+  FIXED
+  HOURLY
+  QUOTE
+}
+
+enum ProjectPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Business {
+  id                 String                      @id @default(uuid())
+  name               String
+  ownerId            String                      @unique
+  description        String?
+  logo               String?
+  coverImage         String?
+  address            String?
+  city               String?
+  phone              String?
+  email              String?
+  isVerified         Boolean                     @default(false)
+  verificationStatus BusinessVerificationStatus? @default(PENDING)
+  cacNumber          String?
+  tinNumber          String?
+  cacDocumentUrl     String?
+  tinDocumentUrl     String?
+  utilityBillUrl     String?
+  createdAt          DateTime                    @default(now())
+  updatedAt          DateTime                    @updatedAt
+
+  members  BusinessMember[]
+  services BusinessServiceOffering[]
+  bookings Booking[]
+  projects BusinessProject[]
 
   @@index([ownerId])
 }
@@ -469,6 +607,45 @@ model BusinessMember {
   @@unique([businessId, userId])
   @@index([businessId])
   @@index([userId])
+}
+
+model BusinessServiceOffering {
+  id           String    @id @default(uuid())
+  businessId   String
+  business     Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  categoryId   String
+  categoryName String
+  description  String
+  basePrice    Float
+  priceType    PriceType
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([businessId])
+  @@index([categoryId])
+}
+
+model BusinessProject {
+  id             String          @id @default(uuid())
+  businessId     String
+  business       Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  title          String
+  description    String
+  serviceType    String
+  requiredSkills Json            @default("[]")
+  budgetMin      Float
+  budgetMax      Float
+  address        String
+  city           String
+  state          String
+  priority       ProjectPriority @default(MEDIUM)
+  artisansNeeded Int             @default(1)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([businessId])
+  @@index([priority])
 }
 
 // ================================

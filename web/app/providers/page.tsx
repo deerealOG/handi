@@ -1,360 +1,306 @@
 "use client";
 
+import CategoryPills from "@/components/ui/CategoryPills";
+import ComingSoonModal from "@/components/ui/ComingSoonModal";
+
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { MOCK_PROVIDERS, SERVICE_CATEGORIES } from "@/data/mockApi";
 import {
-    CheckCircle,
+    Briefcase,
     MapPin,
+    MessageCircle,
     Phone,
     Search,
-    SlidersHorizontal,
-    Star,
-    X,
+    Star
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 const PROVIDER_CATEGORIES = [
-  "All",
-  "Electrical",
-  "Plumbing",
-  "Beauty",
-  "Cleaning",
-  "Construction",
-];
-
-const SAMPLE_PROVIDERS = [
-  {
-    id: "1",
-    name: "ChiChi Beauty Salon",
-    category: "Beauty",
-    rating: 4.9,
-    reviews: 234,
-    location: "Lagos, Nigeria",
-    verified: true,
-    experience: "5 years",
-    services: ["Hair Styling", "Makeup", "Nail Art"],
-    isOpen: true,
-  },
-  {
-    id: "2",
-    name: "ElectroPro Services",
-    category: "Electrical",
-    rating: 4.8,
-    reviews: 189,
-    location: "Abuja, Nigeria",
-    verified: true,
-    experience: "8 years",
-    services: ["Wiring", "Installation", "Repairs"],
-    isOpen: true,
-  },
-  {
-    id: "3",
-    name: "PlumbRight NG",
-    category: "Plumbing",
-    rating: 4.7,
-    reviews: 156,
-    location: "Port Harcourt, Nigeria",
-    verified: true,
-    experience: "10 years",
-    services: ["Leak Repair", "Installation", "Maintenance"],
-    isOpen: false,
-  },
-  {
-    id: "4",
-    name: "SparkleClean Services",
-    category: "Cleaning",
-    rating: 4.6,
-    reviews: 98,
-    location: "Lagos, Nigeria",
-    verified: false,
-    experience: "3 years",
-    services: ["Home Cleaning", "Office Cleaning", "Deep Cleaning"],
-    isOpen: true,
-  },
-  {
-    id: "5",
-    name: "BuildRight Construction",
-    category: "Construction",
-    rating: 4.9,
-    reviews: 67,
-    location: "Ibadan, Nigeria",
-    verified: true,
-    experience: "15 years",
-    services: ["Building", "Renovation", "Painting"],
-    isOpen: true,
-  },
-  {
-    id: "6",
-    name: "Hair by Ada",
-    category: "Beauty",
-    rating: 5.0,
-    reviews: 312,
-    location: "Lagos, Nigeria",
-    verified: true,
-    experience: "7 years",
-    services: ["Braiding", "Locs", "Natural Hair Care"],
-    isOpen: true,
-  },
+  { id: "all", label: "All Providers" },
+  ...SERVICE_CATEGORIES.slice(0, 12).map((c) => ({
+    id: c.label,
+    label: c.label,
+  })),
 ];
 
 export default function ProvidersPage() {
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [locationQuery, setLocationQuery] = useState("");
+  const [sortBy, setSortBy] = useState("relevance");
+  const [chatModalOpen, setChatModalOpen] = useState(false);
 
-  const filteredProviders =
-    activeCategory === "All"
-      ? SAMPLE_PROVIDERS
-      : SAMPLE_PROVIDERS.filter((p) => p.category === activeCategory);
+  const filteredProviders = useMemo(() => {
+    let providers = MOCK_PROVIDERS;
+
+    if (activeCategory !== "all") {
+      providers = providers.filter((p) => p.category === activeCategory);
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      providers = providers.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          p.location.toLowerCase().includes(q),
+      );
+    }
+
+    if (sortBy === "rating")
+      providers = [...providers].sort((a, b) => b.rating - a.rating);
+    else if (sortBy === "reviews")
+      providers = [...providers].sort((a, b) => b.reviews - a.reviews);
+    else if (sortBy === "jobs")
+      providers = [...providers].sort(
+        (a, b) => b.completedJobs - a.completedJobs,
+      );
+
+    return providers;
+  }, [activeCategory, searchQuery, sortBy]);
 
   return (
-    <main className="min-h-screen bg-[var(--color-background)]">
-      <Navbar activeTab="providers" />
+    <>
+      <Navbar />
+      <main className="min-h-screen bg-gray-50">
+        {/* Hero */}
+        <div className="bg-white border-b border-gray-100 py-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+              Service{" "}
+              <span className="text-[var(--color-primary)]">Providers</span>
+            </h1>
+            <p className="text-gray-500 mb-6">
+              Connect with verified professionals near you
+            </p>
 
-      {/* Hero Section with Search */}
-      <section className="bg-[var(--color-surface)] py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-[var(--color-primary)] text-sm font-medium mb-3">
-            🔍 Find Trusted Providers
-          </p>
-          <h1 className="font-heading text-3xl lg:text-4xl mb-4">
-            Discover Professional{" "}
-            <span className="text-[var(--color-secondary)]">Providers</span>
-          </h1>
-          <p className="text-[var(--color-muted)] mb-8 max-w-lg mx-auto">
-            Connect with verified service professionals and businesses in your
-            area. Quality products and services, trusted providers.
-          </p>
-
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-6">
-            {/* Mobile: Stacked Layout */}
-            <div className="sm:hidden space-y-3 p-4 bg-white rounded-2xl shadow-card">
-              <div className="flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-[50px]">
-                <Search size={18} className="text-gray-400 shrink-0" />
-                <input
-                  type="text"
-                  placeholder="What service do you need?"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 outline-none text-sm"
-                />
-              </div>
-              <div className="flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-[50px]">
-                <MapPin size={18} className="text-gray-400 shrink-0" />
-                <input
-                  type="text"
-                  placeholder="Enter location"
-                  value={locationQuery}
-                  onChange={(e) => setLocationQuery(e.target.value)}
-                  className="flex-1 outline-none text-sm"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="flex-1 inline-flex items-center justify-center gap-2 h-11 px-4 border border-gray-200 rounded-[50px] text-sm">
-                  <SlidersHorizontal size={16} />
-                  Filters
-                </button>
-                <button
-                  type="button"
-                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 px-4 bg-[var(--color-secondary)] text-gray-900 rounded-[50px] text-sm font-medium"
-                >
-                  <Search size={16} />
-                  Search
-                </button>
-              </div>
-            </div>
-
-            {/* Desktop: Horizontal Layout */}
-            <div className="hidden sm:flex items-stretch gap-3 p-3 bg-white rounded-[50px] shadow-card">
-              <div className="flex items-center gap-2 flex-1 px-4">
-                <Search
-                  size={20}
-                  className="text-[var(--color-primary)] shrink-0"
-                />
-                <input
-                  type="text"
-                  placeholder="Search providers, services..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 py-2 outline-none text-sm"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 flex-1 px-4 border-l border-gray-200">
-                <MapPin
-                  size={20}
-                  className="text-[var(--color-primary)] shrink-0"
-                />
-                <input
-                  type="text"
-                  placeholder="City, address, or postcode"
-                  value={locationQuery}
-                  onChange={(e) => setLocationQuery(e.target.value)}
-                  className="flex-1 py-2 outline-none text-sm"
-                />
-              </div>
-
-              <button
-                type="button"
-                className="inline-flex items-center justify-center gap-2 h-11 px-6 bg-[var(--color-secondary)] text-gray-900 rounded-[50px] text-sm font-medium hover:opacity-90 transition-opacity"
+            <div className="flex items-center bg-gray-100 rounded-full px-4 py-3 gap-2 max-w-2xl mx-auto">
+              <Search size={20} className="text-gray-400 shrink-0" />
+              <input
+                type="text"
+                placeholder="Search providers by name, skill, or location..."
+                className="flex-1 bg-transparent text-gray-900 placeholder:text-gray-500 outline-none text-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="text-sm bg-white border border-gray-200 rounded-full px-3 py-2 outline-none cursor-pointer shrink-0"
               >
-                <Search size={16} />
+                <option value="relevance">Relevance</option>
+                <option value="rating">Top Rated</option>
+                <option value="reviews">Most Reviews</option>
+                <option value="jobs">Most Jobs</option>
+              </select>
+              <button className="bg-[var(--color-primary)] text-white px-5 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-colors">
                 Search
               </button>
             </div>
           </div>
+        </div>
 
-          {/* Quick Actions - Desktop Only */}
-          <div className="hidden sm:flex flex-wrap items-center justify-center gap-3 text-sm">
-            <button className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-200 hover:border-[var(--color-primary)] transition-colors">
-              <MapPin size={14} />
-              Use My Location
-            </button>
-            <button className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-200 hover:border-[var(--color-primary)] transition-colors">
-              <SlidersHorizontal size={14} />
-              Filters
-            </button>
-            <button className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-200 hover:border-[var(--color-primary)] transition-colors">
-              <X size={14} />
-              Clear All
-            </button>
+        {/* Category Pills */}
+        <div className="bg-white border-b border-gray-100 sticky top-14 z-30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <CategoryPills>
+              {PROVIDER_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                    activeCategory === cat.id
+                      ? "bg-[var(--color-primary)] text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </CategoryPills>
           </div>
         </div>
-      </section>
 
-      {/* Providers Section */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          {/* Category Filters */}
-          <div className="flex flex-wrap items-center gap-2 mb-8">
-            {PROVIDER_CATEGORIES.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`px-4 py-2 rounded-[50px] text-sm transition-colors ${
-                  activeCategory === category
-                    ? "bg-[var(--color-primary)] text-white"
-                    : "bg-white border border-gray-200 text-gray-700 hover:border-[var(--color-primary)]"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-
-          {/* Results Count */}
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-sm text-[var(--color-muted)]">
-              <span className="font-semibold text-gray-900">
-                {filteredProviders.length} Provider
-                {filteredProviders.length !== 1 ? "s" : ""}
-              </span>{" "}
-              Found
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Result Count */}
+          <div className="mb-6">
+            <p className="text-sm text-gray-500">
+              <strong className="text-gray-900">
+                {filteredProviders.length}
+              </strong>{" "}
+              providers found
             </p>
           </div>
 
           {/* Providers Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProviders.map((provider) => (
-              <div
-                key={provider.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-card hover:shadow-float transition-shadow group"
-              >
-                {/* Image Placeholder */}
-                <div className="h-40 bg-gradient-to-br from-gray-100 to-gray-200 relative flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] flex items-center justify-center text-white font-heading text-2xl">
-                    {provider.name.charAt(0)}
-                  </div>
-                  <span className="absolute top-3 left-3 px-3 py-1 bg-white rounded-full text-xs font-medium">
-                    {provider.category}
-                  </span>
-                </div>
-
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-heading font-semibold">
-                      {provider.name}
-                    </h3>
-                    {provider.verified && (
-                      <CheckCircle
-                        size={16}
-                        className="text-blue-500 fill-blue-500"
-                      />
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-1 text-[var(--color-muted)] text-sm mb-3">
-                    <MapPin size={14} />
-                    {provider.location}
-                  </div>
-
-                  <div className="flex items-center gap-4 mb-4 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Star
-                        size={14}
-                        className="fill-yellow-400 text-yellow-400"
-                      />
-                      <span className="font-medium">{provider.rating}</span>
-                      <span className="text-[var(--color-muted)]">
-                        ({provider.reviews} reviews)
-                      </span>
+          {filteredProviders.length > 0 ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProviders.map((provider) => (
+                <Link
+                  key={provider.id}
+                  href={`/providers/${provider.id}`}
+                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all group"
+                >
+                  <div className="flex items-start gap-4 mb-4">
+                    {/* Avatar */}
+                    <div className="w-14 h-14 rounded-xl bg-(--color-primary) text-white flex items-center justify-center text-xl font-bold shrink-0">
+                      {provider.name.charAt(0)}
                     </div>
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded-full ${provider.isOpen ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
-                    >
-                      {provider.isOpen ? "Open" : "Closed"}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-gray-900 group-hover:text-(--color-primary) transition-colors truncate">
+                          {provider.name}
+                        </h3>
+                        {provider.isOnline && (
+                          <span
+                            className="w-2.5 h-2.5 rounded-full bg-green-400 shrink-0"
+                            title="Online"
+                          />
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-500">
+                        {provider.category}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                        {provider.providerType && (
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                              provider.providerType === "Business"
+                                ? "bg-blue-50 text-blue-700"
+                                : provider.providerType === "Specialist"
+                                  ? "bg-purple-50 text-purple-700"
+                                  : "bg-amber-50 text-amber-700"
+                            }`}
+                          >
+                            {provider.providerType}
+                          </span>
+                        )}
+                        {provider.badge && (
+                          <span className="inline-block px-2 py-0.5 bg-[var(--color-primary-light)] text-[var(--color-primary)] rounded-full text-xs font-medium">
+                            {provider.badge}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stats Row */}
+                  <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                    <span className="flex items-center gap-1">
+                      <Star
+                        size={12}
+                        className="text-yellow-400 fill-yellow-400"
+                      />
+                      {provider.rating} ({provider.reviews})
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MapPin size={12} /> {provider.location}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Briefcase size={12} /> {provider.completedJobs} jobs
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
-                    <button className="flex-1 inline-flex items-center justify-center gap-2 h-10 px-4 border border-gray-200 rounded-[50px] text-sm hover:border-[var(--color-primary)] transition-colors">
-                      <Phone size={14} />
-                      Call
-                    </button>
-                    <Link
-                      href={`/providers/${provider.id}`}
-                      className="flex-1 inline-flex items-center justify-center gap-2 h-10 px-4 bg-[var(--color-secondary)] text-gray-900 rounded-[50px] text-sm font-medium hover:opacity-90 transition-opacity"
-                    >
-                      View Profile →
-                    </Link>
+                  {/* Skills */}
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {provider.skills.slice(0, 3).map((skill, i) => (
+                      <span
+                        key={i}
+                        className="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                    {provider.skills.length > 3 && (
+                      <span className="px-2.5 py-1 bg-gray-100 text-gray-500 rounded-full text-xs">
+                        +{provider.skills.length - 3}
+                      </span>
+                    )}
                   </div>
-                </div>
-              </div>
-            ))}
+
+                  {/* Price + Actions */}
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <span className="text-sm font-bold text-gray-900">
+                      {provider.price}
+                    </span>
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (provider.phone)
+                            window.open(`tel:${provider.phone}`);
+                        }}
+                        className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                        title="Call"
+                      >
+                        <Phone size={14} className="text-gray-600" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setChatModalOpen(true);
+                        }}
+                        className="p-2 bg-[var(--color-primary-light)] rounded-full hover:bg-green-100 transition-colors"
+                        title="Message"
+                      >
+                        <MessageCircle
+                          size={14}
+                          className="text-[var(--color-primary)]"
+                        />
+                      </button>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <span className="text-5xl mb-4 block">🔍</span>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                No providers found
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Try adjusting your search or filters
+              </p>
+              <button
+                onClick={() => {
+                  setActiveCategory("all");
+                  setSearchQuery("");
+                }}
+                className="px-6 py-2.5 bg-[var(--color-primary)] text-white rounded-full text-sm font-medium hover:opacity-90 transition-colors"
+              >
+                Clear Filters
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Become a Provider CTA */}
+        <div className="bg-[var(--color-primary)]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center text-white">
+            <h2 className="text-2xl font-bold mb-2">
+              Are you a service provider?
+            </h2>
+            <p className="text-white/80 mb-6">
+              Join thousands of professionals earning on HANDI
+            </p>
+            <Link
+              href="/signup"
+              className="inline-flex items-center px-8 py-3 bg-white text-[var(--color-primary)] rounded-full font-semibold hover:bg-gray-100 transition-colors"
+            >
+              Become a Provider
+            </Link>
           </div>
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[var(--color-primary)]">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="font-heading text-2xl lg:text-3xl text-white mb-4">
-            Are You a Service Professional?
-          </h2>
-          <p className="text-white/80 mb-8">
-            Join the growing list of providers who trust HANDI to grow their
-            business.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              href="/become-provider"
-              className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-white text-gray-900 rounded-[50px] font-medium hover:bg-gray-100 transition-colors"
-            >
-              Become a Provider →
-            </Link>
-            <Link
-              href="/how-it-works"
-              className="inline-flex items-center justify-center gap-2 h-12 px-8 border-2 border-white text-white rounded-[50px] font-medium hover:bg-white/10 transition-colors"
-            >
-              Learn More
-            </Link>
-          </div>
-        </div>
-      </section>
-
+      </main>
       <Footer />
-    </main>
+      <ComingSoonModal
+        isOpen={chatModalOpen}
+        onClose={() => setChatModalOpen(false)}
+        title="Chat"
+        message="The in-app messaging feature is coming soon! You'll be able to chat directly with service providers."
+      />
+    </>
   );
 }

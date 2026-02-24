@@ -114,7 +114,7 @@ export function DisputeReportForm({
       } else {
         Alert.alert('Error', result.error || 'Failed to submit dispute');
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'An unexpected error occurred');
     } finally {
       setIsSubmitting(false);

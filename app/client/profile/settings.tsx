@@ -1,13 +1,19 @@
-import { LanguageSettingsItem } from '@/components/LanguageSettingsItem';
-import { ReferralCard } from '@/components/ReferralCard';
-import { ThemeSettingsItem } from '@/components/ThemeSettingsItem';
-import { THEME } from '@/constants/theme';
-import { useAuth } from '@/context/AuthContext';
-import { useAppTheme } from '@/hooks/use-app-theme';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { LanguageSettingsItem } from "@/components/LanguageSettingsItem";
+import { ReferralCard } from "@/components/ReferralCard";
+import { ThemeSettingsItem } from "@/components/ThemeSettingsItem";
+import { THEME } from "@/constants/theme";
+import { useAuth } from "@/context/AuthContext";
+import { useAppTheme } from "@/hooks/use-app-theme";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React from "react";
+import {
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 export default function ClientSettings() {
   const router = useRouter();
@@ -15,78 +21,107 @@ export default function ClientSettings() {
   const { user } = useAuth();
 
   // Generate a referral code from user ID or use placeholder
-  const referralCode = user?.id ? `HANDI${user.id.slice(0, 6).toUpperCase()}` : 'HANDI2024';
+  const referralCode = user?.id
+    ? `HANDI${user.id.slice(0, 6).toUpperCase()}`
+    : "HANDI2024";
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => router.back()} 
-          style={[styles.backButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={[
+            styles.backButton,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
         >
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Settings</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>
+          Settings
+        </Text>
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         {/* Appearance Section */}
-        <Text style={[styles.sectionTitle, { color: colors.muted }]}>Appearance</Text>
+        <Text style={[styles.sectionTitle, { color: colors.muted }]}>
+          Appearance
+        </Text>
         <ThemeSettingsItem />
 
         {/* Language Section */}
-        <Text style={[styles.sectionTitle, { color: colors.muted }]}>Language</Text>
+        <Text style={[styles.sectionTitle, { color: colors.muted }]}>
+          Language
+        </Text>
         <LanguageSettingsItem />
 
         {/* Referral Section */}
-        <Text style={[styles.sectionTitle, { color: colors.muted }]}>Refer & Earn</Text>
-        <ReferralCard 
+        <Text style={[styles.sectionTitle, { color: colors.muted }]}>
+          Refer & Earn
+        </Text>
+        <ReferralCard
           referralCode={referralCode}
           friendsReferred={0}
           totalEarned={0}
         />
 
         {/* Additional Settings */}
-        <Text style={[styles.sectionTitle, { color: colors.muted, marginTop: THEME.spacing.lg }]}>More</Text>
-        
-        <View style={[styles.settingsGroup, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <SettingsRow 
-            icon="notifications-outline" 
-            label="Notifications" 
+        <Text
+          style={[
+            styles.sectionTitle,
+            { color: colors.muted, marginTop: THEME.spacing.lg },
+          ]}
+        >
+          More
+        </Text>
+
+        <View
+          style={[
+            styles.settingsGroup,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <SettingsRow
+            icon="notifications-outline"
+            label="Notifications"
             colors={colors}
-            onPress={() => {}}
+            onPress={() => router.push("/client/notifications" as any)}
           />
-          <SettingsRow 
-            icon="shield-checkmark-outline" 
-            label="Privacy & Security" 
+          <SettingsRow
+            icon="shield-checkmark-outline"
+            label="Privacy & Security"
             colors={colors}
-            onPress={() => {}}
+            onPress={() => router.push("/client/privacy" as any)}
           />
-          <SettingsRow 
-            icon="help-circle-outline" 
-            label="Help & Support" 
+          <SettingsRow
+            icon="help-circle-outline"
+            label="Help & Support"
             colors={colors}
-            onPress={() => {}}
+            onPress={() => router.push("/client/help" as any)}
           />
-          <SettingsRow 
-            icon="document-text-outline" 
-            label="Terms of Service" 
+          <SettingsRow
+            icon="document-text-outline"
+            label="Terms of Service"
             colors={colors}
-            onPress={() => {}}
+            onPress={() => router.push("/client/terms" as any)}
             isLast
           />
         </View>
 
         {/* App Info */}
         <View style={styles.appInfo}>
-          <Text style={[styles.appVersion, { color: colors.muted }]}>HANDI v1.0.0</Text>
-          <Text style={[styles.appCopyright, { color: colors.muted }]}>© 2024 HandiApp Nigeria</Text>
+          <Text style={[styles.appVersion, { color: colors.muted }]}>
+            HANDI v1.0.0
+          </Text>
+          <Text style={[styles.appCopyright, { color: colors.muted }]}>
+            © 2024 HandiApp Nigeria
+          </Text>
         </View>
       </ScrollView>
     </View>
@@ -94,29 +129,31 @@ export default function ClientSettings() {
 }
 
 // Settings Row Component
-function SettingsRow({ 
-  icon, 
-  label, 
-  colors, 
-  onPress, 
-  isLast = false 
-}: { 
-  icon: string; 
-  label: string; 
-  colors: any; 
+function SettingsRow({
+  icon,
+  label,
+  colors,
+  onPress,
+  isLast = false,
+}: {
+  icon: string;
+  label: string;
+  colors: any;
   onPress: () => void;
   isLast?: boolean;
 }) {
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[
-        styles.settingsRow, 
-        !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border }
+        styles.settingsRow,
+        !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border },
       ]}
       onPress={onPress}
     >
       <Ionicons name={icon as any} size={22} color={colors.primary} />
-      <Text style={[styles.settingsLabel, { color: colors.text }]}>{label}</Text>
+      <Text style={[styles.settingsLabel, { color: colors.text }]}>
+        {label}
+      </Text>
       <Ionicons name="chevron-forward" size={20} color={colors.muted} />
     </TouchableOpacity>
   );
@@ -128,9 +165,9 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     marginBottom: 20,
   },
@@ -155,18 +192,18 @@ const styles = StyleSheet.create({
     fontFamily: THEME.typography.fontFamily.subheading,
     marginBottom: 10,
     marginLeft: 4,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 1,
     marginTop: THEME.spacing.md,
   },
   settingsGroup: {
     borderRadius: THEME.radius.md,
     borderWidth: 1,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   settingsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: THEME.spacing.md,
     gap: THEME.spacing.sm,
   },
@@ -176,7 +213,7 @@ const styles = StyleSheet.create({
     fontFamily: THEME.typography.fontFamily.body,
   },
   appInfo: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: THEME.spacing.xl,
     paddingVertical: THEME.spacing.lg,
   },

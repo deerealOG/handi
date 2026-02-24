@@ -1,5 +1,6 @@
 // app/auth/register.tsx
 import { Button } from "@/components/Button";
+import { DecorativeBlobs } from "@/components/DecorativeBlobs";
 import { Input } from "@/components/Input";
 import { useAuth } from "@/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
@@ -26,14 +27,14 @@ export default function RegisterScreen() {
   const { colors } = useAppTheme();
   const { register } = useAuth();
   const params = useLocalSearchParams();
-  const userType = (params.type as "client" | "artisan" | "business") || "client";
+  const userType =
+    (params.type as "client" | "artisan" | "business") || "client";
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async () => {
     if (!fullName || !email || !password) {
@@ -80,7 +81,13 @@ export default function RegisterScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={[styles.container, { backgroundColor: colors.surface }]}
     >
-      <StatusBar barStyle={colors.text === '#FAFAFA' ? "light-content" : "dark-content"} backgroundColor={colors.surface} />
+      {/* Decorative Blobs */}
+      <DecorativeBlobs />
+
+      <StatusBar
+        barStyle={colors.text === "#FAFAFA" ? "light-content" : "dark-content"}
+        backgroundColor={colors.surface}
+      />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -88,7 +95,10 @@ export default function RegisterScreen() {
         {/* ===============================
             🏷 Logo Header
         =============================== */}
-        <Animated.View entering={FadeInDown.duration(800)} style={styles.header}>
+        <Animated.View
+          entering={FadeInDown.duration(800)}
+          style={styles.header}
+        >
           <Image
             source={require("../../assets/images/handi-logo-light.png")}
             style={styles.handIcon}
@@ -99,29 +109,48 @@ export default function RegisterScreen() {
         {/* ===============================
             📝 Welcome Text
         =============================== */}
-        <Animated.View entering={FadeInDown.delay(200).duration(800)} style={styles.textContainer}>
-          <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
+        <Animated.View
+          entering={FadeInDown.delay(200).duration(800)}
+          style={styles.textContainer}
+        >
+          <Text style={[styles.title, { color: colors.text }]}>
+            Create Account
+          </Text>
           <Text style={[styles.subtitle, { color: colors.muted }]}>
-            Join as a {userType === "artisan" ? "Professional Artisan" : userType === "business" ? "Business" : "Client"}
+            Join as a{" "}
+            {userType === "artisan"
+              ? "Professional Artisan"
+              : userType === "business"
+                ? "Business"
+                : "Client"}
           </Text>
         </Animated.View>
 
         {/* ===============================
             📝 Registration Form
         =============================== */}
-        <Animated.View entering={FadeInDown.delay(400).duration(800)} style={styles.formContainer}>
+        <Animated.View
+          entering={FadeInDown.delay(400).duration(800)}
+          style={styles.formContainer}
+        >
           {/* Full Name / Business Name Input */}
-          <Input 
+          <Input
             label={userType === "business" ? "Business Name" : "Full Name"}
-            placeholder={userType === "business" ? "Enter business name" : "Enter your full name"}
+            placeholder={
+              userType === "business"
+                ? "Enter business name"
+                : "Enter your full name"
+            }
             value={fullName}
             onChangeText={setFullName}
-            icon={userType === "business" ? "business-outline" : "person-outline"}
+            icon={
+              userType === "business" ? "business-outline" : "person-outline"
+            }
             autoCapitalize="words"
           />
 
           {/* Email Input */}
-          <Input 
+          <Input
             label="Email Address"
             placeholder="Enter your email"
             value={email}
@@ -131,7 +160,7 @@ export default function RegisterScreen() {
           />
 
           {/* Phone Input */}
-          <Input 
+          <Input
             label="Phone Number"
             placeholder="Enter your phone number"
             value={phone}
@@ -142,7 +171,7 @@ export default function RegisterScreen() {
 
           {/* Password Input */}
           <View>
-            <Input 
+            <Input
               label="Password"
               placeholder="Create a password"
               value={password}
@@ -165,25 +194,33 @@ export default function RegisterScreen() {
           {/* Terms and Conditions */}
           <Text style={[styles.termsText, { color: colors.muted }]}>
             By signing up, you agree to our{" "}
-            <Text style={[styles.linkText, { color: colors.primary }]}>Terms</Text> and{" "}
-            <Text style={[styles.linkText, { color: colors.primary }]}>Privacy Policy</Text>
+            <Text style={[styles.linkText, { color: colors.primary }]}>
+              Terms
+            </Text>{" "}
+            and{" "}
+            <Text style={[styles.linkText, { color: colors.primary }]}>
+              Privacy Policy
+            </Text>
           </Text>
 
           {/* Sign Up Button */}
-          <Button 
-            label="Sign Up"
-            onPress={handleRegister}
-            variant="primary"
-          />
+          <Button label="Sign Up" onPress={handleRegister} variant="primary" />
         </Animated.View>
 
         {/* ===============================
             🦶 Footer
         =============================== */}
-        <Animated.View entering={FadeInDown.delay(600).duration(800)} style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.muted }]}>Already have an account? </Text>
+        <Animated.View
+          entering={FadeInDown.delay(600).duration(800)}
+          style={styles.footer}
+        >
+          <Text style={[styles.footerText, { color: colors.muted }]}>
+            Already have an account?{" "}
+          </Text>
           <TouchableOpacity onPress={() => router.push("/auth/login" as any)}>
-            <Text style={[styles.loginText, { color: colors.primary }]}>Log In</Text>
+            <Text style={[styles.loginText, { color: colors.primary }]}>
+              Log In
+            </Text>
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>

@@ -1,38 +1,39 @@
-// app/artisan/(tabs)/index.tsx — Provider Dashboard (mirrors web DashboardTab)
 import {
-    PROVIDER_BOOKINGS,
-    PROVIDER_DASHBOARD_STATS,
-    PROVIDER_TRANSACTIONS,
+  PROVIDER_BOOKINGS,
+  PROVIDER_DASHBOARD_STATS,
+  PROVIDER_TRANSACTIONS,
 } from "@/constants/role-dashboard-data";
 import { useAuth } from "@/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
-    Alert,
-    Dimensions,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Dimensions,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, {
-    FadeInDown
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withTiming,
 } from "react-native-reanimated";
 import { THEME } from "../../../constants/theme";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-// Icons mapping for stats
-const STAT_ICONS: Record<
-  string,
-  { name: keyof typeof Ionicons.glyphMap; bg: string }
-> = {
+const STAT_ICONS: Record<string, { name: keyof typeof Ionicons.glyphMap; bg: string }> = {
   total_jobs: { name: "briefcase-outline", bg: "rgba(255,255,255,0.18)" },
   rating: { name: "star-outline", bg: "rgba(255,255,255,0.18)" },
   month: { name: "trending-up-outline", bg: "rgba(255,255,255,0.18)" },
@@ -48,19 +49,19 @@ const QUICK_ACTIONS = [
   },
   {
     id: "earnings",
-    label: "My Earnings",
+    label: "Earnings",
     icon: "wallet-outline" as const,
     route: "/artisan/(tabs)/wallet",
   },
   {
     id: "bookings",
-    label: "View Bookings",
+    label: "Bookings",
     icon: "calendar-outline" as const,
     route: "/artisan/(tabs)/jobs",
   },
   {
     id: "profile",
-    label: "Edit Profile",
+    label: "Profile",
     icon: "settings-outline" as const,
     route: "/artisan/(tabs)/profile",
   },
@@ -76,28 +77,20 @@ const RECENT_ACTIVITY = [
   },
   {
     id: "a2",
-    text: "Payment received: ₦15,000 for Deep Cleaning",
+    text: "Payment received: NGN 15,000 for Deep Cleaning",
     time: "5 hours ago",
     icon: "card-outline" as const,
     color: "#10B981",
   },
   {
     id: "a3",
-    text: "Client left a 5★ review on Home Fumigation",
+    text: "New 5-star review received on Home Fumigation",
     time: "1 day ago",
     icon: "star-outline" as const,
     color: "#8B5CF6",
   },
-  {
-    id: "a4",
-    text: "Service 'Kitchen Renovation' paused",
-    time: "2 days ago",
-    icon: "pause-circle-outline" as const,
-    color: "#EF4444",
-  },
 ];
 
-// Performance chart (simple bar chart data)
 const WEEKLY_BOOKINGS = [
   { day: "Mon", value: 3 },
   { day: "Tue", value: 5 },
@@ -107,15 +100,87 @@ const WEEKLY_BOOKINGS = [
   { day: "Sat", value: 6 },
   { day: "Sun", value: 1 },
 ];
+
 const MAX_BAR = Math.max(...WEEKLY_BOOKINGS.map((d) => d.value));
+
+const MONTH_LABELS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+function getBookingDateParts(dateValue: string) {
+  const isoParts = dateValue.split("-");
+  if (isoParts.length === 3) {
+    const monthIndex = Number.parseInt(isoParts[1], 10) - 1;
+    if (!Number.isNaN(monthIndex) && monthIndex >= 0 && monthIndex < 12) {
+      return { day: isoParts[2], month: MONTH_LABELS[monthIndex] };
+    }
+  }
+
+  const parsed = new Date(dateValue);
+  if (!Number.isNaN(parsed.getTime())) {
+    return {
+      day: String(parsed.getDate()).padStart(2, "0"),
+      month: MONTH_LABELS[parsed.getMonth()],
+    };
+  }
+
+  return { day: "--", month: "N/A" };
+}
+
+function BookingPulseDot({ delayMs }: { delayMs: number }) {
+  const scale = useSharedValue(1);
+  const opacity = useSharedValue(0.9);
+
+  useEffect(() => {
+    scale.value = withDelay(
+      delayMs,
+      withRepeat(
+        withSequence(
+          withTiming(1.25, { duration: 600 }),
+          withTiming(1, { duration: 600 }),
+        ),
+        -1,
+        false,
+      ),
+    );
+    opacity.value = withDelay(
+      delayMs,
+      withRepeat(
+        withSequence(
+          withTiming(0.3, { duration: 600 }),
+          withTiming(0.9, { duration: 600 }),
+        ),
+        -1,
+        false,
+      ),
+    );
+  }, [delayMs, opacity, scale]);
+
+  const animatedDotStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+
+  return <Animated.View style={[styles.pulseDot, animatedDotStyle]} />;
+}
 
 export default function ArtisanHomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { colors } = useAppTheme();
-  const pendingBookings = PROVIDER_BOOKINGS.filter(
-    (b) => b.status === "pending",
-  );
+
+  const pendingBookings = PROVIDER_BOOKINGS.filter((b) => b.status === "pending");
   const recentTransactions = PROVIDER_TRANSACTIONS.slice(0, 3);
 
   const openBooking = (id: string) => {
@@ -129,7 +194,6 @@ export default function ArtisanHomeScreen() {
       case "upcoming":
         return { bg: "#DBEAFE", text: "#2563EB" };
       case "confirmed":
-        return { bg: "#D1FAE5", text: "#059669" };
       case "completed":
         return { bg: "#D1FAE5", text: "#059669" };
       case "cancelled":
@@ -139,6 +203,10 @@ export default function ArtisanHomeScreen() {
     }
   };
 
+  const upcomingBookings = PROVIDER_BOOKINGS.filter(
+    (b) => b.status === "upcoming" || b.status === "confirmed",
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar
@@ -146,37 +214,25 @@ export default function ArtisanHomeScreen() {
         backgroundColor={colors.background}
       />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
-      >
-        {/* ─── Welcome Header ─── */}
-        <Animated.View
-          entering={FadeInDown.duration(500)}
-          style={styles.welcomeSection}
-        >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        <Animated.View entering={FadeInDown.duration(500)} style={styles.welcomeSection}>
           <View style={{ flex: 1 }}>
             <Text style={[styles.welcomeTitle, { color: colors.text }]}>
-              Welcome back, {user?.firstName || "Provider"}! 👋
+              Welcome back, {user?.firstName || "Provider"}
             </Text>
             <Text style={[styles.welcomeSubtitle, { color: colors.muted }]}>
-              Here's what's happening with your services today.
+              Here is what is happening with your services today.
             </Text>
           </View>
           <TouchableOpacity
             style={[styles.notifButton, { backgroundColor: colors.surface }]}
             onPress={() => router.push("/artisan/notifications" as any)}
           >
-            <Ionicons
-              name="notifications-outline"
-              size={22}
-              color={colors.text}
-            />
-            <View style={[styles.notifDot, { backgroundColor: "#EF4444" }]} />
+            <Ionicons name="notifications-outline" size={22} color={colors.text} />
+            <View style={styles.notifDot} />
           </TouchableOpacity>
         </Animated.View>
 
-        {/* ─── Stats Card (Green Gradient — mirrors web) ─── */}
         <Animated.View entering={FadeInDown.delay(100).duration(500)}>
           <LinearGradient
             colors={["#059669", "#065F46"]}
@@ -185,16 +241,11 @@ export default function ArtisanHomeScreen() {
             style={styles.statsGradient}
           >
             <View style={styles.statsGrid}>
-              {PROVIDER_DASHBOARD_STATS.map((stat, i) => {
+              {PROVIDER_DASHBOARD_STATS.map((stat) => {
                 const iconInfo = STAT_ICONS[stat.key] || STAT_ICONS.total_jobs;
                 return (
                   <View key={stat.key} style={styles.statItem}>
-                    <View
-                      style={[
-                        styles.statIconBox,
-                        { backgroundColor: iconInfo.bg },
-                      ]}
-                    >
+                    <View style={[styles.statIconBox, { backgroundColor: iconInfo.bg }]}>
                       <Ionicons name={iconInfo.name} size={18} color="#fff" />
                     </View>
                     <Text style={styles.statValue}>{stat.value}</Text>
@@ -206,46 +257,28 @@ export default function ArtisanHomeScreen() {
           </LinearGradient>
         </Animated.View>
 
-        {/* ─── Quick Actions ─── */}
         <Animated.View
           entering={FadeInDown.delay(200).duration(500)}
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
-          <Text style={[styles.cardTitle, { color: colors.text }]}>
-            Quick Actions
-          </Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
-            {QUICK_ACTIONS.map((action, i) => (
+            {QUICK_ACTIONS.map((action) => (
               <TouchableOpacity
                 key={action.id}
-                style={[
-                  styles.actionButton,
-                  { backgroundColor: colors.background },
-                ]}
+                style={[styles.actionButton, { backgroundColor: colors.background }]}
                 onPress={() => router.push(action.route as any)}
                 activeOpacity={0.7}
               >
-                <View
-                  style={[
-                    styles.actionIconBox,
-                    { backgroundColor: `${colors.primary}15` },
-                  ]}
-                >
-                  <Ionicons
-                    name={action.icon}
-                    size={22}
-                    color={colors.primary}
-                  />
+                <View style={[styles.actionIconBox, { backgroundColor: `${colors.primary}15` }]}>
+                  <Ionicons name={action.icon} size={22} color={colors.primary} />
                 </View>
-                <Text style={[styles.actionLabel, { color: colors.text }]}>
-                  {action.label}
-                </Text>
+                <Text style={[styles.actionLabel, { color: colors.text }]}>{action.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
         </Animated.View>
 
-        {/* ─── Pending Booking Requests ─── */}
         {pendingBookings.length > 0 && (
           <Animated.View
             entering={FadeInDown.delay(300).duration(500)}
@@ -253,18 +286,14 @@ export default function ArtisanHomeScreen() {
           >
             <View style={styles.cardHeader}>
               <View style={styles.cardTitleRow}>
-                <View style={styles.pulseDot} />
-                <Text style={[styles.cardTitle, { color: colors.text }]}>
-                  New Booking Requests
-                </Text>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>New Booking Requests</Text>
               </View>
               <View style={[styles.badge, { backgroundColor: "#FFF7ED" }]}>
-                <Text style={[styles.badgeText, { color: "#C2410C" }]}>
-                  {pendingBookings.length} pending
-                </Text>
+                <Text style={[styles.badgeText, { color: "#C2410C" }]}>{pendingBookings.length} pending</Text>
               </View>
             </View>
-            {pendingBookings.map((booking) => (
+
+            {pendingBookings.map((booking, index) => (
               <TouchableOpacity
                 key={booking.id}
                 style={[styles.bookingCard, { borderColor: colors.border }]}
@@ -272,42 +301,28 @@ export default function ArtisanHomeScreen() {
                 onPress={() => openBooking(booking.id)}
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.bookingService, { color: colors.text }]}>
-                    {booking.service}
-                  </Text>
+                  <View style={styles.bookingTitleRow}>
+                    <BookingPulseDot delayMs={index * 140} />
+                    <Text style={[styles.bookingService, { color: colors.text }]}>{booking.service}</Text>
+                  </View>
                   <Text style={[styles.bookingMeta, { color: colors.muted }]}>
-                    {booking.client} · {booking.date} at {booking.time}
+                    {booking.client} | {booking.date} at {booking.time}
                   </Text>
-                  <Text
-                    style={[styles.bookingAmount, { color: colors.primary }]}
-                  >
-                    {booking.amount}
-                  </Text>
+                  <Text style={[styles.bookingAmount, { color: colors.primary }]}>{booking.amount}</Text>
                 </View>
+
                 <View style={styles.bookingActions}>
                   <TouchableOpacity
                     style={[styles.roundAction, { backgroundColor: "#FEE2E2" }]}
-                    onPress={() =>
-                      Alert.alert("Declined", "Booking request declined.")
-                    }
+                    onPress={() => Alert.alert("Declined", "Booking request declined.")}
                   >
-                    <MaterialCommunityIcons
-                      name="close"
-                      size={16}
-                      color="#DC2626"
-                    />
+                    <MaterialCommunityIcons name="close" size={16} color="#DC2626" />
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.roundAction, { backgroundColor: "#D1FAE5" }]}
-                    onPress={() =>
-                      Alert.alert("Accepted", "Booking request accepted!")
-                    }
+                    onPress={() => Alert.alert("Accepted", "Booking request accepted.")}
                   >
-                    <MaterialCommunityIcons
-                      name="check"
-                      size={16}
-                      color="#059669"
-                    />
+                    <MaterialCommunityIcons name="check" size={16} color="#059669" />
                   </TouchableOpacity>
                 </View>
               </TouchableOpacity>
@@ -315,141 +330,92 @@ export default function ArtisanHomeScreen() {
           </Animated.View>
         )}
 
-        {/* ─── Weekly Performance ─── */}
         <Animated.View
           entering={FadeInDown.delay(400).duration(500)}
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
-          <Text style={[styles.cardTitle, { color: colors.text }]}>
-            Weekly Performance
-          </Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Weekly Performance</Text>
           <View style={styles.chartContainer}>
-            {WEEKLY_BOOKINGS.map((d, i) => (
-              <View key={i} style={styles.barColumn}>
+            {WEEKLY_BOOKINGS.map((entry, index) => (
+              <View key={entry.day} style={styles.barColumn}>
                 <View style={styles.barTrack}>
                   <Animated.View
-                    entering={FadeInDown.delay(500 + i * 60).duration(600)}
+                    entering={FadeInDown.delay(500 + index * 60).duration(600)}
                     style={[
                       styles.barFill,
                       {
-                        height: `${(d.value / MAX_BAR) * 100}%`,
+                        height: `${(entry.value / MAX_BAR) * 100}%`,
                         backgroundColor:
-                          d.value === MAX_BAR
-                            ? colors.primary
-                            : `${colors.primary}60`,
+                          entry.value === MAX_BAR ? colors.primary : `${colors.primary}60`,
                         borderRadius: 4,
                       },
                     ]}
                   />
                 </View>
-                <Text style={[styles.barLabel, { color: colors.muted }]}>
-                  {d.day}
-                </Text>
+                <Text style={[styles.barLabel, { color: colors.muted }]}>{entry.day}</Text>
               </View>
             ))}
           </View>
           <View style={styles.chartLegend}>
-            <Text style={[styles.chartLegendText, { color: colors.muted }]}>
-              Total this week:{" "}
-              <Text
-                style={{
-                  color: colors.text,
-                  fontFamily: THEME.typography.fontFamily.heading,
-                }}
-              >
-                28 bookings
-              </Text>
-            </Text>
+            <Text style={[styles.chartLegendText, { color: colors.muted }]}>Total this week: </Text>
+            <Text style={[styles.chartLegendValue, { color: colors.text }]}>28 bookings</Text>
           </View>
         </Animated.View>
 
-        {/* ─── Recent Activity ─── */}
         <Animated.View
           entering={FadeInDown.delay(500).duration(500)}
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
-          <Text style={[styles.cardTitle, { color: colors.text }]}>
-            Recent Activity
-          </Text>
-          {RECENT_ACTIVITY.map((item, i) => (
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Recent Activity</Text>
+          {RECENT_ACTIVITY.map((item, index) => (
             <View
               key={item.id}
               style={[
                 styles.activityRow,
-                i < RECENT_ACTIVITY.length - 1 && {
+                index < RECENT_ACTIVITY.length - 1 && {
                   borderBottomWidth: 1,
                   borderBottomColor: colors.border,
                 },
               ]}
             >
-              <View
-                style={[
-                  styles.activityIcon,
-                  { backgroundColor: `${item.color}20` },
-                ]}
-              >
+              <View style={[styles.activityIcon, { backgroundColor: `${item.color}20` }]}>
                 <Ionicons name={item.icon} size={16} color={item.color} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.activityText, { color: colors.text }]}>
-                  {item.text}
-                </Text>
-                <Text style={[styles.activityTime, { color: colors.muted }]}>
-                  {item.time}
-                </Text>
+                <Text style={[styles.activityText, { color: colors.text }]}>{item.text}</Text>
+                <Text style={[styles.activityTime, { color: colors.muted }]}>{item.time}</Text>
               </View>
             </View>
           ))}
         </Animated.View>
 
-        {/* ─── Recent Transactions ─── */}
         <Animated.View
           entering={FadeInDown.delay(600).duration(500)}
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
           <View style={styles.cardHeader}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>
-              Recent Transactions
-            </Text>
-            <TouchableOpacity
-              onPress={() => router.push("/artisan/(tabs)/wallet" as any)}
-            >
-              <Text style={[styles.seeAll, { color: colors.primary }]}>
-                See All
-              </Text>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Recent Transactions</Text>
+            <TouchableOpacity onPress={() => router.push("/artisan/(tabs)/wallet" as any)}>
+              <Text style={[styles.seeAll, { color: colors.primary }]}>See All</Text>
             </TouchableOpacity>
           </View>
           {recentTransactions.map((tx) => (
-            <View
-              key={tx.id}
-              style={[styles.txRow, { borderBottomColor: colors.border }]}
-            >
+            <View key={tx.id} style={[styles.txRow, { borderBottomColor: colors.border }]}>
               <View
                 style={[
                   styles.txIcon,
-                  {
-                    backgroundColor:
-                      tx.type === "credit" ? "#D1FAE5" : "#FEE2E2",
-                  },
+                  { backgroundColor: tx.type === "credit" ? "#D1FAE5" : "#FEE2E2" },
                 ]}
               >
                 <Ionicons
-                  name={
-                    tx.type === "credit"
-                      ? "arrow-down-outline"
-                      : "arrow-up-outline"
-                  }
+                  name={tx.type === "credit" ? "arrow-down-outline" : "arrow-up-outline"}
                   size={16}
                   color={tx.type === "credit" ? "#059669" : "#DC2626"}
                 />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.txTitle, { color: colors.text }]}>
-                  {tx.title}
-                </Text>
-                <Text style={[styles.txDate, { color: colors.muted }]}>
-                  {tx.date}
-                </Text>
+                <Text style={[styles.txTitle, { color: colors.text }]}>{tx.title}</Text>
+                <Text style={[styles.txDate, { color: colors.muted }]}>{tx.date}</Text>
               </View>
               <Text
                 style={[
@@ -463,84 +429,39 @@ export default function ArtisanHomeScreen() {
           ))}
         </Animated.View>
 
-        {/* ─── Upcoming Bookings Summary ─── */}
         <Animated.View
           entering={FadeInDown.delay(700).duration(500)}
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
           <View style={styles.cardHeader}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>
-              Upcoming Bookings
-            </Text>
-            <TouchableOpacity
-              onPress={() => router.push("/artisan/(tabs)/jobs" as any)}
-            >
-              <Text style={[styles.seeAll, { color: colors.primary }]}>
-                See All
-              </Text>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Upcoming Bookings</Text>
+            <TouchableOpacity onPress={() => router.push("/artisan/(tabs)/jobs" as any)}>
+              <Text style={[styles.seeAll, { color: colors.primary }]}>See All</Text>
             </TouchableOpacity>
           </View>
-          {PROVIDER_BOOKINGS.filter(
-            (b) => b.status === "upcoming" || b.status === "confirmed",
-          ).map((booking) => {
-            const sc = getStatusColor(booking.status);
+
+          {upcomingBookings.map((booking) => {
+            const statusColor = getStatusColor(booking.status);
+            const dateParts = getBookingDateParts(booking.date);
             return (
               <TouchableOpacity
                 key={booking.id}
-                style={[
-                  styles.upcomingRow,
-                  { borderBottomColor: colors.border },
-                ]}
+                style={[styles.upcomingRow, { borderBottomColor: colors.border }]}
                 onPress={() => openBooking(booking.id)}
                 activeOpacity={0.7}
               >
-                <View
-                  style={[
-                    styles.upcomingDate,
-                    { backgroundColor: `${colors.primary}12` },
-                  ]}
-                >
-                  <Text
-                    style={[styles.upcomingDateText, { color: colors.primary }]}
-                  >
-                    {booking.date.split("-")[2]}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.upcomingMonthText,
-                      { color: colors.primary },
-                    ]}
-                  >
-                    {
-                      [
-                        "Jan",
-                        "Feb",
-                        "Mar",
-                        "Apr",
-                        "May",
-                        "Jun",
-                        "Jul",
-                        "Aug",
-                        "Sep",
-                        "Oct",
-                        "Nov",
-                        "Dec",
-                      ][parseInt(booking.date.split("-")[1]) - 1]
-                    }
-                  </Text>
+                <View style={[styles.upcomingDate, { backgroundColor: `${colors.primary}12` }]}>
+                  <Text style={[styles.upcomingDateText, { color: colors.primary }]}>{dateParts.day}</Text>
+                  <Text style={[styles.upcomingMonthText, { color: colors.primary }]}>{dateParts.month}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.bookingService, { color: colors.text }]}>
-                    {booking.service}
-                  </Text>
+                  <Text style={[styles.bookingService, { color: colors.text }]}>{booking.service}</Text>
                   <Text style={[styles.bookingMeta, { color: colors.muted }]}>
-                    {booking.client} · {booking.time}
+                    {booking.client} | {booking.time}
                   </Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: sc.bg }]}>
-                  <Text style={[styles.statusText, { color: sc.text }]}>
-                    {booking.status}
-                  </Text>
+                <View style={[styles.statusBadge, { backgroundColor: statusColor.bg }]}>
+                  <Text style={[styles.statusText, { color: statusColor.text }]}>{booking.status}</Text>
                 </View>
               </TouchableOpacity>
             );
@@ -560,7 +481,6 @@ const styles = StyleSheet.create({
     gap: 16,
   },
 
-  // Welcome
   welcomeSection: {
     flexDirection: "row",
     alignItems: "center",
@@ -592,9 +512,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1.5,
     borderColor: "#fff",
+    backgroundColor: "#EF4444",
   },
 
-  // Stats Gradient
   statsGradient: {
     borderRadius: THEME.radius.xl,
     padding: THEME.spacing.lg,
@@ -629,7 +549,6 @@ const styles = StyleSheet.create({
     fontFamily: THEME.typography.fontFamily.body,
   },
 
-  // Card (shared)
   card: {
     borderRadius: THEME.radius.xl,
     padding: THEME.spacing.md,
@@ -656,7 +575,6 @@ const styles = StyleSheet.create({
     fontFamily: THEME.typography.fontFamily.bodyMedium,
   },
 
-  // Quick Actions
   actionsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -682,7 +600,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // Pending Bookings
   pulseDot: {
     width: 8,
     height: 8,
@@ -705,6 +622,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
+  },
+  bookingTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   bookingService: {
     fontSize: THEME.typography.sizes.sm,
@@ -732,7 +654,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  // Weekly Chart
   chartContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -762,13 +683,19 @@ const styles = StyleSheet.create({
   chartLegend: {
     marginTop: 12,
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 4,
   },
   chartLegendText: {
     fontSize: THEME.typography.sizes.xs,
     fontFamily: THEME.typography.fontFamily.body,
   },
+  chartLegendValue: {
+    fontSize: THEME.typography.sizes.xs,
+    fontFamily: THEME.typography.fontFamily.heading,
+  },
 
-  // Activity
   activityRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -792,7 +719,6 @@ const styles = StyleSheet.create({
     fontFamily: THEME.typography.fontFamily.body,
   },
 
-  // Transactions
   txRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -821,7 +747,6 @@ const styles = StyleSheet.create({
     fontFamily: THEME.typography.fontFamily.heading,
   },
 
-  // Upcoming Bookings
   upcomingRow: {
     flexDirection: "row",
     alignItems: "center",

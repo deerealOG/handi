@@ -1,7 +1,7 @@
 import {
-  ADMIN_ACTIVITY,
-  ADMIN_BOOKINGS,
-  ADMIN_PLATFORM_STATS,
+    ADMIN_ACTIVITY,
+    ADMIN_BOOKINGS,
+    ADMIN_PLATFORM_STATS,
 } from "@/constants/role-dashboard-data";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -9,13 +9,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  Dimensions,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { THEME } from "../../../constants/theme";
@@ -153,17 +153,31 @@ export default function AdminOverviewScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        <Animated.View entering={FadeInDown.duration(500)} style={styles.header}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
+        <Animated.View
+          entering={FadeInDown.duration(500)}
+          style={styles.header}
+        >
           <View style={{ flex: 1 }}>
-            <Text style={[styles.title, { color: colors.text }]}>Dashboard</Text>
-            <Text style={[styles.subtitle, { color: colors.muted }]}>Platform overview and management</Text>
+            <Text style={[styles.title, { color: colors.text }]}>
+              Dashboard
+            </Text>
+            <Text style={[styles.subtitle, { color: colors.muted }]}>
+              Platform overview and management
+            </Text>
           </View>
           <TouchableOpacity
             style={[styles.notifBtn, { backgroundColor: colors.surface }]}
             onPress={() => router.push("/admin/notifications" as any)}
           >
-            <Ionicons name="notifications-outline" size={22} color={colors.text} />
+            <Ionicons
+              name="notifications-outline"
+              size={22}
+              color={colors.text}
+            />
             <View style={styles.notifDot} />
           </TouchableOpacity>
         </Animated.View>
@@ -182,14 +196,22 @@ export default function AdminOverviewScreen() {
                 style={styles.statCard}
               >
                 <View style={styles.statBgIcon}>
-                  <Ionicons name={stat.icon} size={48} color="rgba(255,255,255,0.1)" />
+                  <Ionicons
+                    name={stat.icon}
+                    size={48}
+                    color="rgba(255,255,255,0.1)"
+                  />
                 </View>
                 <View style={styles.statTopRow}>
                   <View style={styles.statIconBox}>
                     <Ionicons name={stat.icon} size={16} color="#fff" />
                   </View>
                   <View style={styles.changeBadge}>
-                    <MaterialCommunityIcons name="trending-up" size={10} color="#fff" />
+                    <MaterialCommunityIcons
+                      name="trending-up"
+                      size={10}
+                      color="#fff"
+                    />
                     <Text style={styles.changeText}>{stat.change}</Text>
                   </View>
                 </View>
@@ -200,31 +222,55 @@ export default function AdminOverviewScreen() {
           ))}
         </View>
 
-        <Animated.View entering={FadeInDown.delay(400).duration(500)} style={styles.alertRow}>
+        <Animated.View
+          entering={FadeInDown.delay(400).duration(500)}
+          style={styles.alertRow}
+        >
           <TouchableOpacity
-            style={[styles.alertCard, { backgroundColor: "#FEF2F2", borderColor: "#FECACA" }]}
+            style={[
+              styles.alertCard,
+              { backgroundColor: colors.errorLight, borderColor: colors.error },
+            ]}
             onPress={() => router.push("/admin/(tabs)/disputes" as any)}
             activeOpacity={0.7}
           >
             <View style={styles.alertTop}>
-              <Ionicons name="alert-circle" size={20} color="#DC2626" />
+              <Ionicons name="alert-circle" size={20} color={colors.error} />
               <Text style={styles.alertTitle}>Active Disputes</Text>
             </View>
-            <Text style={[styles.alertCount, { color: "#B91C1C" }]}>{ADMIN_PLATFORM_STATS.activeDisputes}</Text>
+            <Text style={[styles.alertCount, { color: colors.error }]}>
+              {ADMIN_PLATFORM_STATS.activeDisputes}
+            </Text>
             <Text style={styles.alertMeta}>Requires immediate attention</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.alertCard, { backgroundColor: "#FEFCE8", borderColor: "#FEF08A" }]}
+            style={[
+              styles.alertCard,
+              {
+                backgroundColor: colors.warningLight,
+                borderColor: colors.warning,
+              },
+            ]}
             onPress={() => router.push("/admin/(tabs)/users" as any)}
             activeOpacity={0.7}
           >
             <View style={styles.alertTop}>
-              <MaterialCommunityIcons name="clock-outline" size={20} color="#CA8A04" />
-              <Text style={[styles.alertTitle, { color: "#A16207" }]}>Pending Providers</Text>
+              <MaterialCommunityIcons
+                name="clock-outline"
+                size={20}
+                color={colors.warning}
+              />
+              <Text style={[styles.alertTitle, { color: colors.warning }]}>
+                Pending Providers
+              </Text>
             </View>
-            <Text style={[styles.alertCount, { color: "#A16207" }]}>{ADMIN_PLATFORM_STATS.pendingProviders}</Text>
-            <Text style={[styles.alertMeta, { color: "#CA8A04" }]}>Awaiting verification</Text>
+            <Text style={[styles.alertCount, { color: colors.warning }]}>
+              {ADMIN_PLATFORM_STATS.pendingProviders}
+            </Text>
+            <Text style={[styles.alertMeta, { color: colors.warning }]}>
+              Awaiting verification
+            </Text>
           </TouchableOpacity>
         </Animated.View>
 
@@ -232,19 +278,35 @@ export default function AdminOverviewScreen() {
           entering={FadeInDown.delay(500).duration(500)}
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Quick Management</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>
+            Quick Management
+          </Text>
           <View style={styles.manageGrid}>
             {QUICK_MANAGE.map((item) => (
               <TouchableOpacity
                 key={item.id}
-                style={[styles.manageBtn, { backgroundColor: colors.background }]}
+                style={[
+                  styles.manageBtn,
+                  { backgroundColor: colors.background },
+                ]}
                 onPress={() => router.push(item.route as any)}
                 activeOpacity={0.7}
               >
-                <View style={[styles.manageBtnIcon, { backgroundColor: `${colors.primary}15` }]}>
-                  <MaterialCommunityIcons name={item.icon} size={20} color={colors.primary} />
+                <View
+                  style={[
+                    styles.manageBtnIcon,
+                    { backgroundColor: `${colors.primary}15` },
+                  ]}
+                >
+                  <MaterialCommunityIcons
+                    name={item.icon}
+                    size={20}
+                    color={colors.primary}
+                  />
                 </View>
-                <Text style={[styles.manageBtnLabel, { color: colors.text }]}>{item.label}</Text>
+                <Text style={[styles.manageBtnLabel, { color: colors.text }]}>
+                  {item.label}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -255,12 +317,29 @@ export default function AdminOverviewScreen() {
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
           <View style={styles.cardHeaderRow}>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-              <Ionicons name="shield-checkmark-outline" size={16} color="#7C3AED" />
-              <Text style={[styles.cardTitle, { color: colors.text, marginBottom: 0 }]}>Decision Log</Text>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+            >
+              <Ionicons
+                name="shield-checkmark-outline"
+                size={16}
+                color="#7C3AED"
+              />
+              <Text
+                style={[
+                  styles.cardTitle,
+                  { color: colors.text, marginBottom: 0 },
+                ]}
+              >
+                Decision Log
+              </Text>
             </View>
-            <View style={[styles.metaBadge, { backgroundColor: colors.background }]}>
-              <Text style={[styles.metaBadgeText, { color: colors.muted }]}>Last 5 actions</Text>
+            <View
+              style={[styles.metaBadge, { backgroundColor: colors.background }]}
+            >
+              <Text style={[styles.metaBadgeText, { color: colors.muted }]}>
+                Last 5 actions
+              </Text>
             </View>
           </View>
 
@@ -276,13 +355,20 @@ export default function AdminOverviewScreen() {
               ]}
             >
               <View style={styles.logBullet}>
-                <MaterialCommunityIcons name="history" size={12} color="#7C3AED" />
+                <MaterialCommunityIcons
+                  name="history"
+                  size={12}
+                  color="#7C3AED"
+                />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.logAction, { color: colors.text }]}>
-                  {item.action} | <Text style={styles.logTarget}>{item.target}</Text>
+                  {item.action} |{" "}
+                  <Text style={styles.logTarget}>{item.target}</Text>
                 </Text>
-                <Text style={[styles.logTime, { color: colors.muted }]}>{item.time}</Text>
+                <Text style={[styles.logTime, { color: colors.muted }]}>
+                  {item.time}
+                </Text>
               </View>
             </View>
           ))}
@@ -292,7 +378,9 @@ export default function AdminOverviewScreen() {
           entering={FadeInDown.delay(700).duration(500)}
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Recent Activity</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>
+            Recent Activity
+          </Text>
           {ADMIN_ACTIVITY.map((item, index) => (
             <TouchableOpacity
               key={`${item}-${index}`}
@@ -306,8 +394,17 @@ export default function AdminOverviewScreen() {
               onPress={() => router.push("/admin/(tabs)/reports" as any)}
               activeOpacity={0.7}
             >
-              <View style={[styles.actDot, { backgroundColor: index < 2 ? colors.primary : colors.muted }]} />
-              <Text style={[styles.actText, { color: colors.text }]}>{item}</Text>
+              <View
+                style={[
+                  styles.actDot,
+                  {
+                    backgroundColor: index < 2 ? colors.primary : colors.muted,
+                  },
+                ]}
+              />
+              <Text style={[styles.actText, { color: colors.text }]}>
+                {item}
+              </Text>
               <Ionicons name="chevron-forward" size={14} color={colors.muted} />
             </TouchableOpacity>
           ))}
@@ -318,9 +415,20 @@ export default function AdminOverviewScreen() {
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
           <View style={styles.cardHeaderRow}>
-            <Text style={[styles.cardTitle, { color: colors.text, marginBottom: 0 }]}>Recent Bookings</Text>
-            <TouchableOpacity onPress={() => router.push("/admin/(tabs)/jobs" as any)}>
-              <Text style={[styles.seeAll, { color: colors.primary }]}>View All</Text>
+            <Text
+              style={[
+                styles.cardTitle,
+                { color: colors.text, marginBottom: 0 },
+              ]}
+            >
+              Recent Bookings
+            </Text>
+            <TouchableOpacity
+              onPress={() => router.push("/admin/(tabs)/jobs" as any)}
+            >
+              <Text style={[styles.seeAll, { color: colors.primary }]}>
+                View All
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -341,7 +449,9 @@ export default function AdminOverviewScreen() {
                 ]}
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.bookingService, { color: colors.text }]}>{booking.service}</Text>
+                  <Text style={[styles.bookingService, { color: colors.text }]}>
+                    {booking.service}
+                  </Text>
                   <Text style={[styles.bookingMeta, { color: colors.muted }]}>
                     {booking.client} {"->"} {booking.provider}
                   </Text>
@@ -350,10 +460,21 @@ export default function AdminOverviewScreen() {
                   </Text>
                 </View>
                 <View>
-                  <View style={[styles.statusBadge, { backgroundColor: statusColor.bg }]}>
-                    <Text style={[styles.statusText, { color: statusColor.text }]}>{booking.status}</Text>
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      { backgroundColor: statusColor.bg },
+                    ]}
+                  >
+                    <Text
+                      style={[styles.statusText, { color: statusColor.text }]}
+                    >
+                      {booking.status}
+                    </Text>
                   </View>
-                  <Text style={[styles.bookingAmount, { color: colors.text }]}>{booking.amount}</Text>
+                  <Text style={[styles.bookingAmount, { color: colors.text }]}>
+                    {booking.amount}
+                  </Text>
                 </View>
               </View>
             );

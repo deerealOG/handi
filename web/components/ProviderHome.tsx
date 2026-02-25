@@ -5,48 +5,46 @@ import { useNotification } from "@/context/NotificationContext";
 import { useTheme } from "@/context/ThemeContext";
 import { generateReceipt } from "@/lib/generateReceipt";
 import {
-  AlertCircle,
-  ArrowDown,
-  ArrowUp,
-  Award,
-  Ban,
-  Bell,
-  Briefcase,
-  Calendar,
-  CalendarCheck,
-  Camera,
-  Check,
-  CheckCircle,
-  ChevronDown,
-  ChevronRight,
-  Clock,
-  CreditCard,
-  Eye,
-  EyeOff,
-  HelpCircle,
-  Image as ImageIcon,
-  Info,
-  LayoutDashboard,
-  LogOut,
-  MapPin,
-  Menu,
-  MessageSquare,
-  Moon,
-  Package,
-  PanelLeft,
-  PanelLeftClose,
-  Paperclip,
-  Plus,
-  Send,
-  Settings,
-  Shield,
-  Star,
-  Sun,
-  Trash2,
-  TrendingUp,
-  User,
-  Wallet,
-  X,
+    AlertCircle,
+    ArrowDown,
+    ArrowUp,
+    Award,
+    Ban,
+    Bell,
+    Briefcase,
+    Calendar,
+    CalendarCheck,
+    Camera,
+    Check,
+    CheckCircle,
+    ChevronDown,
+    ChevronRight,
+    Clock,
+    CreditCard,
+    Eye,
+    EyeOff,
+    HelpCircle,
+    Image as ImageIcon,
+    Info,
+    LayoutDashboard,
+    LogOut,
+    MapPin,
+    Menu,
+    MessageSquare,
+    Moon,
+    Package,
+    Paperclip,
+    Plus,
+    Send,
+    Settings,
+    Shield,
+    Star,
+    Sun,
+    Trash2,
+    TrendingUp,
+    User,
+    Wallet,
+    X
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -213,8 +211,7 @@ export default function ProviderHome() {
   const [showChat, setShowChat] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
   const [showTransactions, setShowTransactions] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showBankModal, setShowBankModal] = useState(false);
   const [withdrawStep, setWithdrawStep] = useState(1);
@@ -233,46 +230,23 @@ export default function ProviderHome() {
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  if (window.innerWidth < 1024)
-                    setShowMobileSidebar(!showMobileSidebar);
-                  else setSidebarOpen(!sidebarOpen);
-                }}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                title="Toggle sidebar"
-              >
-                {sidebarOpen ? (
-                  <PanelLeftClose
-                    size={20}
-                    className="text-gray-600 hidden lg:block"
-                  />
-                ) : (
-                  <PanelLeft
-                    size={20}
-                    className="text-gray-600 hidden lg:block"
-                  />
-                )}
-                <Menu size={20} className="text-gray-600 lg:hidden" />
-              </button>
-              <button
-                onClick={() => setActiveTab("dashboard")}
-                className="shrink-0"
-              >
-                <Image
-                  src="/images/handi-logo-light.png"
-                  alt="HANDI"
-                  width={110}
-                  height={36}
-                  className="h-8 w-auto"
-                  priority
-                />
-              </button>
-            </div>
+            {/* Logo */}
+            <button
+              onClick={() => setActiveTab("dashboard")}
+              className="shrink-0"
+            >
+              <Image
+                src="/images/handi-logo-light.png"
+                alt="HANDI"
+                width={110}
+                height={36}
+                className="h-8 w-auto"
+                priority
+              />
+            </button>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-3">
               {/* Dark Mode Toggle */}
               <button
                 onClick={toggleDarkMode}
@@ -286,17 +260,15 @@ export default function ProviderHome() {
                 )}
               </button>
 
-              {/* Earnings Quick */}
               {/* Quick Add Service */}
               <button
-                onClick={() => {
-                  setActiveTab("services");
-                }}
+                onClick={() => setActiveTab("services")}
                 className="hidden md:flex items-center gap-1.5 px-4 py-2 bg-(--color-primary) text-white rounded-full text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer"
               >
                 <Plus size={14} /> Add Service
               </button>
 
+              {/* Chat */}
               <button
                 onClick={() => setShowChat(true)}
                 className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -308,6 +280,7 @@ export default function ProviderHome() {
                 </span>
               </button>
 
+              {/* Notifications */}
               <button
                 onClick={() => setShowNotifications(true)}
                 className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -322,7 +295,7 @@ export default function ProviderHome() {
               {/* Profile Avatar */}
               <button
                 onClick={() => setActiveTab("profile")}
-                className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-bold text-sm uppercase overflow-hidden ring-2 ring-emerald-200"
+                className="w-9 h-9 rounded-full bg-(--color-primary-light) flex items-center justify-center text-(--color-primary) font-bold text-sm uppercase overflow-hidden ring-2 ring-(--color-primary)/20"
               >
                 {user.avatar ? (
                   <Image
@@ -341,172 +314,127 @@ export default function ProviderHome() {
         </div>
       </header>
 
-      {/* ===== DESKTOP SIDEBAR + TAB CONTENT ===== */}
-      <div className="flex flex-1">
-        {/* Desktop Sidebar */}
-        <aside
-          className={`hidden lg:flex flex-col sticky top-16 h-[calc(100vh-4rem)] bg-white border-r border-gray-100 transition-all duration-300 z-30 ${sidebarOpen ? "w-56" : "w-16"}`}
-        >
-          <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto no-scrollbar">
+      {/* ===== QUICK-NAV BREADCRUMBS ===== */}
+      <div className="bg-white border-b border-gray-100 sticky top-16 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Desktop Nav */}
+          <div className="hidden sm:flex quick-nav-bar">
             {TABS.map((tab) => {
               const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  title={!sidebarOpen ? tab.label : undefined}
-                  className={`w-full flex items-center gap-3 rounded-xl transition-all duration-200 ${
-                    sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"
-                  } ${
-                    isActive
-                      ? "bg-emerald-50 text-emerald-700 border-l-3 border-emerald-600 font-semibold"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }`}
+                  className={`quick-nav-pill ${activeTab === tab.id ? "active" : ""}`}
                 >
-                  <Icon
-                    size={18}
-                    className={isActive ? "text-emerald-600" : ""}
-                  />
-                  {sidebarOpen && <span className="text-sm">{tab.label}</span>}
-                  {sidebarOpen && tab.id === "bookings" && (
-                    <span className="ml-auto text-[9px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded-full">
+                  <Icon size={14} />
+                  {tab.label}
+                  {tab.id === "bookings" && (
+                    <span className="ml-1 text-[9px] font-bold bg-(--color-primary) text-white px-1.5 py-0.5 rounded-full">
                       4
                     </span>
                   )}
                 </button>
               );
             })}
-          </nav>
-          <div className="p-2 border-t border-gray-100">
+          </div>
+          {/* Mobile Hamburger */}
+          <div className="sm:hidden flex items-center py-2">
             <button
-              onClick={() => setShowLogoutConfirm(true)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 transition-colors ${!sidebarOpen ? "justify-center" : ""}`}
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="flex items-center gap-2 px-3 py-2 rounded-full bg-gray-50 border border-gray-200 text-sm font-medium text-gray-700"
             >
-              <LogOut size={18} />
-              {sidebarOpen && (
-                <span className="text-sm font-medium">Logout</span>
-              )}
+              <Menu size={16} />
+              {TABS.find((t) => t.id === activeTab)?.label || "Menu"}
+              <ChevronDown
+                size={14}
+                className={`transition-transform ${showMobileMenu ? "rotate-180" : ""}`}
+              />
             </button>
           </div>
-        </aside>
-
-        {/* Mobile Sidebar Overlay */}
-        {showMobileSidebar && (
-          <div
-            className="fixed inset-0 z-50 lg:hidden"
-            onClick={() => setShowMobileSidebar(false)}
-          >
-            <div className="absolute inset-0 bg-black/40" />
-            <div
-              className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-2xl animate-[slideRight_0.3s_ease-out]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-4 border-b border-gray-100">
-                <div className="flex items-center justify-between mb-3">
-                  <Image
-                    src="/images/handi-logo-light.png"
-                    alt="HANDI"
-                    width={100}
-                    height={32}
-                    className="h-7 w-auto"
-                  />
-                  <button
-                    onClick={() => setShowMobileSidebar(false)}
-                    className="p-1 rounded-lg hover:bg-gray-100"
-                  >
-                    <X size={18} className="text-gray-500" />
-                  </button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-bold text-sm">
-                    {user.firstName?.[0]}
-                    {user.lastName?.[0]}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      {user.firstName} {user.lastName}
-                    </p>
-                    <p className="text-[10px] text-emerald-600 font-medium">
-                      Service Provider
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <nav className="p-3 space-y-1">
-                {TABS.map((tab) => {
-                  const Icon = tab.icon;
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => {
-                        setActiveTab(tab.id);
-                        setShowMobileSidebar(false);
-                      }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                        isActive
-                          ? "bg-emerald-50 text-emerald-700 font-semibold border-l-3 border-emerald-600"
-                          : "text-gray-600 hover:bg-gray-50"
-                      }`}
-                    >
-                      <Icon size={18} />
-                      {tab.label}
-                      {tab.id === "bookings" && (
-                        <span className="ml-auto text-[9px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded-full">
-                          4
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </nav>
-              <div className="absolute bottom-4 left-0 right-0 px-3">
-                <button
-                  onClick={() => {
-                    setShowMobileSidebar(false);
-                    setShowLogoutConfirm(true);
-                  }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 text-sm"
-                >
-                  <LogOut size={18} /> Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ===== TAB CONTENT ===== */}
-        <main className="flex-1 pb-20 min-w-0">
-          {activeTab === "dashboard" && (
-            <DashboardTab user={user} setActiveTab={setActiveTab} />
-          )}
-          {activeTab === "services" && <ServicesTab />}
-          {activeTab === "bookings" && (
-            <BookingsTab onOpenChat={() => setShowChat(true)} />
-          )}
-          {activeTab === "earnings" && (
-            <EarningsTab
-              setShowWithdrawModal={setShowWithdrawModal}
-              setShowBankModal={setShowBankModal}
-            />
-          )}
-          {activeTab === "profile" && (
-            <ProfileTab
-              user={user}
-              updateUser={updateUser}
-              onLogout={() => setShowLogoutConfirm(true)}
-              setShowNotifications={setShowNotifications}
-              setShowChat={setShowChat}
-              setShowSupport={setShowSupport}
-              setShowTransactions={setShowTransactions}
-            />
-          )}
-        </main>
+        </div>
       </div>
 
-      {/* ===== BOTTOM TAB BAR (≤5 tabs: show on mobile) ===== */}
-      <nav className="flex sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 safe-area-pb">
+      {/* Mobile Menu Overlay */}
+      {showMobileMenu && (
+        <div
+          className="fixed inset-0 z-40 sm:hidden"
+          onClick={() => setShowMobileMenu(false)}
+        >
+          <div className="absolute inset-0 bg-black/30" />
+          <div
+            className="absolute top-[8.5rem] left-4 right-4 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden animate-[slideDown_0.2s_ease-out]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setShowMobileMenu(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
+                    activeTab === tab.id
+                      ? "bg-(--color-primary-light) text-(--color-primary)"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  <Icon size={16} />
+                  {tab.label}
+                  {tab.id === "bookings" && (
+                    <span className="ml-auto text-[9px] font-bold bg-(--color-primary) text-white px-1.5 py-0.5 rounded-full">
+                      4
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => {
+                setShowMobileMenu(false);
+                setShowLogoutConfirm(true);
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 border-t border-gray-100"
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ===== TAB CONTENT ===== */}
+      <main className="flex-1 pb-20">
+        {activeTab === "dashboard" && (
+          <DashboardTab user={user} setActiveTab={setActiveTab} />
+        )}
+        {activeTab === "services" && <ServicesTab />}
+        {activeTab === "bookings" && (
+          <BookingsTab onOpenChat={() => setShowChat(true)} />
+        )}
+        {activeTab === "earnings" && (
+          <EarningsTab
+            setShowWithdrawModal={setShowWithdrawModal}
+            setShowBankModal={setShowBankModal}
+          />
+        )}
+        {activeTab === "profile" && (
+          <ProfileTab
+            user={user}
+            updateUser={updateUser}
+            onLogout={() => setShowLogoutConfirm(true)}
+            setShowNotifications={setShowNotifications}
+            setShowChat={setShowChat}
+            setShowSupport={setShowSupport}
+            setShowTransactions={setShowTransactions}
+          />
+        )}
+      </main>
+
+      {/* ===== BOTTOM TAB BAR (hidden: using top nav instead) ===== */}
+      <nav className="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 safe-area-pb">
         <div className="max-w-7xl mx-auto flex items-center justify-around px-2 sm:px-4">
           {TABS.map((tab) => (
             <button
@@ -514,7 +442,7 @@ export default function ProviderHome() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex flex-col items-center gap-1 py-2 sm:py-3 px-2 sm:px-5 rounded-full transition-colors ${
                 activeTab === tab.id
-                  ? "text-primary bg-emerald-50"
+                  ? "text-(--color-primary) bg-(--color-primary-light)"
                   : "text-gray-400 hover:text-gray-600"
               }`}
             >

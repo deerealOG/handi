@@ -235,39 +235,39 @@ export const Colors = {
   dark: {
     // Brand Colors (Brighter for dark bg)
     primary: PALETTE.primary[400], // #4ADE80 - Vibrant green
-    primaryLight: "rgba(74, 222, 128, 0.15)",
+    primaryLight: "rgba(74, 222, 128, 0.18)",
     primaryDark: PALETTE.primary[500], // #22C55E
     secondary: "#FFC857", // Warm gold
 
-    // Backgrounds (OLED Black)
-    background: PALETTE.black, // Pure black
-    surface: "#121212", // Dark gray cards
-    surfaceElevated: "#1A1A1A", // Elevated surfaces
+    // Backgrounds — slightly lifted for better card contrast
+    background: "#0A0A0A", // Near-black but not pure (avoids OLED banding)
+    surface: "#1A1A1A", // Visible card separation from bg
+    surfaceElevated: "#242424", // Distinct elevated surfaces
 
-    // Text
-    text: PALETTE.white, // Pure white
-    muted: "#999999", // Medium gray
-    placeholder: "#666666", // Dark gray
+    // Text — bright enough to stand out
+    text: "#F5F5F5", // Slightly off-white (easier on eyes than pure white)
+    muted: "#A8A8A8", // Brighter secondary text
+    placeholder: "#777777", // Visible placeholder
 
-    // Borders
-    border: "#222222", // Very dark
-    borderLight: "#333333", // Slightly lighter
+    // Borders — more visible
+    border: "#2E2E2E", // Visible against surface
+    borderLight: "#3A3A3A", // Clearly visible dividers
 
     // Overlay
-    overlay: "rgba(0, 0, 0, 0.90)",
+    overlay: "rgba(0, 0, 0, 0.85)",
 
-    // Status Colors
+    // Status Colors (brighter for dark bg)
     error: "#FF6B6B",
-    errorLight: "rgba(255, 107, 107, 0.15)",
+    errorLight: "rgba(255, 107, 107, 0.18)",
     success: PALETTE.primary[400],
-    successLight: "rgba(74, 222, 128, 0.15)",
+    successLight: "rgba(74, 222, 128, 0.18)",
     warning: "#FBBF24",
-    warningLight: "rgba(251, 191, 36, 0.15)",
+    warningLight: "rgba(251, 191, 36, 0.18)",
     star: PALETTE.star,
 
-    // Input Fields
-    inputBackground: "rgba(255, 255, 255, 0.06)",
-    inputBorder: "#333333",
+    // Input Fields — more visible
+    inputBackground: "rgba(255, 255, 255, 0.08)",
+    inputBorder: "#3A3A3A",
     inputFocusBorder: PALETTE.primary[400],
 
     // Dashboard Role Colors
@@ -278,8 +278,8 @@ export const Colors = {
 
     // System
     tint: PALETTE.primary[400],
-    icon: "#888888",
-    tabIconDefault: "#555555",
+    icon: "#999999",
+    tabIconDefault: "#777777",
     tabIconSelected: PALETTE.primary[400],
     onPrimary: PALETTE.black,
   },

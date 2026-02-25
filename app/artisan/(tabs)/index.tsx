@@ -1,7 +1,7 @@
 import {
-  PROVIDER_BOOKINGS,
-  PROVIDER_DASHBOARD_STATS,
-  PROVIDER_TRANSACTIONS,
+    PROVIDER_BOOKINGS,
+    PROVIDER_DASHBOARD_STATS,
+    PROVIDER_TRANSACTIONS,
 } from "@/constants/role-dashboard-data";
 import { useAuth } from "@/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
@@ -10,30 +10,33 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import {
-  Alert,
-  Dimensions,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    Dimensions,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, {
-  FadeInDown,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withRepeat,
-  withSequence,
-  withTiming,
+    FadeInDown,
+    useAnimatedStyle,
+    useSharedValue,
+    withDelay,
+    withRepeat,
+    withSequence,
+    withTiming,
 } from "react-native-reanimated";
 import { THEME } from "../../../constants/theme";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-const STAT_ICONS: Record<string, { name: keyof typeof Ionicons.glyphMap; bg: string }> = {
+const STAT_ICONS: Record<
+  string,
+  { name: keyof typeof Ionicons.glyphMap; bg: string }
+> = {
   total_jobs: { name: "briefcase-outline", bg: "rgba(255,255,255,0.18)" },
   rating: { name: "star-outline", bg: "rgba(255,255,255,0.18)" },
   month: { name: "trending-up-outline", bg: "rgba(255,255,255,0.18)" },
@@ -180,7 +183,9 @@ export default function ArtisanHomeScreen() {
   const { user } = useAuth();
   const { colors } = useAppTheme();
 
-  const pendingBookings = PROVIDER_BOOKINGS.filter((b) => b.status === "pending");
+  const pendingBookings = PROVIDER_BOOKINGS.filter(
+    (b) => b.status === "pending",
+  );
   const recentTransactions = PROVIDER_TRANSACTIONS.slice(0, 3);
 
   const openBooking = (id: string) => {
@@ -214,8 +219,14 @@ export default function ArtisanHomeScreen() {
         backgroundColor={colors.background}
       />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        <Animated.View entering={FadeInDown.duration(500)} style={styles.welcomeSection}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
+        <Animated.View
+          entering={FadeInDown.duration(500)}
+          style={styles.welcomeSection}
+        >
           <View style={{ flex: 1 }}>
             <Text style={[styles.welcomeTitle, { color: colors.text }]}>
               Welcome back, {user?.firstName || "Provider"}
@@ -228,7 +239,11 @@ export default function ArtisanHomeScreen() {
             style={[styles.notifButton, { backgroundColor: colors.surface }]}
             onPress={() => router.push("/artisan/notifications" as any)}
           >
-            <Ionicons name="notifications-outline" size={22} color={colors.text} />
+            <Ionicons
+              name="notifications-outline"
+              size={22}
+              color={colors.text}
+            />
             <View style={styles.notifDot} />
           </TouchableOpacity>
         </Animated.View>
@@ -245,7 +260,12 @@ export default function ArtisanHomeScreen() {
                 const iconInfo = STAT_ICONS[stat.key] || STAT_ICONS.total_jobs;
                 return (
                   <View key={stat.key} style={styles.statItem}>
-                    <View style={[styles.statIconBox, { backgroundColor: iconInfo.bg }]}>
+                    <View
+                      style={[
+                        styles.statIconBox,
+                        { backgroundColor: iconInfo.bg },
+                      ]}
+                    >
                       <Ionicons name={iconInfo.name} size={18} color="#fff" />
                     </View>
                     <Text style={styles.statValue}>{stat.value}</Text>
@@ -261,19 +281,35 @@ export default function ArtisanHomeScreen() {
           entering={FadeInDown.delay(200).duration(500)}
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Quick Actions</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>
+            Quick Actions
+          </Text>
           <View style={styles.actionsGrid}>
             {QUICK_ACTIONS.map((action) => (
               <TouchableOpacity
                 key={action.id}
-                style={[styles.actionButton, { backgroundColor: colors.background }]}
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: colors.background },
+                ]}
                 onPress={() => router.push(action.route as any)}
                 activeOpacity={0.7}
               >
-                <View style={[styles.actionIconBox, { backgroundColor: `${colors.primary}15` }]}>
-                  <Ionicons name={action.icon} size={22} color={colors.primary} />
+                <View
+                  style={[
+                    styles.actionIconBox,
+                    { backgroundColor: `${colors.primary}15` },
+                  ]}
+                >
+                  <Ionicons
+                    name={action.icon}
+                    size={22}
+                    color={colors.primary}
+                  />
                 </View>
-                <Text style={[styles.actionLabel, { color: colors.text }]}>{action.label}</Text>
+                <Text style={[styles.actionLabel, { color: colors.text }]}>
+                  {action.label}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -286,10 +322,16 @@ export default function ArtisanHomeScreen() {
           >
             <View style={styles.cardHeader}>
               <View style={styles.cardTitleRow}>
-                <Text style={[styles.cardTitle, { color: colors.text }]}>New Booking Requests</Text>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>
+                  New Booking Requests
+                </Text>
               </View>
-              <View style={[styles.badge, { backgroundColor: "#FFF7ED" }]}>
-                <Text style={[styles.badgeText, { color: "#C2410C" }]}>{pendingBookings.length} pending</Text>
+              <View
+                style={[styles.badge, { backgroundColor: colors.warningLight }]}
+              >
+                <Text style={[styles.badgeText, { color: colors.warning }]}>
+                  {pendingBookings.length} pending
+                </Text>
               </View>
             </View>
 
@@ -303,26 +345,52 @@ export default function ArtisanHomeScreen() {
                 <View style={{ flex: 1 }}>
                   <View style={styles.bookingTitleRow}>
                     <BookingPulseDot delayMs={index * 140} />
-                    <Text style={[styles.bookingService, { color: colors.text }]}>{booking.service}</Text>
+                    <Text
+                      style={[styles.bookingService, { color: colors.text }]}
+                    >
+                      {booking.service}
+                    </Text>
                   </View>
                   <Text style={[styles.bookingMeta, { color: colors.muted }]}>
                     {booking.client} | {booking.date} at {booking.time}
                   </Text>
-                  <Text style={[styles.bookingAmount, { color: colors.primary }]}>{booking.amount}</Text>
+                  <Text
+                    style={[styles.bookingAmount, { color: colors.primary }]}
+                  >
+                    {booking.amount}
+                  </Text>
                 </View>
 
                 <View style={styles.bookingActions}>
                   <TouchableOpacity
-                    style={[styles.roundAction, { backgroundColor: "#FEE2E2" }]}
-                    onPress={() => Alert.alert("Declined", "Booking request declined.")}
+                    style={[
+                      styles.roundAction,
+                      { backgroundColor: colors.errorLight },
+                    ]}
+                    onPress={() =>
+                      Alert.alert("Declined", "Booking request declined.")
+                    }
                   >
-                    <MaterialCommunityIcons name="close" size={16} color="#DC2626" />
+                    <MaterialCommunityIcons
+                      name="close"
+                      size={16}
+                      color={colors.error}
+                    />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.roundAction, { backgroundColor: "#D1FAE5" }]}
-                    onPress={() => Alert.alert("Accepted", "Booking request accepted.")}
+                    style={[
+                      styles.roundAction,
+                      { backgroundColor: colors.successLight },
+                    ]}
+                    onPress={() =>
+                      Alert.alert("Accepted", "Booking request accepted.")
+                    }
                   >
-                    <MaterialCommunityIcons name="check" size={16} color="#059669" />
+                    <MaterialCommunityIcons
+                      name="check"
+                      size={16}
+                      color={colors.success}
+                    />
                   </TouchableOpacity>
                 </View>
               </TouchableOpacity>
@@ -334,7 +402,9 @@ export default function ArtisanHomeScreen() {
           entering={FadeInDown.delay(400).duration(500)}
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Weekly Performance</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>
+            Weekly Performance
+          </Text>
           <View style={styles.chartContainer}>
             {WEEKLY_BOOKINGS.map((entry, index) => (
               <View key={entry.day} style={styles.barColumn}>
@@ -346,19 +416,27 @@ export default function ArtisanHomeScreen() {
                       {
                         height: `${(entry.value / MAX_BAR) * 100}%`,
                         backgroundColor:
-                          entry.value === MAX_BAR ? colors.primary : `${colors.primary}60`,
+                          entry.value === MAX_BAR
+                            ? colors.primary
+                            : `${colors.primary}60`,
                         borderRadius: 4,
                       },
                     ]}
                   />
                 </View>
-                <Text style={[styles.barLabel, { color: colors.muted }]}>{entry.day}</Text>
+                <Text style={[styles.barLabel, { color: colors.muted }]}>
+                  {entry.day}
+                </Text>
               </View>
             ))}
           </View>
           <View style={styles.chartLegend}>
-            <Text style={[styles.chartLegendText, { color: colors.muted }]}>Total this week: </Text>
-            <Text style={[styles.chartLegendValue, { color: colors.text }]}>28 bookings</Text>
+            <Text style={[styles.chartLegendText, { color: colors.muted }]}>
+              Total this week:{" "}
+            </Text>
+            <Text style={[styles.chartLegendValue, { color: colors.text }]}>
+              28 bookings
+            </Text>
           </View>
         </Animated.View>
 
@@ -366,7 +444,9 @@ export default function ArtisanHomeScreen() {
           entering={FadeInDown.delay(500).duration(500)}
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Recent Activity</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>
+            Recent Activity
+          </Text>
           {RECENT_ACTIVITY.map((item, index) => (
             <View
               key={item.id}
@@ -378,12 +458,21 @@ export default function ArtisanHomeScreen() {
                 },
               ]}
             >
-              <View style={[styles.activityIcon, { backgroundColor: `${item.color}20` }]}>
+              <View
+                style={[
+                  styles.activityIcon,
+                  { backgroundColor: `${item.color}20` },
+                ]}
+              >
                 <Ionicons name={item.icon} size={16} color={item.color} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.activityText, { color: colors.text }]}>{item.text}</Text>
-                <Text style={[styles.activityTime, { color: colors.muted }]}>{item.time}</Text>
+                <Text style={[styles.activityText, { color: colors.text }]}>
+                  {item.text}
+                </Text>
+                <Text style={[styles.activityTime, { color: colors.muted }]}>
+                  {item.time}
+                </Text>
               </View>
             </View>
           ))}
@@ -394,33 +483,57 @@ export default function ArtisanHomeScreen() {
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
           <View style={styles.cardHeader}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Recent Transactions</Text>
-            <TouchableOpacity onPress={() => router.push("/artisan/(tabs)/wallet" as any)}>
-              <Text style={[styles.seeAll, { color: colors.primary }]}>See All</Text>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>
+              Recent Transactions
+            </Text>
+            <TouchableOpacity
+              onPress={() => router.push("/artisan/(tabs)/wallet" as any)}
+            >
+              <Text style={[styles.seeAll, { color: colors.primary }]}>
+                See All
+              </Text>
             </TouchableOpacity>
           </View>
           {recentTransactions.map((tx) => (
-            <View key={tx.id} style={[styles.txRow, { borderBottomColor: colors.border }]}>
+            <View
+              key={tx.id}
+              style={[styles.txRow, { borderBottomColor: colors.border }]}
+            >
               <View
                 style={[
                   styles.txIcon,
-                  { backgroundColor: tx.type === "credit" ? "#D1FAE5" : "#FEE2E2" },
+                  {
+                    backgroundColor:
+                      tx.type === "credit"
+                        ? colors.successLight
+                        : colors.errorLight,
+                  },
                 ]}
               >
                 <Ionicons
-                  name={tx.type === "credit" ? "arrow-down-outline" : "arrow-up-outline"}
+                  name={
+                    tx.type === "credit"
+                      ? "arrow-down-outline"
+                      : "arrow-up-outline"
+                  }
                   size={16}
-                  color={tx.type === "credit" ? "#059669" : "#DC2626"}
+                  color={tx.type === "credit" ? colors.success : colors.error}
                 />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.txTitle, { color: colors.text }]}>{tx.title}</Text>
-                <Text style={[styles.txDate, { color: colors.muted }]}>{tx.date}</Text>
+                <Text style={[styles.txTitle, { color: colors.text }]}>
+                  {tx.title}
+                </Text>
+                <Text style={[styles.txDate, { color: colors.muted }]}>
+                  {tx.date}
+                </Text>
               </View>
               <Text
                 style={[
                   styles.txAmount,
-                  { color: tx.type === "credit" ? "#059669" : "#DC2626" },
+                  {
+                    color: tx.type === "credit" ? colors.success : colors.error,
+                  },
                 ]}
               >
                 {tx.amount}
@@ -434,9 +547,15 @@ export default function ArtisanHomeScreen() {
           style={[styles.card, { backgroundColor: colors.surface }]}
         >
           <View style={styles.cardHeader}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Upcoming Bookings</Text>
-            <TouchableOpacity onPress={() => router.push("/artisan/(tabs)/jobs" as any)}>
-              <Text style={[styles.seeAll, { color: colors.primary }]}>See All</Text>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>
+              Upcoming Bookings
+            </Text>
+            <TouchableOpacity
+              onPress={() => router.push("/artisan/(tabs)/jobs" as any)}
+            >
+              <Text style={[styles.seeAll, { color: colors.primary }]}>
+                See All
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -446,22 +565,52 @@ export default function ArtisanHomeScreen() {
             return (
               <TouchableOpacity
                 key={booking.id}
-                style={[styles.upcomingRow, { borderBottomColor: colors.border }]}
+                style={[
+                  styles.upcomingRow,
+                  { borderBottomColor: colors.border },
+                ]}
                 onPress={() => openBooking(booking.id)}
                 activeOpacity={0.7}
               >
-                <View style={[styles.upcomingDate, { backgroundColor: `${colors.primary}12` }]}>
-                  <Text style={[styles.upcomingDateText, { color: colors.primary }]}>{dateParts.day}</Text>
-                  <Text style={[styles.upcomingMonthText, { color: colors.primary }]}>{dateParts.month}</Text>
+                <View
+                  style={[
+                    styles.upcomingDate,
+                    { backgroundColor: `${colors.primary}12` },
+                  ]}
+                >
+                  <Text
+                    style={[styles.upcomingDateText, { color: colors.primary }]}
+                  >
+                    {dateParts.day}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.upcomingMonthText,
+                      { color: colors.primary },
+                    ]}
+                  >
+                    {dateParts.month}
+                  </Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.bookingService, { color: colors.text }]}>{booking.service}</Text>
+                  <Text style={[styles.bookingService, { color: colors.text }]}>
+                    {booking.service}
+                  </Text>
                   <Text style={[styles.bookingMeta, { color: colors.muted }]}>
                     {booking.client} | {booking.time}
                   </Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: statusColor.bg }]}>
-                  <Text style={[styles.statusText, { color: statusColor.text }]}>{booking.status}</Text>
+                <View
+                  style={[
+                    styles.statusBadge,
+                    { backgroundColor: statusColor.bg },
+                  ]}
+                >
+                  <Text
+                    style={[styles.statusText, { color: statusColor.text }]}
+                  >
+                    {booking.status}
+                  </Text>
                 </View>
               </TouchableOpacity>
             );
@@ -511,8 +660,8 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     borderWidth: 1.5,
-    borderColor: "#fff",
-    backgroundColor: "#EF4444",
+    borderColor: THEME.colors.surface,
+    backgroundColor: THEME.colors.error,
   },
 
   statsGradient: {
@@ -604,7 +753,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#F97316",
+    backgroundColor: THEME.colors.warning,
   },
   badge: {
     paddingHorizontal: 8,

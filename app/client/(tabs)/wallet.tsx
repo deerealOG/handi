@@ -9,7 +9,7 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 import { THEME } from "../../../constants/theme";
 
@@ -61,16 +61,28 @@ export default function WalletScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={colors.text === '#1F2937' ? "dark-content" : "light-content"} backgroundColor={colors.background} />
+      <StatusBar
+        barStyle={colors.text === "#1F2937" ? "dark-content" : "light-content"}
+        backgroundColor={colors.background}
+      />
 
       {/* --- Header --- */}
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>My Wallet</Text>
-        <TouchableOpacity 
-          style={[styles.historyBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        <Text style={[styles.headerTitle, { color: colors.text }]}>
+          My Wallet
+        </Text>
+        <TouchableOpacity
+          style={[
+            styles.historyBtn,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
           onPress={() => router.push("/client/wallet/history")}
         >
-          <MaterialCommunityIcons name="history" size={24} color={colors.text} />
+          <MaterialCommunityIcons
+            name="history"
+            size={24}
+            color={colors.text}
+          />
         </TouchableOpacity>
       </View>
 
@@ -80,23 +92,27 @@ export default function WalletScreen() {
       >
         {/* --- Virtual Card --- */}
         <View style={styles.cardContainer}>
-          <View style={[styles.cardBackground, { backgroundColor: colors.primary }]}>
+          <View
+            style={[styles.cardBackground, { backgroundColor: colors.primary }]}
+          >
             {/* Decorative Circles */}
             <View style={styles.circle1} />
             <View style={styles.circle2} />
-            
+
             <View style={styles.cardContent}>
               <View style={styles.cardTop}>
                 <Text style={styles.cardLabel}>Total Balance</Text>
-                <TouchableOpacity onPress={() => setBalanceVisible(!balanceVisible)}>
-                  <Ionicons 
-                    name={balanceVisible ? "eye-outline" : "eye-off-outline"} 
-                    size={20} 
-                    color="rgba(255,255,255,0.8)" 
+                <TouchableOpacity
+                  onPress={() => setBalanceVisible(!balanceVisible)}
+                >
+                  <Ionicons
+                    name={balanceVisible ? "eye-outline" : "eye-off-outline"}
+                    size={20}
+                    color="rgba(255,255,255,0.8)"
                   />
                 </TouchableOpacity>
               </View>
-              
+
               <Text style={styles.balance}>
                 {balanceVisible ? "₦45,200.00" : "₦ ••••••••"}
               </Text>
@@ -114,85 +130,153 @@ export default function WalletScreen() {
 
         {/* --- Quick Actions --- */}
         <View style={styles.actionsContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionItem}
             onPress={() => router.push("/client/wallet/top-up")}
           >
-            <View style={[styles.actionIcon, { backgroundColor: colors.primaryLight }]}>
+            <View
+              style={[
+                styles.actionIcon,
+                { backgroundColor: colors.primaryLight },
+              ]}
+            >
               <Ionicons name="add" size={24} color={colors.primary} />
             </View>
-            <Text style={[styles.actionText, { color: colors.text }]}>Top Up</Text>
+            <Text style={[styles.actionText, { color: colors.text }]}>
+              Top Up
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionItem}
             onPress={() => router.push("/client/wallet/withdraw")}
           >
-            <View style={[styles.actionIcon, { backgroundColor: colors.error + '15' }]}>
+            <View
+              style={[
+                styles.actionIcon,
+                { backgroundColor: colors.error + "15" },
+              ]}
+            >
               <Ionicons name="arrow-up" size={24} color={colors.error} />
             </View>
-            <Text style={[styles.actionText, { color: colors.text }]}>Withdraw</Text>
+            <Text style={[styles.actionText, { color: colors.text }]}>
+              Withdraw
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionItem}
             onPress={() => router.push("/client/wallet/transfer")}
           >
-            <View style={[styles.actionIcon, { backgroundColor: colors.secondary + '15' }]}>
-              <Ionicons name="swap-horizontal" size={24} color={colors.secondary} />
+            <View
+              style={[
+                styles.actionIcon,
+                { backgroundColor: colors.secondary + "15" },
+              ]}
+            >
+              <Ionicons
+                name="swap-horizontal"
+                size={24}
+                color={colors.secondary}
+              />
             </View>
-            <Text style={[styles.actionText, { color: colors.text }]}>Transfer</Text>
+            <Text style={[styles.actionText, { color: colors.text }]}>
+              Transfer
+            </Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={styles.actionItem}
             onPress={() => router.push("/client/wallet/cards")}
           >
-             <View style={[styles.actionIcon, { backgroundColor: colors.surface }]}>
+            <View
+              style={[styles.actionIcon, { backgroundColor: colors.surface }]}
+            >
               <Ionicons name="card-outline" size={24} color={colors.text} />
             </View>
-            <Text style={[styles.actionText, { color: colors.text }]}>Cards</Text>
+            <Text style={[styles.actionText, { color: colors.text }]}>
+              Cards
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* --- Transaction History --- */}
         <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Transactions</Text>
-          <TouchableOpacity onPress={() => router.push("/client/wallet/history")}>
-            <Text style={[styles.seeAllText, { color: colors.primary }]}>See All</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Recent Transactions
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.push("/client/wallet/history")}
+          >
+            <Text style={[styles.seeAllText, { color: colors.primary }]}>
+              See All
+            </Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.transactionList}>
           {TRANSACTIONS.map((item) => (
-            <View key={item.id} style={[styles.transactionItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <View style={[
-                styles.iconBox,
-                { backgroundColor: item.type === "credit" ? colors.primaryLight : colors.errorLight }
-              ]}>
-                <MaterialCommunityIcons 
-                  name={item.type === "credit" ? "arrow-bottom-left" : "arrow-top-right"} 
-                  size={20} 
-                  color={item.type === "credit" ? colors.primary : colors.error} 
+            <View
+              key={item.id}
+              style={[
+                styles.transactionItem,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
+            >
+              <View
+                style={[
+                  styles.iconBox,
+                  {
+                    backgroundColor:
+                      item.type === "credit"
+                        ? colors.primaryLight
+                        : colors.errorLight,
+                  },
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name={
+                    item.type === "credit"
+                      ? "arrow-bottom-left"
+                      : "arrow-top-right"
+                  }
+                  size={20}
+                  color={item.type === "credit" ? colors.primary : colors.error}
                 />
               </View>
-              
+
               <View style={styles.transactionInfo}>
-                <Text style={[styles.transactionTitle, { color: colors.text }]}>{item.title}</Text>
-                <Text style={[styles.transactionDate, { color: colors.muted }]}>{item.date}</Text>
+                <Text style={[styles.transactionTitle, { color: colors.text }]}>
+                  {item.title}
+                </Text>
+                <Text style={[styles.transactionDate, { color: colors.muted }]}>
+                  {item.date}
+                </Text>
               </View>
 
               <View style={styles.amountContainer}>
-                <Text style={[
-                  styles.amountText,
-                  { color: item.type === "credit" ? colors.primary : colors.text }
-                ]}>
+                <Text
+                  style={[
+                    styles.amountText,
+                    {
+                      color:
+                        item.type === "credit" ? colors.primary : colors.text,
+                    },
+                  ]}
+                >
                   {item.amount}
                 </Text>
-                <Text style={[
-                  styles.statusText,
-                  { color: item.status === "Pending" ? colors.secondary : colors.success }
-                ]}>
+                <Text
+                  style={[
+                    styles.statusText,
+                    {
+                      color:
+                        item.status === "Pending"
+                          ? colors.secondary
+                          : colors.success,
+                    },
+                  ]}
+                >
                   {item.status}
                 </Text>
               </View>
@@ -374,10 +458,10 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   creditIcon: {
-    backgroundColor: "#DCFCE7",
+    backgroundColor: THEME.colors.successLight,
   },
   debitIcon: {
-    backgroundColor: "#FEE2E2",
+    backgroundColor: THEME.colors.errorLight,
   },
   transactionInfo: {
     flex: 1,

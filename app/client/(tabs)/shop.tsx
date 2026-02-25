@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 8,
     left: 8,
-    backgroundColor: "#EF4444",
+    backgroundColor: THEME.colors.error,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: THEME.radius.pill,

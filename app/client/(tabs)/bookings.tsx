@@ -17,7 +17,7 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { THEME } from "../../../constants/theme";
@@ -25,21 +25,26 @@ import { THEME } from "../../../constants/theme";
 // ========================================
 // TYPES
 // ========================================
-type BookingStatus = "pending" | "confirmed" | "in_progress" | "completed" | "cancelled";
+type BookingStatus =
+  | "pending"
+  | "confirmed"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
 
-const STATUS_TABS: { key: BookingStatus | 'all'; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'confirmed', label: 'Active' },
-  { key: 'pending', label: 'Pending' },
-  { key: 'completed', label: 'Completed' },
+const STATUS_TABS: { key: BookingStatus | "all"; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "confirmed", label: "Active" },
+  { key: "pending", label: "Pending" },
+  { key: "completed", label: "Completed" },
 ];
 
 const STATUS_COLORS: Record<BookingStatus, { bg: string; text: string }> = {
-  pending: { bg: '#FEF3C7', text: '#D97706' },
-  confirmed: { bg: '#DBEAFE', text: '#1D4ED8' },
-  in_progress: { bg: '#E0E7FF', text: '#4338CA' },
-  completed: { bg: '#D1FAE5', text: '#059669' },
-  cancelled: { bg: '#FEE2E2', text: '#DC2626' },
+  pending: { bg: "#FEF3C7", text: "#D97706" },
+  confirmed: { bg: "#DBEAFE", text: "#1D4ED8" },
+  in_progress: { bg: "#E0E7FF", text: "#4338CA" },
+  completed: { bg: "#D1FAE5", text: "#059669" },
+  cancelled: { bg: "#FEE2E2", text: "#DC2626" },
 };
 
 // ========================================
@@ -49,24 +54,24 @@ export default function BookingsScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
   const { user } = useAuth();
-  
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<BookingStatus | 'all'>('all');
+  const [activeTab, setActiveTab] = useState<BookingStatus | "all">("all");
   const [bookings, setBookings] = useState<Booking[]>([]);
 
   const loadBookings = useCallback(async () => {
     try {
-      const userId = user?.id || 'user_001';
-      const result = await bookingService.getBookings(userId, 'client', {
-        status: activeTab === 'all' ? undefined : activeTab,
+      const userId = user?.id || "user_001";
+      const result = await bookingService.getBookings(userId, "client", {
+        status: activeTab === "all" ? undefined : activeTab,
       });
-      
+
       if (result.success) {
         setBookings(result.data || []);
       }
     } catch (error) {
-      console.error('Error loading bookings:', error);
+      console.error("Error loading bookings:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -84,26 +89,33 @@ export default function BookingsScreen() {
 
   // --- Actions ---
   const handleCancelBooking = async (bookingId: string) => {
-    Alert.alert("Cancel Booking", "Are you sure you want to cancel this booking?", [
-      { text: "No" },
-      {
-        text: "Yes, Cancel",
-        style: "destructive",
-        onPress: async () => {
-          const result = await bookingService.cancelBooking(bookingId, 'User requested cancellation');
-          if (result.success) {
-            loadBookings();
-          }
+    Alert.alert(
+      "Cancel Booking",
+      "Are you sure you want to cancel this booking?",
+      [
+        { text: "No" },
+        {
+          text: "Yes, Cancel",
+          style: "destructive",
+          onPress: async () => {
+            const result = await bookingService.cancelBooking(
+              bookingId,
+              "User requested cancellation",
+            );
+            if (result.success) {
+              loadBookings();
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   const handleBookAgain = (booking: Booking) => {
     router.push({
       pathname: "/client/book-artisan",
       params: {
-        artisan: booking.artisan?.fullName || 'Artisan',
+        artisan: booking.artisan?.fullName || "Artisan",
         skill: booking.categoryName,
         artisanId: booking.artisanId,
       },
@@ -115,18 +127,28 @@ export default function BookingsScreen() {
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     if (date.toDateString() === today.toDateString()) {
-      return 'Today';
+      return "Today";
     } else if (date.toDateString() === tomorrow.toDateString()) {
-      return 'Tomorrow';
+      return "Tomorrow";
     }
-    return date.toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' });
+    return date.toLocaleDateString("en-NG", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.centered, { backgroundColor: colors.background }]}>
+      <View
+        style={[
+          styles.container,
+          styles.centered,
+          { backgroundColor: colors.background },
+        ]}
+      >
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -137,15 +159,23 @@ export default function BookingsScreen() {
   // ========================================
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={colors.text === '#1F2937' ? "dark-content" : "light-content"} backgroundColor={colors.background} />
+      <StatusBar
+        barStyle={colors.text === "#1F2937" ? "dark-content" : "light-content"}
+        backgroundColor={colors.background}
+      />
 
       {/* --- Header --- */}
       <Animated.View entering={FadeInDown.duration(800)} style={styles.header}>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>My Bookings</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>
+          My Bookings
+        </Text>
       </Animated.View>
 
       {/* --- Tabs --- */}
-      <Animated.View entering={FadeInDown.delay(200).duration(800)} style={styles.tabContainer}>
+      <Animated.View
+        entering={FadeInDown.delay(200).duration(800)}
+        style={styles.tabContainer}
+      >
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -158,7 +188,10 @@ export default function BookingsScreen() {
               style={[
                 styles.tabButton,
                 { backgroundColor: colors.surface, borderColor: colors.border },
-                activeTab === tab.key && { backgroundColor: colors.primary, borderColor: colors.primary },
+                activeTab === tab.key && {
+                  backgroundColor: colors.primary,
+                  borderColor: colors.primary,
+                },
               ]}
             >
               <Text
@@ -186,59 +219,97 @@ export default function BookingsScreen() {
       >
         {bookings.length > 0 ? (
           bookings.map((booking) => {
-            const statusStyle = STATUS_COLORS[booking.status] || STATUS_COLORS.pending;
+            const statusStyle =
+              STATUS_COLORS[booking.status] || STATUS_COLORS.pending;
             return (
               <TouchableOpacity
                 key={booking.id}
-                style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
-                onPress={() => router.push({
-                  pathname: "/client/booking-details",
-                  params: {
-                    id: booking.id,
-                    artisan: booking.artisan?.fullName || 'Artisan',
-                    skill: booking.categoryName,
-                    date: booking.scheduledDate,
-                    time: booking.scheduledTime,
-                    price: booking.estimatedPrice,
-                    status: booking.status,
-                  }
-                } as any)}
+                style={[
+                  styles.card,
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                  },
+                ]}
+                onPress={() =>
+                  router.push({
+                    pathname: "/client/booking-details",
+                    params: {
+                      id: booking.id,
+                      artisan: booking.artisan?.fullName || "Artisan",
+                      skill: booking.categoryName,
+                      date: booking.scheduledDate,
+                      time: booking.scheduledTime,
+                      price: booking.estimatedPrice,
+                      status: booking.status,
+                    },
+                  } as any)
+                }
                 activeOpacity={0.9}
               >
                 {/* Card Header: ID & Status */}
                 <View style={styles.cardTopRow}>
-                  <Text style={[styles.orderId, { color: colors.muted }]}>Order #{booking.id.slice(-8)}</Text>
-                  <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
-                    <Text style={[styles.statusText, { color: statusStyle.text }]}>
-                      {booking.status.replace(/_/g, ' ')}
+                  <Text style={[styles.orderId, { color: colors.muted }]}>
+                    Order #{booking.id.slice(-8)}
+                  </Text>
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      { backgroundColor: statusStyle.bg },
+                    ]}
+                  >
+                    <Text
+                      style={[styles.statusText, { color: statusStyle.text }]}
+                    >
+                      {booking.status.replace(/_/g, " ")}
                     </Text>
                   </View>
                 </View>
 
                 {/* Divider */}
-                <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                <View
+                  style={[styles.divider, { backgroundColor: colors.border }]}
+                />
 
                 {/* Artisan Info */}
                 <View style={styles.artisanRow}>
-                  <Image 
-                    source={require("../../../assets/images/profileavatar.png")} 
-                    style={styles.avatar} 
+                  <Image
+                    source={require("../../../assets/images/profileavatar.png")}
+                    style={styles.avatar}
                   />
                   <View style={styles.artisanInfo}>
                     <Text style={[styles.artisanName, { color: colors.text }]}>
-                      {booking.artisan?.fullName || 'Artisan'}
+                      {booking.artisan?.fullName || "Artisan"}
                     </Text>
-                    <Text style={[styles.artisanSkill, { color: colors.muted }]}>{booking.categoryName}</Text>
+                    <Text
+                      style={[styles.artisanSkill, { color: colors.muted }]}
+                    >
+                      {booking.categoryName}
+                    </Text>
                     <View style={styles.dateTimeRow}>
                       <View style={styles.iconText}>
-                        <Ionicons name="calendar-outline" size={14} color={colors.muted} />
-                        <Text style={[styles.metaText, { color: colors.muted }]}>
+                        <Ionicons
+                          name="calendar-outline"
+                          size={14}
+                          color={colors.muted}
+                        />
+                        <Text
+                          style={[styles.metaText, { color: colors.muted }]}
+                        >
                           {formatDate(booking.scheduledDate)}
                         </Text>
                       </View>
                       <View style={[styles.iconText, { marginLeft: 12 }]}>
-                        <Ionicons name="time-outline" size={14} color={colors.muted} />
-                        <Text style={[styles.metaText, { color: colors.muted }]}>{booking.scheduledTime}</Text>
+                        <Ionicons
+                          name="time-outline"
+                          size={14}
+                          color={colors.muted}
+                        />
+                        <Text
+                          style={[styles.metaText, { color: colors.muted }]}
+                        >
+                          {booking.scheduledTime}
+                        </Text>
                       </View>
                     </View>
                   </View>
@@ -249,23 +320,47 @@ export default function BookingsScreen() {
 
                 {/* Action Buttons */}
                 <View style={styles.actionContainer}>
-                  {(booking.status === "confirmed" || booking.status === "in_progress") && (
+                  {(booking.status === "confirmed" ||
+                    booking.status === "in_progress") && (
                     <>
                       <TouchableOpacity
-                        style={[styles.actionButton, styles.outlineButton, { borderColor: colors.primary }]}
-                        onPress={() => router.push({
-                          pathname: "/client/track-artisan",
-                          params: {
-                            id: booking.id,
-                            artisan: booking.artisan?.fullName,
-                            skill: booking.categoryName,
-                          }
-                        } as any)}
+                        style={[
+                          styles.actionButton,
+                          styles.outlineButton,
+                          { borderColor: colors.primary },
+                        ]}
+                        onPress={() =>
+                          router.push({
+                            pathname: "/client/track-artisan",
+                            params: {
+                              id: booking.id,
+                              artisan: booking.artisan?.fullName,
+                              skill: booking.categoryName,
+                            },
+                          } as any)
+                        }
                       >
-                        <Text style={[styles.outlineButtonText, { color: colors.primary }]}>Track</Text>
+                        <Text
+                          style={[
+                            styles.outlineButtonText,
+                            { color: colors.primary },
+                          ]}
+                        >
+                          Track
+                        </Text>
                       </TouchableOpacity>
-                      <TouchableOpacity style={[styles.actionButton, styles.primaryButton, { backgroundColor: colors.primary }]}>
-                        <Ionicons name="chatbubble-ellipses-outline" size={16} color="white" />
+                      <TouchableOpacity
+                        style={[
+                          styles.actionButton,
+                          styles.primaryButton,
+                          { backgroundColor: colors.primary },
+                        ]}
+                      >
+                        <Ionicons
+                          name="chatbubble-ellipses-outline"
+                          size={16}
+                          color="white"
+                        />
                         <Text style={styles.primaryButtonText}> Message</Text>
                       </TouchableOpacity>
                     </>
@@ -273,30 +368,58 @@ export default function BookingsScreen() {
 
                   {booking.status === "pending" && (
                     <TouchableOpacity
-                      style={[styles.actionButton, styles.cancelButton, { backgroundColor: colors.errorLight }]}
+                      style={[
+                        styles.actionButton,
+                        styles.cancelButton,
+                        { backgroundColor: colors.errorLight },
+                      ]}
                       onPress={() => handleCancelBooking(booking.id)}
                     >
-                      <Text style={[styles.cancelButtonText, { color: colors.error }]}>Cancel Booking</Text>
+                      <Text
+                        style={[
+                          styles.cancelButtonText,
+                          { color: colors.error },
+                        ]}
+                      >
+                        Cancel Booking
+                      </Text>
                     </TouchableOpacity>
                   )}
 
                   {booking.status === "completed" && (
                     <>
                       <TouchableOpacity
-                        style={[styles.actionButton, styles.outlineButton, { borderColor: colors.primary }]}
-                        onPress={() => router.push({
-                          pathname: "/client/dispute/[bookingId]",
-                          params: {
-                            bookingId: booking.id,
-                            artisanId: booking.artisanId,
-                            artisanName: booking.artisan?.fullName,
-                          }
-                        } as any)}
+                        style={[
+                          styles.actionButton,
+                          styles.outlineButton,
+                          { borderColor: colors.primary },
+                        ]}
+                        onPress={() =>
+                          router.push({
+                            pathname: "/client/dispute/[bookingId]",
+                            params: {
+                              bookingId: booking.id,
+                              artisanId: booking.artisanId,
+                              artisanName: booking.artisan?.fullName,
+                            },
+                          } as any)
+                        }
                       >
-                        <Text style={[styles.outlineButtonText, { color: colors.primary }]}>Report Issue</Text>
+                        <Text
+                          style={[
+                            styles.outlineButtonText,
+                            { color: colors.primary },
+                          ]}
+                        >
+                          Report Issue
+                        </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
-                        style={[styles.actionButton, styles.primaryButton, { backgroundColor: colors.primary }]}
+                        style={[
+                          styles.actionButton,
+                          styles.primaryButton,
+                          { backgroundColor: colors.primary },
+                        ]}
                         onPress={() => handleBookAgain(booking)}
                       >
                         <Text style={styles.primaryButtonText}>Book Again</Text>
@@ -306,13 +429,26 @@ export default function BookingsScreen() {
 
                   {booking.status === "cancelled" && (
                     <TouchableOpacity
-                      style={[styles.actionButton, styles.outlineButton, { borderColor: colors.border }]}
-                      onPress={() => router.push({
-                        pathname: "/client/booking-details",
-                        params: { id: booking.id }
-                      } as any)}
+                      style={[
+                        styles.actionButton,
+                        styles.outlineButton,
+                        { borderColor: colors.border },
+                      ]}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/client/booking-details",
+                          params: { id: booking.id },
+                        } as any)
+                      }
                     >
-                      <Text style={[styles.outlineButtonText, { color: colors.muted }]}>See Details</Text>
+                      <Text
+                        style={[
+                          styles.outlineButtonText,
+                          { color: colors.muted },
+                        ]}
+                      >
+                        See Details
+                      </Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -322,24 +458,38 @@ export default function BookingsScreen() {
         ) : (
           // --- Empty State ---
           <View style={styles.emptyContainer}>
-            <View style={[styles.emptyIconCircle, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View
+              style={[
+                styles.emptyIconCircle,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
+            >
               <MaterialCommunityIcons
                 name="clipboard-text-outline"
                 size={40}
                 color={colors.muted}
               />
             </View>
-            <Text style={[styles.emptyTitle, { color: colors.text }]}>No Bookings Found</Text>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>
+              No Bookings Found
+            </Text>
             <Text style={[styles.emptySubtitle, { color: colors.muted }]}>
-              {activeTab === 'all' 
+              {activeTab === "all"
                 ? "You haven't made any bookings yet."
-                : `No ${activeTab.replace(/_/g, ' ')} bookings at the moment.`}
+                : `No ${activeTab.replace(/_/g, " ")} bookings at the moment.`}
             </Text>
             <TouchableOpacity
-              style={[styles.findArtisanButton, { backgroundColor: colors.primary }]}
+              style={[
+                styles.findArtisanButton,
+                { backgroundColor: colors.primary },
+              ]}
               onPress={() => router.push("/client/(tabs)/explore" as any)}
             >
-              <Text style={[styles.findArtisanText, { color: colors.onPrimary }]}>Find an Artisan</Text>
+              <Text
+                style={[styles.findArtisanText, { color: colors.onPrimary }]}
+              >
+                Find an Artisan
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -349,7 +499,7 @@ export default function BookingsScreen() {
 }
 
 // ========================================
-// STYLES 
+// STYLES
 // ========================================
 const styles = StyleSheet.create({
   container: {
@@ -358,8 +508,8 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   centered: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   // Header
@@ -516,7 +666,7 @@ const styles = StyleSheet.create({
     fontSize: THEME.typography.sizes.sm,
   },
   cancelButton: {
-    backgroundColor: "#FEE2E2",
+    backgroundColor: THEME.colors.errorLight,
   },
   cancelButtonText: {
     color: THEME.colors.error,

@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     borderRadius: 45,
     marginBottom: 10,
     borderWidth: 3,
-    borderColor: "#fff",
+    borderColor: THEME.colors.surface,
   },
   name: {
     fontSize: 18,
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   badge: {
-    backgroundColor: "#DCFCE7",
+    backgroundColor: THEME.colors.successLight,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,

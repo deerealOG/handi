@@ -27,7 +27,7 @@ const getAccessTokenExpires = (token: string): number => {
   return Date.now() + 15 * 60 * 1000;
 };
 
-const providers = [
+const providers: NextAuthConfig["providers"] = [
   Credentials({
     name: "Credentials",
     credentials: {

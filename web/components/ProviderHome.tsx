@@ -44,7 +44,7 @@ import {
     TrendingUp,
     User,
     Wallet,
-    X
+    X,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -363,7 +363,7 @@ export default function ProviderHome() {
         >
           <div className="absolute inset-0 bg-black/30" />
           <div
-            className="absolute top-[8.5rem] left-4 right-4 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden animate-[slideDown_0.2s_ease-out]"
+            className="absolute top-34 left-4 right-4 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden animate-[slideDown_0.2s_ease-out]"
             onClick={(e) => e.stopPropagation()}
           >
             {TABS.map((tab) => {
@@ -1128,7 +1128,7 @@ function DashboardTab({
       )}
 
       {/* Stats Grid */}
-      <div className=" bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-2xl p-6 text-white relative overflow-hidden grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className=" bg-linear-to-br from-emerald-600 to-emerald-800 rounded-2xl p-6 text-white relative overflow-hidden grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
           <div key={i} className=" rounded-2xl p-5 flex gap-2">
             <div
@@ -1918,7 +1918,7 @@ function EarningsTab({
       <h2 className="text-xl font-bold text-gray-900">Earnings</h2>
 
       {/* Earnings Card */}
-      <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-2xl p-6 text-white relative overflow-hidden">
+      <div className="bg-linear-to-br from-emerald-600 to-emerald-800 rounded-2xl p-6 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="relative">
           <div className="flex items-center justify-between mb-1">
@@ -2155,7 +2155,7 @@ function ProfileTab({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Cover Photo */}
-      <div className="relative w-full h-40 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-2xl overflow-hidden group">
+      <div className="relative w-full h-40 bg-linear-to-r from-emerald-400 to-emerald-600 rounded-2xl overflow-hidden group">
         {coverPhoto && (
           <Image src={coverPhoto} alt="Cover" fill className="object-cover" />
         )}
@@ -2961,7 +2961,7 @@ function ProfileTab({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Cover */}
-            <div className="relative w-full h-32 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-t-2xl overflow-hidden">
+            <div className="relative w-full h-32 bg-linear-to-r from-emerald-400 to-emerald-600 rounded-t-2xl overflow-hidden">
               {coverPhoto && (
                 <Image
                   src={coverPhoto}

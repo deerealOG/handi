@@ -39,23 +39,30 @@ const providers = [
       const password = credentials?.password;
       if (!email || !password) return null;
 
-      const response = await fetch(`${backendUrl}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      try {
+        const response = await fetch(`${backendUrl}/api/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
 
-      if (!response.ok) return null;
-      const data = await response.json();
+        if (!response.ok) return null;
+        const data = await response.json();
 
-      return {
-        id: data?.data?.user?.id,
-        email: data?.data?.user?.email,
-        name: data?.data?.user?.fullName,
-        userType: data?.data?.user?.userType,
-        accessToken: data?.data?.accessToken,
-        refreshToken: data?.data?.refreshToken,
-      };
+        return {
+          id: data?.data?.user?.id,
+          email: data?.data?.user?.email,
+          name: data?.data?.user?.fullName,
+          userType: data?.data?.user?.userType,
+          accessToken: data?.data?.accessToken,
+          refreshToken: data?.data?.refreshToken,
+        };
+      } catch {
+        // Backend unreachable — return null so the client-side
+        // dev fallback in AuthContext can handle mock login
+        console.warn("[NextAuth] Backend unreachable for credentials login");
+        return null;
+      }
     },
   }),
 ];
@@ -97,7 +104,10 @@ export const authConfig: NextAuthConfig = {
 
           if (!response.ok) {
             const payload = await response.json().catch(() => null);
-            if (response.status === 403 && payload?.error === "Email not verified") {
+            if (
+              response.status === 403 &&
+              payload?.error === "Email not verified"
+            ) {
               token.error = "EmailNotVerified";
               token.email = user?.email;
               token.verificationRequired = true;
@@ -190,7 +200,9 @@ export const authConfig: NextAuthConfig = {
       } as typeof session.user & { id?: string; userType?: string };
       (session as any).accessToken = token.accessToken;
       (session as any).error = token.error;
-      (session as any).verificationRequired = (token as any).verificationRequired;
+      (session as any).verificationRequired = (
+        token as any
+      ).verificationRequired;
       return session;
     },
   },

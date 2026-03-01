@@ -1,0 +1,13 @@
+# Global owner (Fallback)
+*       @deerealOG
+
+# Secure paths that require deep review
+/supabase/              @deerealOG 
+/web/lib/supabase.ts    @deerealOG 
+/.github/workflows/     @deerealOG 
+/backend_audit_plan.md  @deerealOG 
+
+# Structural owners
+/web/components/admin/  @deerealOG 
+/web/                   @deerealOG 
+/app/                   @deerealOG

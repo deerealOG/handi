@@ -1,33 +1,33 @@
 "use client";
 
+import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useTheme } from "@/context/ThemeContext";
 import { generateReceipt } from "@/lib/generateReceipt";
 import {
-  ArrowDown,
-  ArrowUp,
-  Bell,
-  CalendarCheck,
-  ChevronDown,
-  Download,
-  Heart,
-  HelpCircle,
-  Home,
-  Info,
-  Menu,
-  MessageSquare,
-  Moon,
-  Paperclip,
-  Search,
-  Send,
-  Share2,
-  ShoppingBag,
-  ShoppingCart,
-  Sun,
-  User,
-  Users,
-  X,
+    ArrowDown,
+    ArrowUp,
+    Bell,
+    CalendarCheck,
+    ChevronDown,
+    Download,
+    ExternalLink,
+    Heart,
+    HelpCircle,
+    Home,
+    Info,
+    Menu,
+    Moon,
+    Power,
+    Search,
+    Share2,
+    ShoppingBag,
+    ShoppingCart,
+    Sun,
+    User,
+    Users,
+    X,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -43,6 +43,7 @@ import HowItWorksTab from "@/components/client/HowItWorksTab";
 import ProvidersTab from "@/components/client/ProvidersTab";
 import ShopTab from "@/components/client/ShopTab";
 import WishlistPanel from "@/components/client/WishlistPanel";
+import CategoryPills from "@/components/ui/CategoryPills";
 
 type TabId =
   | "home"
@@ -70,7 +71,7 @@ const TABS: {
 // ============================================
 // APP SHELL
 // ============================================
-export default function AuthenticatedHome() {
+export default function ClientDashboard() {
   const { user, logout, updateUser } = useAuth();
   const { cartCount, wishlistCount } = useCart();
   const router = useRouter();
@@ -79,7 +80,6 @@ export default function AuthenticatedHome() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showChat, setShowChat] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
   const [showTransactions, setShowTransactions] = useState(false);
   const [showCartPanel, setShowCartPanel] = useState(false);
@@ -104,17 +104,30 @@ export default function AuthenticatedHome() {
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo — stays in app, goes to Home tab */}
-            <button onClick={() => setActiveTab("home")} className="shrink-0">
-              <Image
-                src="/images/handi-logo-light.png"
-                alt="HANDI"
-                width={110}
-                height={36}
-                className="h-8 w-auto"
-                priority
-              />
-            </button>
+            <div className="flex items-center gap-2 sm:gap-0">
+              {/* Mobile hamburger */}
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="sm:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100 text-gray-600 cursor-pointer"
+              >
+                <Menu size={20} />
+              </button>
+
+              {/* Logo — stays in app, goes to Home tab */}
+              <button
+                onClick={() => setActiveTab("home")}
+                className="shrink-0 cursor-pointer"
+              >
+                <Image
+                  src="/images/handi-logo-light.png"
+                  alt="HANDI"
+                  width={110}
+                  height={36}
+                  className="h-8 w-auto"
+                  priority
+                />
+              </button>
+            </div>
 
             {/* Search Bar — center */}
             <div className="hidden sm:flex flex-1 max-w-xl mx-6 relative">
@@ -143,20 +156,6 @@ export default function AuthenticatedHome() {
                   <Sun size={20} className="text-yellow-500" />
                 ) : (
                   <Moon size={20} className="text-gray-600" />
-                )}
-              </button>
-
-              {/* Chat */}
-              <button
-                onClick={() => setShowChat(true)}
-                className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
-                title="Messages"
-              >
-                <MessageSquare size={20} className="text-gray-600" />
-                {unreadMessages > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-blue-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold px-1">
-                    {unreadMessages}
-                  </span>
                 )}
               </button>
 
@@ -202,22 +201,13 @@ export default function AuthenticatedHome() {
                 )}
               </button>
 
-              {/* Profile Avatar */}
+              {/* Logout Button */}
               <button
-                onClick={() => setActiveTab("profile")}
-                className="w-9 h-9 rounded-full bg-(--color-primary-light) flex items-center justify-center text-(--color-primary) font-bold text-sm uppercase overflow-hidden ring-2 ring-(--color-primary)/20"
+                onClick={() => setShowLogoutConfirm(true)}
+                className="p-2 rounded-lg hover:bg-red-50 transition-colors"
+                title="Logout"
               >
-                {user.avatar ? (
-                  <Image
-                    src={user.avatar}
-                    alt=""
-                    width={36}
-                    height={36}
-                    className="rounded-full object-cover"
-                  />
-                ) : (
-                  `${user.firstName?.[0]}${user.lastName?.[0]}`
-                )}
+                <Power size={18} className="text-gray-500 hover:text-red-600" />
               </button>
             </div>
           </div>
@@ -240,42 +230,33 @@ export default function AuthenticatedHome() {
       </header>
 
       {/* ===== QUICK-NAV BREADCRUMBS ===== */}
-      <div className="bg-white border-b border-gray-100 sticky top-16 z-30">
+      <div className="bg-white border-b border-gray-100 sticky top-16 z-30 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Desktop Nav */}
-          <div className="hidden sm:flex quick-nav-bar">
-            {TABS.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`quick-nav-pill ${activeTab === tab.id ? "active" : ""}`}
-                >
-                  <Icon size={14} />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-          {/* Mobile Hamburger */}
-          <div className="sm:hidden flex items-center py-2">
-            <button
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="flex items-center gap-2 px-3 py-2 rounded-full bg-gray-50 border border-gray-200 text-sm font-medium text-gray-700"
-            >
-              <Menu size={16} />
-              {TABS.find((t) => t.id === activeTab)?.label || "Menu"}
-              <ChevronDown
-                size={14}
-                className={`transition-transform ${showMobileMenu ? "rotate-180" : ""}`}
-              />
-            </button>
+          <div className="w-full my-2">
+            <CategoryPills>
+              {TABS.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors border ${
+                      activeTab === tab.id
+                        ? "bg-slate-900 border-slate-900 text-white"
+                        : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 focus:bg-gray-50"
+                    }`}
+                  >
+                    <Icon size={14} />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </CategoryPills>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Hamburger Menu Dropdown */}
       {showMobileMenu && (
         <div
           className="fixed inset-0 z-40 sm:hidden"
@@ -283,7 +264,7 @@ export default function AuthenticatedHome() {
         >
           <div className="absolute inset-0 bg-black/30" />
           <div
-            className="absolute top-[8.5rem] left-4 right-4 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden animate-[slideDown_0.2s_ease-out]"
+            className="absolute top-18 left-4 right-4 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden animate-[slideDown_0.2s_ease-out]"
             onClick={(e) => e.stopPropagation()}
           >
             {TABS.map((tab) => {
@@ -295,7 +276,7 @@ export default function AuthenticatedHome() {
                     setActiveTab(tab.id);
                     setShowMobileMenu(false);
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer ${
                     activeTab === tab.id
                       ? "bg-(--color-primary-light) text-(--color-primary)"
                       : "text-gray-600 hover:bg-gray-50"
@@ -334,7 +315,6 @@ export default function AuthenticatedHome() {
             router={router}
             onLogout={() => setShowLogoutConfirm(true)}
             setShowNotifications={setShowNotifications}
-            setShowChat={setShowChat}
             setShowSupport={setShowSupport}
             setShowTransactions={setShowTransactions}
           />
@@ -477,101 +457,6 @@ export default function AuthenticatedHome() {
         </div>
       )}
 
-      {/* ===== CHAT PANEL ===== */}
-      {showChat && (
-        <div
-          className="fixed inset-0 z-60 flex justify-end"
-          onClick={() => setShowChat(false)}
-        >
-          <div
-            className="w-full max-w-md h-full bg-white shadow-2xl flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-bold">Messages</h3>
-              <button
-                onClick={() => setShowChat(false)}
-                className="p-1 hover:bg-gray-100 rounded-full"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {[
-                {
-                  name: "CoolAir Solutions",
-                  msg: "I'll be there at 2 PM as scheduled.",
-                  time: "10 min ago",
-                  unread: true,
-                },
-                {
-                  name: "SparkleClean NG",
-                  msg: "The deep cleaning will take about 3 hours.",
-                  time: "2 hours ago",
-                  unread: false,
-                },
-                {
-                  name: "PowerFix Pro",
-                  msg: "Can you share photos of the wiring issue?",
-                  time: "1 day ago",
-                  unread: false,
-                },
-                {
-                  name: "AquaFix NG",
-                  msg: "Thank you for leaving a review!",
-                  time: "3 days ago",
-                  unread: false,
-                },
-              ].map((c, i) => (
-                <button
-                  key={i}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-colors ${c.unread ? "bg-blue-50" : "bg-gray-50 hover:bg-gray-100"}`}
-                >
-                  <div className="w-10 h-10 rounded-full bg-(--color-primary-light) flex items-center justify-center text-(--color-primary) font-bold text-xs shrink-0">
-                    {c.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-gray-900 truncate">
-                        {c.name}
-                      </p>
-                      <span className="text-[10px] text-gray-400">
-                        {c.time}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-500 truncate">{c.msg}</p>
-                  </div>
-                  {c.unread && (
-                    <span className="w-2 h-2 bg-blue-500 rounded-full shrink-0" />
-                  )}
-                </button>
-              ))}
-            </div>
-            <div className="p-4 border-t">
-              <div className="flex gap-2">
-                <button
-                  className="p-2.5 text-gray-400 hover:text-(--color-primary) hover:bg-gray-100 rounded-full transition-colors"
-                  title="Attach file"
-                >
-                  <Paperclip size={18} />
-                </button>
-                <input
-                  type="text"
-                  placeholder="Type a message..."
-                  className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm outline-none focus:ring-2 focus:ring-(--color-primary)"
-                />
-                <button className="p-2.5 bg-(--color-primary) text-white rounded-full hover:opacity-90">
-                  <Send size={18} />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ===== SUPPORT PANEL ===== */}
       {showSupport && (
         <div
@@ -596,15 +481,20 @@ export default function AuthenticatedHome() {
 
             {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-2 mb-5">
-              <button className="p-3 bg-(--color-primary-light) rounded-xl text-center hover:opacity-80 transition-colors">
-                <MessageSquare
+              <a
+                href="https://wa.me/2348000000000"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 bg-green-50 rounded-xl text-center hover:bg-green-100 transition-colors"
+              >
+                <ExternalLink
                   size={20}
-                  className="text-(--color-primary) mx-auto mb-1"
+                  className="text-green-600 mx-auto mb-1"
                 />
                 <span className="text-xs font-medium text-gray-900">
-                  Live Chat
+                  WhatsApp
                 </span>
-              </button>
+              </a>
               <button className="p-3 bg-blue-50 rounded-xl text-center hover:bg-blue-100 transition-colors">
                 <HelpCircle size={20} className="text-blue-600 mx-auto mb-1" />
                 <span className="text-xs font-medium text-gray-900">
@@ -818,6 +708,9 @@ export default function AuthenticatedHome() {
       {showWishlistPanel && (
         <WishlistPanel onClose={() => setShowWishlistPanel(false)} />
       )}
+
+      {/* ===== FOOTER ===== */}
+      <Footer />
     </div>
   );
 }

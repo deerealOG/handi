@@ -46,7 +46,7 @@ export default function CategoryPills({ children }: CategoryPillsProps) {
       {canScrollLeft && (
         <button
           onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-all opacity-0 group-hover:opacity-100 md:opacity-100"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
           aria-label="Scroll left"
         >
           <ChevronLeft size={16} />
@@ -65,7 +65,7 @@ export default function CategoryPills({ children }: CategoryPillsProps) {
       {canScrollRight && (
         <button
           onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-all opacity-0 group-hover:opacity-100 md:opacity-100"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
           aria-label="Scroll right"
         >
           <ChevronRight size={16} />
@@ -74,12 +74,12 @@ export default function CategoryPills({ children }: CategoryPillsProps) {
 
       {/* Left gradient mask */}
       {canScrollLeft && (
-        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none z-[5]" />
+        <div className="absolute left-0 top-0 bottom-0 w-8 bg-linear-to-r from-white to-transparent pointer-events-none z-5" />
       )}
 
       {/* Right gradient mask */}
       {canScrollRight && (
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none z-[5]" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-linear-to-l from-white to-transparent pointer-events-none z-5" />
       )}
     </div>
   );

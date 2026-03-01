@@ -4,9 +4,11 @@ import { useCart } from "@/context/CartContext";
 import { MOCK_PROVIDERS } from "@/data/mockApi";
 import {
     ChevronRight,
+    ExternalLink,
     Heart,
+    LayoutGrid,
+    List,
     MapPin,
-    MessageSquare,
     Phone,
     Search,
     Star,
@@ -19,6 +21,7 @@ const PROVIDER_TYPES = ["All", "Business", "Specialist", "Freelancer"] as const;
 export default function ProvidersTab() {
   const [selectedType, setSelectedType] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const { toggleWishlist, isInWishlist } = useCart();
 
@@ -46,11 +49,40 @@ export default function ProvidersTab() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Service Providers</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Browse verified professionals near you
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Find Professional{" "}
+            <span className="text-(--color-secondary)">Service Providers</span>
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Browse verified professionals near you
+          </p>
+        </div>
+        <div className="flex items-center bg-gray-100 rounded-lg p-1 shrink-0">
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`p-1.5 rounded-md transition-colors ${
+              viewMode === "grid"
+                ? "bg-white shadow-sm text-(--color-primary)"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            title="Grid View"
+          >
+            <LayoutGrid size={16} />
+          </button>
+          <button
+            onClick={() => setViewMode("list")}
+            className={`p-1.5 rounded-md transition-colors ${
+              viewMode === "list"
+                ? "bg-white shadow-sm text-(--color-primary)"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            title="List View"
+          >
+            <List size={16} />
+          </button>
+        </div>
       </div>
 
       {/* Search */}
@@ -98,7 +130,13 @@ export default function ProvidersTab() {
                     {providers.length}
                   </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                  className={
+                    viewMode === "grid"
+                      ? "grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
+                      : "flex flex-col gap-3"
+                  }
+                >
                   {providers.map((p) => (
                     <ProviderCard
                       key={p.id}
@@ -106,6 +144,7 @@ export default function ProvidersTab() {
                       onClick={() => setSelectedProvider(p)}
                       isWished={isInWishlist(p.id)}
                       onToggleWishlist={() => toggleWishlist(p.id)}
+                      viewMode={viewMode}
                     />
                   ))}
                 </div>
@@ -114,7 +153,13 @@ export default function ProvidersTab() {
         )
       ) : (
         // Show flat list
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          className={
+            viewMode === "grid"
+              ? "grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
+              : "flex flex-col gap-3"
+          }
+        >
           {filtered.length === 0 ? (
             <p className="text-sm text-gray-400 col-span-full text-center py-12">
               No providers found matching your criteria.
@@ -127,6 +172,7 @@ export default function ProvidersTab() {
                 onClick={() => setSelectedProvider(p)}
                 isWished={isInWishlist(p.id)}
                 onToggleWishlist={() => toggleWishlist(p.id)}
+                viewMode={viewMode}
               />
             ))
           )}
@@ -216,24 +262,22 @@ export default function ProvidersTab() {
 
               {/* Actions */}
               <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setSelectedProvider(null);
-                    alert("Calling " + selectedProvider.name + "...");
-                  }}
-                  className="flex-1 py-2.5 border border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2"
+                <a
+                  href={`tel:${selectedProvider.phone?.replace(/\s/g, "")}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex-1 py-2.5 border border-gray-200 rounded-full text-sm font-semibold text-blue-700 hover:bg-blue-50 flex items-center justify-center gap-2"
                 >
                   <Phone size={16} /> Call
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedProvider(null);
-                    alert("Opening chat with " + selectedProvider.name);
-                  }}
-                  className="flex-1 py-2.5 border border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2"
+                </a>
+                <a
+                  href={`https://wa.me/${selectedProvider.phone?.replace(/[\s+]/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex-1 py-2.5 border border-gray-200 rounded-full text-sm font-semibold text-green-700 hover:bg-green-50 flex items-center justify-center gap-2"
                 >
-                  <MessageSquare size={16} /> Message
-                </button>
+                  <ExternalLink size={16} /> WhatsApp
+                </a>
               </div>
               <button
                 onClick={() => {
@@ -257,16 +301,18 @@ function ProviderCard({
   onClick,
   isWished,
   onToggleWishlist,
+  viewMode = "grid",
 }: {
   provider: any;
   onClick: () => void;
   isWished: boolean;
   onToggleWishlist: () => void;
+  viewMode?: "grid" | "list";
 }) {
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer relative group"
+      className={`bg-white rounded-2xl p-3 sm:p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer relative group flex ${viewMode === "grid" ? "flex-col justify-between" : "flex-row items-center justify-between"}`}
     >
       {/* Heart */}
       <button
@@ -274,54 +320,102 @@ function ProviderCard({
           e.stopPropagation();
           onToggleWishlist();
         }}
-        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:scale-110 transition-transform z-10"
+        className={`absolute w-6 h-6 sm:w-8 sm:h-8 rounded-full shadow-sm flex items-center justify-center hover:scale-110 transition-transform z-10 ${viewMode === "grid" ? "top-2 right-2 sm:top-3 sm:right-3 bg-white" : "top-2 right-2 sm:top-3 sm:right-3 bg-gray-50"}`}
       >
         <Heart
-          size={16}
-          className={isWished ? "text-red-500 fill-red-500" : "text-gray-300"}
+          size={14}
+          className={`${isWished ? "text-red-500 fill-red-500" : "text-gray-300"} sm:w-4 sm:h-4`}
         />
       </button>
 
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-14 h-14 rounded-full bg-(--color-primary-light) flex items-center justify-center text-(--color-primary) font-bold text-lg overflow-hidden shrink-0">
+      <div
+        className={`flex ${viewMode === "grid" ? "flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-2 sm:mb-3" : "flex-row items-center gap-3 sm:gap-4 flex-1"}`}
+      >
+        <div
+          className={`rounded-full bg-(--color-primary-light) flex items-center justify-center text-(--color-primary) font-bold text-lg overflow-hidden shrink-0 ${viewMode === "grid" ? "w-10 h-10 sm:w-14 sm:h-14" : "w-12 h-12 sm:w-16 sm:h-16"}`}
+        >
           {provider.image ? (
             <Image
               src={provider.image}
               alt={provider.name}
-              width={56}
-              height={56}
-              className="rounded-full object-cover"
+              width={64}
+              height={64}
+              className="rounded-full object-cover w-full h-full"
             />
           ) : (
             provider.name.charAt(0)
           )}
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-900 truncate">
-            {provider.name}
-          </p>
-          <p className="text-xs text-gray-500">{provider.category}</p>
-          {provider.providerType && (
-            <span className="inline-block mt-1 px-2 py-0.5 bg-(--color-primary-light) text-(--color-primary) text-[10px] font-semibold rounded-full">
+        <div
+          className={`flex-1 min-w-0 ${viewMode === "grid" ? "w-full mb-1 sm:mb-0" : ""}`}
+        >
+          <div
+            className={`${viewMode === "list" ? "flex flex-col sm:flex-row sm:items-center sm:justify-between pr-8 sm:pr-12" : ""}`}
+          >
+            <div>
+              <p
+                className={`font-semibold text-gray-900 ${viewMode === "grid" ? "text-[11px] sm:text-sm pr-6 sm:pr-0" : "text-sm sm:text-base"}`}
+              >
+                {provider.name}
+              </p>
+              <div
+                className={`flex flex-wrap items-center gap-2 ${viewMode === "list" ? "mt-0.5 sm:mt-1" : "mt-0"}`}
+              >
+                <p className="text-[9px] sm:text-xs text-gray-500 truncate">
+                  {provider.category}
+                </p>
+                {viewMode === "list" && provider.providerType && (
+                  <span className="px-2 py-0.5 bg-(--color-primary-light) text-(--color-primary) text-[10px] sm:text-xs font-medium rounded-full truncate">
+                    {provider.providerType}
+                  </span>
+                )}
+              </div>
+            </div>
+            {viewMode === "list" && (
+              <div className="flex flex-col sm:items-end mt-1 sm:mt-0">
+                <span className="text-xs sm:text-sm font-semibold text-gray-900 flex items-center gap-1">
+                  <Star size={14} className="text-yellow-400 fill-yellow-400" />
+                  {provider.rating}{" "}
+                  <span className="text-gray-400 font-normal">
+                    ({provider.reviews})
+                  </span>
+                </span>
+                {provider.isOnline && (
+                  <span className="mt-1 px-2 py-0.5 bg-green-100 text-green-700 text-[10px] sm:text-xs font-semibold rounded-full w-fit">
+                    ● Online
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+          {viewMode === "grid" && provider.providerType && (
+            <span className="inline-block mt-1 px-1.5 sm:px-2 py-0.5 bg-(--color-primary-light) text-(--color-primary) text-[8px] sm:text-[10px] font-semibold rounded-full truncate max-w-full">
               {provider.providerType}
             </span>
           )}
         </div>
       </div>
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400 flex items-center gap-1">
-          <Star size={12} className="text-yellow-400 fill-yellow-400" />
-          {provider.rating} ({provider.reviews})
-        </span>
-        <div className="flex items-center gap-2">
-          {provider.isOnline && (
-            <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-semibold rounded-full">
-              ● Online
-            </span>
-          )}
-          <ChevronRight size={14} className="text-gray-300" />
+
+      {viewMode === "grid" && (
+        <div className="flex items-center justify-between mt-auto pt-1">
+          <span className="text-[10px] sm:text-xs text-gray-400 flex items-center gap-0.5">
+            <Star
+              size={10}
+              className="text-yellow-400 fill-yellow-400 sm:w-3 sm:h-3"
+            />
+            {provider.rating}{" "}
+            <span className="hidden sm:inline">({provider.reviews})</span>
+          </span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            {provider.isOnline && (
+              <span className="px-1.5 sm:px-2 py-0.5 bg-green-100 text-green-700 text-[8px] sm:text-[10px] font-semibold rounded-full">
+                ● Online
+              </span>
+            )}
+            <ChevronRight size={12} className="text-gray-300 sm:w-4 sm:h-4" />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

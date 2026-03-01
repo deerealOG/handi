@@ -1,24 +1,27 @@
 "use client";
 
+import CategoryPills from "@/components/ui/CategoryPills";
 import { useCart } from "@/context/CartContext";
 import { MOCK_PRODUCTS } from "@/data/mockApi";
 import {
-    ChevronLeft,
-    ChevronRight,
+    Heart,
+    LayoutGrid,
+    List,
+    MapPin,
     Search,
     ShoppingCart,
     Star,
     X,
 } from "lucide-react";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 export default function ShopTab({ onOpenCart }: { onOpenCart: () => void }) {
-  const { addToCart } = useCart();
+  const { addToCart, toggleWishlist, isInWishlist } = useCart();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const shopPillsRef = useRef<HTMLDivElement>(null);
 
   const categories = ["all", ...new Set(MOCK_PRODUCTS.map((p) => p.category))];
 
@@ -30,131 +33,233 @@ export default function ShopTab({ onOpenCart }: { onOpenCart: () => void }) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
-      <h2 className="text-xl font-bold text-gray-900">Shop Products</h2>
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Shop <span className="text-(--color-secondary)">Products</span>
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Search for products you love.
+        </p>
+      </div>
 
       {/* Search */}
-      <div className="relative">
-        <Search
-          size={18}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-        />
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-sm outline-none focus:ring-2 focus:ring-(--color-primary)"
-        />
+      {/* Search */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-sm outline-none focus:ring-2 focus:ring-(--color-primary)"
+          />
+        </div>
+        <div className="flex items-center bg-gray-100 rounded-lg p-1 shrink-0">
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`p-1.5 rounded-md transition-colors ${
+              viewMode === "grid"
+                ? "bg-white shadow-sm text-(--color-primary)"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            title="Grid View"
+          >
+            <LayoutGrid size={16} />
+          </button>
+          <button
+            onClick={() => setViewMode("list")}
+            className={`p-1.5 rounded-md transition-colors ${
+              viewMode === "list"
+                ? "bg-white shadow-sm text-(--color-primary)"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            title="List View"
+          >
+            <List size={16} />
+          </button>
+        </div>
       </div>
 
       {/* Category Filters */}
-      <div className="pills-container">
-        <button
-          className="pills-scroll-btn left"
-          onClick={() =>
-            shopPillsRef.current?.scrollBy({ left: -200, behavior: "smooth" })
-          }
-          aria-label="Scroll left"
-        >
-          <ChevronLeft size={16} />
-        </button>
-        <div
-          ref={shopPillsRef}
-          className="flex gap-2 overflow-x-auto pb-1 no-scrollbar px-8"
-        >
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-                category === cat
-                  ? "bg-(--color-primary) text-white"
-                  : "bg-white text-gray-600 border border-gray-200 hover:border-(--color-primary)"
-              }`}
-            >
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
-          ))}
-        </div>
-        <button
-          className="pills-scroll-btn right"
-          onClick={() =>
-            shopPillsRef.current?.scrollBy({ left: 200, behavior: "smooth" })
-          }
-          aria-label="Scroll right"
-        >
-          <ChevronRight size={16} />
-        </button>
-      </div>
+      <CategoryPills>
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setCategory(cat)}
+            className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors border ${
+              category === cat
+                ? "bg-(--color-primary) text-white border-(--color-primary)"
+                : "bg-white text-gray-600 border-gray-200 hover:border-(--color-primary)"
+            }`}
+          >
+            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+          </button>
+        ))}
+      </CategoryPills>
 
-      {/* Product Grid */}
+      {/* Product Grid / List */}
       {filtered.length === 0 ? (
         <p className="text-center text-sm text-gray-400 py-12">
           No products found.
         </p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div
+          className={
+            viewMode === "grid"
+              ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5"
+              : "flex flex-col gap-3"
+          }
+        >
           {filtered.map((p) => (
             <div
               key={p.id}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all group"
+              className={`bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all group flex ${viewMode === "grid" ? "flex-col" : "flex-row h-32 sm:h-40"}`}
             >
               <div
-                className="h-36 bg-gray-100 overflow-hidden relative cursor-pointer"
+                className={`relative bg-gray-100 overflow-hidden cursor-pointer shrink-0 ${viewMode === "grid" ? "h-32 sm:h-40 w-full" : "h-full w-32 sm:w-48"}`}
                 onClick={() => setSelectedProduct(p)}
               >
                 <Image
                   src={p.image}
                   alt={p.name}
-                  width={200}
-                  height={144}
+                  width={300}
+                  height={160}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   onError={(e: any) => {
                     e.target.style.display = "none";
                   }}
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                  <span className="text-white text-xs font-semibold bg-black/50 px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                    View Details
-                  </span>
-                </div>
-              </div>
-              <div className="p-3">
-                <p className="text-xs font-semibold text-gray-900 line-clamp-2 leading-tight mb-1">
-                  {p.name}
-                </p>
-                <p className="text-sm font-bold text-(--color-primary)">
-                  ₦{p.price.toLocaleString()}
-                </p>
                 {p.originalPrice && (
-                  <p className="text-[10px] text-gray-400 line-through">
-                    ₦{p.originalPrice.toLocaleString()}
-                  </p>
+                  <div
+                    className={`absolute bg-(--color-primary) text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${viewMode === "grid" ? "top-2.5 left-2.5" : "bottom-2.5 left-2.5"}`}
+                  >
+                    {Math.round((1 - p.price / p.originalPrice) * 100)}% OFF
+                  </div>
                 )}
-                <div className="flex items-center gap-1 mt-1">
-                  <Star size={10} className="text-yellow-400 fill-yellow-400" />
-                  <span className="text-[10px] text-gray-500">
-                    {p.rating} ({p.reviews})
-                  </span>
+                {!p.inStock && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <span className="bg-white text-gray-900 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold text-center">
+                      Out of Stock
+                    </span>
+                  </div>
+                )}
+                {/* Wishlist heart */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleWishlist(p.id);
+                  }}
+                  className={`absolute w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-sm ${viewMode === "grid" ? "top-2.5 right-2.5" : "top-2.5 right-2.5"}`}
+                >
+                  <Heart
+                    size={14}
+                    className={
+                      isInWishlist(p.id)
+                        ? "text-red-500 fill-red-500"
+                        : "text-gray-600"
+                    }
+                  />
+                </button>
+              </div>
+              <div
+                className={`flex flex-col flex-1 ${viewMode === "grid" ? "p-2.5 sm:p-3.5" : "p-3 sm:p-4 justify-between"}`}
+              >
+                <div>
+                  <h3
+                    className={`font-semibold text-gray-900 line-clamp-2 leading-tight mb-1 group-hover:text-(--color-primary) transition-colors ${viewMode === "grid" ? "text-[11px] sm:text-sm mt-auto" : "text-xs sm:text-base mt-0"}`}
+                  >
+                    {p.name}
+                  </h3>
+                  <p
+                    className={`text-[9px] sm:text-[11px] text-gray-400 line-clamp-1 mb-1.5 ${viewMode === "list" ? "hidden sm:block mb-2" : ""}`}
+                  >
+                    Quality {p.category.toLowerCase()} product
+                  </p>
+                  <div
+                    className={`flex items-center gap-1 text-[9px] sm:text-xs text-gray-500 truncate ${viewMode === "grid" ? "mb-2" : "mb-0"}`}
+                  >
+                    <Star
+                      size={10}
+                      className="text-yellow-400 fill-yellow-400 sm:w-3 sm:h-3 shrink-0"
+                    />
+                    {p.rating}{" "}
+                    <span className="hidden sm:inline">({p.reviews})</span> ·{" "}
+                    <MapPin size={10} className="sm:w-3 sm:h-3 shrink-0" />{" "}
+                    <span className="truncate">{p.seller}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 mt-2">
+
+                <div
+                  className={`flex items-center justify-between ${viewMode === "grid" ? "mt-auto" : "mt-2"}`}
+                >
+                  <div
+                    className={
+                      viewMode === "list"
+                        ? "flex flex-col sm:flex-row sm:items-center sm:gap-2"
+                        : ""
+                    }
+                  >
+                    <span
+                      className={`font-bold text-gray-900 ${viewMode === "grid" ? "text-sm sm:text-base" : "text-base sm:text-lg"}`}
+                    >
+                      ₦{p.price.toLocaleString()}
+                    </span>
+                    {p.originalPrice && (
+                      <span
+                        className={`text-[8px] sm:text-[10px] text-gray-400 line-through block sm:inline ${viewMode === "grid" ? "ml-1" : ""}`}
+                      >
+                        ₦{p.originalPrice.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+
+                  <div
+                    className={`flex items-center ${viewMode === "grid" ? "" : "gap-2"}`}
+                  >
+                    {viewMode === "list" && (
+                      <button
+                        onClick={() => {
+                          addToCart(p.id, "product");
+                          onOpenCart();
+                        }}
+                        className="hidden sm:block px-4 py-2 bg-(--color-primary) text-white text-xs font-semibold rounded-full hover:bg-(--color-primary-dark) transition-colors whitespace-nowrap"
+                      >
+                        Buy Now
+                      </button>
+                    )}
+                    <button
+                      onClick={() => addToCart(p.id, "product")}
+                      className={`bg-(--color-primary-light) rounded-full hover:bg-(--color-primary) hover:text-white text-(--color-primary) transition-colors shrink-0 ${viewMode === "grid" ? "p-1.5 sm:p-2" : "p-2 sm:p-2.5"}`}
+                      title="Add to cart"
+                    >
+                      <ShoppingCart
+                        size={14}
+                        className={
+                          viewMode === "grid"
+                            ? "sm:w-4 sm:h-4 w-3.5 h-3.5"
+                            : "w-4 h-4 sm:w-5 sm:h-5"
+                        }
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                {viewMode === "grid" && (
                   <button
                     onClick={() => {
                       addToCart(p.id, "product");
                       onOpenCart();
                     }}
-                    className="flex-1 py-2 bg-(--color-primary) text-white text-[11px] font-semibold rounded-full hover:bg-(--color-primary-dark) transition-colors"
+                    className="w-full mt-2 sm:mt-2.5 py-1.5 sm:py-2 bg-(--color-primary) text-white text-[10px] sm:text-xs font-semibold rounded-full hover:bg-(--color-primary-dark) transition-colors whitespace-nowrap"
                   >
                     Buy Now
                   </button>
-                  <button
-                    onClick={() => addToCart(p.id, "product")}
-                    className="p-2 bg-(--color-primary-light) rounded-full hover:bg-(--color-primary) hover:text-white text-(--color-primary) transition-colors"
-                    title="Add to cart"
-                  >
-                    <ShoppingCart size={14} />
-                  </button>
-                </div>
+                )}
               </div>
             </div>
           ))}

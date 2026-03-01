@@ -3,9 +3,9 @@
 export const SITE_CONFIG = {
   name: "HANDI",
   description: "Find Trusted Service Providers Near You",
-  url: "https://handi.ng",
+  url: "https://handiapp.com.ng",
   supportPhone: "0800-HANDI-NG",
-  supportEmail: "support@handi.ng",
+  supportEmail: "support@handiapp.com.ng",
 };
 
 export const NAV_LINKS = [

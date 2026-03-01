@@ -11,7 +11,7 @@ export interface Provider {
   price: string;
   isOnline: boolean;
   badge: string | null;
-  providerType?: "Business" | "Specialist" | "Freelancer";
+  providerType?: "Business" | "Individual" | "Freelancer" | "Specialist";
   [key: string]: unknown;
 }
 

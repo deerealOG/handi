@@ -163,6 +163,99 @@ export default function LoginScreen() {
           />
         </Animated.View>
 
+        {/* Social Auth Section */}
+        <Animated.View
+          entering={FadeInDown.delay(500).duration(800)}
+          style={{ width: "100%", marginTop: 24 }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginBottom: 20,
+            }}
+          >
+            <View
+              style={{ flex: 1, height: 1, backgroundColor: colors.border }}
+            />
+            <Text
+              style={{
+                marginHorizontal: 12,
+                fontSize: 13,
+                color: colors.muted,
+                fontFamily: THEME.typography.fontFamily.body,
+              }}
+            >
+              OR
+            </Text>
+            <View
+              style={{ flex: 1, height: 1, backgroundColor: colors.border }}
+            />
+          </View>
+
+          <TouchableOpacity
+            onPress={() =>
+              Alert.alert(
+                "Google Sign-In",
+                "Google authentication will be configured with your OAuth credentials.",
+              )
+            }
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingVertical: 14,
+              borderRadius: 50,
+              borderWidth: 1,
+              borderColor: colors.border,
+              backgroundColor: colors.surface,
+              marginBottom: 12,
+              gap: 12,
+            }}
+          >
+            <Ionicons name="logo-google" size={20} color="#4285F4" />
+            <Text
+              style={{
+                fontSize: 15,
+                fontFamily: THEME.typography.fontFamily.subheading,
+                color: colors.text,
+              }}
+            >
+              Continue with Google
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() =>
+              Alert.alert(
+                "Facebook Sign-In",
+                "Facebook authentication will be configured with your App ID.",
+              )
+            }
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingVertical: 14,
+              borderRadius: 50,
+              backgroundColor: "#1877F2",
+              marginBottom: 12,
+              gap: 12,
+            }}
+          >
+            <Ionicons name="logo-facebook" size={20} color="#FFFFFF" />
+            <Text
+              style={{
+                fontSize: 15,
+                fontFamily: THEME.typography.fontFamily.subheading,
+                color: "#FFFFFF",
+              }}
+            >
+              Continue with Facebook
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+
         {/* Footer */}
         <Animated.View
           entering={FadeInDown.delay(600).duration(800)}

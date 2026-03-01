@@ -85,11 +85,11 @@ const BENEFITS = [
 
 export default function HowItWorksPage() {
   return (
-    <main className="min-h-screen bg-[var(--color-background)]">
+    <main className="min-h-screen bg-background">
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-[var(--color-primary)] py-16 lg:py-20 px-4 sm:px-6 lg:px-8 text-center">
+      <section className="bg-(--color-primary) py-16 lg:py-20 px-4 sm:px-6 lg:px-8 text-center">
         <h1 className="font-heading text-3xl lg:text-5xl text-white mb-4">
           How HANDI Works
         </h1>
@@ -110,17 +110,17 @@ export default function HowItWorksPage() {
                   index % 2 === 1 ? "md:flex-row-reverse" : ""
                 }`}
               >
-                <div className="w-20 h-20 rounded-2xl bg-[var(--color-primary)] flex items-center justify-center shrink-0">
+                <div className="w-20 h-20 rounded-2xl bg-(--color-primary) flex items-center justify-center shrink-0">
                   <step.icon size={32} className="text-white" />
                 </div>
                 <div className="flex-1">
-                  <span className="text-[var(--color-secondary)] font-heading font-bold text-sm">
+                  <span className="text-(--color-secondary) font-heading font-bold text-sm">
                     STEP {step.step}
                   </span>
                   <h3 className="font-heading text-xl lg:text-2xl mt-1 mb-3">
                     {step.title}
                   </h3>
-                  <p className="text-[var(--color-muted)] leading-relaxed">
+                  <p className="text-(--color-muted) leading-relaxed">
                     {step.description}
                   </p>
                 </div>
@@ -137,7 +137,7 @@ export default function HowItWorksPage() {
             <h2 className="font-heading text-2xl lg:text-4xl mb-4">
               Why Choose HANDI?
             </h2>
-            <p className="text-[var(--color-muted)] max-w-2xl mx-auto text-lg">
+            <p className="text-(--color-muted) max-w-2xl mx-auto text-lg">
               We&apos;ve built HANDI with your safety and convenience in mind.
               Here&apos;s what sets us apart.
             </p>
@@ -149,16 +149,16 @@ export default function HowItWorksPage() {
                 key={benefit.title}
                 className="bg-white p-6 rounded-2xl shadow-card hover:shadow-float transition-shadow group"
               >
-                <div className="w-14 h-14 rounded-xl bg-[var(--color-primary-light)] flex items-center justify-center mb-5 group-hover:bg-[var(--color-primary)] transition-colors">
+                <div className="w-14 h-14 rounded-xl bg-(--color-primary-light) flex items-center justify-center mb-5 group-hover:bg-(--color-primary) transition-colors">
                   <benefit.icon
                     size={28}
-                    className="text-[var(--color-primary)] group-hover:text-white transition-colors"
+                    className="text-(--color-primary) group-hover:text-white transition-colors"
                   />
                 </div>
                 <h3 className="font-heading font-semibold text-lg mb-2">
                   {benefit.title}
                 </h3>
-                <p className="text-[var(--color-muted)] text-sm leading-relaxed">
+                <p className="text-(--color-muted) text-sm leading-relaxed">
                   {benefit.description}
                 </p>
               </div>
@@ -168,11 +168,64 @@ export default function HowItWorksPage() {
           <div className="text-center">
             <Link
               href="/services"
-              className="inline-flex items-center justify-center gap-2 h-12 px-8 rounded-[50px] bg-[var(--color-primary)] text-white font-medium hover:bg-[var(--color-primary-dark)] transition-colors"
+              className="inline-flex items-center justify-center gap-2 h-12 px-8 rounded-[50px] bg-(--color-primary) text-white font-medium hover:bg-(--color-primary-dark) transition-colors"
             >
               Start Booking Now
               <ArrowRight size={18} />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="font-heading text-2xl lg:text-4xl mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-(--color-muted) text-lg">
+              Got questions? We've got answers.
+            </p>
+          </div>
+          <div className="space-y-4">
+            {[
+              {
+                q: "How much does it cost?",
+                a: "Pricing varies by service. You'll see the exact price before booking — no hidden fees.",
+              },
+              {
+                q: "How are providers vetted?",
+                a: "All providers undergo ID verification, background checks, and skill assessments before joining HANDI.",
+              },
+              {
+                q: "Can I cancel a booking?",
+                a: "Yes — free cancellation up to 2 hours before the appointment. Late cancellations may incur a small fee.",
+              },
+              {
+                q: "What if I'm not satisfied?",
+                a: "We offer a full money-back guarantee. File a dispute within 48 hours and our team will resolve it.",
+              },
+              {
+                q: "Is my payment secure?",
+                a: "Absolutely. All payments are processed through encrypted, PCI-compliant channels.",
+              },
+            ].map((faq, i) => (
+              <details
+                key={i}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 group"
+              >
+                <summary className="font-heading font-semibold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
+                  {faq.q}
+                  <span className="text-gray-400 group-open:rotate-180 transition-transform">
+                    ▼
+                  </span>
+                </summary>
+                <p className="text-(--color-muted) mt-4 leading-relaxed">
+                  {faq.a}
+                </p>
+              </details>
+            ))}
           </div>
         </div>
       </section>

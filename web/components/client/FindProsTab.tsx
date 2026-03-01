@@ -1,19 +1,18 @@
 "use client";
 
 import BookingModal from "@/components/BookingModal";
+import CategoryPills from "@/components/ui/CategoryPills";
 import { useCart } from "@/context/CartContext";
 import { MOCK_SERVICES, SERVICE_CATEGORIES } from "@/data/mockApi";
 import {
-    ChevronLeft,
-    ChevronRight,
     Heart,
     Search,
     ShoppingCart,
     Star,
-    X,
+    X
 } from "lucide-react";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 export default function FindProsTab({
   searchQuery: globalSearch,
@@ -26,7 +25,6 @@ export default function FindProsTab({
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
   const [bookingService, setBookingService] = useState<any>(null);
   const [selectedDetail, setSelectedDetail] = useState<any>(null);
-  const pillsRef = useRef<HTMLDivElement>(null);
 
   const query = localSearch || globalSearch;
 
@@ -47,7 +45,10 @@ export default function FindProsTab({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Find Professionals</h1>
+      <h1 className="text-2xl font-bold text-gray-900">
+        Find Professional{" "}
+        <span className="text-(--color-secondary)">Services</span>
+      </h1>
 
       {/* Search Bar */}
       <div className="relative">
@@ -65,54 +66,31 @@ export default function FindProsTab({
       </div>
 
       {/* Category Pills */}
-      <div className="pills-container">
+      <CategoryPills>
         <button
-          className="pills-scroll-btn left"
-          onClick={() =>
-            pillsRef.current?.scrollBy({ left: -200, behavior: "smooth" })
-          }
-          aria-label="Scroll left"
+          onClick={() => setActiveCategory("all")}
+          className={`shrink-0 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors border ${
+            activeCategory === "all"
+              ? "bg-(--color-primary) text-white border-(--color-primary)"
+              : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+          }`}
         >
-          <ChevronLeft size={16} />
+          All Services
         </button>
-        <div
-          ref={pillsRef}
-          className="flex gap-2 overflow-x-auto no-scrollbar pb-1 px-8"
-        >
+        {SERVICE_CATEGORIES.map((cat) => (
           <button
-            onClick={() => setActiveCategory("all")}
-            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-              activeCategory === "all"
-                ? "bg-(--color-primary) text-white"
-                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+            key={cat.id}
+            onClick={() => setActiveCategory(cat.id)}
+            className={`shrink-0 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors border ${
+              activeCategory === cat.id
+                ? "bg-(--color-primary) text-white border-(--color-primary)"
+                : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
             }`}
           >
-            All Services
+            {cat.label}
           </button>
-          {SERVICE_CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                activeCategory === cat.id
-                  ? "bg-(--color-primary) text-white"
-                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-        <button
-          className="pills-scroll-btn right"
-          onClick={() =>
-            pillsRef.current?.scrollBy({ left: 200, behavior: "smooth" })
-          }
-          aria-label="Scroll right"
-        >
-          <ChevronRight size={16} />
-        </button>
-      </div>
+        ))}
+      </CategoryPills>
 
       {/* Sort + Count */}
       <div className="flex items-center justify-between">
@@ -131,14 +109,14 @@ export default function FindProsTab({
       </div>
 
       {/* Services Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
         {filteredServices.map((s) => (
           <div
             key={s.id}
-            className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all group hover-lift"
+            className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all group hover-lift flex flex-col"
           >
             <div
-              className="w-full h-40 bg-gray-200 relative overflow-hidden cursor-pointer"
+              className="w-full h-28 sm:h-40 bg-gray-200 relative overflow-hidden cursor-pointer shrink-0"
               onClick={() => setSelectedDetail(s)}
             >
               <Image
@@ -153,49 +131,54 @@ export default function FindProsTab({
                 </span>
               </div>
             </div>
-            <div className="p-4">
-              <p className="text-sm font-semibold text-gray-900 truncate">
+            <div className="p-3 sm:p-4 flex flex-col flex-1">
+              <p className="text-[11px] sm:text-sm font-semibold text-gray-900 line-clamp-2">
                 {s.name}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5 truncate">
+              <p className="text-[9px] sm:text-xs text-gray-500 mt-0.5 truncate">
                 {s.provider}
               </p>
-              <div className="flex items-center justify-between mt-3">
-                <span className="text-base font-bold text-(--color-primary)">
+              <div className="flex items-center justify-between mt-auto pt-2">
+                <span className="text-sm sm:text-base font-bold text-(--color-primary)">
                   ₦{s.price.toLocaleString()}
                 </span>
-                <span className="text-xs text-gray-400 flex items-center gap-0.5">
-                  <Star size={12} className="text-yellow-400 fill-yellow-400" />{" "}
+                <span className="text-[10px] sm:text-xs text-gray-400 flex items-center gap-0.5">
+                  <Star
+                    size={10}
+                    className="text-yellow-400 fill-yellow-400 sm:w-3 sm:h-3"
+                  />{" "}
                   {s.rating}
                 </span>
               </div>
-              <div className="flex items-center gap-2 mt-3">
+              <div className="flex items-center gap-1.5 sm:gap-2 mt-2">
                 <button
                   onClick={() => setBookingService(s)}
-                  className="flex-1 py-2 bg-(--color-primary) text-white text-xs font-semibold rounded-full hover:opacity-90 transition-opacity"
+                  className="flex-1 py-1.5 sm:py-2 bg-(--color-primary) text-white text-[10px] sm:text-xs font-semibold rounded-full hover:opacity-90 transition-opacity whitespace-nowrap"
                 >
                   Book Now
                 </button>
-                <button
-                  onClick={() => addToCart(s.id, "service")}
-                  className="p-2 rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50 transition-colors"
-                  title="Add to Cart"
-                >
-                  <ShoppingCart size={16} />
-                </button>
-                <button
-                  onClick={() => toggleWishlist(s.id)}
-                  className={`p-2 rounded-full border transition-colors ${
-                    isInWishlist(s.id)
-                      ? "bg-red-50 border-red-200 text-red-500"
-                      : "border-gray-200 text-gray-400 hover:bg-gray-50"
-                  }`}
-                >
-                  <Heart
-                    size={16}
-                    className={isInWishlist(s.id) ? "fill-red-500" : ""}
-                  />
-                </button>
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    onClick={() => addToCart(s.id, "service")}
+                    className="p-1.5 sm:p-2 rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50 transition-colors"
+                    title="Add to Cart"
+                  >
+                    <ShoppingCart size={14} className="sm:w-4 sm:h-4" />
+                  </button>
+                  <button
+                    onClick={() => toggleWishlist(s.id)}
+                    className={`p-1.5 sm:p-2 rounded-full border transition-colors ${
+                      isInWishlist(s.id)
+                        ? "bg-red-50 border-red-200 text-red-500"
+                        : "border-gray-200 text-gray-400 hover:bg-gray-50"
+                    }`}
+                  >
+                    <Heart
+                      size={14}
+                      className={`sm:w-4 sm:h-4 ${isInWishlist(s.id) ? "fill-red-500" : ""}`}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

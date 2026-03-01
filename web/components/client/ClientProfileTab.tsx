@@ -10,9 +10,8 @@ import {
     CreditCard,
     HelpCircle,
     Info,
-    LogOut,
+    Power,
     MapPin,
-    MessageSquare,
     Moon,
     Shield,
     Sun,
@@ -31,7 +30,6 @@ export default function ClientProfileTab({
   router,
   onLogout,
   setShowNotifications,
-  setShowChat,
   setShowSupport,
   setShowTransactions,
 }: {
@@ -41,7 +39,6 @@ export default function ClientProfileTab({
   router: any;
   onLogout: () => void;
   setShowNotifications: (v: boolean) => void;
-  setShowChat: (v: boolean) => void;
   setShowSupport: (v: boolean) => void;
   setShowTransactions: (v: boolean) => void;
 }) {
@@ -154,11 +151,6 @@ export default function ClientProfileTab({
       icon: Bell,
       label: "Notifications",
       action: () => setShowNotifications(true),
-    },
-    {
-      icon: MessageSquare,
-      label: "Messages",
-      action: () => setShowChat(true),
     },
     {
       icon: Clock,
@@ -443,7 +435,7 @@ export default function ClientProfileTab({
             className="w-full flex items-center gap-4 px-5 py-4 hover:bg-red-50 transition-colors text-left"
           >
             <div className="w-9 h-9 rounded-xl bg-red-50 text-red-500 flex items-center justify-center">
-              <LogOut size={18} />
+              <Power size={18} />
             </div>
             <span className="text-sm font-medium text-red-600 flex-1">
               Logout
@@ -908,7 +900,7 @@ export default function ClientProfileTab({
               </div>
               <div className="bg-gray-50 rounded-xl p-3">
                 <p className="font-semibold text-gray-900 mb-1">Contact</p>
-                <p>Email: support@handi.ng</p>
+                <p>Email: support@handiapp.com.ng</p>
                 <p>Phone: +234 800 000 0000</p>
               </div>
             </div>

@@ -1,4 +1,3 @@
-import ChatbotWidget from "@/components/ChatbotWidget";
 import CookieConsent from "@/components/CookieConsent";
 import LocationPrompt from "@/components/LocationPrompt";
 import NotificationToast from "@/components/NotificationToast";
@@ -56,7 +55,6 @@ export default function RootLayout({
                 {children}
                 <NotificationToast />
                 <LocationPrompt />
-                <ChatbotWidget />
                 <ScrollToTop />
                 <CookieConsent />
               </NotificationProvider>

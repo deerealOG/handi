@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 import {
     Dimensions,
+    FlatList,
     Platform,
     ScrollView,
     StyleSheet,
@@ -182,7 +183,12 @@ export default function AdminOverviewScreen() {
           </TouchableOpacity>
         </Animated.View>
 
-        <View style={styles.statsGrid}>
+        <ScrollView 
+          style={styles.statsGrid}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.statsGrid}
+        horizontal
+        >
           {OVERVIEW_STATS.map((stat, index) => (
             <Animated.View
               key={stat.id}
@@ -220,7 +226,7 @@ export default function AdminOverviewScreen() {
               </LinearGradient>
             </Animated.View>
           ))}
-        </View>
+        </ScrollView>
 
         <Animated.View
           entering={FadeInDown.delay(400).duration(500)}
@@ -270,18 +276,20 @@ export default function AdminOverviewScreen() {
             </Text>
             <Text style={[styles.alertMeta, { color: colors.warning }]}>
               Awaiting verification
-            </Text>
+              </Text>
           </TouchableOpacity>
         </Animated.View>
 
-        <Animated.View
-          entering={FadeInDown.delay(500).duration(500)}
+        <ScrollView
           style={[styles.card, { backgroundColor: colors.surface }]}
+          showsVerticalScrollIndicator={false}
         >
           <Text style={[styles.cardTitle, { color: colors.text }]}>
             Quick Management
           </Text>
-          <View style={styles.manageGrid}>
+          <View
+            style={styles.manageGrid}
+          >
             {QUICK_MANAGE.map((item) => (
               <TouchableOpacity
                 key={item.id}
@@ -310,7 +318,7 @@ export default function AdminOverviewScreen() {
               </TouchableOpacity>
             ))}
           </View>
-        </Animated.View>
+        </ScrollView>
 
         <Animated.View
           entering={FadeInDown.delay(600).duration(500)}
@@ -524,10 +532,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#EF4444",
   },
 
-  statsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  statsGrid: {
+    gridTemplateColumns: "repeat(1, 1fr)",
+    gap: 8,
+
+  },
   statWrapper: { width: (SCREEN_WIDTH - 32 - 8) / 2 },
   statCard: {
-    borderRadius: THEME.radius.xl,
+    borderRadius: THEME.radius.md,
     padding: 16,
     overflow: "hidden",
   },
@@ -541,7 +553,7 @@ const styles = StyleSheet.create({
   statIconBox: {
     width: 34,
     height: 34,
-    borderRadius: THEME.radius.lg,
+    borderRadius: THEME.radius.md,
     backgroundColor: "rgba(255,255,255,0.2)",
     alignItems: "center",
     justifyContent: "center",
@@ -562,12 +574,12 @@ const styles = StyleSheet.create({
   },
   statValue: {
     color: "#fff",
-    fontSize: 22,
+    fontSize: 18,
     fontFamily: THEME.typography.fontFamily.heading,
   },
   statLabel: {
     color: "rgba(255,255,255,0.8)",
-    fontSize: 11,
+    fontSize: 12,
     fontFamily: THEME.typography.fontFamily.body,
     marginTop: 2,
   },
@@ -575,7 +587,7 @@ const styles = StyleSheet.create({
   alertRow: { flexDirection: "row", gap: 8 },
   alertCard: {
     flex: 1,
-    borderRadius: THEME.radius.xl,
+    borderRadius: THEME.radius.md,
     padding: 14,
     borderWidth: 1,
   },
@@ -589,20 +601,22 @@ const styles = StyleSheet.create({
     fontSize: THEME.typography.sizes.sm,
     fontFamily: THEME.typography.fontFamily.subheading,
     color: "#991B1B",
+    maxWidth: "88%",
   },
   alertCount: {
-    fontSize: 24,
+    fontSize: 18,
     fontFamily: THEME.typography.fontFamily.heading,
     marginBottom: 2,
   },
   alertMeta: {
-    fontSize: 10,
+    fontSize: 12,
     fontFamily: THEME.typography.fontFamily.body,
     color: "#DC2626",
   },
 
+
   card: {
-    borderRadius: THEME.radius.xl,
+    borderRadius: THEME.radius.md,
     padding: THEME.spacing.md,
     ...THEME.shadow.card,
   },

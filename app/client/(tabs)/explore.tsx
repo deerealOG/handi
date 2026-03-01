@@ -250,54 +250,7 @@ export default function ExploreScreen() {
       {/* Header */}
       <Animated.View entering={FadeInDown.duration(800)} style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>Explore</Text>
-        {/* Toggle */}
-        <View
-          style={[
-            styles.typeToggle,
-            { backgroundColor: colors.surface, borderColor: colors.border },
-          ]}
-        >
-          <TouchableOpacity
-            style={[
-              styles.toggleBtn,
-              searchType === "artisan" && { backgroundColor: colors.primary },
-            ]}
-            onPress={() => setSearchType("artisan")}
-          >
-            <Text
-              style={[
-                styles.toggleText,
-                {
-                  color:
-                    searchType === "artisan" ? colors.onPrimary : colors.text,
-                },
-              ]}
-            >
-              Professionals
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.toggleBtn,
-              searchType === "business" && { backgroundColor: colors.primary },
-            ]}
-            onPress={() => setSearchType("business")}
-          >
-            <Text
-              style={[
-                styles.toggleText,
-                {
-                  color:
-                    searchType === "business" ? colors.onPrimary : colors.text,
-                },
-              ]}
-            >
-              Businesses
-            </Text>
-          </TouchableOpacity>
-        </View>
       </Animated.View>
-
       {/* Search Bar - Consistent with home */}
       <Animated.View
         entering={FadeInDown.delay(200).duration(800)}
@@ -368,54 +321,6 @@ export default function ExploreScreen() {
               >
                 {filter}
               </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </Animated.View>
-
-      <Animated.View
-        entering={FadeInDown.delay(500).duration(800)}
-        style={styles.promoSection}
-      >
-        <Text style={[styles.promoSectionTitle, { color: colors.text }]}>
-          Featured Services
-        </Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.promoScrollContent}
-        >
-          {PROMO_SERVICES.map((promo) => (
-            <TouchableOpacity
-              key={promo.id}
-              style={[
-                styles.promoCard,
-                { backgroundColor: colors.surface, borderColor: colors.border },
-              ]}
-              onPress={() => setSearchQuery(promo.title)}
-              activeOpacity={0.85}
-            >
-              <View
-                style={[
-                  styles.promoIconWrap,
-                  { backgroundColor: colors.primaryLight },
-                ]}
-              >
-                <Ionicons name={promo.icon} size={18} color={colors.primary} />
-              </View>
-              <Text style={[styles.promoTitle, { color: colors.text }]}>
-                {promo.title}
-              </Text>
-              <Text style={[styles.promoSubtitle, { color: colors.muted }]}>
-                {promo.subtitle}
-              </Text>
-              <View
-                style={[styles.promoCta, { backgroundColor: colors.primaryLight }]}
-              >
-                <Text style={[styles.promoCtaText, { color: colors.primary }]}>
-                  {promo.cta}
-                </Text>
-              </View>
             </TouchableOpacity>
           ))}
         </ScrollView>

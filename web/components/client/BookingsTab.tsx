@@ -111,33 +111,48 @@ export default function BookingsTab() {
         </button>
       </div>
 
-      {/* Bookings List */}
-      <div className="space-y-3">
+      {/* Bookings Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {bookings.map((b) => (
           <div
             key={b.id}
             onClick={() => setSelectedBooking(b)}
-            className={`bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-start gap-4 cursor-pointer hover:shadow-md transition-shadow ${cancelledBookings.has(b.id) ? "opacity-50" : ""}`}
+            className={`bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 cursor-pointer hover:shadow-md transition-shadow flex-1 ${cancelledBookings.has(b.id) ? "opacity-50" : ""}`}
           >
-            <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-2xl shrink-0">
-              {b.icon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900">{b.service}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{b.provider}</p>
-              <p className="text-xs text-gray-400 mt-1">{b.date}</p>
-            </div>
-            <div className="text-right shrink-0">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${cancelledBookings.has(b.id) ? "bg-red-100 text-red-700" : b.statusColor}`}
-              >
-                {cancelledBookings.has(b.id) ? "Cancelled" : b.status}
-              </span>
-              {"amount" in b && (
-                <p className="text-sm font-bold text-gray-900 mt-2">
-                  {(b as any).amount}
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0 w-full sm:w-auto">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-100 flex items-center justify-center text-xl sm:text-2xl shrink-0">
+                {b.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] sm:text-sm font-semibold text-gray-900">
+                  {b.service}
                 </p>
-              )}
+                <p className="text-[9px] sm:text-xs text-gray-500 mt-0.5">
+                  {b.provider}
+                </p>
+                <p className="text-[9px] sm:text-xs text-gray-400 mt-0.5 hidden sm:block">
+                  {b.date}
+                </p>
+              </div>
+            </div>
+            <div className="text-left sm:text-right shrink-0 w-full sm:w-auto mt-auto pt-2 sm:pt-0 sm:mt-0 border-t sm:border-0 border-gray-50 flex items-end justify-between sm:block">
+              <div className="sm:hidden text-[9px] text-gray-400 leading-tight">
+                {b.date?.split(",")[0]}
+                <br />
+                {b.date?.split(",")[1]}
+              </div>
+              <div className="flex flex-col items-end">
+                <span
+                  className={`px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs font-semibold ${cancelledBookings.has(b.id) ? "bg-red-100 text-red-700" : b.statusColor}`}
+                >
+                  {cancelledBookings.has(b.id) ? "Cancelled" : b.status}
+                </span>
+                {"amount" in b && (
+                  <p className="text-[11px] sm:text-sm font-bold text-gray-900 mt-1 sm:mt-2">
+                    {(b as any).amount}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         ))}

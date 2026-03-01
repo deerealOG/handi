@@ -1,12 +1,21 @@
-- [x] Route admin root to tabbed admin screens (`/admin/(tabs)/index`) so updated admin content is shown by default.
-- [x] Wire provider tab actions/buttons/cards to valid routes and keep interactions consistent.
-- [x] Wire admin tab actions/buttons/cards to valid routes, and expose hidden admin tools from in-tab actions.
-- [x] Fix provider bookings category pill padding/alignment and normalize card/button spacing consistency.
-- [x] Run lint and verify target routes exist for all newly wired actions.
+- [x] Create checklist for dashboard rewrite scope and verification before implementation.
+- [x] Rewrite `app/artisan/(tabs)/index.tsx` to match required provider dashboard UX while preserving existing route behavior.
+- [x] Rewrite `app/admin/(tabs)/index.tsx` to match required admin overview UX and keep route behavior intact.
+- [x] Ensure `FadeInDown` covers all major sections in both dashboards and gradient cards use `expo-linear-gradient`.
+- [x] Validate icon usage consistency (`Ionicons` + `MaterialCommunityIcons`) and handle data compatibility edge cases without modifying constants.
+- [x] Verify `constants/role-dashboard-data.ts` is unchanged.
+- [x] Verify non-dashboard artisan tabs remain untouched:
+- [x] `app/artisan/(tabs)/services.tsx`
+- [x] `app/artisan/(tabs)/wallet.tsx`
+- [x] `app/artisan/(tabs)/jobs.tsx`
+- [x] Run project lint/type checks and resolve any regressions.
+- [x] Add review notes summarizing what was verified and outcomes.
 
 ## Review
-- Admin root now redirects to the tabbed admin flow.
-- Provider and admin buttons/cards now have concrete `onPress` navigation/actions.
-- Provider booking filter pills were increased and normalized for better padding/alignment.
-- Hidden admin tabs are accessible via "More Admin Tools" in admin overview.
+- Rebuilt `app/artisan/(tabs)/index.tsx` with the requested provider dashboard sections, including per-card animated orange pulse indicators for pending bookings and safe upcoming-date parsing.
+- Rebuilt `app/admin/(tabs)/index.tsx` with the requested overview layout, gradient stat cards, quick management grid, decision log, recent activity, and bookings snapshot.
+- Verified only intended files changed: `app/artisan/(tabs)/index.tsx`, `app/admin/(tabs)/index.tsx`, and `tasks/todo.md`.
+- Confirmed `constants/role-dashboard-data.ts` has no diff.
+- Confirmed non-dashboard artisan tab files are unchanged.
 - `npm run lint` passes.
+- `npx tsc --noEmit` fails with many pre-existing repository-wide type errors outside these dashboard files.

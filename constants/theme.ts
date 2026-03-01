@@ -190,6 +190,8 @@ export const THEME = {
     md: 16,
     lg: 24,
     xl: 32,
+    xxl: 48,
+    full:50,
     pill: 9999,
   },
 

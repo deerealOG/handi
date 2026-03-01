@@ -14,6 +14,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
+// Map footer link hrefs to client Quick Nav tab IDs
+const FOOTER_TO_TAB_MAP: Record<string, string> = {
+  "/how-it-works": "how-it-works",
+  "/services": "find-pros",
+  "/services?category=electrical": "find-pros",
+  "/services?category=plumbing": "find-pros",
+  "/services?category=beauty": "find-pros",
+  "/services?category=cleaning": "find-pros",
+  "/services?category=home": "find-pros",
+  "/become-provider": "how-it-works",
+};
+
 const FOOTER_COLUMNS = [
   {
     title: "Company",
@@ -72,7 +84,13 @@ const SOCIAL_LINKS = [
   },
 ];
 
-export default function Footer() {
+export default function Footer({
+  isLoggedIn,
+  onTabChange,
+}: {
+  isLoggedIn?: boolean;
+  onTabChange?: (tabId: string) => void;
+} = {}) {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
@@ -97,7 +115,7 @@ export default function Footer() {
           {/* Main Footer Content */}
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 mb-12">
             {/* Brand Section */}
-            <div className="lg:max-w-xs flex-shrink-0">
+            <div className="lg:max-w-xs shrink-0">
               <Image
                 src="/images/handi-logo-dark.png"
                 alt="HANDI"
@@ -114,15 +132,15 @@ export default function Footer() {
               {/* Contact Info */}
               <div className="space-y-2 mb-5">
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Phone size={14} className="text-[var(--color-secondary)]" />
+                  <Phone size={14} className="text-(--color-secondary)" />
                   <span>+234 800 426 3400</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Mail size={14} className="text-[var(--color-secondary)]" />
+                  <Mail size={14} className="text-(--color-secondary)" />
                   <span>support@handiapp.com.ng</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <MapPin size={14} className="text-[var(--color-secondary)]" />
+                  <MapPin size={14} className="text-(--color-secondary)" />
                   <span>Port Harcourt, Nigeria</span>
                 </div>
               </div>
@@ -179,7 +197,7 @@ export default function Footer() {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-gray-400 hover:bg-[var(--color-primary)] hover:text-white transition-colors"
+                    className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-gray-400 hover:bg-(--color-primary) hover:text-white transition-colors"
                     aria-label={social.label}
                   >
                     <social.icon size={18} />
@@ -196,25 +214,46 @@ export default function Footer() {
                     {column.title}
                   </h3>
                   <ul className="space-y-2.5">
-                    {column.links.map((link) => (
-                      <li key={link.label}>
-                        {link.label === "Careers" ? (
-                          <button
-                            onClick={() => setCareersModalOpen(true)}
-                            className="text-sm text-gray-400 hover:text-[var(--color-secondary)] transition-colors"
-                          >
-                            {link.label}
-                          </button>
-                        ) : (
+                    {column.links.map((link) => {
+                      const mappedTab = FOOTER_TO_TAB_MAP[link.href];
+                      if (link.label === "Careers") {
+                        return (
+                          <li key={link.label}>
+                            <button
+                              onClick={() => setCareersModalOpen(true)}
+                              className="text-sm text-gray-400 hover:text-(--color-secondary) transition-colors"
+                            >
+                              {link.label}
+                            </button>
+                          </li>
+                        );
+                      }
+                      if (isLoggedIn && onTabChange && mappedTab) {
+                        return (
+                          <li key={link.label}>
+                            <button
+                              onClick={() => {
+                                onTabChange(mappedTab);
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                              className="text-sm text-gray-400 hover:text-(--color-secondary) transition-colors"
+                            >
+                              {link.label}
+                            </button>
+                          </li>
+                        );
+                      }
+                      return (
+                        <li key={link.label}>
                           <Link
                             href={link.href}
-                            className="text-sm text-gray-400 hover:text-[var(--color-secondary)] transition-colors"
+                            className="text-sm text-gray-400 hover:text-(--color-secondary) transition-colors"
                           >
                             {link.label}
                           </Link>
-                        )}
-                      </li>
-                    ))}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               ))}

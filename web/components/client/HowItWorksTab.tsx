@@ -97,7 +97,7 @@ export default function HowItWorksTab() {
             </div>
             {i < STEPS.length - 1 && (
               <div className="hidden lg:flex absolute top-1/2 -right-3 z-10">
-                <ArrowRight size={16} className="text-gray-300" />
+                
               </div>
             )}
           </div>

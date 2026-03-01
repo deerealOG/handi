@@ -814,3 +814,22 @@ select option {
   color: white;
   border-color: var(--color-primary);
 }
+
+/* ============================================
+   Staggered Animations
+   ============================================ */
+@keyframes staggerSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-stagger-item {
+  opacity: 0;
+  animation: staggerSlideIn 0.3s ease-out forwards;
+}

@@ -2,10 +2,10 @@
 *       @deerealOG
 
 # Secure paths that require deep review
-/supabase/              @deerealOG 
-/web/lib/supabase.ts    @deerealOG 
-/.github/workflows/     @deerealOG 
-/backend_audit_plan.md  @deerealOG 
+/supabase/                     @deerealOG 
+/web/lib/supabase.ts           @deerealOG 
+/.github/workflows/            @deerealOG 
+/backend/backend_audit_plan.md @deerealOG 
 
 # Structural owners
 /web/components/admin/  @deerealOG 

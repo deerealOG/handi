@@ -207,39 +207,6 @@ function AuthProviderInner({ children }: { children: React.ReactNode }) {
       console.warn("NextAuth signIn threw:", err);
     }
 
-    // Dev fallback — only in development when backend is unreachable
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("⚠️ Backend unreachable — using dev fallback login");
-
-      // Test account email→type mapping
-      const TEST_ACCOUNTS: Record<string, "client" | "provider" | "admin"> = {
-        "client@handi.ng": "client",
-        "provider@handi.ng": "provider",
-        "admin@handi.ng": "admin",
-        "business@handi.ng": "provider",
-      };
-
-      const resolvedType =
-        TEST_ACCOUNTS[email.toLowerCase()] || userType || "client";
-
-      const nameMap: Record<string, string> = {
-        "client@handi.ng": "Demo Client",
-        "provider@handi.ng": "Demo Provider",
-        "admin@handi.ng": "Demo Admin",
-        "business@handi.ng": "Demo Business",
-      };
-      const name = nameMap[email.toLowerCase()] || email.split("@")[0];
-
-      const mockUser = buildUserFromSession({
-        id: `dev_${resolvedType}_001`,
-        name,
-        email,
-        userType: resolvedType,
-      });
-      setBaseUser(mockUser);
-      return { success: true };
-    }
-
     return { success: false, error: "Invalid email or password" };
   };
 

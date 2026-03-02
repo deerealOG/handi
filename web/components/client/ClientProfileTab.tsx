@@ -10,9 +10,9 @@ import {
     CreditCard,
     HelpCircle,
     Info,
-    Power,
     MapPin,
     Moon,
+    Power,
     Shield,
     Sun,
     Trash2,
@@ -20,8 +20,12 @@ import {
     User,
     X,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
+
+const backendUrl =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
 
 export default function ClientProfileTab({
   user,
@@ -43,6 +47,7 @@ export default function ClientProfileTab({
   setShowTransactions: (v: boolean) => void;
 }) {
   const { isDark, toggleDarkMode } = useTheme();
+  const { data: session } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     firstName: user.firstName || "",
@@ -57,12 +62,51 @@ export default function ClientProfileTab({
   const [saving, setSaving] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
 
+  const [fundingAmount, setFundingAmount] = useState("");
+  const [fundingLoading, setFundingLoading] = useState(false);
+
   const handleSave = async () => {
     setSaving(true);
     await new Promise((r) => setTimeout(r, 600));
     updateUser(editData);
     setIsEditing(false);
     setSaving(false);
+  };
+
+  const handleFundWallet = async () => {
+    if (
+      !fundingAmount ||
+      isNaN(Number(fundingAmount)) ||
+      Number(fundingAmount) < 100
+    ) {
+      alert("Please enter a valid amount of at least 100 NGN");
+      return;
+    }
+
+    try {
+      setFundingLoading(true);
+      const token = (session as any)?.accessToken as string | undefined;
+      const res = await fetch(`${backendUrl}/api/payment/initialize`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ amount: Number(fundingAmount) }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to initialize payment");
+      }
+
+      // Redirect to Paystack Hosted Checkout
+      window.location.href = data.data.authorization_url;
+    } catch (error: any) {
+      console.error(error);
+      alert(error.message || "Something went wrong initializing Paystack");
+      setFundingLoading(false);
+    }
   };
 
   const handleUseLocation = () => {
@@ -798,7 +842,64 @@ export default function ClientProfileTab({
                     <p className="text-xs font-medium">12/28</p>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Saved Cards */}
+            <div className="space-y-3 mb-5">
+              <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-4 text-white relative overflow-hidden">
+                <div className="absolute top-3 right-3 text-xs font-medium bg-white/20 px-2 py-0.5 rounded-full">
+                  VISA
+                </div>
+                <p className="text-xs text-white/60 mb-3">Card Number</p>
+                <p className="text-sm font-mono tracking-wider mb-4">
+                  •••• •••• •••• 4532
+                </p>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-[10px] text-white/50">CARDHOLDER</p>
+                    <p className="text-xs font-medium">
+                      {user.firstName} {user.lastName}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-white/50">EXPIRES</p>
+                    <p className="text-xs font-medium">12/28</p>
+                  </div>
+                </div>
                 <div className="absolute -bottom-4 -right-4 w-20 h-20 rounded-full bg-white/5" />
+              </div>
+
+              {/* Fund Wallet Section */}
+              <div className="bg-gray-50 rounded-xl p-4 mt-2 mb-4">
+                <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                  Fund via Paystack
+                </h4>
+                <p className="text-[10px] text-gray-500 mb-3">
+                  Securely add money to your HANDI wallet.
+                </p>
+                <div className="flex gap-2 items-center">
+                  <div className="relative flex-1">
+                    <span className="absolute left-3 top-2.5 text-gray-500 text-sm font-semibold">
+                      ₦
+                    </span>
+                    <input
+                      type="number"
+                      min="100"
+                      placeholder="5000"
+                      value={fundingAmount}
+                      onChange={(e) => setFundingAmount(e.target.value)}
+                      className="w-full pl-7 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-(--color-primary)"
+                    />
+                  </div>
+                  <button
+                    onClick={handleFundWallet}
+                    disabled={fundingLoading}
+                    className="px-4 py-2 bg-(--color-primary) text-white rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
+                  >
+                    {fundingLoading ? "Wait..." : "Fund Wallet"}
+                  </button>
+                </div>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center gap-3">
@@ -863,7 +964,7 @@ export default function ClientProfileTab({
                 onClick={() => setShowAbout(false)}
                 className="p-1 hover:bg-gray-100 rounded-full"
               >
-                <span className="sr-only">Close</span>✕
+                <X size={20} />
               </button>
             </div>
             <div className="text-center mb-4">

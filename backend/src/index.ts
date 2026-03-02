@@ -17,6 +17,7 @@ import businessRoutes from "./routes/business";
 import disputesRoutes from "./routes/disputes";
 import jobsRoutes from "./routes/jobs";
 import materialsRoutes from "./routes/materials";
+import paymentRoutes from "./routes/payment";
 import profileRoutes from "./routes/profile";
 import verificationRoutes from "./routes/verification";
 import walletRoutes from "./routes/wallet";
@@ -106,6 +107,7 @@ app.use("/api/availability", availabilityRoutes);
 app.use("/api/disputes", disputesRoutes);
 app.use("/api/business", businessRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // ================================
 // Error Handler

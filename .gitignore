@@ -46,7 +46,9 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+.env.example
 backend/.env
+
 
 # === IDE ===
 .idea/
@@ -67,5 +69,10 @@ app-example/
 coverage/
 .cache/
 
-# === Markdowns ===
-*.md
+
+#gitignore file
+.gitignore
+
+handi-infra/
+backend/app_log.txt
+backend/login.json

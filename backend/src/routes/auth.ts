@@ -60,11 +60,11 @@ router.post(
     body("lastName").trim().notEmpty(),
     body("userType").isIn(["CLIENT", "ARTISAN", "BUSINESS"]),
     body("nin")
-      .optional()
+      .optional({ values: "falsy" })
       .isString()
       .isLength({ min: 11, max: 11 })
       .withMessage("NIN must be exactly 11 digits"),
-    body("businessRegNumber").optional().isString().trim(),
+    body("businessRegNumber").optional({ values: "falsy" }).isString().trim(),
     body("preferredCategories").optional().isArray(),
   ],
   async (req: Request, res: Response) => {

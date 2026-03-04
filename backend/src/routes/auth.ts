@@ -8,11 +8,11 @@ import { body, validationResult } from "express-validator";
 import { prisma } from "../lib/prisma";
 import { authenticate, AuthRequest } from "../middleware/auth";
 import {
-    createAccessToken,
-    generateOtp,
-    generateRefreshToken,
-    hashToken,
-    refreshTokenExpiresAt,
+  createAccessToken,
+  generateOtp,
+  generateRefreshToken,
+  hashToken,
+  refreshTokenExpiresAt,
 } from "../utils/auth";
 import { sendEmail } from "../utils/email";
 
@@ -54,7 +54,7 @@ router.post(
   "/register",
   [
     body("email").isEmail().normalizeEmail(),
-    body("phone").isMobilePhone("any"),
+    body("phone").trim().notEmpty().isLength({ min: 10, max: 15 }),
     body("password").isLength({ min: 8 }),
     body("firstName").trim().notEmpty(),
     body("lastName").trim().notEmpty(),
@@ -71,9 +71,13 @@ router.post(
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
+        const fields = errors
+          .array()
+          .map((e: any) => e.path || e.param)
+          .filter(Boolean);
         return res.status(400).json({
           success: false,
-          error: "Validation failed",
+          error: `Please check: ${fields.join(", ")}`,
           details: errors.array(),
         });
       }

@@ -1,7 +1,7 @@
 // src/routes/payment.ts
 // Paystack Payment Integration Routes
 
-import { PrismaClient } from "@prisma/client";
+// PrismaClient import removed — using shared instance
 import axios from "axios";
 import { Request, Response, Router } from "express";
 import { body, validationResult } from "express-validator";
@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import { authenticate, AuthRequest } from "../middleware/auth";
 
 const router = Router();
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 const PAYSTACK_PUBLIC_KEY = process.env.PAYSTACK_PUBLIC_KEY;

@@ -1,13 +1,13 @@
 // src/routes/profile.ts
 // Profile management routes
 
-import { PrismaClient } from "@prisma/client";
+// PrismaClient import removed — using shared instance
 import { Response, Router } from "express";
 import { body, validationResult } from "express-validator";
 import { authenticate, AuthRequest } from "../middleware/auth";
 
 const router = Router();
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 // ================================
 // GET /api/profile - Get current user profile

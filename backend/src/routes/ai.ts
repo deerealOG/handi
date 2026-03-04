@@ -1,13 +1,13 @@
 // src/routes/ai.ts
 // AI Chat/Diagnostics routes
 
-import { PrismaClient } from "@prisma/client";
+// PrismaClient import removed — using shared instance
 import { Response, Router } from "express";
 import { body, param, validationResult } from "express-validator";
 import { authenticate, AuthRequest } from "../middleware/auth";
 
 const router = Router();
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 // Categories and their keywords for matching
 const CATEGORY_KEYWORDS: Record<string, string[]> = {

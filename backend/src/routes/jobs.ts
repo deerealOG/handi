@@ -7,7 +7,7 @@ import { body, param, query, validationResult } from "express-validator";
 import { authenticate, AuthRequest, requireArtisan } from "../middleware/auth";
 
 const router = Router();
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 // ================================
 // GET /api/jobs - Get jobs for artisan

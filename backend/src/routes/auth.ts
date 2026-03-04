@@ -1,15 +1,11 @@
 // src/routes/auth.ts
 // Authentication routes (custom JWT)
 
-import {
-    AdminRole,
-    PrismaClient,
-    UserType,
-    VerificationCodePurpose,
-} from "@prisma/client";
+import { AdminRole, UserType, VerificationCodePurpose } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { Request, Response, Router } from "express";
 import { body, validationResult } from "express-validator";
+import { prisma } from "../lib/prisma";
 import { authenticate, AuthRequest } from "../middleware/auth";
 import {
     createAccessToken,
@@ -21,7 +17,6 @@ import {
 import { sendEmail } from "../utils/email";
 
 const router = Router();
-const prisma = new PrismaClient();
 
 const OTP_TTL_MINUTES = parseInt(process.env.OTP_TTL_MINUTES || "10", 10);
 const RESET_TTL_MINUTES = parseInt(process.env.RESET_TTL_MINUTES || "30", 10);

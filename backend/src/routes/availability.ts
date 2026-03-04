@@ -1,13 +1,13 @@
 // src/routes/availability.ts
 // Artisan availability and scheduling routes
 
-import { PrismaClient } from "@prisma/client";
+// PrismaClient import removed — using shared instance
 import { Response, Router } from "express";
 import { body, param, validationResult } from "express-validator";
 import { authenticate, AuthRequest, requireArtisan } from "../middleware/auth";
 
 const router = Router();
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 // ================================
 // GET /api/availability/:artisanId - Get artisan's availability

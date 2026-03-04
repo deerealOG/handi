@@ -1,13 +1,13 @@
 // src/routes/business.ts
 // Business/Agency management routes
 
-import { PrismaClient } from "@prisma/client";
+// PrismaClient import removed — using shared instance
 import { Response, Router } from "express";
 import { body, param, validationResult } from "express-validator";
 import { authenticate, AuthRequest } from "../middleware/auth";
 
 const router = Router();
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 // Middleware to check business owner
 const requireBusinessOwner = async (

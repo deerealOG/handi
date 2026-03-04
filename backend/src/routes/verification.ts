@@ -1,13 +1,13 @@
 // src/routes/verification.ts
 // KYC Verification document routes
 
-import { PrismaClient } from "@prisma/client";
+// PrismaClient import removed — using shared instance
 import { Response, Router } from "express";
 import { body, param, validationResult } from "express-validator";
 import { authenticate, AuthRequest, requireAdmin } from "../middleware/auth";
 
 const router = Router();
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 // ================================
 // POST /api/verification/upload - Upload verification document

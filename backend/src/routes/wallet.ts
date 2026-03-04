@@ -1,18 +1,14 @@
 // src/routes/wallet.ts
 // Wallet and transaction routes
 
-import {
-    PrismaClient,
-    TransactionStatus,
-    TransactionType,
-} from "@prisma/client";
+import { TransactionStatus, TransactionType } from "@prisma/client";
 import { Response, Router } from "express";
 import { body, query, validationResult } from "express-validator";
 import { v4 as uuidv4 } from "uuid";
+import { prisma } from "../lib/prisma";
 import { authenticate, AuthRequest } from "../middleware/auth";
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // ================================
 // GET /api/wallet - Get wallet balance

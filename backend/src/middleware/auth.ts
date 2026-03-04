@@ -1,11 +1,9 @@
 // src/middleware/auth.ts
 // JWT Authentication middleware
 
-import { PrismaClient } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 export interface JWTPayload {
   userId: string;
@@ -63,7 +61,12 @@ export const authenticate = async (
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, userType: true, verificationStatus: true },
+      select: {
+        id: true,
+        email: true,
+        userType: true,
+        verificationStatus: true,
+      },
     });
 
     if (!user) {

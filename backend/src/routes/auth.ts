@@ -18,6 +18,7 @@ import {
     hashToken,
     refreshTokenExpiresAt,
 } from "../utils/auth";
+import { sendEmail } from "../utils/email";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -160,6 +161,33 @@ router.post(
       });
 
       res.cookie("refresh_token", refreshToken, refreshCookieOptions());
+
+      // Send welcome email (non-blocking)
+      sendEmail({
+        to: email,
+        subject: "Welcome to HANDI! 🎉",
+        html: `
+          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px 24px; background: #fff; border-radius: 16px;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <h1 style="color: #10b981; margin: 0; font-size: 28px;">Welcome to HANDI</h1>
+            </div>
+            <p style="color: #333; font-size: 16px; line-height: 1.6;">Hi <strong>${firstName}</strong>,</p>
+            <p style="color: #555; font-size: 15px; line-height: 1.6;">Thank you for joining HANDI — Nigeria's #1 on-demand service marketplace. You can now:</p>
+            <ul style="color: #555; font-size: 14px; line-height: 2;">
+              <li>🔍 Browse verified providers near you</li>
+              <li>📅 Book services instantly</li>
+              <li>💳 Pay securely with escrow protection</li>
+              <li>⭐ Rate and review your experience</li>
+            </ul>
+            <div style="text-align: center; margin: 28px 0;">
+              <a href="${process.env.FRONTEND_URL || "https://handiapp.com.ng"}" style="display: inline-block; background: #10b981; color: white; text-decoration: none; padding: 14px 32px; border-radius: 50px; font-weight: bold; font-size: 15px;">Explore HANDI</a>
+            </div>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+            <p style="color: #999; font-size: 12px; text-align: center;">© ${new Date().getFullYear()} HANDI. All rights reserved.</p>
+          </div>
+        `,
+      }).catch((err) => console.error("Welcome email failed:", err));
+
       res.status(201).json({
         success: true,
         data: {
@@ -328,6 +356,26 @@ router.post(
           },
         }),
       ]);
+
+      // Send OTP via email (non-blocking)
+      sendEmail({
+        to: email,
+        subject: "Your HANDI Verification Code",
+        html: `
+          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #fff; border-radius: 16px;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <h1 style="color: #10b981; margin: 0; font-size: 24px;">HANDI</h1>
+            </div>
+            <p style="color: #333; font-size: 16px; line-height: 1.6;">Your verification code is:</p>
+            <div style="text-align: center; margin: 24px 0;">
+              <span style="display: inline-block; background: #f0fdf4; color: #10b981; font-size: 36px; font-weight: bold; letter-spacing: 8px; padding: 16px 32px; border-radius: 12px; border: 2px dashed #10b981;">${otp}</span>
+            </div>
+            <p style="color: #777; font-size: 13px; text-align: center;">This code expires in ${OTP_TTL_MINUTES} minutes. Do not share it with anyone.</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+            <p style="color: #999; font-size: 12px; text-align: center;">If you didn't request this, ignore this email.</p>
+          </div>
+        `,
+      }).catch((err) => console.error("OTP email failed:", err));
 
       res.json({
         success: true,

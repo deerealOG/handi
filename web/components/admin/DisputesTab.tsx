@@ -32,6 +32,11 @@ export default function DisputesTab() {
   const [showEscalateForm, setShowEscalateForm] = useState(false);
   const [escalateTarget, setEscalateTarget] = useState("super_admin");
   const [escalateNote, setEscalateNote] = useState("");
+  const [showRequestInfoForm, setShowRequestInfoForm] = useState(false);
+  const [requestInfoNote, setRequestInfoNote] = useState("");
+  const [showSuspendForm, setShowSuspendForm] = useState(false);
+  const [suspendReason, setSuspendReason] = useState("");
+  const [resolutionType, setResolutionType] = useState("full_refund");
 
   const filtered = disputes.filter((d) => {
     const matchFilter = filter === "all" || d.status === filter;
@@ -85,45 +90,67 @@ export default function DisputesTab() {
   const handleResolve = () => {
     if (!selectedDispute) return;
     const note = resolutionNote.trim() || "Resolved by admin.";
-    updateDisputeStatus(selectedDispute.id, "resolved", note);
+    const typeLabels: Record<string, string> = {
+      full_refund: "Full Refund",
+      partial_refund: "Partial Refund",
+      no_refund: "No Refund (Provider Favor)",
+      wallet_credit: "Credit to Wallet",
+    };
+    const label = typeLabels[resolutionType] || "Resolved";
+    updateDisputeStatus(selectedDispute.id, "resolved", `[${label}] ${note}`);
     addToast({
       type: "success",
       title: "✅ Dispute Resolved",
-      message: `Dispute #${selectedDispute.id.slice(1)} resolved. Refund of ${selectedDispute.amount} issued.`,
+      message: `Dispute #${selectedDispute.id.slice(1)} resolved via ${label}. Amount: ${selectedDispute.amount}.`,
     });
     setResolutionNote("");
+    setResolutionType("full_refund");
   };
 
   const handleRequestInfo = () => {
     if (!selectedDispute) return;
+    if (!requestInfoNote.trim()) {
+      addToast({ type: "error", title: "⚠️ Required", message: "Please specify what information is needed." });
+      return;
+    }
     addToast({
       type: "info",
       title: "📨 Info Requested",
-      message: `Request for more information sent to ${selectedDispute.client} and ${selectedDispute.provider}.`,
+      message: `Request sent to ${selectedDispute.client} and ${selectedDispute.provider}: "${requestInfoNote.trim()}"`,
     });
+    setRequestInfoNote("");
+    setShowRequestInfoForm(false);
   };
 
   const handleSuspendProvider = () => {
     if (!selectedDispute) return;
+    if (!suspendReason.trim()) {
+      addToast({ type: "error", title: "⚠️ Required", message: "Please provide a reason for the suspension." });
+      return;
+    }
     addToast({
       type: "error",
       title: "🚫 Provider Suspended",
-      message: `${selectedDispute.provider} has been suspended pending investigation.`,
+      message: `${selectedDispute.provider} suspended. Reason: "${suspendReason.trim()}". The provider has been notified.`,
     });
+    setSuspendReason("");
+    setShowSuspendForm(false);
   };
 
   const handleEscalate = () => {
     if (!selectedDispute) return;
-    updateDisputeStatus(selectedDispute.id, "escalated");
+    const note = escalateNote.trim();
+    updateDisputeStatus(selectedDispute.id, "escalated", note ? `Escalated: ${note}` : undefined);
     const targetLabels: Record<string, string> = {
       super_admin: "Super Admin",
       legal: "Legal Department",
       finance: "Finance Team",
+      customer_success: "Customer Success",
     };
     addToast({
       type: "warning",
       title: "⬆️ Dispute Escalated",
-      message: `Dispute #${selectedDispute.id.slice(1)} escalated to ${targetLabels[escalateTarget] || escalateTarget}.`,
+      message: `Dispute #${selectedDispute.id.slice(1)} escalated to ${targetLabels[escalateTarget] || escalateTarget}.${note ? ` Note: "${note}"` : ""}`,
     });
     setShowEscalateForm(false);
     setEscalateNote("");
@@ -361,7 +388,21 @@ export default function DisputesTab() {
         {selectedDispute.status !== "resolved" && (
           <div className="bg-white rounded-2xl shadow-sm p-6">
             <h3 className="font-semibold text-gray-900 mb-4">Admin Actions</h3>
-            <div className="space-y-3">
+            <div className="space-y-4">
+              {/* Resolution Type */}
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Resolution Type</label>
+                <select
+                  value={resolutionType}
+                  onChange={(e) => setResolutionType(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-gray-50 rounded-xl text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer"
+                >
+                  <option value="full_refund">Full Refund</option>
+                  <option value="partial_refund">Partial Refund</option>
+                  <option value="no_refund">No Refund (Provider Favor)</option>
+                  <option value="wallet_credit">Credit to Wallet</option>
+                </select>
+              </div>
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">
                   Resolution Note
@@ -378,32 +419,32 @@ export default function DisputesTab() {
                 {selectedDispute.status === "open" && (
                   <button
                     onClick={handleMarkInReview}
-                    className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white rounded-full text-xs font-semibold hover:bg-blue-700 transition"
+                    className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white rounded-full text-xs font-semibold hover:bg-blue-700 transition cursor-pointer"
                   >
                     <Eye size={14} /> Mark In Review
                   </button>
                 )}
                 <button
                   onClick={handleResolve}
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-600 text-white rounded-full text-xs font-semibold hover:bg-emerald-700 transition"
+                  className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-600 text-white rounded-full text-xs font-semibold hover:bg-emerald-700 transition cursor-pointer"
                 >
-                  <Check size={14} /> Resolve — Issue Refund
+                  <Check size={14} /> Resolve Dispute
                 </button>
                 <button
-                  onClick={handleRequestInfo}
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-yellow-600 text-white rounded-full text-xs font-semibold hover:bg-yellow-700 transition"
+                  onClick={() => setShowRequestInfoForm(true)}
+                  className="flex items-center gap-1.5 px-4 py-2.5 bg-yellow-600 text-white rounded-full text-xs font-semibold hover:bg-yellow-700 transition cursor-pointer"
                 >
                   <MessageSquare size={14} /> Request More Info
                 </button>
                 <button
-                  onClick={handleSuspendProvider}
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-red-600 text-white rounded-full text-xs font-semibold hover:bg-red-700 transition"
+                  onClick={() => setShowSuspendForm(true)}
+                  className="flex items-center gap-1.5 px-4 py-2.5 bg-red-600 text-white rounded-full text-xs font-semibold hover:bg-red-700 transition cursor-pointer"
                 >
                   <Ban size={14} /> Suspend Provider
                 </button>
                 <button
                   onClick={() => setShowEscalateForm(true)}
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-purple-600 text-white rounded-full text-xs font-semibold hover:bg-purple-700 transition"
+                  className="flex items-center gap-1.5 px-4 py-2.5 bg-purple-600 text-white rounded-full text-xs font-semibold hover:bg-purple-700 transition cursor-pointer"
                 >
                   <ArrowUp size={14} /> Escalate
                 </button>
@@ -469,9 +510,121 @@ export default function DisputesTab() {
                   </button>
                   <button
                     onClick={handleEscalate}
-                    className="flex-1 py-2.5 bg-purple-600 text-white rounded-full text-sm font-semibold hover:bg-purple-700 transition"
+                    className="flex-1 py-2.5 bg-purple-600 text-white rounded-full text-sm font-semibold hover:bg-purple-700 transition cursor-pointer"
                   >
                     Escalate Dispute
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Request More Info Modal */}
+        {showRequestInfoForm && (
+          <div
+            className="fixed inset-0 z-60 flex items-center justify-center bg-black/50"
+            onClick={() => setShowRequestInfoForm(false)}
+          >
+            <div
+              className="bg-white rounded-2xl p-6 mx-4 max-w-md w-full shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">
+                  Request More Information
+                </h3>
+                <button
+                  onClick={() => setShowRequestInfoForm(false)}
+                  className="p-1 rounded-lg hover:bg-gray-100 cursor-pointer"
+                >
+                  <X size={18} className="text-gray-400" />
+                </button>
+              </div>
+              <p className="text-sm text-gray-500 mb-4">
+                Specify exactly what information is needed from both parties. This message will be sent to <b>{selectedDispute?.client}</b> and <b>{selectedDispute?.provider}</b>.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                    What information do you need?
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={requestInfoNote}
+                    onChange={(e) => setRequestInfoNote(e.target.value)}
+                    placeholder="E.g., Please provide photos of the work done, receipts for materials purchased, or a screenshot of the agreement..."
+                    className="w-full px-4 py-2.5 bg-gray-50 rounded-xl text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowRequestInfoForm(false)}
+                    className="flex-1 py-2.5 border border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleRequestInfo}
+                    className="flex-1 py-2.5 bg-yellow-600 text-white rounded-full text-sm font-semibold hover:bg-yellow-700 transition cursor-pointer"
+                  >
+                    Send Request
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Suspend Provider Modal */}
+        {showSuspendForm && (
+          <div
+            className="fixed inset-0 z-60 flex items-center justify-center bg-black/50"
+            onClick={() => setShowSuspendForm(false)}
+          >
+            <div
+              className="bg-white rounded-2xl p-6 mx-4 max-w-md w-full shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">
+                  Suspend Provider
+                </h3>
+                <button
+                  onClick={() => setShowSuspendForm(false)}
+                  className="p-1 rounded-lg hover:bg-gray-100 cursor-pointer"
+                >
+                  <X size={18} className="text-gray-400" />
+                </button>
+              </div>
+              <p className="text-sm text-gray-500 mb-4">
+                <b>{selectedDispute?.provider}</b> will be suspended from the platform. The reason will be visible to the provider.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                    Reason for Suspension <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={suspendReason}
+                    onChange={(e) => setSuspendReason(e.target.value)}
+                    placeholder="E.g., Provider repeatedly delivered substandard work despite multiple warnings..."
+                    className="w-full px-4 py-2.5 bg-gray-50 rounded-xl text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-red-400 resize-none"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowSuspendForm(false)}
+                    className="flex-1 py-2.5 border border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSuspendProvider}
+                    className="flex-1 py-2.5 bg-red-600 text-white rounded-full text-sm font-semibold hover:bg-red-700 transition cursor-pointer"
+                  >
+                    Suspend Provider
                   </button>
                 </div>
               </div>

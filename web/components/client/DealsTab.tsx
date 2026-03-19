@@ -1,6 +1,6 @@
 "use client";
 
-import BookingModal from "@/components/BookingModal";
+import BookingModal from "@/components/shared/BookingModal";
 import { MOCK_FLASH_DEALS } from "@/data/mockApi";
 import { ChevronRight, Star, Timer } from "lucide-react";
 import Image from "next/image";
@@ -8,12 +8,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function DealsTab() {
-  const router = useRouter();
+  const _router = useRouter();
   const [countdown, setCountdown] = useState({
     hours: 5,
     minutes: 30,
     seconds: 45,
   });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [bookingDeal, setBookingDeal] = useState<any>(null);
 
   useEffect(() => {

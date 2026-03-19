@@ -1,0 +1,207 @@
+"use client";
+
+import { Building2, ChevronRight, MapPin, Star } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import ScrollSection from "../shared/ScrollSection";
+
+// Mock data for officially verified stores
+const OFFICIAL_STORES = [
+  {
+    id: "store_1",
+    name: "Samsung Nigeria",
+    category: "Electronics",
+    rating: 4.9,
+    reviews: 1250,
+    status: "verified",
+    image: "/images/stores/samsung.webp",
+    badges: ["Official Partner", "Free Delivery"],
+    location: "Lagos, Nigeria",
+  },
+  {
+    id: "store_2",
+    name: "LG Electronics",
+    category: "Home Appliances",
+    rating: 4.8,
+    reviews: 980,
+    status: "verified",
+    image: "/images/stores/lg-electronics.webp",
+    badges: ["Official Partner", "1 Yr Warranty"],
+    location: "Abuja, Nigeria",
+  },
+  {
+    id: "store_3",
+    name: "PZ Cussons",
+    category: "Home & Personal Care",
+    rating: 4.7,
+    reviews: 3400,
+    status: "verified",
+    image: "/images/stores/pz-cussons.webp",
+    badges: ["Official Partner"],
+    location: "Port Harcourt, Nigeria",
+  },
+  {
+    id: "store_4",
+    name: "Scanfrost Official",
+    category: "Home Appliances",
+    rating: 4.8,
+    reviews: 670,
+    status: "verified",
+    image: "/images/stores/scanfrost.webp",
+    badges: ["Official Partner", "Nationwide"],
+    location: "Lagos, Nigeria",
+  },
+  {
+    id: "store_5",
+    name: "Haier Thermocool",
+    category: "Home Appliances",
+    rating: 4.8,
+    reviews: 670,
+    status: "verified",
+    image: "/images/stores/haier-thermocool.webp",
+    badges: ["Official Partner", "Nationwide"],
+    location: "Lagos, Nigeria",
+  },
+  {
+    id: "store_6",
+    name: "Hisense",
+    category: "Home Appliances",
+    rating: 4.8,
+    reviews: 670,
+    status: "verified",
+    image: "/images/stores/hisense.webp",
+    badges: ["Official Partner", "Nationwide"],
+    location: "Lagos, Nigeria",
+  },
+  {
+    id: "store_7",
+    name: "Polystar",
+    category: "Home Appliances",
+    rating: 4.8,
+    reviews: 670,
+    status: "verified",
+    image: "/images/stores/polystar.webp",
+    badges: ["Official Partner", "Nationwide"],
+    location: "Lagos, Nigeria",
+  },
+  {
+    id: "store_8",
+    name: "Binatone",
+    category: "Home Appliances",
+    rating: 4.8,
+    reviews: 670,
+    status: "verified",
+    image: "/images/stores/binatone.webp",
+    badges: ["Official Partner", "Nationwide"],
+    location: "Lagos, Nigeria",
+  },
+  {
+    id: "store_9",
+    name: "Hypo",
+    category: "Home Appliances",
+    rating: 4.8,
+    reviews: 670,
+    status: "verified",
+    image: "/images/stores/hypo.webp",
+    badges: ["Official Partner", "Nationwide"],
+    location: "Lagos, Nigeria",
+  },
+];
+
+export default function OfficialStoresSection({
+  router,
+}: {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  router: any;
+}) {
+  return (
+    <section className="py-16 md:py-24 bg-gray-50 border-t border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider mb-4 border border-blue-200">
+              <Building2 size={14} />
+              Verified Partners
+            </div>
+            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">
+              Official Stores
+            </h2>
+            <p className="text-gray-600 text-lg md:text-xl">
+              Shop directly from verified top brands and authorized distributors. Guaranteed authentic products.
+            </p>
+          </div>
+          <button
+            onClick={() => router.push("/official-stores")}
+            className="hidden sm:flex items-center gap-2 text-(--color-primary) font-bold hover:gap-3 transition-all shrink-0 cursor-pointer"
+          >
+            View All Stores
+            <div className="w-8 h-8 rounded-full bg-(--color-primary-light) flex items-center justify-center">
+              <ChevronRight size={18} />
+            </div>
+          </button>
+        </div>
+
+        {/* Stores Grid */}
+        <ScrollSection className="snap-x snap-mandatory">
+          {OFFICIAL_STORES.map((store) => (
+            <div
+              key={store.id}
+              onClick={() => router.push(`/official-stores/${store.id}`)}
+              className="snap-start shrink-0 w-[200px] sm:w-[220px] bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group"
+            >
+              {/* Header Image */}
+              <div className="relative h-28 sm:h-32 w-full bg-gray-100 overflow-hidden">
+                <Image
+                  src={store.image}
+                  alt={store.name}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
+                {/* Badge */}
+                <span className="absolute top-2 left-2 px-2 py-0.5 bg-blue-500 text-white text-[9px] font-bold tracking-wider uppercase rounded-md shadow-sm">
+                  Official
+                </span>
+              </div>
+
+              {/* Content */}
+              <div className="p-3 sm:p-4">
+                <h3 className="font-bold text-sm text-gray-900 truncate group-hover:text-(--color-primary) transition-colors">
+                  {store.name}
+                </h3>
+                <p className="text-xs text-gray-500 mb-2">{store.category}</p>
+
+                <div className="flex items-center gap-2 text-xs mb-2">
+                  <span className="flex items-center gap-0.5 text-yellow-500 font-bold">
+                    <Star size={11} className="fill-current" />
+                    {store.rating}
+                  </span>
+                  <span className="text-gray-300">•</span>
+                  <span className="text-gray-500 truncate">
+                    {store.reviews.toLocaleString()} reviews
+                  </span>
+                </div>
+
+                <span className="text-[10px] text-gray-500 flex items-center gap-1 truncate">
+                  <MapPin size={10} className="text-gray-400 shrink-0" />
+                  {store.location}
+                </span>
+              </div>
+            </div>
+          ))}
+        </ScrollSection>
+
+        {/* Mobile View All Button */}
+        <button
+          onClick={() => router.push("/providers?type=official")}
+          className="w-full mt-8 sm:hidden py-4 bg-gray-100 text-gray-900 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors"
+        >
+          View All Stores
+          <ChevronRight size={18} className="text-gray-500" />
+        </button>
+      </div>
+    </section>
+  );
+}

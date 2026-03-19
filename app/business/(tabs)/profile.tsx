@@ -1,7 +1,7 @@
 // app/business/(tabs)/profile.tsx
 // Business Profile & Availability Management
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { BusinessProfile, businessService } from "@/services";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,7 +20,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 export default function BusinessProfileScreen() {
   const { colors } = useAppTheme();
@@ -40,7 +40,7 @@ export default function BusinessProfileScreen() {
       const data = await businessService.getProfile(businessId);
       setProfile(data);
       setEditForm(data);
-    } catch {
+    } catch (error) {
       console.error('Error loading profile:', error);
     } finally {
       setLoading(false);

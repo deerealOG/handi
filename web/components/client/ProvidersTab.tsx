@@ -22,6 +22,7 @@ export default function ProvidersTab() {
   const [selectedType, setSelectedType] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const { toggleWishlist, isInWishlist } = useCart();
 
@@ -303,6 +304,7 @@ function ProviderCard({
   onToggleWishlist,
   viewMode = "grid",
 }: {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   provider: any;
   onClick: () => void;
   isWished: boolean;

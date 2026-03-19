@@ -4,7 +4,7 @@ import { WalletTransaction } from "@/types/wallet";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 export default function AdminTransactions() {
   const { colors } = useAppTheme();

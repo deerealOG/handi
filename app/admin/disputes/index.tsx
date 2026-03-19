@@ -14,7 +14,7 @@ import {
     TextInput,
     View,
 } from "react-native";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 interface Dispute {
   id: string;

@@ -1,4 +1,4 @@
-export { default as PromoBanner } from "./PromoBanner";
-export { default as SectionHeader } from "./SectionHeader";
-export { default as StatsSection } from "./StatsSection";
+export { default as CategoryPills } from "./CategoryPills";
+export { default as ComingSoonModal } from "./ComingSoonModal";
+export { default as ScrollToTop } from "./ScrollToTop";
 

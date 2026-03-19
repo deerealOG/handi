@@ -1,7 +1,7 @@
 // app/client/dispute/[bookingId].tsx
 // Client dispute filing screen
 
-import { DisputeReportForm } from '@/components/dispute';
+import { DisputeReportForm } from '@/app/components/dispute';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 

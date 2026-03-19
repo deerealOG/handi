@@ -3,25 +3,25 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Image,
-    RefreshControl,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { EnhancedArtisanCard } from "../../../components/EnhancedArtisanCard";
-import FilterModal, { FilterOptions } from "../../../components/FilterModal";
+import FilterModal, { FilterOptions } from "../../components/FilterModal";
 import {
-    ADDITIONAL_CATEGORIES,
-    FEATURED_CATEGORIES,
-} from "../../../constants/categories";
-import { THEME } from "../../../constants/theme";
+  ADDITIONAL_CATEGORIES,
+  FEATURED_CATEGORIES,
+} from "../../constants/categories";
+import { THEME } from "../../constants/theme";
+import { EnhancedArtisanCard } from "../../components/EnhancedArtisanCard";
 
 // Sample artisan data with locations
 const ARTISANS = [
@@ -157,30 +157,6 @@ const BUSINESS_CATEGORIES = [
   ).map((c) => c.name),
 ];
 
-const PROMO_SERVICES = [
-  {
-    id: "priority-booking",
-    title: "Priority Booking",
-    subtitle: "Get matched with top-rated providers in minutes.",
-    cta: "Book Fast",
-    icon: "flash-outline" as const,
-  },
-  {
-    id: "same-day",
-    title: "Same-Day Home Fix",
-    subtitle: "Find available pros for urgent service requests.",
-    cta: "Find Now",
-    icon: "construct-outline" as const,
-  },
-  {
-    id: "trusted-business",
-    title: "Trusted Business Teams",
-    subtitle: "Verified companies for bigger projects.",
-    cta: "View Teams",
-    icon: "business-outline" as const,
-  },
-];
-
 export default function ExploreScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
@@ -192,7 +168,7 @@ export default function ExploreScreen() {
     params.category?.toString() || "All",
   );
   const [viewMode, setViewMode] = useState<"map" | "list">("list");
-  const [searchType, setSearchType] = useState<"artisan" | "business">(
+  const [searchType] = useState<"artisan" | "business">(
     (params.type as "business") || "artisan",
   ); // Init from params
   const [filterModalVisible, setFilterModalVisible] = useState(false);

@@ -1,23 +1,23 @@
 // app/_layout.tsx
-import { ThemedStatusBar } from "@/components/ThemedStatusBar";
-import { AuthProvider } from "@/context/AuthContext";
-import { CartProvider } from "@/context/CartContext";
-import { LanguageProvider } from "@/context/LanguageContext";
-import { LikedItemsProvider } from "@/context/LikedItemsContext";
-import { LocationProvider } from "@/context/LocationContext";
-import { NotificationProvider } from "@/context/NotificationContext";
-import { ThemeProvider } from "@/context/ThemeContext";
+import { ThemedStatusBar } from "@/app/components/components/ThemedStatusBar";
+import { AuthProvider } from "@/app/context/AuthContext";
+import { CartProvider } from "@/app/context/CartContext";
+import { LanguageProvider } from "@/app/context/LanguageContext";
+import { LikedItemsProvider } from "@/app/context/LikedItemsContext";
+import { LocationProvider } from "@/app/context/LocationContext";
+import { NotificationProvider } from "@/app/context/NotificationContext";
+import { ThemeProvider } from "@/app/context/ThemeContext";
 import {
-    RedHatDisplay_400Regular,
-    RedHatDisplay_500Medium,
-    RedHatDisplay_600SemiBold,
-    RedHatDisplay_700Bold,
+  RedHatDisplay_400Regular,
+  RedHatDisplay_500Medium,
+  RedHatDisplay_600SemiBold,
+  RedHatDisplay_700Bold,
 } from "@expo-google-fonts/red-hat-display";
 import {
-    Roboto_300Light,
-    Roboto_400Regular,
-    Roboto_500Medium,
-    Roboto_700Bold,
+  Roboto_300Light,
+  Roboto_400Regular,
+  Roboto_500Medium,
+  Roboto_700Bold,
 } from "@expo-google-fonts/roboto";
 import { useFonts } from "expo-font";
 import { Slot, SplashScreen } from "expo-router";

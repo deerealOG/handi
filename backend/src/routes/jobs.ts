@@ -5,9 +5,9 @@ import { BookingStatus, PrismaClient } from "@prisma/client";
 import { Response, Router } from "express";
 import { body, param, query, validationResult } from "express-validator";
 import { authenticate, AuthRequest, requireArtisan } from "../middleware/auth";
+import { prisma } from "../lib/prisma";
 
 const router = Router();
-import { prisma } from "../lib/prisma";
 
 // ================================
 // GET /api/jobs - Get jobs for artisan
@@ -212,8 +212,9 @@ router.get(
   param("id").isUUID(),
   async (req: AuthRequest, res: Response) => {
     try {
+      const bookingId = req.params.id as string;
       const booking = await prisma.booking.findUnique({
-        where: { id: req.params.id },
+        where: { id: bookingId },
         include: {
           client: {
             select: {
@@ -266,14 +267,14 @@ router.get(
         success: true,
         data: {
           ...booking,
-          client: {
-            ...booking.client,
-            fullName: `${booking.client.firstName} ${booking.client.lastName}`,
-          },
-          artisan: {
-            ...booking.artisan,
-            fullName: `${booking.artisan.firstName} ${booking.artisan.lastName}`,
-          },
+          client: (booking as any).client ? {
+            ...(booking as any).client,
+            fullName: `${(booking as any).client.firstName} ${(booking as any).client.lastName}`,
+          } : undefined,
+          artisan: (booking as any).artisan ? {
+            ...(booking as any).artisan,
+            fullName: `${(booking as any).artisan.firstName} ${(booking as any).artisan.lastName}`,
+          } : undefined,
         },
       });
     } catch (error) {
@@ -296,8 +297,9 @@ router.post(
   param("id").isUUID(),
   async (req: AuthRequest, res: Response) => {
     try {
+      const jobId = req.params.id as string;
       const booking = await prisma.booking.findUnique({
-        where: { id: req.params.id },
+        where: { id: jobId },
       });
 
       if (!booking) {
@@ -315,7 +317,7 @@ router.post(
       }
 
       const updated = await prisma.booking.update({
-        where: { id: req.params.id },
+        where: { id: jobId },
         data: {
           artisanId: req.user!.userId,
           status: "ACCEPTED",
@@ -368,8 +370,9 @@ router.post(
   param("id").isUUID(),
   async (req: AuthRequest, res: Response) => {
     try {
+      const jobId = req.params.id as string;
       const booking = await prisma.booking.findUnique({
-        where: { id: req.params.id },
+        where: { id: jobId },
       });
 
       if (!booking) {
@@ -388,7 +391,7 @@ router.post(
 
       // For decline, we just remove artisan and keep pending
       const updated = await prisma.booking.update({
-        where: { id: req.params.id },
+        where: { id: jobId },
         data: {
           status: "PENDING",
           artisanId: booking.clientId, // Reset to client temporarily
@@ -429,8 +432,9 @@ router.patch(
       }
 
       const { status } = req.body;
+      const jobId = req.params.id as string;
       const booking = await prisma.booking.findUnique({
-        where: { id: req.params.id },
+        where: { id: jobId },
       });
 
       if (!booking) {
@@ -464,7 +468,7 @@ router.patch(
       }
 
       const updated = await prisma.booking.update({
-        where: { id: req.params.id },
+        where: { id: jobId },
         data: updateData,
       });
 

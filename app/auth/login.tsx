@@ -1,26 +1,26 @@
 // app/auth/login.tsx
-import { Button } from "@/components/Button";
-import { Input } from "@/components/Input";
-import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/app/components/Button";
+import { Input } from "@/app/components/components/Input";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { UserType } from "@/services";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 export default function LoginScreen() {
   const router = useRouter();

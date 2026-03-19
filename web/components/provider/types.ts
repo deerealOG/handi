@@ -3,4 +3,11 @@ export type TabId =
   | "services"
   | "bookings"
   | "earnings"
-  | "profile";
+  | "messages"
+  | "calendar"
+  | "reviews"
+  | "analytics"
+  | "vendor-products"
+  | "profile"
+  | "settings"
+  | "help";

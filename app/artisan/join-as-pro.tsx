@@ -22,8 +22,8 @@ import {
 import {
     ADDITIONAL_CATEGORIES,
     FEATURED_CATEGORIES,
-} from "../../constants/categories";
-import { THEME } from "../../constants/theme";
+} from "../constants/categories";
+import { THEME } from "../constants/theme";
 import { NIGERIAN_CITIES } from "../../services/locationService";
 
 // ================================

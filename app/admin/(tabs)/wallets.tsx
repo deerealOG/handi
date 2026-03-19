@@ -1,7 +1,7 @@
 // app/admin/(tabs)/wallets.tsx
 // Admin wallet overview screen
 
-import { THEME } from '@/constants/theme';
+import { THEME } from '@/app/constants/theme';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { walletService } from '@/services/walletService';
 import { Wallet } from '@/types/wallet';
@@ -43,7 +43,7 @@ export default function AdminWalletsScreen() {
     <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <View style={styles.cardHeader}>
         <View style={styles.userInfo}>
-          <View style={[styles.avatar, { backgroundColor: item.userType === 'provider' ? colors.primaryLight : colors.secondaryLight }]}>
+          <View style={[styles.avatar, { backgroundColor: item.userType === 'provider' ? colors.primaryLight : colors.primaryLight }]}>
              <Ionicons 
                name={item.userType === 'provider' ? 'briefcase' : 'person'} 
                size={16} 

@@ -2,7 +2,7 @@ import {
     ADMIN_ACTIVITY,
     ADMIN_BOOKINGS,
     ADMIN_PLATFORM_STATS,
-} from "@/constants/role-dashboard-data";
+} from "@/app/constants/role-dashboard-data";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -10,7 +10,6 @@ import { useRouter } from "expo-router";
 import React from "react";
 import {
     Dimensions,
-    FlatList,
     Platform,
     ScrollView,
     StyleSheet,
@@ -19,7 +18,7 @@ import {
     View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 

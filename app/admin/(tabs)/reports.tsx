@@ -1,8 +1,8 @@
 import { useAppTheme } from "@/hooks/use-app-theme";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { THEME } from "../../../constants/theme";
-import BarChartCard from "..//..//../components/BarChartCard"; // adjust this path if needed
+import { THEME } from "../../constants/theme";
+import BarChartCard from "../../components/BarChartCard"; // adjust this path if needed
 
 export default function AdminReports() {
   const { colors } = useAppTheme();

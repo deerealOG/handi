@@ -1,0 +1,206 @@
+
+> web@0.1.0 lint
+> eslint
+
+
+C:\handi\web\__mocks__\next\image.js
+  2:3  warning  Unused eslint-disable directive (no problems were reported from '@next/next/no-img-element')
+
+C:\handi\web\app\(auth)\login\page.tsx
+   11:1   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+   29:1   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+  133:1   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  141:20  error    Comments inside children section of tag should be placed inside braces                                 react/jsx-no-comment-textnodes
+
+C:\handi\web\app\(dashboard)\settings\page.tsx
+   39:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\handi\web\app\(dashboard)\settings\page.tsx:39:7
+  37 |     }
+  38 |     if (user) {
+> 39 |       setFormData({
+     |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  40 |         firstName: user.firstName || "",
+  41 |         lastName: user.lastName || "",
+  42 |         email: user.email || "",  react-hooks/set-state-in-effect
+  316:18  error  A `require()` style import is forbidden                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-require-imports
+
+C:\handi\web\app\(dashboard)\wallet\page.tsx
+  15:11  warning  '_user' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  28:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\handi\web\app\(dashboard)\wallet\page.tsx:28:7
+  26 |   useEffect(() => {
+  27 |     if (!reference) {
+> 28 |       setStatus("error");
+     |       ^^^^^^^^^ Avoid calling setState() directly within an effect
+  29 |       setMessage("No payment reference found.");
+  30 |       return;
+  31 |     }  react-hooks/set-state-in-effect
+  35:35  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+  57:16  warning  'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+  64:6   warning  React Hook useEffect has a missing dependency: 'session'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/exhaustive-deps
+
+C:\handi\web\app\(info)\about\page.tsx
+  31:7  warning  '_STATS' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\app\page.tsx
+  20:7   warning  '_WhyChooseSection' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  50:11  warning  '_isDark' is assigned a value but never used                @typescript-eslint/no-unused-vars
+  58:29  warning  '_setClientSearchQuery' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  59:10  warning  '_showMobileMenu' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  59:27  warning  '_setShowMobileMenu' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  62:10  warning  '_showSupport' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  63:10  warning  '_showTransactions' is assigned a value but never used      @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\admin\AdminReportsTab.tsx
+  3:20  warning  '_FileText' is defined but never used    @typescript-eslint/no-unused-vars
+  3:31  warning  '_TrendingUp' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\admin\ProvidersTab.tsx
+  37:20  warning  '_setBulkMode' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\admin\TeamManagementTab.tsx
+  134:14  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\client\BookingsTab.tsx
+  152:94  error  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+  154:28  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  227:72  error  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+  229:44  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\client\DealsTab.tsx
+  11:9  warning  '_router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\client\HomeTab.tsx
+   74:3   warning  '_user' is defined but never used                              @typescript-eslint/no-unused-vars
+   76:3   warning  '_onOpenCart' is defined but never used                        @typescript-eslint/no-unused-vars
+  130:9   warning  '_QUICK_NAV_TABS' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  219:10  warning  '_showMobileCategories' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  219:33  warning  '_setShowMobileCategories' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  220:10  warning  '_selectedCategory' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  220:29  warning  '_setSelectedCategory' is assigned a value but never used      @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\client\HowItWorksTab.tsx
+  4:5  warning  '_ArrowRight' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\landing-page\Footer.tsx
+  74:10  warning  '_subscribed' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  78:9   warning  '_handleSubscribe' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\landing-page\Navbar.tsx
+  41:10  warning  '_categoriesOpen' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  49:11  warning  '_cartItems' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  49:23  warning  '_wishlistItems' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\provider\CalendarTab.tsx
+  6:3  warning  '_MapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\provider\ProfileTab.tsx
+    54:10  warning  '_showAbout' is assigned a value but never used                         @typescript-eslint/no-unused-vars
+   409:38  error    Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+   411:40  error    Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  1103:10  warning  '_statusStyle' is defined but never used                                @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\shared\BookingModal.tsx
+   78:3   warning  '_serviceId' is defined but never used                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  567:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\handi\web\components\ui\ScrollToTop.tsx
+  12:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\handi\web\components\ui\ScrollToTop.tsx:12:5
+  10 |   // Wait for hydration
+  11 |   useEffect(() => {
+> 12 |     setIsMounted(true);
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  13 |   }, []);
+  14 |
+  15 |   useEffect(() => {  react-hooks/set-state-in-effect
+
+C:\handi\web\context\AuthContext.tsx
+  138:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\handi\web\context\AuthContext.tsx:138:7
+  136 |   useEffect(() => {
+  137 |     if (status === "unauthenticated") {
+> 138 |       setBaseUser(null);
+      |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  139 |       setOverrides({});
+  140 |       setProfileLoading(false);
+  141 |       return;  react-hooks/set-state-in-effect
+  146:64  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  149:37  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  195:5   warning  'userType' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+
+C:\handi\web\context\CartContext.tsx
+  58:23  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\handi\web\context\CartContext.tsx:58:23
+  56 |     try {
+  57 |       const storedCart = localStorage.getItem("handi_cart");
+> 58 |       if (storedCart) setCartItems(JSON.parse(storedCart));
+     |                       ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  59 |       const storedWishlist = localStorage.getItem("handi_wishlist");
+  60 |       if (storedWishlist) setWishlistItems(JSON.parse(storedWishlist));
+  61 |     } catch {  react-hooks/set-state-in-effect
+
+C:\handi\web\context\ThemeContext.tsx
+  20:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\handi\web\context\ThemeContext.tsx:20:9
+  18 |       const stored = localStorage.getItem("handi_dark_mode");
+  19 |       if (stored === "true") {
+> 20 |         setIsDark(true);
+     |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  21 |         document.documentElement.classList.add("dark");
+  22 |       }
+  23 |     } catch {  react-hooks/set-state-in-effect
+
+C:\handi\web\data\landingData.ts
+  6:5  warning  '_Clock' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\fix_lints.js
+  1:12  error    A `require()` style import is forbidden    @typescript-eslint/no-require-imports
+  2:7   warning  'path' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  2:14  error    A `require()` style import is forbidden    @typescript-eslint/no-require-imports
+
+✖ 60 problems (19 errors, 41 warnings)
+  0 errors and 4 warnings potentially fixable with the `--fix` option.
+

@@ -34,7 +34,7 @@ export default function ProvidersTab({ adminRole }: { adminRole: AdminRole }) {
   const [showMessageForm, setShowMessageForm] = useState(false);
   const [messageText, setMessageText] = useState("");
   const [messageSent, setMessageSent] = useState(false);
-  const [bulkMode, setBulkMode] = useState(false);
+  const [bulkMode, _setBulkMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const { addToast } = useNotification();

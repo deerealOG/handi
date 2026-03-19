@@ -10,7 +10,7 @@ import {
     View,
     FlatList,
 } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 interface ScheduleItem {
   id: string;

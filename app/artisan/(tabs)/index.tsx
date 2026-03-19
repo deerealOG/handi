@@ -2,8 +2,8 @@ import {
     PROVIDER_BOOKINGS,
     PROVIDER_DASHBOARD_STATS,
     PROVIDER_TRANSACTIONS,
-} from "@/constants/role-dashboard-data";
-import { useAuth } from "@/context/AuthContext";
+} from "@/app/constants/role-dashboard-data";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -29,7 +29,7 @@ import Animated, {
     withSequence,
     withTiming,
 } from "react-native-reanimated";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 

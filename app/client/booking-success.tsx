@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 export default function BookingSuccess() {
   const router = useRouter();

@@ -1,21 +1,21 @@
 // app/client/liked-items.tsx
 // Wishlist / Favorites — mirrors web /wishlist with per-item remove + Book Now
 
-import { EnhancedArtisanCard } from "@/components/EnhancedArtisanCard";
-import { useLikedItems } from "@/context/LikedItemsContext";
+import { EnhancedArtisanCard } from "@/app/components/EnhancedArtisanCard";
+import { useLikedItems } from "@/app/context/LikedItemsContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-    Alert,
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 export default function LikedItemsScreen() {
   const router = useRouter();
@@ -36,7 +36,7 @@ export default function LikedItemsScreen() {
   const handleRemove = (item: any) => {
     Alert.alert(
       "Remove from Favorites",
-      `Remove ${item.fullName || item.businessName || "this item"}?`,
+      `Remove ${item.name || "this item"}?`,
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -152,8 +152,8 @@ export default function LikedItemsScreen() {
                     router.push({
                       pathname: "/client/book-artisan",
                       params: {
-                        artisan: item.fullName || item.businessName,
-                        skill: item.skills?.[0] || "General",
+                        artisan: item.name,
+                        skill: item.skill || "General",
                       },
                     } as any)
                   }

@@ -3,16 +3,16 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Alert,
-    FlatList,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import Toast from "../../components/Toast";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
+import Toast from "../components/components/Toast";
 
 export default function NotificationsScreen() {
   const router = useRouter();

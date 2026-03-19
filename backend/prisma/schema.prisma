@@ -31,6 +31,8 @@ enum AdminRole {
   MODERATOR
   SUPPORT
   FINANCE
+  CONTENT_MANAGER
+  DATA_ANALYST
 }
 
 enum VerificationLevel {
@@ -80,6 +82,10 @@ model User {
   totalJobs           Int     @default(0)
   preferredCategories Json    @default("[]")
   isOnline            Boolean @default(false)
+
+  // Security
+  twoFactorEnabled    Boolean @default(false)
+  twoFactorSecret     String?
 
   // Identity verification
   nin               String? // National Identification Number (required for individual providers)
@@ -672,4 +678,800 @@ model ChatMessage {
   createdAt    DateTime    @default(now())
 
   @@index([sessionId])
+}
+
+// ================================
+// Vendor & Product Marketplace
+// ================================
+enum VendorStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+model Vendor {
+  id                 String       @id @default(uuid())
+  userId             String       @unique
+  businessName       String
+  description        String?
+  logo               String?
+  coverImage         String?
+  address            String?
+  city               String?
+  state              String?
+  phone              String?
+  email              String?
+  website            String?
+  status             VendorStatus @default(PENDING)
+  isVerified         Boolean      @default(false)
+  cacNumber          String?
+  taxId              String?
+  bankName           String?
+  accountNumber      String?
+  accountName        String?
+  rating             Float        @default(0)
+  totalSales         Int          @default(0)
+  commissionRate     Float        @default(10)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  products           Product[]
+  orders             Order[]
+  tradeOrders        TradeOrder[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([city, state])
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  OUT_OF_STOCK
+  DISCONTINUED
+}
+
+model Product {
+  id               String        @id @default(uuid())
+  vendorId         String
+  vendor           Vendor        @relation(fields: [vendorId], references: [id])
+  name             String
+  slug             String        @unique
+  description      String
+  shortDescription String?
+  categoryId       String?
+  categoryName     String?
+  brand            String?
+  sku              String?       @unique
+  price            Float
+  compareAtPrice   Float?
+  costPrice        Float?
+  currency         String        @default("NGN")
+  images           Json          @default("[]")
+  tags             Json          @default("[]")
+  attributes       Json          @default("{}")
+  weight           Float?
+  dimensions       Json?
+  stock            Int           @default(0)
+  lowStockThreshold Int          @default(5)
+  status           ProductStatus @default(DRAFT)
+  isFeatured       Boolean       @default(false)
+  isInstallable    Boolean       @default(false)
+  installCategoryId String?
+  rating           Float         @default(0)
+  reviewCount      Int           @default(0)
+  totalSold        Int           @default(0)
+  tradePriceEnabled Boolean      @default(false)
+  tradePrice       Float?
+  bulkMinQuantity  Int?
+  bulkPrice        Float?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  reviews          ProductReview[]
+  orderItems       OrderItem[]
+  tradeOrderItems  TradeOrderItem[]
+
+  @@index([vendorId])
+  @@index([categoryName])
+  @@index([status])
+  @@index([isFeatured])
+}
+
+model ProductReview {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId      String
+  rating      Int
+  title       String?
+  comment     String?
+  images      Json     @default("[]")
+  isVerified  Boolean  @default(false)
+  helpfulCount Int     @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([productId])
+  @@index([userId])
+}
+
+// ================================
+// Orders
+// ================================
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+  REFUNDED
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  orderNumber     String      @unique
+  userId          String
+  vendorId        String
+  vendor          Vendor      @relation(fields: [vendorId], references: [id])
+  status          OrderStatus @default(PENDING)
+  subtotal        Float
+  shippingFee     Float       @default(0)
+  tax             Float       @default(0)
+  discount        Float       @default(0)
+  total           Float
+  currency        String      @default("NGN")
+  shippingAddress String
+  shippingCity    String
+  shippingState   String
+  shippingPhone   String?
+  shippingMethod  String?
+  trackingNumber  String?
+  paymentMethod   String?
+  paymentReference String?
+  paidAt          DateTime?
+  pairedBookingId String?
+  confirmedAt     DateTime?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  cancelledAt     DateTime?
+  returnedAt      DateTime?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  items           OrderItem[]
+
+  @@index([userId])
+  @@index([vendorId])
+  @@index([status])
+  @@index([orderNumber])
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  productName String
+  productImage String?
+  quantity    Int
+  unitPrice   Float
+  totalPrice  Float
+  attributes  Json?
+  createdAt   DateTime @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+// ================================
+// Escrow System
+// ================================
+enum EscrowStatus {
+  HELD
+  PARTIAL_RELEASE
+  RELEASED
+  REFUNDED
+  DISPUTED
+  EXPIRED
+}
+
+model Escrow {
+  id               String       @id @default(uuid())
+  bookingId        String       @unique
+  payerId          String
+  payeeId          String
+  amount           Float
+  platformFee      Float        @default(0)
+  payeeAmount      Float
+  currency         String       @default("NGN")
+  status           EscrowStatus @default(HELD)
+  paymentReference String?
+  paymentMethod    String?
+  autoReleaseAt    DateTime?
+  releaseDelayHours Int         @default(48)
+  releasedAt       DateTime?
+  releasedAmount   Float?
+  disputeId        String?
+  refundAmount     Float?
+  refundReason     String?
+  refundedAt       DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([bookingId])
+  @@index([payerId])
+  @@index([payeeId])
+  @@index([status])
+}
+
+// ================================
+// Refund Requests
+// ================================
+enum RefundType {
+  CANCELLATION_24H_PLUS
+  CANCELLATION_WITHIN_24H
+  CANCELLATION_AFTER_ARRIVAL
+  PRO_NO_SHOW
+  WORK_INCOMPLETE
+  DEFECTIVE_PRODUCT
+  CHANGE_OF_MIND
+}
+
+enum RefundStatus {
+  REQUESTED
+  APPROVED
+  PROCESSING
+  COMPLETED
+  DENIED
+}
+
+model RefundRequest {
+  id              String       @id @default(uuid())
+  bookingId       String?
+  orderId         String?
+  userId          String
+  type            RefundType
+  status          RefundStatus @default(REQUESTED)
+  originalAmount  Float
+  refundAmount    Float
+  refundPercentage Float
+  creditAmount    Float        @default(0)
+  reason          String?
+  adminNotes      String?
+  processedBy     String?
+  processedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([bookingId])
+  @@index([orderId])
+}
+
+// ================================
+// Smart Matching
+// ================================
+model MatchPreference {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  preferredDistance  Float    @default(25)
+  preferredMinRating Float   @default(4.0)
+  preferredPriceRange Json?
+  preferGender      String?
+  preferVerified    Boolean  @default(true)
+  preferExperienced Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model MatchResult {
+  id           String   @id @default(uuid())
+  bookingId    String?
+  clientId     String
+  professionalId String
+  matchScore   Float
+  skillScore   Float    @default(0)
+  distanceScore Float   @default(0)
+  ratingScore  Float    @default(0)
+  availabilityScore Float @default(0)
+  priceScore   Float    @default(0)
+  distanceKm   Float?
+  wasSelected  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([clientId])
+  @@index([professionalId])
+  @@index([matchScore])
+}
+
+// ================================
+// Emergency Services
+// ================================
+model EmergencyRequest {
+  id            String   @id @default(uuid())
+  bookingId     String?  @unique
+  clientId      String
+  categoryId    String
+  categoryName  String
+  description   String
+  address       String
+  city          String
+  latitude      Float?
+  longitude     Float?
+  urgencyLevel  Int      @default(1)
+  surgeMultiplier Float  @default(1.0)
+  isResolved    Boolean  @default(false)
+  respondedBy   String?
+  respondedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([isResolved])
+  @@index([city])
+}
+
+model EmergencyProPool {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  categoryIds Json    @default("[]")
+  isAvailable Boolean @default(true)
+  maxDistance Float    @default(15)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([isAvailable])
+}
+
+// ================================
+// Maintenance Plans
+// ================================
+enum PlanInterval {
+  MONTHLY
+  QUARTERLY
+  BIANNUAL
+  ANNUAL
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+}
+
+model MaintenancePlan {
+  id             String       @id @default(uuid())
+  name           String
+  description    String
+  categoryIds    Json         @default("[]")
+  interval       PlanInterval
+  price          Float
+  currency       String       @default("NGN")
+  includedVisits Int          @default(1)
+  features       Json         @default("[]")
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model PlanSubscription {
+  id              String             @id @default(uuid())
+  userId          String
+  planId          String
+  status          SubscriptionStatus @default(ACTIVE)
+  startDate       DateTime
+  nextBillingDate DateTime
+  endDate         DateTime?
+  visitsUsed      Int                @default(0)
+  visitsRemaining Int                @default(0)
+  autoRenew       Boolean            @default(true)
+  paymentMethod   String?
+  cancelledAt     DateTime?
+  cancelReason    String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  scheduledVisits RecurringBooking[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model RecurringBooking {
+  id               String           @id @default(uuid())
+  subscriptionId   String
+  subscription     PlanSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  bookingId        String?
+  scheduledDate    DateTime
+  categoryName     String
+  serviceType      String
+  status           String           @default("SCHEDULED")
+  completedAt      DateTime?
+  createdAt        DateTime         @default(now())
+
+  @@index([subscriptionId])
+  @@index([scheduledDate])
+}
+
+// ================================
+// Home Profile
+// ================================
+model HomeProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  nickname        String?
+  propertyType    String?
+  squareFootage   Float?
+  yearBuilt       Int?
+  bedrooms        Int?
+  bathrooms       Int?
+  floors          Int?
+  address         String?
+  city            String?
+  state           String?
+  latitude        Float?
+  longitude       Float?
+  appliances      Json     @default("[]")
+  systems         Json     @default("[]")
+  documents       Json     @default("[]")
+  serviceHistory  Json     @default("[]")
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ================================
+// Quote Management
+// ================================
+enum QuoteStatus {
+  REQUESTED
+  RECEIVED
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  NEGOTIATING
+}
+
+model QuoteRequest {
+  id            String   @id @default(uuid())
+  clientId      String
+  categoryId    String
+  categoryName  String
+  serviceType   String
+  description   String
+  images        Json     @default("[]")
+  address       String
+  city          String
+  preferredDate DateTime?
+  budget        Json?
+  status        String   @default("OPEN")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  quotes        Quote[]
+
+  @@index([clientId])
+  @@index([status])
+}
+
+model Quote {
+  id              String      @id @default(uuid())
+  quoteRequestId  String
+  quoteRequest    QuoteRequest @relation(fields: [quoteRequestId], references: [id], onDelete: Cascade)
+  professionalId  String
+  amount          Float
+  breakdownItems  Json        @default("[]")
+  estimatedDuration Int?
+  validUntil      DateTime
+  message         String?
+  status          QuoteStatus @default(RECEIVED)
+  counterOffer    Float?
+  negotiationNotes Json       @default("[]")
+  acceptedAt      DateTime?
+  declinedAt      DateTime?
+  bookingId       String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([quoteRequestId])
+  @@index([professionalId])
+  @@index([status])
+}
+
+// ================================
+// Loyalty & Rewards
+// ================================
+enum PointsAction {
+  BOOKING_COMPLETED
+  REFERRAL_SIGNUP
+  REFERRAL_FIRST_BOOKING
+  REVIEW_SUBMITTED
+  MILESTONE_REACHED
+  PRODUCT_PURCHASE
+  POINTS_REDEEMED
+  BONUS_AWARDED
+  POINTS_EXPIRED
+}
+
+model LoyaltyAccount {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  totalPoints     Int      @default(0)
+  availablePoints Int      @default(0)
+  lifetimePoints  Int      @default(0)
+  tier            String   @default("BRONZE")
+  referralCode    String   @unique
+  totalReferrals  Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  transactions    PointsTransaction[]
+
+  @@index([userId])
+  @@index([referralCode])
+}
+
+model PointsTransaction {
+  id          String       @id @default(uuid())
+  accountId   String
+  account     LoyaltyAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  action      PointsAction
+  points      Int
+  description String
+  referenceId String?
+  expiresAt   DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([accountId])
+  @@index([action])
+}
+
+// ================================
+// Service Guarantee
+// ================================
+enum GuaranteeClaimStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED_RESERVICE
+  APPROVED_REFUND
+  DENIED
+  COMPLETED
+}
+
+model GuaranteeClaim {
+  id              String               @id @default(uuid())
+  bookingId       String
+  clientId        String
+  issue           String
+  description     String
+  evidence        Json                 @default("[]")
+  status          GuaranteeClaimStatus @default(SUBMITTED)
+  resolution      String?
+  reServiceBookingId String?
+  refundAmount    Float?
+  reviewedBy      String?
+  reviewNotes     String?
+  resolvedAt      DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([bookingId])
+  @@index([clientId])
+  @@index([status])
+}
+
+// ================================
+// Trade Purchasing
+// ================================
+enum TradeOrderStatus {
+  PENDING
+  APPROVED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model TradeAccount {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  creditLimit    Float    @default(0)
+  creditUsed     Float    @default(0)
+  creditAvailable Float   @default(0)
+  paymentTerms   Int      @default(30)
+  isApproved     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  orders         TradeOrder[]
+
+  @@index([userId])
+}
+
+model TradeOrder {
+  id              String           @id @default(uuid())
+  tradeAccountId  String
+  tradeAccount    TradeAccount     @relation(fields: [tradeAccountId], references: [id])
+  vendorId        String
+  vendor          Vendor           @relation(fields: [vendorId], references: [id])
+  orderNumber     String           @unique
+  status          TradeOrderStatus @default(PENDING)
+  subtotal        Float
+  discount        Float            @default(0)
+  total           Float
+  currency        String           @default("NGN")
+  deliveryAddress String
+  deliveryCity    String
+  deliveryState   String
+  deliveryNotes   String?
+  bookingId       String?
+  isPaidOnCredit  Boolean          @default(false)
+  dueDate         DateTime?
+  paidAt          DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  items           TradeOrderItem[]
+
+  @@index([tradeAccountId])
+  @@index([vendorId])
+  @@index([status])
+}
+
+model TradeOrderItem {
+  id          String     @id @default(uuid())
+  orderId     String
+  order       TradeOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product    @relation(fields: [productId], references: [id])
+  productName String
+  quantity    Int
+  unitPrice   Float
+  totalPrice  Float
+  createdAt   DateTime  @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+// ================================
+// Insurance & Compliance
+// ================================
+model InsurancePolicy {
+  id            String   @id @default(uuid())
+  userId        String
+  policyNumber  String
+  provider      String
+  coverageType  String
+  coverageAmount Float
+  currency      String   @default("NGN")
+  startDate     DateTime
+  expiryDate    DateTime
+  documentUrl   String?
+  isVerified    Boolean  @default(false)
+  verifiedBy    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([expiryDate])
+}
+
+model SLARecord {
+  id             String   @id @default(uuid())
+  userId         String
+  metricType     String
+  period         String
+  totalEvents    Int      @default(0)
+  compliantEvents Int     @default(0)
+  complianceRate Float    @default(100)
+  violations     Int      @default(0)
+  lastViolationAt DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, metricType, period])
+  @@index([userId])
+  @@index([complianceRate])
+}
+
+// ================================
+// Dispute Stage Tracking (Enhanced)
+// ================================
+enum DisputeStage {
+  DIRECT_RESOLUTION
+  MEDIATION
+  FORMAL_REVIEW
+  EXTERNAL_ARBITRATION
+}
+
+model DisputeTimeline {
+  id            String       @id @default(uuid())
+  disputeId     String
+  stage         DisputeStage
+  startedAt     DateTime     @default(now())
+  deadline      DateTime
+  completedAt   DateTime?
+  assignedTo    String?
+  notes         String?
+  outcome       String?
+  createdAt     DateTime     @default(now())
+
+  @@index([disputeId])
+  @@index([stage])
+}
+
+// ================================
+// Enhanced Reviews (Two-way)
+// ================================
+model ProReview {
+  id              String   @id @default(uuid())
+  bookingId       String   @unique
+  professionalId  String
+  clientId        String
+  rating          Int
+  comment         String?
+  punctuality     Int?
+  communication   Int?
+  propertyReadiness Int?
+  createdAt       DateTime @default(now())
+
+  @@index([professionalId])
+  @@index([clientId])
+}
+
+model ReviewResponse {
+  id        String   @id @default(uuid())
+  reviewId  String   @unique
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([reviewId])
+}
+
+// ================================
+// Message Attachments
+// ================================
+model MessageAttachment {
+  id         String   @id @default(uuid())
+  messageId  String
+  fileName   String
+  fileUrl    String
+  fileType   String
+  fileSize   Int
+  createdAt  DateTime @default(now())
+
+  @@index([messageId])
+}
+
+// ================================
+// Smart Recommendations
+// ================================
+model UserRecommendation {
+  id              String   @id @default(uuid())
+  userId          String
+  type            String
+  referenceId     String
+  score           Float
+  reason          String
+  isViewed        Boolean  @default(false)
+  isActedOn       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime?
+
+  @@index([userId])
+  @@index([type])
+  @@index([score])
 }

@@ -38,7 +38,9 @@ export default function ProfileTab({
   setShowSupport,
   setShowTransactions,
 }: {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateUser: (u: any) => void;
   onLogout: () => void;
   setShowNotifications: (v: boolean) => void;
@@ -49,7 +51,7 @@ export default function ProfileTab({
   const [editing, setEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
-  const [showAbout, setShowAbout] = useState(false);
+  const [_showAbout, setShowAbout] = useState(false);
   const [showProfilePreview, setShowProfilePreview] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deactivateConfirmText, setDeactivateConfirmText] = useState("");
@@ -60,9 +62,9 @@ export default function ProfileTab({
     { name: "Safety Training", status: "pending" as const },
   ]);
   const [pastWork, setPastWork] = useState([
-    "/images/placeholder-work-1.jpg",
-    "/images/placeholder-work-2.jpg",
-    "/images/placeholder-work-3.jpg",
+    "/images/placeholder-work-1.webp",
+    "/images/placeholder-work-2.webp",
+    "/images/placeholder-work-3.webp",
   ]);
   const [locationLoading, setLocationLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -163,7 +165,7 @@ export default function ProfileTab({
       {/* Cover Photo */}
       <div className="relative w-full h-40 bg-linear-to-r from-emerald-400 to-emerald-600 rounded-2xl overflow-hidden group">
         {coverPhoto && (
-          <Image src={coverPhoto} alt="Cover" fill className="object-cover" />
+          <img src={coverPhoto} alt="Cover" className="w-full h-full object-cover absolute inset-0" />
         )}
         <button
           onClick={() => coverInputRef.current?.click()}
@@ -184,11 +186,10 @@ export default function ProfileTab({
       <div className="bg-white shadow-sm p-6 text-center -mt-12 relative z-10">
         <div className="relative w-24 h-24 mx-auto mb-4">
           {user.avatar ? (
-            <Image
+            <img
               src={user.avatar}
               alt=""
-              fill
-              className="rounded-full object-cover border-4 border-white shadow-lg"
+              className="w-full h-full rounded-full object-cover border-4 border-white shadow-lg absolute inset-0"
             />
           ) : (
             <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center text-3xl font-bold text-emerald-700 border-4 border-white shadow-lg">
@@ -405,7 +406,7 @@ export default function ProfileTab({
           </p>
         ) : (
           <div className="space-y-3">
-            {user.experience.map((exp: any, i: number) => (
+            {user.experience.map((exp: { id?: string; title?: string; company?: string; duration?: string; description?: string }, i: number) => (
               <div
                 key={exp.id || i}
                 className="p-4 bg-gray-50 rounded-xl relative group"
@@ -463,6 +464,7 @@ export default function ProfileTab({
                   onClick={() =>
                     updateUser({
                       experience: user.experience.filter(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
                         (_: any, idx: number) => idx !== i,
                       ),
                     })
@@ -1096,7 +1098,7 @@ export default function ProfileTab({
 // ============================================
 // HELPERS
 // ============================================
-function statusStyle(
+function _statusStyle(
   status: "pending" | "upcoming" | "completed" | "cancelled",
 ) {
   switch (status) {

@@ -1,7 +1,7 @@
 // app/business/(tabs)/wallet.tsx
 // Business Wallet - Earnings as Service Provider
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { BusinessJob, businessService } from "@/services";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -15,7 +15,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 interface Transaction {
   id: string;

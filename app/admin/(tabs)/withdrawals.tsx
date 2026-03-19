@@ -1,7 +1,7 @@
 // app/admin/(tabs)/withdrawals.tsx
 // Admin withdrawal request management screen
 
-import { THEME } from '@/constants/theme';
+import { THEME } from '@/app/constants/theme';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { walletService } from '@/services/walletService';
 import { WithdrawalRequest } from '@/types/wallet';

@@ -14,7 +14,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 // ── Data ─────────────────────────────────────────────────────────
 const HELP_CATEGORIES = [
@@ -77,7 +77,7 @@ const FAQS = [
   {
     question: "How do refunds work?",
     answer:
-      "If you're unsatisfied with a service, you can request a refund within 24 hours of completion. Our team will review and process it within 3-5 business days.",
+      "If you're unsatisfied with a service, you can request a refund within 24 hours of completion (subject to terms and conditions being met). Our team will review and process it within 3-5 business days.",
   },
   {
     question: "Can I change my account type?",

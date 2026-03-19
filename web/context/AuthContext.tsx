@@ -20,7 +20,7 @@ interface AuthContextType {
     email: string,
     password: string,
     userType?: "client" | "provider" | "admin",
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<{ success: boolean; error?: string; requires2FA?: boolean; data?: any }>;
   signup: (data: {
     firstName: string;
     lastName: string;
@@ -103,6 +103,7 @@ const buildUserFromSession = (sessionUser?: {
   };
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const buildUserFromProfile = (profile: any): User => {
   const mappedType = mapUserTypeFromBackend(profile?.userType) || "client";
   const hasProfile =
@@ -116,6 +117,7 @@ const buildUserFromProfile = (profile: any): User => {
     email: profile?.email || "",
     phone: profile?.phone || "",
     userType: mappedType,
+    providerSubType: profile?.providerSubType || undefined,
     avatar: profile?.avatar || undefined,
     bio: profile?.bio || undefined,
     skills: profile?.skills || undefined,
@@ -134,6 +136,7 @@ function AuthProviderInner({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (status === "unauthenticated") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setBaseUser(null);
       setOverrides({});
       setProfileLoading(false);
@@ -142,10 +145,10 @@ function AuthProviderInner({ children }: { children: React.ReactNode }) {
 
     if (status !== "authenticated") return;
 
-    const fallbackUser = buildUserFromSession(session?.user as any);
+    const fallbackUser = buildUserFromSession(session?.user as { id?: string; name?: string; email?: string; userType?: string });
     setBaseUser((prev) => prev || fallbackUser);
 
-    const accessToken = (session as any)?.accessToken as string | undefined;
+    const accessToken = (session as { accessToken?: string })?.accessToken as string | undefined;
     if (!accessToken) {
       return;
     }
@@ -159,7 +162,12 @@ function AuthProviderInner({ children }: { children: React.ReactNode }) {
     })
       .then(async (res) => {
         if (!res.ok) {
-          throw new Error(`Profile fetch failed (${res.status})`);
+          if (res.status === 401) {
+            // Token is invalid/expired, sign out to clear the session
+            signOut({ redirect: false });
+          }
+          console.warn(`Profile fetch failed (${res.status})`);
+          return;
         }
         const payload = await res.json();
         const profile = payload?.data;
@@ -192,19 +200,36 @@ function AuthProviderInner({ children }: { children: React.ReactNode }) {
     email: string,
     password: string,
     userType?: "client" | "provider" | "admin",
-  ): Promise<{ success: boolean; error?: string }> => {
-    // Try real NextAuth login first
+  ): Promise<{ success: boolean; error?: string; requires2FA?: boolean; data?: any }> => {
     try {
+      // First, directly pre-flight login to see if 2FA is needed before hitting NextAuth
+      const preFlightRes = await fetch(`${backendUrl}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const preFlightPayload = await preFlightRes.json();
+      
+      if (preFlightRes.ok && preFlightPayload.requires2FA) {
+        return { 
+          success: true, 
+          requires2FA: true, 
+          data: preFlightPayload.data 
+        };
+      }
+
+      // If no 2FA required (or if we are bypassing using otpMode=true), use NextAuth
       const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
       });
+
       if (!result?.error) {
         return { success: true };
       }
     } catch (err) {
-      console.warn("NextAuth signIn threw:", err);
+      console.warn("Login threw:", err);
     }
 
     return { success: false, error: "Invalid email or password" };
@@ -218,21 +243,31 @@ function AuthProviderInner({ children }: { children: React.ReactNode }) {
     }
 
     const userType = mapUserTypeToBackend(data.userType, data.providerSubType);
-    const response = await fetch(`${backendUrl}/api/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: data.email,
-        phone: data.phone,
-        password: data.password,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        userType,
-        preferredCategories: data.preferredCategories,
-        nin: data.nin,
-        businessRegNumber: data.businessRegNumber,
-      }),
-    });
+
+    let response: Response;
+    try {
+      response = await fetch(`${backendUrl}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: data.email,
+          phone: data.phone,
+          password: data.password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          userType,
+          preferredCategories: data.preferredCategories,
+          nin: data.nin,
+          businessRegNumber: data.businessRegNumber,
+        }),
+      });
+    } catch (err) {
+      console.error("Signup network error:", err);
+      return {
+        success: false,
+        error: "Unable to connect to the server. Please check your internet connection and try again.",
+      };
+    }
 
     if (!response.ok) {
       const payload = await response.json().catch(() => null);
@@ -256,9 +291,10 @@ function AuthProviderInner({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    await signOut({ redirect: false });
     setBaseUser(null);
     setOverrides({});
+    // Sign out and redirect to home page
+    await signOut({ callbackUrl: "/" });
   };
 
   const updateUser = (updates: Partial<User>) => {

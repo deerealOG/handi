@@ -1,0 +1,624 @@
+
+> web@0.1.0 lint
+> eslint
+
+
+C:\handi\web\__mocks__\next\image.js
+  2:3  warning  Unused eslint-disable directive (no problems were reported from '@next/next/no-img-element')
+
+C:\handi\web\app\(auth)\login\page.tsx
+   11:7   warning  'USER_TYPES' is assigned a value but never used   @typescript-eslint/no-unused-vars
+   28:20  warning  'setUserType' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  131:28  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  139:39  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+
+C:\handi\web\app\(auth)\signup\page.tsx
+  257:6  warning  React Hook useEffect has missing dependencies: 'formData.city' and 'formData.state'. Either include them or remove the dependency array                    react-hooks/exhaustive-deps
+  307:6  warning  React Hook useEffect has a missing dependency: 'formData.username'. Either include it or remove the dependency array                                       react-hooks/exhaustive-deps
+  325:6  warning  React Hook useEffect has missing dependencies: 'formData.preferredCategories' and 'formData.userType'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\handi\web\app\(dashboard)\dashboard\page.tsx
+  42:55  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\app\(dashboard)\settings\page.tsx
+   39:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\handi\web\app\(dashboard)\settings\page.tsx:39:7
+  37 |     }
+  38 |     if (user) {
+> 39 |       setFormData({
+     |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  40 |         firstName: user.firstName || "",
+  41 |         lastName: user.lastName || "",
+  42 |         email: user.email || "",  react-hooks/set-state-in-effect
+  316:18  error  A `require()` style import is forbidden                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-require-imports
+
+C:\handi\web\app\(dashboard)\wallet\page.tsx
+  15:11  warning  'user' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+  28:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\handi\web\app\(dashboard)\wallet\page.tsx:28:7
+  26 |   useEffect(() => {
+  27 |     if (!reference) {
+> 28 |       setStatus("error");
+     |       ^^^^^^^^^ Avoid calling setState() directly within an effect
+  29 |       setMessage("No payment reference found.");
+  30 |       return;
+  31 |     }  react-hooks/set-state-in-effect
+  35:35  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+  57:16  warning  'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+  64:6   warning  React Hook useEffect has a missing dependency: 'session'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/exhaustive-deps
+
+C:\handi\web\app\(info)\about\page.tsx
+  31:7  warning  'STATS' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\app\(info)\how-it-works\page.tsx
+  188:32  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\handi\web\app\(providers)\providers\[id]\page.tsx
+   65:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  102:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\app\(providers)\providers\page.tsx
+   78:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  836:16  error  'FilterContent' is not defined            react/jsx-no-undef
+
+C:\handi\web\app\(shop)\checkout\page.tsx
+  117:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  129:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  153:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\app\(shop)\deals\page.tsx
+  396:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\app\(shop)\products\page.tsx
+  517:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  668:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\app\(shop)\search\page.tsx
+  475:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  557:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  585:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  587:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  591:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\app\(shop)\services\page.tsx
+   68:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  181:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\app\page.tsx
+  20:7   warning  'WhyChooseSection' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  50:11  warning  'isDark' is assigned a value but never used                @typescript-eslint/no-unused-vars
+  58:29  warning  'setClientSearchQuery' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  59:10  warning  'showMobileMenu' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  59:26  warning  'setShowMobileMenu' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  62:10  warning  'showSupport' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  63:10  warning  'showTransactions' is assigned a value but never used      @typescript-eslint/no-unused-vars
+
+C:\handi\web\auth.ts
+   76:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  123:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\admin\AdminBookingsTab.tsx
+  18:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\admin\AdminReportsTab.tsx
+  3:20  warning  'FileText' is defined but never used    @typescript-eslint/no-unused-vars
+  3:30  warning  'TrendingUp' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\admin\AdminTransactionsTab.tsx
+  21:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\admin\ProvidersTab.tsx
+  37:20  warning  'setBulkMode' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\admin\SettingsTab.tsx
+  244:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\handi\web\components\admin\SettingsTab.tsx:244:14
+  242 |               </div>
+  243 |             </div>
+> 244 |             <ToggleSwitch
+      |              ^^^^^^^^^^^^ This component is created during render
+  245 |               on={emailNotif}
+  246 |               onToggle={() => setEmailNotif(!emailNotif)}
+  247 |               disabled={!isSuperAdmin}
+
+C:\handi\web\components\admin\SettingsTab.tsx:69:24
+  67 |   };
+  68 |
+> 69 |   const ToggleSwitch = ({
+     |                        ^^
+> 70 |     on,
+     | ^^^^^^^
+> 71 |     onToggle,
+     …
+     | ^^^^^^^
+> 89 |     </button>
+     | ^^^^^^^
+> 90 |   );
+     | ^^^^ The component is created during render here
+  91 |
+  92 |   const handleResetPassword = async () => {
+  93 |     if (!currentPassword || !newPassword || !confirmPassword) {  react-hooks/static-components
+  262:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\handi\web\components\admin\SettingsTab.tsx:262:14
+  260 |               </div>
+  261 |             </div>
+> 262 |             <ToggleSwitch
+      |              ^^^^^^^^^^^^ This component is created during render
+  263 |               on={smsNotif}
+  264 |               onToggle={() => setSmsNotif(!smsNotif)}
+  265 |               disabled={!isSuperAdmin}
+
+C:\handi\web\components\admin\SettingsTab.tsx:69:24
+  67 |   };
+  68 |
+> 69 |   const ToggleSwitch = ({
+     |                        ^^
+> 70 |     on,
+     | ^^^^^^^
+> 71 |     onToggle,
+     …
+     | ^^^^^^^
+> 89 |     </button>
+     | ^^^^^^^
+> 90 |   );
+     | ^^^^ The component is created during render here
+  91 |
+  92 |   const handleResetPassword = async () => {
+  93 |     if (!currentPassword || !newPassword || !confirmPassword) {        react-hooks/static-components
+  280:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\handi\web\components\admin\SettingsTab.tsx:280:14
+  278 |               </div>
+  279 |             </div>
+> 280 |             <ToggleSwitch
+      |              ^^^^^^^^^^^^ This component is created during render
+  281 |               on={pushNotif}
+  282 |               onToggle={() => setPushNotif(!pushNotif)}
+  283 |               disabled={!isSuperAdmin}
+
+C:\handi\web\components\admin\SettingsTab.tsx:69:24
+  67 |   };
+  68 |
+> 69 |   const ToggleSwitch = ({
+     |                        ^^
+> 70 |     on,
+     | ^^^^^^^
+> 71 |     onToggle,
+     …
+     | ^^^^^^^
+> 89 |     </button>
+     | ^^^^^^^
+> 90 |   );
+     | ^^^^ The component is created during render here
+  91 |
+  92 |   const handleResetPassword = async () => {
+  93 |     if (!currentPassword || !newPassword || !confirmPassword) {     react-hooks/static-components
+  353:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\handi\web\components\admin\SettingsTab.tsx:353:14
+  351 |               </p>
+  352 |             </div>
+> 353 |             <ToggleSwitch
+      |              ^^^^^^^^^^^^ This component is created during render
+  354 |               on={maintenanceMode}
+  355 |               onToggle={() => {
+  356 |                 setMaintenanceMode(!maintenanceMode);
+
+C:\handi\web\components\admin\SettingsTab.tsx:69:24
+  67 |   };
+  68 |
+> 69 |   const ToggleSwitch = ({
+     |                        ^^
+> 70 |     on,
+     | ^^^^^^^
+> 71 |     onToggle,
+     …
+     | ^^^^^^^
+> 89 |     </button>
+     | ^^^^^^^
+> 90 |   );
+     | ^^^^ The component is created during render here
+  91 |
+  92 |   const handleResetPassword = async () => {
+  93 |     if (!currentPassword || !newPassword || !confirmPassword) {          react-hooks/static-components
+  377:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\handi\web\components\admin\SettingsTab.tsx:377:14
+  375 |               </p>
+  376 |             </div>
+> 377 |             <ToggleSwitch
+      |              ^^^^^^^^^^^^ This component is created during render
+  378 |               on={autoBackup}
+  379 |               onToggle={() => setAutoBackup(!autoBackup)}
+  380 |               disabled={!isSuperAdmin}
+
+C:\handi\web\components\admin\SettingsTab.tsx:69:24
+  67 |   };
+  68 |
+> 69 |   const ToggleSwitch = ({
+     |                        ^^
+> 70 |     on,
+     | ^^^^^^^
+> 71 |     onToggle,
+     …
+     | ^^^^^^^
+> 89 |     </button>
+     | ^^^^^^^
+> 90 |   );
+     | ^^^^ The component is created during render here
+  91 |
+  92 |   const handleResetPassword = async () => {
+  93 |     if (!currentPassword || !newPassword || !confirmPassword) {    react-hooks/static-components
+
+C:\handi\web\components\admin\TeamManagementTab.tsx
+   10:39  error    Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+   11:40  error    Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+   46:6   warning  React Hook useEffect has a missing dependency: 'fetchAdmins'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   78:19  error    Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+  130:14  warning  'e' is defined but never used                                                                                   @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\client\BookingsTab.tsx
+   61:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   69:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  151:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  225:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\client\ClientHeader.tsx
+  20:13  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\client\ClientProfileTab.tsx
+   40:9   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   41:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   43:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   88:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  105:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\client\DealsTab.tsx
+  11:9   warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  17:50  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\client\FindProsTab.tsx
+  26:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\client\HomeTab.tsx
+    74:3   warning  'user' is defined but never used                              @typescript-eslint/no-unused-vars
+    76:3   warning  'onOpenCart' is defined but never used                        @typescript-eslint/no-unused-vars
+    78:9   error    Unexpected any. Specify a different type                      @typescript-eslint/no-explicit-any
+    88:58  error    Unexpected any. Specify a different type                      @typescript-eslint/no-explicit-any
+    89:58  error    Unexpected any. Specify a different type                      @typescript-eslint/no-explicit-any
+    90:58  error    Unexpected any. Specify a different type                      @typescript-eslint/no-explicit-any
+    91:60  error    Unexpected any. Specify a different type                      @typescript-eslint/no-explicit-any
+   125:9   warning  'QUICK_NAV_TABS' is assigned a value but never used           @typescript-eslint/no-unused-vars
+   214:10  warning  'showMobileCategories' is assigned a value but never used     @typescript-eslint/no-unused-vars
+   214:32  warning  'setShowMobileCategories' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   215:10  warning  'selectedCategory' is assigned a value but never used         @typescript-eslint/no-unused-vars
+   215:28  warning  'setSelectedCategory' is assigned a value but never used      @typescript-eslint/no-unused-vars
+   246:36  error    Unexpected any. Specify a different type                      @typescript-eslint/no-explicit-any
+   446:32  error    Unexpected any. Specify a different type                      @typescript-eslint/no-explicit-any
+   555:32  error    Unexpected any. Specify a different type                      @typescript-eslint/no-explicit-any
+   986:34  error    Unexpected any. Specify a different type                      @typescript-eslint/no-explicit-any
+  1217:32  error    Unexpected any. Specify a different type                      @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\client\HowItWorksTab.tsx
+  4:5  warning  'ArrowRight' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\client\ProvidersTab.tsx
+   25:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  306:13  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\client\ShopTab.tsx
+   24:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  133:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\landing-page\FeaturedSection.tsx
+   55:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  254:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\landing-page\Footer.tsx
+  74:10  warning  'subscribed' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  78:9   warning  'handleSubscribe' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\landing-page\HeroSection.tsx
+  22:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\landing-page\LocationPrompt.tsx
+  28:11  error  Error: Cannot access variable before it is declared
+
+`detectLocation` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\handi\web\components\landing-page\LocationPrompt.tsx:28:11
+  26 |       .then((result) => {
+  27 |         if (result.state === "granted") {
+> 28 |           detectLocation();
+     |           ^^^^^^^^^^^^^^ `detectLocation` accessed before it is declared
+  29 |         } else if (result.state === "prompt") {
+  30 |           // Show the prompt banner
+  31 |           setVisible(true);
+
+C:\handi\web\components\landing-page\LocationPrompt.tsx:41:3
+  39 |   }, []);
+  40 |
+> 41 |   const detectLocation = () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 42 |     setDetecting(true);
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 43 |     navigator.geolocation.getCurrentPosition(
+     …
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 60 |     );
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 61 |   };
+     | ^^^^^ `detectLocation` is declared here
+  62 |
+  63 |   if (!visible) return null;
+  64 |  react-hooks/immutability
+
+C:\handi\web\components\landing-page\Navbar.tsx
+  41:10  warning  'categoriesOpen' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  49:11  warning  'cartItems' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  49:22  warning  'wishlistItems' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\landing-page\ProvidersAndStepsSection.tsx
+  21:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  31:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  32:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\landing-page\TestimonialsSection.tsx
+  60:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\provider\CalendarTab.tsx
+   6:3   warning  'MapPin' is defined but never used        @typescript-eslint/no-unused-vars
+  22:54  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\provider\DashboardTab.tsx
+  27:9   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  58:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\handi\web\components\provider\ProfileTab.tsx
+    41:9   error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+    42:19  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+    52:10  warning  'showAbout' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   408:40  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   466:29  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  1099:10  warning  'statusStyle' is defined but never used         @typescript-eslint/no-unused-vars
+
+C:\handi\web\components\provider\SettingsTab.tsx
+  196:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\handi\web\components\provider\SettingsTab.tsx:196:14
+  194 |               </div>
+  195 |             </div>
+> 196 |             <Toggle checked={twoFactor} onChange={() => setTwoFactor(!twoFactor)} />
+      |              ^^^^^^ This component is created during render
+  197 |           </div>
+  198 |         </div>
+  199 |       </div>
+
+C:\handi\web\components\provider\SettingsTab.tsx:27:18
+  25 |   const [language, setLanguage] = useState("en");
+  26 |
+> 27 |   const Toggle = ({
+     |                  ^^
+> 28 |     checked,
+     | ^^^^^^^^^^^^
+> 29 |     onChange,
+     …
+     | ^^^^^^^^^^^^
+> 45 |     </button>
+     | ^^^^^^^^^^^^
+> 46 |   );
+     | ^^^^ The component is created during render here
+  47 |
+  48 |   return (
+  49 |     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">                                                                                                                               react-hooks/static-components
+  212:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\handi\web\components\provider\SettingsTab.tsx:212:12
+  210 |             <p className="text-xs text-gray-500">{isDark ? "Dark theme is active" : "Light theme is active"}</p>
+  211 |           </div>
+> 212 |           <Toggle checked={isDark} onChange={toggleDarkMode} />
+      |            ^^^^^^ This component is created during render
+  213 |         </div>
+  214 |       </div>
+  215 |
+
+C:\handi\web\components\provider\SettingsTab.tsx:27:18
+  25 |   const [language, setLanguage] = useState("en");
+  26 |
+> 27 |   const Toggle = ({
+     |                  ^^
+> 28 |     checked,
+     | ^^^^^^^^^^^^
+> 29 |     onChange,
+     …
+     | ^^^^^^^^^^^^
+> 45 |     </button>
+     | ^^^^^^^^^^^^
+> 46 |   );
+     | ^^^^ The component is created during render here
+  47 |
+  48 |   return (
+  49 |     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">                                                                             react-hooks/static-components
+  228:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\handi\web\components\provider\SettingsTab.tsx:228:14
+  226 |               <p className="text-xs text-gray-500">Allow clients to find you in search</p>
+  227 |             </div>
+> 228 |             <Toggle checked={true} onChange={() => {}} />
+      |              ^^^^^^ This component is created during render
+  229 |           </div>
+  230 |           <div className="flex items-center justify-between py-2 border-t border-gray-100">
+  231 |             <div>
+
+C:\handi\web\components\provider\SettingsTab.tsx:27:18
+  25 |   const [language, setLanguage] = useState("en");
+  26 |
+> 27 |   const Toggle = ({
+     |                  ^^
+> 28 |     checked,
+     | ^^^^^^^^^^^^
+> 29 |     onChange,
+     …
+     | ^^^^^^^^^^^^
+> 45 |     </button>
+     | ^^^^^^^^^^^^
+> 46 |   );
+     | ^^^^ The component is created during render here
+  47 |
+  48 |   return (
+  49 |     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">  react-hooks/static-components
+  235:14  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\handi\web\components\provider\SettingsTab.tsx:235:14
+  233 |               <p className="text-xs text-gray-500">Display number on your profile</p>
+  234 |             </div>
+> 235 |             <Toggle checked={false} onChange={() => {}} />
+      |              ^^^^^^ This component is created during render
+  236 |           </div>
+  237 |         </div>
+  238 |       </div>
+
+C:\handi\web\components\provider\SettingsTab.tsx:27:18
+  25 |   const [language, setLanguage] = useState("en");
+  26 |
+> 27 |   const Toggle = ({
+     |                  ^^
+> 28 |     checked,
+     | ^^^^^^^^^^^^
+> 29 |     onChange,
+     …
+     | ^^^^^^^^^^^^
+> 45 |     </button>
+     | ^^^^^^^^^^^^
+> 46 |   );
+     | ^^^^ The component is created during render here
+  47 |
+  48 |   return (
+  49 |     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">                                                                                        react-hooks/static-components
+
+C:\handi\web\components\shared\BookingModal.tsx
+   78:3   warning  'serviceId' is defined but never used                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+   86:60  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  566:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\handi\web\components\ui\ScrollToTop.tsx
+  12:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\handi\web\components\ui\ScrollToTop.tsx:12:5
+  10 |   // Wait for hydration
+  11 |   useEffect(() => {
+> 12 |     setIsMounted(true);
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  13 |   }, []);
+  14 |
+  15 |   useEffect(() => {  react-hooks/set-state-in-effect
+
+C:\handi\web\context\AuthContext.tsx
+  106:40  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  137:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\handi\web\context\AuthContext.tsx:137:7
+  135 |   useEffect(() => {
+  136 |     if (status === "unauthenticated") {
+> 137 |       setBaseUser(null);
+      |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  138 |       setOverrides({});
+  139 |       setProfileLoading(false);
+  140 |       return;  react-hooks/set-state-in-effect
+  145:64  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  148:37  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  194:5   warning  'userType' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+
+C:\handi\web\context\CartContext.tsx
+  58:23  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\handi\web\context\CartContext.tsx:58:23
+  56 |     try {
+  57 |       const storedCart = localStorage.getItem("handi_cart");
+> 58 |       if (storedCart) setCartItems(JSON.parse(storedCart));
+     |                       ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  59 |       const storedWishlist = localStorage.getItem("handi_wishlist");
+  60 |       if (storedWishlist) setWishlistItems(JSON.parse(storedWishlist));
+  61 |     } catch {  react-hooks/set-state-in-effect
+
+C:\handi\web\context\ThemeContext.tsx
+  20:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\handi\web\context\ThemeContext.tsx:20:9
+  18 |       const stored = localStorage.getItem("handi_dark_mode");
+  19 |       if (stored === "true") {
+> 20 |         setIsDark(true);
+     |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  21 |         document.documentElement.classList.add("dark");
+  22 |       }
+  23 |     } catch {  react-hooks/set-state-in-effect
+
+C:\handi\web\data\landingData.ts
+  6:5  warning  'Clock' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\handi\web\replace_imports.js
+  1:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  2:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+✖ 136 problems (93 errors, 43 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

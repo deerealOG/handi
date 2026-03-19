@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 135 40" width="135" height="40">
+  <rect width="135" height="40" rx="5" fill="#000"/>
+  <rect x="0.5" y="0.5" width="134" height="39" rx="4.5" stroke="#A6A6A6" fill="none"/>
+  <!-- Google Play triangle -->
+  <g transform="translate(8, 6)">
+    <defs>
+      <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#00C3FF"/>
+        <stop offset="1" stop-color="#1B6EF3"/>
+      </linearGradient>
+      <linearGradient id="b" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#00C3FF"/>
+        <stop offset="1" stop-color="#00E96E"/>
+      </linearGradient>
+      <linearGradient id="c" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#FF3A44"/>
+        <stop offset="1" stop-color="#FFE000"/>
+      </linearGradient>
+      <linearGradient id="d" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#FFE000"/>
+        <stop offset="1" stop-color="#FF3A44"/>
+      </linearGradient>
+    </defs>
+    <path d="M1 2.5C1 1.5 1.8.8 2.7 1.3L20 11.5c1 .6 1 2 0 2.6L2.7 26.7c-.9.5-1.7-.2-1.7-1.2V2.5z" fill="url(#a)"/>
+    <path d="M2.7 1.3L14.5 14 2.7 26.7c-.9.5-1.7-.2-1.7-1.2V2.5C1 1.5 1.8.8 2.7 1.3z" fill="url(#b)"/>
+    <path d="M2.7 26.7L14.5 14l5.5 5.5-17.3 8.5c-.9.5-1.7-.2-1.7-1.2 0 0 0 0 1.7-.1z" fill="url(#c)"/>
+    <path d="M20 11.5L14.5 14l-12-12.7C3.4.8 3.9.7 4.5 1l15.5 8.5c1 .6 1 2 0 2z" fill="url(#d)"/>
+  </g>
+  <!-- Text -->
+  <text x="36" y="12" fill="#A6A6A6" font-family="Arial, Helvetica, sans-serif" font-size="7.5" letter-spacing="0.3">GET IT ON</text>
+  <text x="36" y="28" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600">Google Play</text>
+</svg>

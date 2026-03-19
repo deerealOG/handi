@@ -5,9 +5,9 @@
 import { Response, Router } from "express";
 import { body, param, validationResult } from "express-validator";
 import { authenticate, AuthRequest } from "../middleware/auth";
+import { prisma } from "../lib/prisma";
 
 const router = Router();
-import { prisma } from "../lib/prisma";
 
 // Categories and their keywords for matching
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
@@ -239,15 +239,13 @@ router.post(
         },
       });
 
-      // Get matching artisans if category was identified
       let suggestedProfessionals: any[] = [];
       if (suggestedCategory) {
-        suggestedProfessionals = await prisma.user.findMany({
+        const artisans = await prisma.user.findMany({
           where: {
             userType: "ARTISAN",
             isVerified: true,
             isOnline: true,
-            skills: { contains: suggestedCategory },
           },
           select: {
             id: true,
@@ -257,10 +255,23 @@ router.post(
             rating: true,
             totalJobs: true,
             city: true,
+            skills: true,
           },
-          take: 5,
           orderBy: { rating: "desc" },
         });
+
+        suggestedProfessionals = artisans
+          .filter((a) => {
+            let s: string[] = [];
+            if (Array.isArray(a.skills)) s = a.skills as string[];
+            else if (typeof a.skills === "string") {
+              try {
+                s = JSON.parse(a.skills);
+              } catch (e) {}
+            }
+            return s.includes(suggestedCategory);
+          })
+          .slice(0, 5);
       }
 
       res.json({

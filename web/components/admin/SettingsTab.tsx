@@ -9,6 +9,29 @@ import { useState } from "react";
 // ============================================
 // SETTINGS TAB
 // ============================================
+
+const ToggleSwitch = ({
+  on,
+  onToggle,
+  disabled,
+}: {
+  on: boolean;
+  onToggle: () => void;
+  disabled?: boolean;
+}) => (
+  <button
+    onClick={disabled ? undefined : onToggle}
+    className={`relative w-10 h-5 rounded-full transition-colors ${
+      on ? "bg-purple-600" : "bg-gray-300"
+    } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+  >
+    <span
+      className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-md transition-transform ${
+        on ? "translate-x-5" : ""
+      }`}
+    />
+  </button>
+);
 export default function SettingsTab({
   onLogout,
   adminRole,
@@ -33,6 +56,12 @@ export default function SettingsTab({
   const [maxLoginAttempts, setMaxLoginAttempts] = useState(5);
   const [sessionTimeout, setSessionTimeout] = useState(30);
   const [saving, setSaving] = useState(false);
+
+  // Platform policies (Super Admin only)
+  const [refundPolicy, setRefundPolicy] = useState("Full refund within 7 days of service completion. Partial refund available up to 14 days.");
+  const [cancellationPolicy, setCancellationPolicy] = useState("Free cancellation up to 24 hours before scheduled service. Late cancellations incur a 20% fee.");
+  const [privacyPolicy, setPrivacyPolicy] = useState("We collect only necessary data to facilitate services. All payment data is encrypted and processed through Paystack.");
+  const [providerTerms, setProviderTerms] = useState("Providers must maintain a minimum 4.0 rating. Response time within 2 hours. Background verification required.");
 
   // Admin password reset
   const [showResetPassword, setShowResetPassword] = useState(false);
@@ -66,28 +95,7 @@ export default function SettingsTab({
     }, 800);
   };
 
-  const ToggleSwitch = ({
-    on,
-    onToggle,
-    disabled,
-  }: {
-    on: boolean;
-    onToggle: () => void;
-    disabled?: boolean;
-  }) => (
-    <button
-      onClick={disabled ? undefined : onToggle}
-      className={`relative w-10 h-5 rounded-full transition-colors ${
-        on ? "bg-purple-600" : "bg-gray-300"
-      } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-    >
-      <span
-        className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-md transition-transform ${
-          on ? "translate-x-5" : ""
-        }`}
-      />
-    </button>
-  );
+
 
   const handleResetPassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -397,7 +405,7 @@ export default function SettingsTab({
           </div>
           <button
             onClick={toggleDarkMode}
-            className={`relative w-12 h-6 rounded-full transition-colors ${isDark ? "bg-purple-600" : "bg-gray-300"}`}
+            className={`relative w-12 h-6 rounded-full transition-colors cursor-pointer ${isDark ? "bg-purple-600" : "bg-gray-300"}`}
           >
             <span
               className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform ${isDark ? "translate-x-6" : ""}`}
@@ -405,6 +413,85 @@ export default function SettingsTab({
           </button>
         </div>
       </div>
+
+      {/* ===== PLATFORM POLICIES ===== */}
+      {isSuperAdmin && (
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Shield size={18} className="text-purple-600" /> Platform Policies
+          </h3>
+          <p className="text-xs text-gray-500 mb-4">
+            Edit platform policies directly. Changes take effect immediately after saving.
+          </p>
+          <div className="space-y-4">
+            {[
+              { key: "refund", label: "Refund Policy", value: refundPolicy, setter: setRefundPolicy, placeholder: "E.g., Full refund within 7 days of service..." },
+              { key: "cancellation", label: "Cancellation Policy", value: cancellationPolicy, setter: setCancellationPolicy, placeholder: "E.g., Free cancellation up to 24 hours before..." },
+              { key: "privacy", label: "Privacy Policy Summary", value: privacyPolicy, setter: setPrivacyPolicy, placeholder: "E.g., We collect only necessary data..." },
+              { key: "provider", label: "Provider Terms", value: providerTerms, setter: setProviderTerms, placeholder: "E.g., Providers must maintain 4.0+ rating..." },
+            ].map((policy) => (
+              <div key={policy.key}>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  {policy.label}
+                </label>
+                <textarea
+                  rows={3}
+                  value={policy.value}
+                  onChange={(e) => policy.setter(e.target.value)}
+                  placeholder={policy.placeholder}
+                  className="w-full px-4 py-2.5 bg-gray-50 rounded-xl text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ===== ADMIN AUDIT TRAIL (Super Admin Only) ===== */}
+      {isSuperAdmin && (
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Shield size={18} className="text-orange-500" /> Admin Action Audit Trail
+          </h3>
+          <p className="text-xs text-gray-500 mb-4">
+            Review and undo recent admin actions. As Super Admin, you can reverse actions by lower-level admins.
+          </p>
+          <div className="space-y-2">
+            {[
+              { id: 1, admin: "Moderator (John)", action: "Suspended provider DavidFix Plumbing", time: "15 min ago", undoable: true },
+              { id: 2, admin: "Support Agent (Ada)", action: "Resolved dispute #D103 — Full Refund issued", time: "1 hr ago", undoable: true },
+              { id: 3, admin: "Finance Manager (Silas)", action: "Approved withdrawal of ₦45,000 to GTBank ****5678", time: "2 hrs ago", undoable: false },
+              { id: 4, admin: "Content Manager (Kemi)", action: "Deleted category 'Gardening Services'", time: "3 hrs ago", undoable: true },
+              { id: 5, admin: "Super Admin (You)", action: "Updated commission rate to 10%", time: "1 day ago", undoable: false },
+            ].map((log) => (
+              <div key={log.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 mt-0.5">
+                  <Shield size={14} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-gray-900">{log.admin}</p>
+                  <p className="text-[10px] text-gray-500 mt-0.5">{log.action}</p>
+                  <p className="text-[9px] text-gray-400 mt-0.5">{log.time}</p>
+                </div>
+                {log.undoable && (
+                  <button
+                    onClick={() => {
+                      addToast({
+                        type: "warning",
+                        title: "↩️ Action Undone",
+                        message: `Reversed: "${log.action}" by ${log.admin}`,
+                      });
+                    }}
+                    className="px-3 py-1.5 bg-orange-100 text-orange-700 rounded-full text-[10px] font-semibold hover:bg-orange-200 transition cursor-pointer shrink-0"
+                  >
+                    Undo
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ===== ADMIN SECURITY / DANGER ZONE ===== */}
       <div className="mt-2">

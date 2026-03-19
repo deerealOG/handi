@@ -16,7 +16,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 import { authService } from "../../services";
 
 export default function ResetPasswordScreen() {

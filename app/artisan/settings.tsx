@@ -1,10 +1,10 @@
-import { ThemeSettingsItem } from '@/components/ThemeSettingsItem';
-import { THEME } from '@/constants/theme';
-import { useAppTheme } from '@/hooks/use-app-theme';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ThemeSettingsItem } from "@/app/components/components/ThemeSettingsItem";
+import { THEME } from "@/app/constants/theme";
+import { useAppTheme } from "@/hooks/use-app-theme";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function ArtisanSettings() {
   const router = useRouter();
@@ -14,18 +14,25 @@ export default function ArtisanSettings() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => router.back()} 
-          style={[styles.backButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={[
+            styles.backButton,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
         >
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Settings</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>
+          Settings
+        </Text>
         <View style={{ width: 40 }} />
       </View>
 
       <View style={styles.content}>
-        <Text style={[styles.sectionTitle, { color: colors.muted }]}>Appearance</Text>
+        <Text style={[styles.sectionTitle, { color: colors.muted }]}>
+          Appearance
+        </Text>
         <ThemeSettingsItem />
       </View>
     </View>
@@ -39,9 +46,9 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 30,
   },
   backButton: {
@@ -61,7 +68,7 @@ const styles = StyleSheet.create({
     fontFamily: THEME.typography.fontFamily.subheading,
     marginBottom: 10,
     marginLeft: 4,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 1,
   },
 });

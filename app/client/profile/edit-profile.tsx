@@ -1,4 +1,4 @@
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -16,17 +16,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 export default function EditProfileScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
   const { user, updateUser } = useAuth();
 
-  const [name, setName] = useState(user?.name || "Golden Amadi");
+  const [name, setName] = useState(
+    user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : "Golden Amadi"
+  );
   const [email] = useState(user?.email || "golden.amadi@example.com");
   const [phone, setPhone] = useState(user?.phone || "+234 812 345 6789");
-  const [address, setAddress] = useState(user?.address || "Lekki Phase 1, Lagos");
+  const [address, setAddress] = useState("Lekki Phase 1, Lagos");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSave = async () => {
@@ -42,10 +44,11 @@ export default function EditProfileScreen() {
 
     setIsLoading(true);
     try {
+      const nameParts = name.trim().split(' ');
       await updateUser({
-        name: name.trim(),
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
         phone: phone.trim(),
-        address: address.trim(),
       });
       Alert.alert("Success", "Profile updated successfully", [
         { text: "OK", onPress: () => router.back() }

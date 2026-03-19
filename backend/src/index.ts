@@ -5,9 +5,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-
-// Load environment variables
-dotenv.config();
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 
 // Import routes
 import aiRoutes from "./routes/ai";
@@ -22,8 +21,22 @@ import profileRoutes from "./routes/profile";
 import verificationRoutes from "./routes/verification";
 import walletRoutes from "./routes/wallet";
 
+// New feature routes
+import productsRoutes from "./routes/products";
+import ordersRoutes from "./routes/orders";
+import vendorsRoutes from "./routes/vendors";
+import escrowRoutes from "./routes/escrow";
+import matchingRoutes from "./routes/matching";
+import emergencyRoutes from "./routes/emergency";
+import maintenanceRoutes from "./routes/maintenance";
+import featuresRoutes from "./routes/features";
+import newsletterRoutes from "./routes/newsletter";
+
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler";
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -47,6 +60,20 @@ app.use(
     credentials: true,
   }),
 );
+
+// Security headers
+app.use(helmet());
+
+// Rate limiting on auth endpoints (20 req / 15 min per IP)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: "Too many requests — please try again later." },
+});
+app.use("/api/auth", authLimiter);
+
 app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
 
@@ -86,6 +113,14 @@ app.get("/api/health", (req, res) => {
       "disputes",
       "business",
       "ai",
+      "products",
+      "orders",
+      "vendors",
+      "escrow",
+      "matching",
+      "emergency",
+      "maintenance",
+      "features",
     ],
     timestamp: new Date().toISOString(),
   });
@@ -109,6 +144,19 @@ app.use("/api/business", businessRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/payment", paymentRoutes);
 
+// Marketplace routes
+app.use("/api/products", productsRoutes);
+app.use("/api/orders", ordersRoutes);
+app.use("/api/vendors", vendorsRoutes);
+
+// Feature routes
+app.use("/api/escrow", escrowRoutes);
+app.use("/api/matching", matchingRoutes);
+app.use("/api/emergency", emergencyRoutes);
+app.use("/api/maintenance", maintenanceRoutes);
+app.use("/api/features", featuresRoutes);
+app.use("/api/newsletter", newsletterRoutes);
+
 // ================================
 // Error Handler
 // ================================
@@ -120,7 +168,7 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`🚀 HANDI API running on http://localhost:${PORT}`);
   console.log(`📚 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`✅ All 10 API modules loaded`);
+  console.log(`✅ All 18 API modules loaded`);
 });
 
 export default app;

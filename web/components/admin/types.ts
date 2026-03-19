@@ -13,7 +13,10 @@ export type TabId =
   | "categories"
   | "reports"
   | "analytics"
+  | "escrow"
+  | "guarantee"
   | "team"
+  | "messages"
   | "settings";
 
 export type AdminRole =

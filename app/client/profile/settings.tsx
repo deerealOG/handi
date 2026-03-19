@@ -1,18 +1,18 @@
-import { LanguageSettingsItem } from "@/components/LanguageSettingsItem";
-import { ReferralCard } from "@/components/ReferralCard";
-import { ThemeSettingsItem } from "@/components/ThemeSettingsItem";
-import { THEME } from "@/constants/theme";
-import { useAuth } from "@/context/AuthContext";
+import { LanguageSettingsItem } from "@/app/components/components/LanguageSettingsItem";
+import { ReferralCard } from "@/app/components/components/ReferralCard";
+import { ThemeSettingsItem } from "@/app/components/components/ThemeSettingsItem";
+import { THEME } from "@/app/constants/theme";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function ClientSettings() {

@@ -6,31 +6,103 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
-    FlatList,
-    SafeAreaView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  FlatList,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { VerificationBadge } from "../../components/VerificationBadge";
-import { getCategoryById } from "../../constants/categories";
-import { THEME } from "../../constants/theme";
+import { getCategoryById } from "../constants/categories";
+import { THEME } from "../constants/theme";
+import { VerificationBadge } from "../components/components/VerificationBadge";
 
 // ================================
 // Mock Artisans Data
 // ================================
 const MOCK_ARTISANS = [
-  { id: "1", name: "Golden Amadi", rating: 4.9, reviews: 156, distance: "1.2 km", price: "₦5,000", verified: "certified" as const, available: true },
-  { id: "2", name: "Chidi Okonkwo", rating: 4.7, reviews: 98, distance: "2.5 km", price: "₦4,500", verified: "verified" as const, available: true },
-  { id: "3", name: "Adaeze Nwosu", rating: 4.8, reviews: 203, distance: "3.1 km", price: "₦6,000", verified: "certified" as const, available: false },
-  { id: "4", name: "Emeka Johnson", rating: 4.5, reviews: 67, distance: "4.2 km", price: "₦4,000", verified: "basic" as const, available: true },
-  { id: "5", name: "Fatima Hassan", rating: 4.9, reviews: 312, distance: "5.0 km", price: "₦7,000", verified: "certified" as const, available: true },
-  { id: "6", name: "Oluwaseun Bakare", rating: 4.6, reviews: 89, distance: "5.5 km", price: "₦5,500", verified: "verified" as const, available: true },
-  { id: "7", name: "Ibrahim Musa", rating: 4.4, reviews: 45, distance: "6.8 km", price: "₦3,500", verified: "basic" as const, available: false },
-  { id: "8", name: "Grace Eze", rating: 4.8, reviews: 178, distance: "7.2 km", price: "₦5,000", verified: "verified" as const, available: true },
+  {
+    id: "1",
+    name: "Golden Amadi",
+    rating: 4.9,
+    reviews: 156,
+    distance: "1.2 km",
+    price: "₦5,000",
+    verified: "certified" as const,
+    available: true,
+  },
+  {
+    id: "2",
+    name: "Chidi Okonkwo",
+    rating: 4.7,
+    reviews: 98,
+    distance: "2.5 km",
+    price: "₦4,500",
+    verified: "verified" as const,
+    available: true,
+  },
+  {
+    id: "3",
+    name: "Adaeze Nwosu",
+    rating: 4.8,
+    reviews: 203,
+    distance: "3.1 km",
+    price: "₦6,000",
+    verified: "certified" as const,
+    available: false,
+  },
+  {
+    id: "4",
+    name: "Emeka Johnson",
+    rating: 4.5,
+    reviews: 67,
+    distance: "4.2 km",
+    price: "₦4,000",
+    verified: "basic" as const,
+    available: true,
+  },
+  {
+    id: "5",
+    name: "Fatima Hassan",
+    rating: 4.9,
+    reviews: 312,
+    distance: "5.0 km",
+    price: "₦7,000",
+    verified: "certified" as const,
+    available: true,
+  },
+  {
+    id: "6",
+    name: "Oluwaseun Bakare",
+    rating: 4.6,
+    reviews: 89,
+    distance: "5.5 km",
+    price: "₦5,500",
+    verified: "verified" as const,
+    available: true,
+  },
+  {
+    id: "7",
+    name: "Ibrahim Musa",
+    rating: 4.4,
+    reviews: 45,
+    distance: "6.8 km",
+    price: "₦3,500",
+    verified: "basic" as const,
+    available: false,
+  },
+  {
+    id: "8",
+    name: "Grace Eze",
+    rating: 4.8,
+    reviews: 178,
+    distance: "7.2 km",
+    price: "₦5,000",
+    verified: "verified" as const,
+    available: true,
+  },
 ];
 
 type SortOption = "distance" | "rating" | "price" | "reviews";
@@ -51,13 +123,13 @@ export default function CategoryDetailScreen() {
 
     // Filter by availability
     if (showAvailableOnly) {
-      result = result.filter(a => a.available);
+      result = result.filter((a) => a.available);
     }
 
     // Filter by search
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(a => a.name.toLowerCase().includes(query));
+      result = result.filter((a) => a.name.toLowerCase().includes(query));
     }
 
     // Sort
@@ -68,7 +140,10 @@ export default function CategoryDetailScreen() {
         case "rating":
           return b.rating - a.rating;
         case "price":
-          return parseInt(a.price.replace(/\D/g, "")) - parseInt(b.price.replace(/\D/g, ""));
+          return (
+            parseInt(a.price.replace(/\D/g, "")) -
+            parseInt(b.price.replace(/\D/g, ""))
+          );
         case "reviews":
           return b.reviews - a.reviews;
         default:
@@ -79,33 +154,46 @@ export default function CategoryDetailScreen() {
     return result;
   }, [searchQuery, sortBy, showAvailableOnly]);
 
-  const handleArtisanPress = (artisan: typeof MOCK_ARTISANS[0]) => {
+  const handleArtisanPress = (artisan: (typeof MOCK_ARTISANS)[0]) => {
     router.push({
       pathname: "/client/artisan-details",
       params: { id: artisan.id, name: artisan.name },
     });
   };
 
-  const renderArtisanCard = ({ item }: { item: typeof MOCK_ARTISANS[0] }) => (
+  const renderArtisanCard = ({ item }: { item: (typeof MOCK_ARTISANS)[0] }) => (
     <TouchableOpacity
-      style={[styles.artisanCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
+      style={[
+        styles.artisanCard,
+        { backgroundColor: colors.surface, borderColor: colors.border },
+      ]}
       onPress={() => handleArtisanPress(item)}
       activeOpacity={0.7}
     >
       {/* Avatar */}
       <View style={[styles.avatar, { backgroundColor: colors.primary + "20" }]}>
         <Text style={[styles.avatarText, { color: colors.primary }]}>
-          {item.name.split(" ").map(n => n[0]).join("")}
+          {item.name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")}
         </Text>
       </View>
 
       {/* Info */}
       <View style={styles.artisanInfo}>
         <View style={styles.nameRow}>
-          <Text style={[styles.artisanName, { color: colors.text }]} numberOfLines={1}>
+          <Text
+            style={[styles.artisanName, { color: colors.text }]}
+            numberOfLines={1}
+          >
             {item.name}
           </Text>
-          <VerificationBadge level={item.verified} size="small" showLabel={false} />
+          <VerificationBadge
+            level={item.verified}
+            size="small"
+            showLabel={false}
+          />
         </View>
 
         <View style={styles.statsRow}>
@@ -117,22 +205,34 @@ export default function CategoryDetailScreen() {
           </View>
           <View style={styles.stat}>
             <Ionicons name="location" size={12} color={colors.muted} />
-            <Text style={[styles.statText, { color: colors.muted }]}>{item.distance}</Text>
+            <Text style={[styles.statText, { color: colors.muted }]}>
+              {item.distance}
+            </Text>
           </View>
         </View>
 
         <View style={styles.bottomRow}>
-          <Text style={[styles.price, { color: colors.primary }]}>{item.price}/hr</Text>
+          <Text style={[styles.price, { color: colors.primary }]}>
+            {item.price}/hr
+          </Text>
           <View
             style={[
               styles.availabilityBadge,
-              { backgroundColor: item.available ? colors.success + "20" : colors.error + "20" },
+              {
+                backgroundColor: item.available
+                  ? colors.success + "20"
+                  : colors.error + "20",
+              },
             ]}
           >
             <View
               style={[
                 styles.availabilityDot,
-                { backgroundColor: item.available ? colors.success : colors.error },
+                {
+                  backgroundColor: item.available
+                    ? colors.success
+                    : colors.error,
+                },
               ]}
             />
             <Text
@@ -152,7 +252,13 @@ export default function CategoryDetailScreen() {
     </TouchableOpacity>
   );
 
-  const SortButton = ({ option, label }: { option: SortOption; label: string }) => (
+  const SortButton = ({
+    option,
+    label,
+  }: {
+    option: SortOption;
+    label: string;
+  }) => (
     <TouchableOpacity
       style={[
         styles.sortButton,
@@ -175,12 +281,19 @@ export default function CategoryDetailScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={colors.text === "#FAFAFA" ? "light-content" : "dark-content"} />
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <StatusBar
+        barStyle={colors.text === "#FAFAFA" ? "light-content" : "dark-content"}
+      />
 
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
@@ -191,14 +304,21 @@ export default function CategoryDetailScreen() {
             {filteredArtisans.length} professionals available
           </Text>
         </View>
-        <TouchableOpacity style={[styles.filterButton, { backgroundColor: colors.surface }]}>
+        <TouchableOpacity
+          style={[styles.filterButton, { backgroundColor: colors.surface }]}
+        >
           <Ionicons name="options" size={20} color={colors.text} />
         </TouchableOpacity>
       </View>
 
       {/* Search */}
       <View style={styles.searchContainer}>
-        <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View
+          style={[
+            styles.searchBar,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
           <Ionicons name="search" size={18} color={colors.muted} />
           <TextInput
             style={[styles.searchInput, { color: colors.text }]}
@@ -232,14 +352,20 @@ export default function CategoryDetailScreen() {
           style={[
             styles.checkbox,
             {
-              backgroundColor: showAvailableOnly ? colors.primary : "transparent",
+              backgroundColor: showAvailableOnly
+                ? colors.primary
+                : "transparent",
               borderColor: showAvailableOnly ? colors.primary : colors.border,
             },
           ]}
         >
-          {showAvailableOnly && <Ionicons name="checkmark" size={14} color="#FFFFFF" />}
+          {showAvailableOnly && (
+            <Ionicons name="checkmark" size={14} color="#FFFFFF" />
+          )}
         </View>
-        <Text style={[styles.toggleLabel, { color: colors.text }]}>Show available only</Text>
+        <Text style={[styles.toggleLabel, { color: colors.text }]}>
+          Show available only
+        </Text>
       </TouchableOpacity>
 
       {/* Artisans List */}

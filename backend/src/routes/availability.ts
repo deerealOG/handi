@@ -5,9 +5,9 @@
 import { Response, Router } from "express";
 import { body, param, validationResult } from "express-validator";
 import { authenticate, AuthRequest, requireArtisan } from "../middleware/auth";
+import { prisma } from "../lib/prisma";
 
 const router = Router();
-import { prisma } from "../lib/prisma";
 
 // ================================
 // GET /api/availability/:artisanId - Get artisan's availability

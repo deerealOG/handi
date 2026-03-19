@@ -57,12 +57,12 @@ export async function checkApiHealth(): Promise<HealthCheckResult> {
  */
 export async function runApiDiagnostics(): Promise<{
   overall: "pass" | "partial" | "fail";
-  results: Array<{
+  results: {
     endpoint: string;
     status: "pass" | "fail";
     latency: number;
     error?: string;
-  }>;
+  }[];
 }> {
   const endpoints = [
     { name: "Health", path: "/health", requiresAuth: false },

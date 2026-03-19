@@ -17,6 +17,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     try {
       const stored = localStorage.getItem("handi_dark_mode");
       if (stored === "true") {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsDark(true);
         document.documentElement.classList.add("dark");
       }

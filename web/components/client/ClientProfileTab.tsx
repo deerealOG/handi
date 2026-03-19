@@ -37,9 +37,12 @@ export default function ClientProfileTab({
   setShowSupport,
   setShowTransactions,
 }: {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateUser: (u: any) => void;
   logout: () => void;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   router: any;
   onLogout: () => void;
   setShowNotifications: (v: boolean) => void;
@@ -85,6 +88,7 @@ export default function ClientProfileTab({
 
     try {
       setFundingLoading(true);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       const token = (session as any)?.accessToken as string | undefined;
       const res = await fetch(`${backendUrl}/api/payment/initialize`, {
         method: "POST",
@@ -102,6 +106,7 @@ export default function ClientProfileTab({
 
       // Redirect to Paystack Hosted Checkout
       window.location.href = data.data.authorization_url;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error(error);
       alert(error.message || "Something went wrong initializing Paystack");
@@ -146,12 +151,69 @@ export default function ClientProfileTab({
   const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showSecurity, setShowSecurity] = useState(false);
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(user.twoFactorEnabled || false);
+  const [twoFactorSetupStep, setTwoFactorSetupStep] = useState(0); // 0 = idle, 1 = scan QR, 2 = verify
+  const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [twoFactorSecret, setTwoFactorSecret] = useState("");
+  const [twoFactorCode, setTwoFactorCode] = useState("");
   const [loginAlerts, setLoginAlerts] = useState(true);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deactivateConfirmText, setDeactivateConfirmText] = useState("");
   const [deactivateDuration, setDeactivateDuration] = useState("");
   const [showPaymentMethods, setShowPaymentMethods] = useState(false);
+
+  // 2FA Handlers
+  const handleEnable2FA = async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const token = (session as any)?.accessToken as string | undefined;
+      const res = await fetch(`${backendUrl}/api/auth/2fa/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate 2FA");
+      
+      setQrCodeUrl(data.data.qrCode);
+      setTwoFactorSecret(data.data.secret);
+      setTwoFactorSetupStep(1);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  const handleVerify2FA = async () => {
+    if (!twoFactorCode || twoFactorCode.length !== 6) {
+      alert("Please enter a valid 6-digit code");
+      return;
+    }
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const token = (session as any)?.accessToken as string | undefined;
+      const res = await fetch(`${backendUrl}/api/auth/2fa/verify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ token: twoFactorCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to verify 2FA code");
+      
+      alert("2FA successfully enabled!");
+      setTwoFactorEnabled(true);
+      setTwoFactorSetupStep(0);
+      updateUser({ twoFactorEnabled: true });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
 
   const handleLogout = () => {
     onLogout();
@@ -226,20 +288,33 @@ export default function ClientProfileTab({
         <div className="relative inline-block mb-4">
           <div className="w-24 h-24 rounded-full bg-(--color-primary-light) flex items-center justify-center text-(--color-primary) font-bold text-3xl uppercase overflow-hidden mx-auto">
             {user.avatar ? (
-              <Image
+              <img
                 src={user.avatar}
                 alt=""
-                width={96}
-                height={96}
-                className="rounded-full object-cover"
+                className="w-full h-full object-cover"
               />
             ) : (
               `${user.firstName?.[0]}${user.lastName?.[0]}`
             )}
           </div>
-          <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-(--color-primary) text-white rounded-full flex items-center justify-center shadow-lg">
+          <label className="absolute -bottom-1 -right-1 w-8 h-8 bg-(--color-primary) text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:opacity-90 transition-opacity">
             <Camera size={14} />
-          </button>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                  const dataUrl = ev.target?.result as string;
+                  updateUser({ avatar: dataUrl });
+                };
+                reader.readAsDataURL(file);
+              }}
+            />
+          </label>
         </div>
         <h2 className="text-xl font-bold text-gray-900">
           {user.firstName} {user.lastName}
@@ -704,7 +779,10 @@ export default function ClientProfileTab({
                     </p>
                   </div>
                   <button
-                    onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
+                    onClick={() => {
+                      if (!twoFactorEnabled) handleEnable2FA();
+                      // (Optional UI flow to disable 2FA could go here)
+                    }}
                     className={`w-11 h-6 rounded-full transition-colors relative ${twoFactorEnabled ? "bg-(--color-primary)" : "bg-gray-300"}`}
                   >
                     <span
@@ -712,10 +790,34 @@ export default function ClientProfileTab({
                     />
                   </button>
                 </div>
-                {twoFactorEnabled && (
+                
+                {twoFactorSetupStep === 1 && (
+                  <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg text-center animate-fadeIn">
+                    <p className="text-sm text-gray-700 font-medium mb-2">Scan this QR Code with your Authenticator App</p>
+                    {qrCodeUrl && (
+                      <div className="flex justify-center mb-3">
+                        <img src={qrCodeUrl} alt="2FA QR Code" className="w-40 h-40" />
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-500 mb-3">Or enter this setup key explicitly: <span className="font-mono bg-gray-100 px-1">{twoFactorSecret}</span></p>
+                    <input 
+                      type="text" 
+                      placeholder="Enter 6-digit code"
+                      maxLength={6}
+                      value={twoFactorCode}
+                      onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
+                      className="w-full max-w-[200px] text-center px-3 py-2 border border-gray-300 rounded-lg text-lg tracking-widest outline-none focus:ring-2 focus:ring-(--color-primary) mx-auto mb-3"
+                    />
+                    <div className="flex gap-2 justify-center">
+                      <button onClick={() => setTwoFactorSetupStep(0)} className="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg">Cancel</button>
+                      <button onClick={handleVerify2FA} className="px-4 py-2 text-sm text-white bg-(--color-primary) rounded-lg hover:bg-opacity-90">Verify & Enable</button>
+                    </div>
+                  </div>
+                )}
+
+                {twoFactorEnabled && twoFactorSetupStep === 0 && (
                   <p className="text-xs text-green-600 mt-2 bg-green-50 p-2 rounded-lg">
-                    ✓ Two-factor authentication is enabled. A code will be sent
-                    to your phone on login.
+                    ✓ Two-factor authentication is enabled. A code will be required on login.
                   </p>
                 )}
               </div>
@@ -822,7 +924,7 @@ export default function ClientProfileTab({
 
             {/* Saved Cards */}
             <div className="space-y-3 mb-5">
-              <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-4 text-white relative overflow-hidden">
+              <div className="bg-linear-to-r from-gray-800 to-gray-900 rounded-xl p-4 text-white relative overflow-hidden">
                 <div className="absolute top-3 right-3 text-xs font-medium bg-white/20 px-2 py-0.5 rounded-full">
                   VISA
                 </div>
@@ -847,7 +949,7 @@ export default function ClientProfileTab({
 
             {/* Saved Cards */}
             <div className="space-y-3 mb-5">
-              <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-4 text-white relative overflow-hidden">
+              <div className="bg-linear-to-r from-gray-800 to-gray-900 rounded-xl p-4 text-white relative overflow-hidden">
                 <div className="absolute top-3 right-3 text-xs font-medium bg-white/20 px-2 py-0.5 rounded-full">
                   VISA
                 </div>

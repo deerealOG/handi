@@ -11,7 +11,26 @@ export interface Provider {
   price: string;
   isOnline: boolean;
   badge: string | null;
-  providerType?: "Business" | "Individual" | "Freelancer" | "Specialist";
+  providerType?: "Individual" | "Business";
+  businessSubType?: "agency" | "company";
+  isVerified: boolean;
+  description: string;
+  // Extended fields (items 21, 22)
+  username?: string;
+  email?: string;
+  yearRegistered?: number;
+  completedJobs?: number;
+  availability?: string;
+  pastWorkImages?: string[];
+  exactLocation?: string;
+  approxDistance?: string;
+  categories?: string[];
+  specialization?: string;
+  policy?: string;
+  priceRange?: string;
+  servicesOffered?: string[];
+  // Business-only fields
+  website?: string;
   [key: string]: unknown;
 }
 

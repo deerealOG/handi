@@ -1,4 +1,4 @@
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -17,7 +17,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 export default function RegisterClientScreen() {
   const router = useRouter();
@@ -29,27 +29,47 @@ export default function RegisterClientScreen() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState(1);
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [address, setAddress] = useState("");
+  const [otpMethod, setOtpMethod] = useState<"email" | "sms">("email");
   const [isLoading, setIsLoading] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
 
-  const handleRegister = async () => {
-    // Basic Validation
+  const detectLocation = async () => {
+    // Dummy / prompt for location detection in Native
+    Alert.alert("Auto-detect", "Location detection requires permission. Please enter manually for now.");
+  };
+
+  const validateStep1 = () => {
     if (!fullName || !email || !phone || !password) {
       Alert.alert("Missing Information", "Please fill in all fields.");
-      return;
+      return false;
     }
-
     if (password.length < 6) {
       Alert.alert("Weak Password", "Password must be at least 6 characters.");
-      return;
+      return false;
     }
-
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       Alert.alert("Invalid Email", "Please enter a valid email address.");
+      return false;
+    }
+    return true;
+  };
+
+  const handleNext = () => {
+    if (validateStep1()) {
+      setStep(2);
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!city || !state || !address) {
+      Alert.alert("Missing Information", "Please enter your location details.");
       return;
     }
-
     setIsLoading(true);
 
     // Split full name into first and last name
@@ -64,6 +84,10 @@ export default function RegisterClientScreen() {
       phone,
       password,
       userType: "client",
+      city,
+      state,
+      address,
+      otpMethod,
     });
 
     setIsLoading(false);
@@ -103,7 +127,7 @@ export default function RegisterClientScreen() {
         {/* Logo & Title */}
         <View style={styles.titleContainer}>
           <Image
-            source={require("../../assets/images/handi-logo-light.png")}
+            source={require("../../assets/images/handi-logo-green.png")}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -115,180 +139,8 @@ export default function RegisterClientScreen() {
           </Text>
         </View>
 
-        {/* Form */}
-        <View style={styles.formContainer}>
-          {/* Full Name */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              Full Name
-            </Text>
-            <View
-              style={[
-                styles.inputContainer,
-                {
-                  backgroundColor: colors.primaryLight,
-                  borderColor: colors.primaryLight,
-                },
-              ]}
-            >
-              <Ionicons
-                name="person-outline"
-                size={20}
-                color={colors.muted}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={[styles.input, { color: colors.text }]}
-                placeholder="Your full name"
-                placeholderTextColor={colors.muted}
-                value={fullName}
-                onChangeText={setFullName}
-              />
-            </View>
-          </View>
-
-          {/* Email */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              Email Address
-            </Text>
-            <View
-              style={[
-                styles.inputContainer,
-                {
-                  backgroundColor: colors.primaryLight,
-                  borderColor: colors.primaryLight,
-                },
-              ]}
-            >
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={colors.muted}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={[styles.input, { color: colors.text }]}
-                placeholder="you@example.com"
-                placeholderTextColor={colors.muted}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
-
-          {/* Phone */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              Phone Number
-            </Text>
-            <View
-              style={[
-                styles.inputContainer,
-                {
-                  backgroundColor: colors.primaryLight,
-                  borderColor: colors.primaryLight,
-                },
-              ]}
-            >
-              <Ionicons
-                name="call-outline"
-                size={20}
-                color={colors.muted}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={[styles.input, { color: colors.text }]}
-                placeholder="Your phone number"
-                placeholderTextColor={colors.muted}
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
-              />
-            </View>
-          </View>
-
-          {/* Password */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Password</Text>
-            <View
-              style={[
-                styles.inputContainer,
-                {
-                  backgroundColor: colors.primaryLight,
-                  borderColor: colors.primaryLight,
-                },
-              ]}
-            >
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={colors.muted}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={[styles.input, { color: colors.text }]}
-                placeholder="At least 6 characters"
-                placeholderTextColor={colors.muted}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons
-                  name={showPassword ? "eye-off-outline" : "eye-outline"}
-                  size={20}
-                  color={colors.muted}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Submit Button */}
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
-            onPress={handleRegister}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color={colors.onPrimary} />
-            ) : (
-              <Text style={[styles.buttonText, { color: colors.onPrimary }]}>
-                Sign Up
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Social Auth Section */}
-        <View style={{ marginTop: 24, width: "100%" }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginBottom: 20,
-            }}
-          >
-            <View
-              style={{ flex: 1, height: 1, backgroundColor: colors.border }}
-            />
-            <Text
-              style={{
-                marginHorizontal: 12,
-                fontSize: 13,
-                color: colors.muted,
-                fontFamily: THEME.typography.fontFamily.body,
-              }}
-            >
-              OR
-            </Text>
-            <View
-              style={{ flex: 1, height: 1, backgroundColor: colors.border }}
-            />
-          </View>
-
+        {/* Social Auth — always visible above the form */}
+        <View style={{ marginBottom: 20, width: "100%" }}>
           <TouchableOpacity
             onPress={() =>
               Alert.alert(
@@ -305,7 +157,7 @@ export default function RegisterClientScreen() {
               borderWidth: 1,
               borderColor: colors.border,
               backgroundColor: colors.surface,
-              marginBottom: 12,
+              marginBottom: 10,
               gap: 12,
             }}
           >
@@ -335,7 +187,6 @@ export default function RegisterClientScreen() {
               paddingVertical: 14,
               borderRadius: 50,
               backgroundColor: "#1877F2",
-              marginBottom: 12,
               gap: 12,
             }}
           >
@@ -350,7 +201,169 @@ export default function RegisterClientScreen() {
               Sign up with Facebook
             </Text>
           </TouchableOpacity>
+
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginTop: 16,
+            }}
+          >
+            <View
+              style={{ flex: 1, height: 1, backgroundColor: colors.border }}
+            />
+            <Text
+              style={{
+                marginHorizontal: 12,
+                fontSize: 13,
+                color: colors.muted,
+                fontFamily: THEME.typography.fontFamily.body,
+              }}
+            >
+              OR sign up with email
+            </Text>
+            <View
+              style={{ flex: 1, height: 1, backgroundColor: colors.border }}
+            />
+          </View>
         </View>
+
+        {/* Form */}
+        <View style={styles.formContainer}>
+          {step === 1 && (
+            <>
+              {/* Full Name */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>Full Name</Text>
+                <View style={[styles.inputContainer, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}>
+                  <Ionicons name="person-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+                  <TextInput
+                    style={[styles.input, { color: colors.text }]}
+                    placeholder="Your full name"
+                    placeholderTextColor={colors.muted}
+                    value={fullName}
+                    onChangeText={setFullName}
+                  />
+                </View>
+              </View>
+
+              {/* Email */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>Email Address</Text>
+                <View style={[styles.inputContainer, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}>
+                  <Ionicons name="mail-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+                  <TextInput
+                    style={[styles.input, { color: colors.text }]}
+                    placeholder="you@example.com"
+                    placeholderTextColor={colors.muted}
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
+              </View>
+
+              {/* Phone */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>Phone Number</Text>
+                <View style={[styles.inputContainer, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}>
+                  <Ionicons name="call-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+                  <TextInput
+                    style={[styles.input, { color: colors.text }]}
+                    placeholder="Your phone number"
+                    placeholderTextColor={colors.muted}
+                    value={phone}
+                    onChangeText={setPhone}
+                    keyboardType="phone-pad"
+                  />
+                </View>
+              </View>
+
+              {/* Password */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>Password</Text>
+                <View style={[styles.inputContainer, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}>
+                  <Ionicons name="lock-closed-outline" size={20} color={colors.muted} style={styles.inputIcon} />
+                  <TextInput
+                    style={[styles.input, { color: colors.text }]}
+                    placeholder="At least 6 characters"
+                    placeholderTextColor={colors.muted}
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                  />
+                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                    <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.muted} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={handleNext}>
+                <Text style={[styles.buttonText, { color: colors.onPrimary }]}>Continue</Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                <Text style={[styles.label, { color: colors.text }]}>Location Details</Text>
+                <TouchableOpacity onPress={detectLocation}>
+                  <Text style={{ color: colors.primary, fontSize: 12, fontFamily: THEME.typography.fontFamily.subheading }}>Auto-detect</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={{ flexDirection: "row", gap: 10 }}>
+                <View style={[styles.inputContainer, { flex: 1, backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}>
+                  <TextInput style={[styles.input, { color: colors.text }]} placeholder="City" placeholderTextColor={colors.muted} value={city} onChangeText={setCity} />
+                </View>
+                <View style={[styles.inputContainer, { flex: 1, backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}>
+                  <TextInput style={[styles.input, { color: colors.text }]} placeholder="State" placeholderTextColor={colors.muted} value={state} onChangeText={setState} />
+                </View>
+              </View>
+
+              <View style={[styles.inputContainer, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}>
+                <TextInput style={[styles.input, { color: colors.text }]} placeholder="Full Address" placeholderTextColor={colors.muted} value={address} onChangeText={setAddress} />
+              </View>
+
+              <Text style={[styles.label, { color: colors.text, marginTop: 16 }]}>How would you like to receive your OTP code?</Text>
+              <View style={{ flexDirection: "row", gap: 16, marginTop: 8 }}>
+                <TouchableOpacity
+                  onPress={() => setOtpMethod("email")}
+                  style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+                >
+                  <View style={{ width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: otpMethod === "email" ? colors.primary : colors.muted, alignItems: "center", justifyContent: "center" }}>
+                    {otpMethod === "email" && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary }} />}
+                  </View>
+                  <Text style={{ color: colors.text, fontFamily: THEME.typography.fontFamily.body }}>Email Address</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => setOtpMethod("sms")}
+                  style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+                >
+                  <View style={{ width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: otpMethod === "sms" ? colors.primary : colors.muted, alignItems: "center", justifyContent: "center" }}>
+                    {otpMethod === "sms" && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary }} />}
+                  </View>
+                  <Text style={{ color: colors.text, fontFamily: THEME.typography.fontFamily.body }}>SMS (Phone)</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
+                <TouchableOpacity style={[styles.button, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, flex: 0.4 }]} onPress={() => setStep(1)} disabled={isLoading}>
+                  <Text style={[styles.buttonText, { color: colors.text }]}>Back</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary, flex: 0.6 }]} onPress={handleRegister} disabled={isLoading}>
+                  {isLoading ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={[styles.buttonText, { color: colors.onPrimary }]}>Sign Up</Text>}
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+        </View>
+
+
 
         {/* Footer */}
         <View style={styles.footer}>

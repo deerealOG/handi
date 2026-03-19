@@ -32,7 +32,7 @@ export default function UsersTab({ adminRole }: { adminRole: AdminRole }) {
     | "appealed"
   >("all");
   const [users, setUsers] = useState<
-    Array<{
+    {
       id: string;
       name: string;
       email: string;
@@ -46,7 +46,7 @@ export default function UsersTab({ adminRole }: { adminRole: AdminRole }) {
       verified?: boolean;
       location?: string;
       appealReason?: string;
-    }>
+    }[]
   >([
     ...MOCK_USERS_LIST,
     {

@@ -5,9 +5,9 @@
 import { Response, Router } from "express";
 import { body, validationResult } from "express-validator";
 import { authenticate, AuthRequest } from "../middleware/auth";
+import { prisma } from "../lib/prisma";
 
 const router = Router();
-import { prisma } from "../lib/prisma";
 
 // ================================
 // GET /api/profile - Get current user profile
@@ -235,7 +235,7 @@ router.patch(
   async (req: AuthRequest, res: Response) => {
     try {
       const certification = await prisma.userCertification.update({
-        where: { id: req.params.id },
+        where: { id: req.params.id as string },
         data: {
           name: req.body.name,
           type: req.body.type,
@@ -260,7 +260,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       await prisma.userCertification.delete({
-        where: { id: req.params.id },
+        where: { id: req.params.id as string },
       });
       res.json({ success: true, message: "Certification removed" });
     } catch (error) {
@@ -333,7 +333,7 @@ router.patch(
   async (req: AuthRequest, res: Response) => {
     try {
       const item = await prisma.workExperience.update({
-        where: { id: req.params.id },
+        where: { id: req.params.id as string },
         data: {
           title: req.body.title,
           company: req.body.company,
@@ -354,7 +354,7 @@ router.delete(
   authenticate,
   async (req: AuthRequest, res: Response) => {
     try {
-      await prisma.workExperience.delete({ where: { id: req.params.id } });
+      await prisma.workExperience.delete({ where: { id: req.params.id as string } });
       res.json({ success: true, message: "Work experience removed" });
     } catch (error) {
       console.error("Delete work experience error:", error);

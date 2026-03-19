@@ -17,6 +17,7 @@ import {
 import Image from "next/image";
 
 interface ClientHeaderProps {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   authUser: any;
   activeClientTab: ClientTabId;
   setActiveClientTab: (tab: ClientTabId) => void;
@@ -57,7 +58,7 @@ export default function ClientHeader({
                 className="shrink-0 cursor-pointer"
               >
                 <Image
-                  src="/images/handi-logo-light.png"
+                  src="/images/handi-logo-light.webp"
                   alt="HANDI"
                   width={110}
                   height={36}

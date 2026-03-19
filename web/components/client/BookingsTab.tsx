@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, X } from "lucide-react";
+import { Clock, MessageCircle, X } from "lucide-react";
 import { useState } from "react";
 
 const MOCK_ACTIVE_BOOKINGS = [
@@ -9,7 +9,7 @@ const MOCK_ACTIVE_BOOKINGS = [
     service: "AC Servicing & Repair",
     provider: "CoolAir Solutions",
     date: "Today, 2:00 PM",
-    status: "In Progress",
+    status: "Service in progress",
     statusColor: "bg-blue-100 text-blue-700",
     icon: "🔧",
   },
@@ -58,6 +58,7 @@ const MOCK_COMPLETED_BOOKINGS = [
 
 export default function BookingsTab() {
   const [filter, setFilter] = useState<"active" | "completed">("active");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [cancelledBookings, setCancelledBookings] = useState<Set<string>>(
     new Set(),
@@ -66,6 +67,7 @@ export default function BookingsTab() {
   const bookings =
     filter === "active" ? MOCK_ACTIVE_BOOKINGS : MOCK_COMPLETED_BOOKINGS;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const canCancel = (booking: any) => {
     return !cancelledBookings.has(booking.id) && filter === "active";
   };
@@ -76,10 +78,9 @@ export default function BookingsTab() {
   };
 
   const TRACKING_STEPS = [
-    { label: "Booking Placed", done: true },
-    { label: "Provider Accepted", done: true },
-    { label: "Provider En Route", done: false },
-    { label: "Service In Progress", done: false },
+    { label: "Confirmed", done: true },
+    { label: "Provider on the way", done: true },
+    { label: "Service in progress", done: false },
     { label: "Completed", done: false },
   ];
 
@@ -149,7 +150,7 @@ export default function BookingsTab() {
                 </span>
                 {"amount" in b && (
                   <p className="text-[11px] sm:text-sm font-bold text-gray-900 mt-1 sm:mt-2">
-                    {(b as any).amount}
+                    {(b as { amount?: string }).amount}
                   </p>
                 )}
               </div>
@@ -223,7 +224,7 @@ export default function BookingsTab() {
                   <div className="flex justify-between">
                     <span className="text-gray-500">Amount</span>
                     <span className="font-bold text-(--color-primary)">
-                      {(selectedBooking as any).amount}
+                      {(selectedBooking as { amount?: string }).amount}
                     </span>
                   </div>
                 )}
@@ -272,6 +273,18 @@ export default function BookingsTab() {
                     Cancel Booking
                   </button>
                 )}
+                {filter === "active" &&
+                  !cancelledBookings.has(selectedBooking.id) && (
+                    <button
+                      onClick={() => {
+                        // In production, open chat with provider
+                        setSelectedBooking(null);
+                      }}
+                      className="flex-1 py-2.5 text-sm font-semibold border border-gray-200 text-gray-700 rounded-full hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <MessageCircle size={14} /> Message Provider
+                    </button>
+                  )}
                 <button
                   onClick={() => setSelectedBooking(null)}
                   className="flex-1 py-2.5 text-sm font-semibold bg-(--color-primary) text-white rounded-full hover:opacity-90 transition-colors"

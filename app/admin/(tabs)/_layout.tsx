@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 const ADMIN_ACCENT = THEME.colors.admin;
 

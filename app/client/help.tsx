@@ -12,7 +12,7 @@ import {
     View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 const FAQ_ITEMS = [
   {

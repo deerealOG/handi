@@ -7,7 +7,9 @@ import { useEffect, useState } from "react";
 // TEAM MANAGEMENT TAB (Super Admin only)
 // ============================================
 export default function TeamManagementTab() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { session } = useSession() as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [admins, setAdmins] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -43,6 +45,7 @@ export default function TeamManagementTab() {
 
   useEffect(() => {
     fetchAdmins();
+// eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -75,6 +78,7 @@ export default function TeamManagementTab() {
       } else {
         setError(data.error || "Failed to create admin");
       }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       // Dev fallback: create admin locally when backend is unavailable
       console.warn(
@@ -127,7 +131,7 @@ export default function TeamManagementTab() {
         setError(data.error || "Failed to update role");
         setTimeout(() => setError(""), 3000);
       }
-    } catch (e) {
+    } catch (_e) {
       setError("Network error");
     }
   };

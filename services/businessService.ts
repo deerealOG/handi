@@ -685,7 +685,7 @@ export const businessService = {
     businessId: string,
     data: CreateProjectData,
   ): Promise<ApiResponse<{ id?: string }>> {
-    const response = await api.post<any>("/api/business/projects", data);
+    const response = await api.post<any>("/api/business/projects", data as unknown as Record<string, unknown>);
     if (!response.success) {
       return { success: false, error: response.error || "Project creation not available yet" };
     }

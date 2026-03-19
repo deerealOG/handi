@@ -1,0 +1,52 @@
+src/routes/ai.ts(250,23): error TS2353: Object literal may only specify known properties, and 'contains' does not exist in type 'JsonFilter<"User">'.
+src/routes/business.ts(379,18): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/business.ts(386,18): error TS2322: Type 'string | string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+  Type 'string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+src/routes/business.ts(417,18): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/business.ts(424,18): error TS2322: Type 'string | string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+  Type 'string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+src/routes/business.ts(581,18): error TS2322: Type 'string | string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+  Type 'string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+src/routes/business.ts(604,18): error TS2322: Type 'string | string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+  Type 'string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+src/routes/disputes.ts(176,28): error TS2345: Argument of type 'JsonValue' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/routes/disputes.ts(255,32): error TS2345: Argument of type 'JsonValue' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/routes/jobs.ts(216,18): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/jobs.ts(270,24): error TS2551: Property 'client' does not exist on type '{ id: string; city: string; address: string; latitude: number | null; longitude: number | null; createdAt: Date; updatedAt: Date; assignedMemberId: string | null; assignedMemberName: string | null; ... 20 more ...; clientId: string; }'. Did you mean 'clientId'?
+src/routes/jobs.ts(271,34): error TS2551: Property 'client' does not exist on type '{ id: string; city: string; address: string; latitude: number | null; longitude: number | null; createdAt: Date; updatedAt: Date; assignedMemberId: string | null; assignedMemberName: string | null; ... 20 more ...; clientId: string; }'. Did you mean 'clientId'?
+src/routes/jobs.ts(271,62): error TS2551: Property 'client' does not exist on type '{ id: string; city: string; address: string; latitude: number | null; longitude: number | null; createdAt: Date; updatedAt: Date; assignedMemberId: string | null; assignedMemberName: string | null; ... 20 more ...; clientId: string; }'. Did you mean 'clientId'?
+src/routes/jobs.ts(274,24): error TS2551: Property 'artisan' does not exist on type '{ id: string; city: string; address: string; latitude: number | null; longitude: number | null; createdAt: Date; updatedAt: Date; assignedMemberId: string | null; assignedMemberName: string | null; ... 20 more ...; clientId: string; }'. Did you mean 'artisanId'?
+src/routes/jobs.ts(275,34): error TS2551: Property 'artisan' does not exist on type '{ id: string; city: string; address: string; latitude: number | null; longitude: number | null; createdAt: Date; updatedAt: Date; assignedMemberId: string | null; assignedMemberName: string | null; ... 20 more ...; clientId: string; }'. Did you mean 'artisanId'?
+src/routes/jobs.ts(275,63): error TS2551: Property 'artisan' does not exist on type '{ id: string; city: string; address: string; latitude: number | null; longitude: number | null; createdAt: Date; updatedAt: Date; assignedMemberId: string | null; assignedMemberName: string | null; ... 20 more ...; clientId: string; }'. Did you mean 'artisanId'?
+src/routes/jobs.ts(300,18): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/jobs.ts(318,18): error TS2322: Type 'string | string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+  Type 'string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+src/routes/jobs.ts(372,18): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/jobs.ts(391,18): error TS2322: Type 'string | string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+  Type 'string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+src/routes/jobs.ts(433,18): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/jobs.ts(467,18): error TS2322: Type 'string | string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+  Type 'string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+src/routes/profile.ts(238,18): error TS2322: Type 'string | string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+  Type 'string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+src/routes/profile.ts(263,18): error TS2322: Type 'string | string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+  Type 'string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+src/routes/profile.ts(336,18): error TS2322: Type 'string | string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+  Type 'string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+src/routes/profile.ts(357,53): error TS2322: Type 'string | string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+  Type 'string[]' is not assignable to type 'Exact<string | undefined, string | undefined>'.
+src/utils/auth.ts(21,14): error TS2769: No overload matches this call.
+  Overload 1 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: null, options?: (SignOptions & { algorithm: "none"; }) | undefined): string', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'null'.
+  Overload 2 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Secret | Buffer<ArrayBufferLike> | JsonWebKeyInput | PrivateKeyInput, options?: SignOptions | undefined): string', gave the following error.
+    Type 'string' is not assignable to type 'number | StringValue | undefined'.
+  Overload 3 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Secret | Buffer<ArrayBufferLike> | JsonWebKeyInput | PrivateKeyInput, callback: SignCallback): void', gave the following error.
+    Object literal may only specify known properties, and 'expiresIn' does not exist in type 'SignCallback'.

@@ -1,7 +1,6 @@
 "use client";
 
 import {
-    ArrowRight,
     Calendar,
     CheckCircle,
     Search,

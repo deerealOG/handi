@@ -1,4 +1,4 @@
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -17,7 +17,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 export default function RegisterArtisanScreen() {
   const router = useRouter();
@@ -101,7 +101,7 @@ export default function RegisterArtisanScreen() {
         {/* Logo & Title */}
         <View style={styles.titleContainer}>
           <Image
-            source={require("../../assets/images/handi-logo-light.png")}
+            source={require("../../assets/images/handi-logo-green.png")}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -111,6 +111,95 @@ export default function RegisterArtisanScreen() {
           <Text style={[styles.subtitle, { color: colors.muted }]}>
             Start getting jobs and growing your business
           </Text>
+        </View>
+
+        {/* Social Auth — always visible above the form */}
+        <View style={{ marginBottom: 20, width: "100%" }}>
+          <TouchableOpacity
+            onPress={() =>
+              Alert.alert(
+                "Google Sign-Up",
+                "Google authentication will be configured with your OAuth credentials.",
+              )
+            }
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingVertical: 14,
+              borderRadius: 50,
+              borderWidth: 1,
+              borderColor: colors.border,
+              backgroundColor: colors.surface,
+              marginBottom: 10,
+              gap: 12,
+            }}
+          >
+            <Ionicons name="logo-google" size={20} color="#4285F4" />
+            <Text
+              style={{
+                fontSize: 15,
+                fontFamily: THEME.typography.fontFamily.subheading,
+                color: colors.text,
+              }}
+            >
+              Sign up with Google
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() =>
+              Alert.alert(
+                "Facebook Sign-Up",
+                "Facebook authentication will be configured with your App ID.",
+              )
+            }
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingVertical: 14,
+              borderRadius: 50,
+              backgroundColor: "#1877F2",
+              gap: 12,
+            }}
+          >
+            <Ionicons name="logo-facebook" size={20} color="#FFFFFF" />
+            <Text
+              style={{
+                fontSize: 15,
+                fontFamily: THEME.typography.fontFamily.subheading,
+                color: "#FFFFFF",
+              }}
+            >
+              Sign up with Facebook
+            </Text>
+          </TouchableOpacity>
+
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginTop: 16,
+            }}
+          >
+            <View
+              style={{ flex: 1, height: 1, backgroundColor: colors.border }}
+            />
+            <Text
+              style={{
+                marginHorizontal: 12,
+                fontSize: 13,
+                color: colors.muted,
+                fontFamily: THEME.typography.fontFamily.body,
+              }}
+            >
+              OR sign up with email
+            </Text>
+            <View
+              style={{ flex: 1, height: 1, backgroundColor: colors.border }}
+            />
+          </View>
         </View>
 
         {/* Form */}
@@ -290,95 +379,7 @@ export default function RegisterArtisanScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Social Auth Section */}
-        <View style={{ marginTop: 24, width: "100%" }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginBottom: 20,
-            }}
-          >
-            <View
-              style={{ flex: 1, height: 1, backgroundColor: colors.border }}
-            />
-            <Text
-              style={{
-                marginHorizontal: 12,
-                fontSize: 13,
-                color: colors.muted,
-                fontFamily: THEME.typography.fontFamily.body,
-              }}
-            >
-              OR
-            </Text>
-            <View
-              style={{ flex: 1, height: 1, backgroundColor: colors.border }}
-            />
-          </View>
 
-          <TouchableOpacity
-            onPress={() =>
-              Alert.alert(
-                "Google Sign-Up",
-                "Google authentication will be configured with your OAuth credentials.",
-              )
-            }
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              paddingVertical: 14,
-              borderRadius: 50,
-              borderWidth: 1,
-              borderColor: colors.border,
-              backgroundColor: colors.surface,
-              marginBottom: 12,
-              gap: 12,
-            }}
-          >
-            <Ionicons name="logo-google" size={20} color="#4285F4" />
-            <Text
-              style={{
-                fontSize: 15,
-                fontFamily: THEME.typography.fontFamily.subheading,
-                color: colors.text,
-              }}
-            >
-              Sign up with Google
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() =>
-              Alert.alert(
-                "Facebook Sign-Up",
-                "Facebook authentication will be configured with your App ID.",
-              )
-            }
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              paddingVertical: 14,
-              borderRadius: 50,
-              backgroundColor: "#1877F2",
-              marginBottom: 12,
-              gap: 12,
-            }}
-          >
-            <Ionicons name="logo-facebook" size={20} color="#FFFFFF" />
-            <Text
-              style={{
-                fontSize: 15,
-                fontFamily: THEME.typography.fontFamily.subheading,
-                color: "#FFFFFF",
-              }}
-            >
-              Sign up with Facebook
-            </Text>
-          </TouchableOpacity>
-        </View>
 
         {/* Footer */}
         <View style={styles.footer}>

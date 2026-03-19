@@ -1,6 +1,6 @@
 "use client";
 
-import BookingModal from "@/components/BookingModal";
+import BookingModal from "@/components/shared/BookingModal";
 import CategoryPills from "@/components/ui/CategoryPills";
 import { useCart } from "@/context/CartContext";
 import { MOCK_SERVICES, SERVICE_CATEGORIES } from "@/data/mockApi";
@@ -23,7 +23,9 @@ export default function FindProsTab({
   const [sortBy, setSortBy] = useState("rating");
   const [localSearch, setLocalSearch] = useState("");
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [bookingService, setBookingService] = useState<any>(null);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedDetail, setSelectedDetail] = useState<any>(null);
 
   const query = localSearch || globalSearch;

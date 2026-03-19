@@ -1,7 +1,7 @@
 // app/business/(tabs)/bookings.tsx
 // Business Jobs - Service Provider incoming job requests
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { BusinessJob, businessService, TeamMember } from "@/services";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -17,7 +17,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 type TabKey = 'pending' | 'active' | 'completed' | 'all';
 

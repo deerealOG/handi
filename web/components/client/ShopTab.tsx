@@ -3,6 +3,7 @@
 import CategoryPills from "@/components/ui/CategoryPills";
 import { useCart } from "@/context/CartContext";
 import { MOCK_PRODUCTS } from "@/data/mockApi";
+import { useProducts } from "@/hooks/useApi";
 import {
     Heart,
     LayoutGrid,
@@ -14,18 +15,28 @@ import {
     X,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function ShopTab({ onOpenCart }: { onOpenCart: () => void }) {
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
-  const categories = ["all", ...new Set(MOCK_PRODUCTS.map((p) => p.category))];
+  // Fetch real products from API, fallback to mock data if empty
+  const { data: apiProducts } = useProducts();
+  const allProducts = useMemo(
+    () => (apiProducts && apiProducts.length > 0 ? apiProducts : MOCK_PRODUCTS),
+    [apiProducts]
+  );
 
-  const filtered = MOCK_PRODUCTS.filter((p) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const categories = ["all", ...new Set(allProducts.map((p: any) => p.category))];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const filtered = allProducts.filter((p: any) => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchCat = category === "all" || p.category === category;
     return matchSearch && matchCat;
@@ -43,7 +54,6 @@ export default function ShopTab({ onOpenCart }: { onOpenCart: () => void }) {
         </p>
       </div>
 
-      {/* Search */}
       {/* Search */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
@@ -90,14 +100,14 @@ export default function ShopTab({ onOpenCart }: { onOpenCart: () => void }) {
         {categories.map((cat) => (
           <button
             key={cat}
-            onClick={() => setCategory(cat)}
+            onClick={() => setCategory(cat as string)}
             className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors border ${
               category === cat
                 ? "bg-(--color-primary) text-white border-(--color-primary)"
                 : "bg-white text-gray-600 border-gray-200 hover:border-(--color-primary)"
             }`}
           >
-            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+            {(cat as string).charAt(0).toUpperCase() + (cat as string).slice(1)}
           </button>
         ))}
       </CategoryPills>
@@ -115,7 +125,8 @@ export default function ShopTab({ onOpenCart }: { onOpenCart: () => void }) {
               : "flex flex-col gap-3"
           }
         >
-          {filtered.map((p) => (
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          {filtered.map((p: any) => (
             <div
               key={p.id}
               className={`bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all group flex ${viewMode === "grid" ? "flex-col" : "flex-row h-32 sm:h-40"}`}
@@ -130,6 +141,7 @@ export default function ShopTab({ onOpenCart }: { onOpenCart: () => void }) {
                   width={300}
                   height={160}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onError={(e: any) => {
                     e.target.style.display = "none";
                   }}
@@ -148,7 +160,6 @@ export default function ShopTab({ onOpenCart }: { onOpenCart: () => void }) {
                     </span>
                   </div>
                 )}
-                {/* Wishlist heart */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();

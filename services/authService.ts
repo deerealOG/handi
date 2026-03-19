@@ -50,6 +50,13 @@ export interface RegisterData {
   phone: string;
   password: string;
   userType: UserType;
+  city?: string;
+  state?: string;
+  address?: string;
+  otpMethod?: "email" | "sms";
+  nin?: string;
+  businessRegNumber?: string;
+  preferredCategories?: string[];
   referralCode?: string;
 }
 
@@ -66,6 +73,8 @@ interface AuthResponse {
 
 // Storage keys
 const USER_KEY = "current_user";
+const LOGIN_TIME_KEY = "login_timestamp";
+const SESSION_MAX_AGE_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 // ================================
 // Auth Service
@@ -130,6 +139,7 @@ export const authService = {
     };
 
     await AsyncStorage.setItem(USER_KEY, JSON.stringify(mappedUser));
+    await AsyncStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
 
     return {
       success: true,
@@ -168,6 +178,13 @@ export const authService = {
         phone: data.phone,
         password: data.password,
         userType,
+        city: data.city,
+        state: data.state,
+        address: data.address,
+        otpMethod: data.otpMethod || "email",
+        nin: data.nin,
+        businessRegNumber: data.businessRegNumber,
+        preferredCategories: data.preferredCategories,
       },
       { requiresAuth: false },
     );
@@ -227,7 +244,20 @@ export const authService = {
    */
   async isAuthenticated(): Promise<boolean> {
     const token = await tokenManager.getToken();
-    return !!token;
+    if (!token) return false;
+
+    // Check session expiry (2 hours)
+    const loginTime = await AsyncStorage.getItem(LOGIN_TIME_KEY);
+    if (loginTime) {
+      const elapsed = Date.now() - parseInt(loginTime, 10);
+      if (elapsed > SESSION_MAX_AGE_MS) {
+        await tokenManager.clearTokens();
+        await AsyncStorage.removeItem(USER_KEY);
+        await AsyncStorage.removeItem(LOGIN_TIME_KEY);
+        return false;
+      }
+    }
+    return true;
   },
 
   /**

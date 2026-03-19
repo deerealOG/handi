@@ -1,23 +1,25 @@
 // app/client/business-details.tsx
-import { Button } from "@/components/Button";
-import { VerificationBadge, VerificationLevel } from "@/components/VerificationBadge";
+import { Button } from "@/app/components/Button";
+import {
+  VerificationBadge,
+  VerificationLevel,
+} from "@/app/components/components/VerificationBadge";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-    Image,
-    Linking,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  Linking,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { THEME } from "../../constants/theme";
-
+import { THEME } from "../constants/theme";
 
 // Mock Data for Tabs
 const TABS = ["About", "Services", "Our Team", "Reviews"];
@@ -38,9 +40,12 @@ export default function BusinessDetails() {
     reviewCount: params.reviews ? Number(params.reviews) : 200,
     price: params.price || "From NGN 10,000",
     distance: params.distance || "1.5 km",
-    verificationLevel: (params.verified === 'true' ? "certified" : "none") as VerificationLevel,
+    verificationLevel: (params.verified === "true"
+      ? "certified"
+      : "none") as VerificationLevel,
     isEmergencyAvailable: true,
-    description: "Apex Services Ltd is a premier home renovation company specializing in electrical, plumbing, and general contracting. With a team of certified professionals, we deliver quality results for both residential and commercial projects.",
+    description:
+      "Apex Services Ltd is a premier home renovation company specializing in electrical, plumbing, and general contracting. With a team of certified professionals, we deliver quality results for both residential and commercial projects.",
     address: "123 Victoria Island, Lagos",
     phone: "+234 800 123 4567",
     email: "contact@apexservices.com",
@@ -48,21 +53,71 @@ export default function BusinessDetails() {
   };
 
   const services = [
-    { id: "1", name: "Electrical Wiring", price: "NGN 15,000", description: "Complete house wiring and rewiring." },
-    { id: "2", name: "Plumbing Installation", price: "NGN 12,000", description: "Installation of sinks, toilets, and showers." },
-    { id: "3", name: "AC Maintenance", price: "NGN 8,000", description: "Cleaning and gas refill." },
-    { id: "4", name: "General Repairs", price: "Quote", description: "Assessment and repair of various household items." },
+    {
+      id: "1",
+      name: "Electrical Wiring",
+      price: "NGN 15,000",
+      description: "Complete house wiring and rewiring.",
+    },
+    {
+      id: "2",
+      name: "Plumbing Installation",
+      price: "NGN 12,000",
+      description: "Installation of sinks, toilets, and showers.",
+    },
+    {
+      id: "3",
+      name: "AC Maintenance",
+      price: "NGN 8,000",
+      description: "Cleaning and gas refill.",
+    },
+    {
+      id: "4",
+      name: "General Repairs",
+      price: "Quote",
+      description: "Assessment and repair of various household items.",
+    },
   ];
 
   const team = [
-    { id: "1", name: "Chidi Okonkwo", role: "Lead Electrician", exp: "8 years", verified: true },
-    { id: "2", name: "Amaka Eze", role: "Senior Plumber", exp: "6 years", verified: true },
-    { id: "3", name: "John Doe", role: "Technician", exp: "3 years", verified: false },
+    {
+      id: "1",
+      name: "Chidi Okonkwo",
+      role: "Lead Electrician",
+      exp: "8 years",
+      verified: true,
+    },
+    {
+      id: "2",
+      name: "Amaka Eze",
+      role: "Senior Plumber",
+      exp: "6 years",
+      verified: true,
+    },
+    {
+      id: "3",
+      name: "John Doe",
+      role: "Technician",
+      exp: "3 years",
+      verified: false,
+    },
   ];
 
   const reviews = [
-    { id: 1, name: "Amina O.", comment: "Apex Services did a fantastic job on my kitchen renovation. Professional team!", rating: 5 },
-    { id: 2, name: "Chuka M.", comment: "Good service, but arrived a bit late. The work quality was excellent though.", rating: 4 },
+    {
+      id: 1,
+      name: "Amina O.",
+      comment:
+        "Apex Services did a fantastic job on my kitchen renovation. Professional team!",
+      rating: 5,
+    },
+    {
+      id: 2,
+      name: "Chuka M.",
+      comment:
+        "Good service, but arrived a bit late. The work quality was excellent though.",
+      rating: 4,
+    },
   ];
 
   const renderContent = () => {
@@ -70,104 +125,240 @@ export default function BusinessDetails() {
       case "Services":
         return (
           <View style={styles.tabContent}>
-             {services.map((service) => (
-                <TouchableOpacity 
-                  key={service.id} 
-                  style={[styles.serviceCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
-                  onPress={() => router.push({
+            {services.map((service) => (
+              <TouchableOpacity
+                key={service.id}
+                style={[
+                  styles.serviceCard,
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                  },
+                ]}
+                onPress={() =>
+                  router.push({
                     pathname: "/client/book-artisan", // Reuse booking flow
-                    params: { 
-                      artisan: business.name, 
+                    params: {
+                      artisan: business.name,
                       skill: service.name,
-                      isBusiness: "true"
-                    }
-                  })}
+                      isBusiness: "true",
+                    },
+                  })
+                }
+              >
+                <View style={styles.serviceInfo}>
+                  <Text style={[styles.serviceName, { color: colors.text }]}>
+                    {service.name}
+                  </Text>
+                  <Text style={[styles.serviceDesc, { color: colors.muted }]}>
+                    {service.description}
+                  </Text>
+                  <Text
+                    style={[styles.servicePrice, { color: colors.primary }]}
+                  >
+                    {service.price}
+                  </Text>
+                </View>
+                <View
+                  style={[
+                    styles.bookAction,
+                    { backgroundColor: colors.primaryLight },
+                  ]}
                 >
-                  <View style={styles.serviceInfo}>
-                    <Text style={[styles.serviceName, { color: colors.text }]}>{service.name}</Text>
-                    <Text style={[styles.serviceDesc, { color: colors.muted }]}>{service.description}</Text>
-                    <Text style={[styles.servicePrice, { color: colors.primary }]}>{service.price}</Text>
-                  </View>
-                  <View style={[styles.bookAction, { backgroundColor: colors.primaryLight }]}>
-                    <Text style={[styles.bookActionText, { color: colors.primary }]}>Book</Text>
-                  </View>
-                </TouchableOpacity>
-             ))}
+                  <Text
+                    style={[styles.bookActionText, { color: colors.primary }]}
+                  >
+                    Book
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
           </View>
         );
       case "Our Team":
         return (
-           <View style={styles.tabContent}>
-             {team.map((member) => (
-                <View key={member.id} style={[styles.teamCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  <Image source={require("../../assets/images/profileavatar.png")} style={styles.teamAvatar} />
-                  <View style={styles.teamInfo}>
-                    <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
-                         <Text style={[styles.teamName, { color: colors.text }]}>{member.name}</Text>
-                         {member.verified && <MaterialCommunityIcons name="check-decagram" size={14} color={colors.primary} />}
-                    </View>
-                    <Text style={[styles.teamRole, { color: colors.muted }]}>{member.role} • {member.exp}</Text>
+          <View style={styles.tabContent}>
+            {team.map((member) => (
+              <View
+                key={member.id}
+                style={[
+                  styles.teamCard,
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                  },
+                ]}
+              >
+                <Image
+                  source={require("../../assets/images/profileavatar.png")}
+                  style={styles.teamAvatar}
+                />
+                <View style={styles.teamInfo}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <Text style={[styles.teamName, { color: colors.text }]}>
+                      {member.name}
+                    </Text>
+                    {member.verified && (
+                      <MaterialCommunityIcons
+                        name="check-decagram"
+                        size={14}
+                        color={colors.primary}
+                      />
+                    )}
                   </View>
+                  <Text style={[styles.teamRole, { color: colors.muted }]}>
+                    {member.role} • {member.exp}
+                  </Text>
                 </View>
-             ))}
-           </View>
+              </View>
+            ))}
+          </View>
         );
       case "Reviews":
         return (
-           <View style={styles.tabContent}>
-             {reviews.map((review) => (
-                <View key={review.id} style={[styles.reviewItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                   <View style={styles.reviewHeader}>
-                      <Text style={[styles.reviewName, { color: colors.text }]}>{review.name}</Text>
-                      <View style={{flexDirection: 'row'}}><Ionicons name="star" size={14} color="#FACC15" /><Text style={{color: colors.text, fontSize: 12, marginLeft: 2}}>{review.rating}</Text></View>
-                   </View>
-                   <Text style={[styles.reviewComment, { color: colors.muted }]}>{review.comment}</Text>
+          <View style={styles.tabContent}>
+            {reviews.map((review) => (
+              <View
+                key={review.id}
+                style={[
+                  styles.reviewItem,
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                  },
+                ]}
+              >
+                <View style={styles.reviewHeader}>
+                  <Text style={[styles.reviewName, { color: colors.text }]}>
+                    {review.name}
+                  </Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <Ionicons name="star" size={14} color="#FACC15" />
+                    <Text
+                      style={{
+                        color: colors.text,
+                        fontSize: 12,
+                        marginLeft: 2,
+                      }}
+                    >
+                      {review.rating}
+                    </Text>
+                  </View>
                 </View>
-             ))}
-           </View>
+                <Text style={[styles.reviewComment, { color: colors.muted }]}>
+                  {review.comment}
+                </Text>
+              </View>
+            ))}
+          </View>
         );
       case "About":
       default:
         return (
           <View style={styles.tabContent}>
-            <Text style={[styles.description, { color: colors.muted }]}>{business.description}</Text>
-            
-            <TouchableOpacity 
+            <Text style={[styles.description, { color: colors.muted }]}>
+              {business.description}
+            </Text>
+
+            <TouchableOpacity
               style={[styles.infoRow, { marginTop: 16 }]}
-              onPress={() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.address)}`)}
+              onPress={() =>
+                Linking.openURL(
+                  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.address)}`,
+                )
+              }
             >
-               <Ionicons name="location-outline" size={20} color={colors.muted} />
-               <Text style={[styles.infoText, { color: colors.primary, textDecorationLine: 'underline' }]}>{business.address}</Text>
+              <Ionicons
+                name="location-outline"
+                size={20}
+                color={colors.muted}
+              />
+              <Text
+                style={[
+                  styles.infoText,
+                  { color: colors.primary, textDecorationLine: "underline" },
+                ]}
+              >
+                {business.address}
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.infoRow}
               onPress={() => Linking.openURL(`tel:${business.phone}`)}
             >
-               <Ionicons name="call-outline" size={20} color={colors.muted} />
-               <Text style={[styles.infoText, { color: colors.primary, textDecorationLine: 'underline' }]}>{business.phone}</Text>
+              <Ionicons name="call-outline" size={20} color={colors.muted} />
+              <Text
+                style={[
+                  styles.infoText,
+                  { color: colors.primary, textDecorationLine: "underline" },
+                ]}
+              >
+                {business.phone}
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.infoRow}
               onPress={() => Linking.openURL(`mailto:${business.email}`)}
             >
-               <Ionicons name="mail-outline" size={20} color={colors.muted} />
-               <Text style={[styles.infoText, { color: colors.primary, textDecorationLine: 'underline' }]}>{business.email}</Text>
+              <Ionicons name="mail-outline" size={20} color={colors.muted} />
+              <Text
+                style={[
+                  styles.infoText,
+                  { color: colors.primary, textDecorationLine: "underline" },
+                ]}
+              >
+                {business.email}
+              </Text>
             </TouchableOpacity>
 
-             {/* Quick Stats */}
-             <Text style={[styles.subsectionTitle, { color: colors.text }]}>Performance</Text>
-             <View style={styles.quickStatsContainer}>
-                <View style={[styles.quickStatCard, { backgroundColor: colors.surface }]}>
-                  <MaterialCommunityIcons name="briefcase-check-outline" size={24} color={colors.primary} />
-                  <Text style={[styles.quickStatValue, { color: colors.text }]}>500+</Text>
-                  <Text style={[styles.quickStatLabel, { color: colors.muted }]}>Jobs Done</Text>
-                </View>
-                 <View style={[styles.quickStatCard, { backgroundColor: colors.surface }]}>
-                  <MaterialCommunityIcons name="account-group-outline" size={24} color={colors.primary} />
-                  <Text style={[styles.quickStatValue, { color: colors.text }]}>{team.length}</Text>
-                  <Text style={[styles.quickStatLabel, { color: colors.muted }]}>Team Size</Text>
-                </View>
-             </View>
+            {/* Quick Stats */}
+            <Text style={[styles.subsectionTitle, { color: colors.text }]}>
+              Performance
+            </Text>
+            <View style={styles.quickStatsContainer}>
+              <View
+                style={[
+                  styles.quickStatCard,
+                  { backgroundColor: colors.surface },
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name="briefcase-check-outline"
+                  size={24}
+                  color={colors.primary}
+                />
+                <Text style={[styles.quickStatValue, { color: colors.text }]}>
+                  500+
+                </Text>
+                <Text style={[styles.quickStatLabel, { color: colors.muted }]}>
+                  Jobs Done
+                </Text>
+              </View>
+              <View
+                style={[
+                  styles.quickStatCard,
+                  { backgroundColor: colors.surface },
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name="account-group-outline"
+                  size={24}
+                  color={colors.primary}
+                />
+                <Text style={[styles.quickStatValue, { color: colors.text }]}>
+                  {team.length}
+                </Text>
+                <Text style={[styles.quickStatLabel, { color: colors.muted }]}>
+                  Team Size
+                </Text>
+              </View>
+            </View>
           </View>
         );
     }
@@ -181,49 +372,94 @@ export default function BusinessDetails() {
         ref={scrollRef}
       >
         {/* Header Image */}
-        <Animated.View entering={FadeInDown.duration(800)} style={styles.coverImageContainer}>
-          <Image source={require("../../assets/images/featured.png")} style={styles.coverImage} resizeMode="cover" />
+        <Animated.View
+          entering={FadeInDown.duration(800)}
+          style={styles.coverImageContainer}
+        >
+          <Image
+            source={require("../../assets/images/featured.png")}
+            style={styles.coverImage}
+            resizeMode="cover"
+          />
           <View style={styles.overlay} />
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+          >
             <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
         </Animated.View>
 
         {/* Business Info Header */}
-        <Animated.View entering={FadeInDown.delay(200).duration(800)} style={styles.headerContent}>
+        <Animated.View
+          entering={FadeInDown.delay(200).duration(800)}
+          style={styles.headerContent}
+        >
           <View style={[styles.logoWrapper, { borderColor: colors.surface }]}>
-            <Image source={require("../../assets/images/profileavatar.png")} style={styles.logo} />
+            <Image
+              source={require("../../assets/images/profileavatar.png")}
+              style={styles.logo}
+            />
           </View>
           <View style={styles.headerText}>
-            <Text style={[styles.businessName, { color: colors.text }]}>{business.name}</Text>
-            <Text style={[styles.category, { color: colors.muted }]}>{business.skill}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <View style={styles.ratingRow}>
-                  <Ionicons name="star" size={16} color="#FACC15" />
-                  <Text style={[styles.ratingValue, { color: colors.text }]}>{business.rating}</Text>
-                  <Text style={[styles.reviewCount, { color: colors.muted }]}>({business.reviewCount} reviews)</Text>
-                </View>
-                <VerificationBadge level={business.verificationLevel} size="small" />
+            <Text style={[styles.businessName, { color: colors.text }]}>
+              {business.name}
+            </Text>
+            <Text style={[styles.category, { color: colors.muted }]}>
+              {business.skill}
+            </Text>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+            >
+              <View style={styles.ratingRow}>
+                <Ionicons name="star" size={16} color="#FACC15" />
+                <Text style={[styles.ratingValue, { color: colors.text }]}>
+                  {business.rating}
+                </Text>
+                <Text style={[styles.reviewCount, { color: colors.muted }]}>
+                  ({business.reviewCount} reviews)
+                </Text>
+              </View>
+              <VerificationBadge
+                level={business.verificationLevel}
+                size="small"
+              />
             </View>
           </View>
         </Animated.View>
 
         {/* Tabs */}
         <Animated.View entering={FadeInDown.delay(400).duration(800)}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsContainer} contentContainerStyle={{ paddingHorizontal: THEME.spacing.lg }}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.tabsContainer}
+            contentContainerStyle={{ paddingHorizontal: THEME.spacing.lg }}
+          >
             {TABS.map((tab) => (
               <TouchableOpacity
                 key={tab}
                 style={[
                   styles.tabItem,
-                  activeTab === tab && { borderBottomColor: colors.primary, borderBottomWidth: 2 }
+                  activeTab === tab && {
+                    borderBottomColor: colors.primary,
+                    borderBottomWidth: 2,
+                  },
                 ]}
                 onPress={() => setActiveTab(tab)}
               >
-                <Text style={[
-                  styles.tabText,
-                  { color: activeTab === tab ? colors.primary : colors.muted, fontFamily: activeTab === tab ? THEME.typography.fontFamily.subheading : THEME.typography.fontFamily.body }
-                ]}>
+                <Text
+                  style={[
+                    styles.tabText,
+                    {
+                      color: activeTab === tab ? colors.primary : colors.muted,
+                      fontFamily:
+                        activeTab === tab
+                          ? THEME.typography.fontFamily.subheading
+                          : THEME.typography.fontFamily.body,
+                    },
+                  ]}
+                >
                   {tab}
                 </Text>
               </TouchableOpacity>
@@ -232,7 +468,10 @@ export default function BusinessDetails() {
         </Animated.View>
 
         {/* Content */}
-        <Animated.View entering={FadeInDown.delay(600).duration(800)} style={styles.contentContainer}>
+        <Animated.View
+          entering={FadeInDown.delay(600).duration(800)}
+          style={styles.contentContainer}
+        >
           {renderContent()}
         </Animated.View>
 
@@ -241,12 +480,21 @@ export default function BusinessDetails() {
       </ScrollView>
 
       {/* 🟢 Bottom Action Bar */}
-      <View style={[styles.bottomAction, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
+      <View
+        style={[
+          styles.bottomAction,
+          { backgroundColor: colors.background, borderTopColor: colors.border },
+        ]}
+      >
         <View>
-          <Text style={[styles.priceLabel, { color: colors.muted }]}>Starting from</Text>
-          <Text style={[styles.priceValue, { color: colors.primary }]}>{business.price}</Text>
+          <Text style={[styles.priceLabel, { color: colors.muted }]}>
+            Starting from
+          </Text>
+          <Text style={[styles.priceValue, { color: colors.primary }]}>
+            {business.price}
+          </Text>
         </View>
-        <Button 
+        <Button
           label="Book Service"
           onPress={() => setActiveTab("Services")}
           style={styles.mainBookButton}
@@ -262,33 +510,33 @@ const styles = StyleSheet.create({
   },
   coverImageContainer: {
     height: 180,
-    width: '100%',
-    position: 'relative',
+    width: "100%",
+    position: "relative",
   },
   coverImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: "rgba(0,0,0,0.3)",
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 50,
     left: 20,
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerContent: {
     paddingHorizontal: THEME.spacing.xl,
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: -40,
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
     marginBottom: THEME.spacing.md,
   },
   logoWrapper: {
@@ -296,9 +544,9 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 16,
     borderWidth: 4,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
     ...THEME.shadow.base,
   },
   logo: {
@@ -321,8 +569,8 @@ const styles = StyleSheet.create({
     fontFamily: THEME.typography.fontFamily.body,
   },
   ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 4,
   },
   ratingValue: {
@@ -334,11 +582,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginLeft: 4,
   },
-  
+
   // Tabs
   tabsContainer: {
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: "#E5E7EB",
     marginBottom: 16,
   },
   tabItem: {
@@ -348,7 +596,7 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 16,
   },
-  
+
   // Content
   contentContainer: {
     paddingHorizontal: THEME.spacing.lg,
@@ -362,8 +610,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
     marginBottom: 8,
   },
@@ -377,15 +625,15 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 12,
   },
-  
+
   // Services
   serviceCard: {
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     ...THEME.shadow.base,
   },
   serviceInfo: {
@@ -417,8 +665,8 @@ const styles = StyleSheet.create({
 
   // Team
   teamCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
@@ -449,8 +697,8 @@ const styles = StyleSheet.create({
     ...THEME.shadow.base,
   },
   reviewHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 8,
   },
   reviewName: {
@@ -463,14 +711,14 @@ const styles = StyleSheet.create({
 
   // Stats
   quickStatsContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 16,
   },
   quickStatCard: {
     flex: 1,
     padding: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     ...THEME.shadow.base,
   },
   quickStatValue: {
@@ -484,17 +732,17 @@ const styles = StyleSheet.create({
 
   // Bottom Action
   bottomAction: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 20,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    paddingBottom: Platform.OS === "ios" ? 40 : 24,
     borderTopWidth: 1,
-    ...THEME.shadow.lg,
+    ...THEME.shadow.card,
   },
   priceLabel: {
     fontSize: 12,
@@ -508,4 +756,3 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
 });
-

@@ -55,9 +55,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const storedCart = localStorage.getItem("handi_cart");
-      if (storedCart) setCartItems(JSON.parse(storedCart));
+      if (storedCart) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setCartItems(JSON.parse(storedCart));
+      }
       const storedWishlist = localStorage.getItem("handi_wishlist");
-      if (storedWishlist) setWishlistItems(JSON.parse(storedWishlist));
+      if (storedWishlist) {
+         
+        setWishlistItems(JSON.parse(storedWishlist));
+      }
     } catch {
       // ignore corrupt data
     }
@@ -177,7 +183,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       {children}
       {/* Global toast notification */}
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] animate-[slideUp_0.3s_ease-out]">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-9999 animate-[slideUp_0.3s_ease-out]">
           <div className="bg-gray-900 text-white px-6 py-3 rounded-full shadow-lg text-sm font-medium">
             {toast}
           </div>

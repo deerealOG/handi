@@ -1,4 +1,4 @@
-import { PROVIDER_TRANSACTIONS } from "@/constants/role-dashboard-data";
+import { PROVIDER_TRANSACTIONS } from "@/app/constants/role-dashboard-data";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 export default function ArtisanEarningsScreen() {
   const { colors } = useAppTheme();

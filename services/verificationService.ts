@@ -531,7 +531,7 @@ export const verificationService = {
       verification.governmentId?.verificationStatus === 'approved',
       verification.liveSelfie?.verificationStatus === 'approved',
       verification.homeAddress.length > 0,
-      verification.guarantor?.fullName.length > 0,
+      verification.guarantor?.fullName?.length !== undefined && verification.guarantor.fullName.length > 0,
       verification.codeOfConductAccepted,
       verification.termsAccepted,
     ];

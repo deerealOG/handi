@@ -1,4 +1,5 @@
 "use client";
+import { useNotification } from "@/context/NotificationContext";
 import {
     Calendar,
     CalendarCheck,
@@ -20,6 +21,9 @@ export default function BookingsTab() {
   const [expandedBooking, setExpandedBooking] = useState<string | null>(null);
   const [jobStatuses, setJobStatuses] = useState<Record<string, string>>({});
   const [search, setSearch] = useState("");
+  const [acceptedBookings, setAcceptedBookings] = useState<Set<string>>(new Set());
+  const [declinedBookings, setDeclinedBookings] = useState<Set<string>>(new Set());
+  const { addToast } = useNotification();
   const [sortBy, setSortBy] = useState<
     "newest" | "oldest" | "price-high" | "price-low"
   >("newest");
@@ -244,13 +248,23 @@ export default function BookingsTab() {
                 className={`flex gap-1.5 sm:gap-2 ${viewMode === "grid" ? "mt-auto pt-3 border-t border-gray-100" : "flex-col sm:flex-row sm:items-center sm:w-48 shrink-0 justify-end"}`}
               >
                 <button
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const bk = booking;
+                    setDeclinedBookings(prev => new Set([...prev, bk.id]));
+                    addToast({ type: "error", title: "❌ Booking Declined", message: `"${bk.service}" request from ${bk.client} has been declined.` });
+                  }}
                   className={`flex justify-center items-center cursor-pointer px-1.5 sm:px-3 py-1.5 text-[10px] sm:text-xs font-semibold rounded-lg bg-red-100 text-red-600 hover:bg-red-200 whitespace-nowrap ${viewMode === "grid" ? "flex-1" : "w-full"}`}
                 >
                   Decline
                 </button>
                 <button
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const bk = booking;
+                    setAcceptedBookings(prev => new Set([...prev, bk.id]));
+                    addToast({ type: "success", title: "✅ Booking Accepted", message: `"${bk.service}" from ${bk.client} has been accepted!` });
+                  }}
                   className={`flex justify-center items-center cursor-pointer px-1.5 sm:px-3 py-1.5 text-[10px] sm:text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 whitespace-nowrap ${viewMode === "grid" ? "flex-1" : "w-full"}`}
                 >
                   Accept

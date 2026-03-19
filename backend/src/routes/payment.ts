@@ -7,9 +7,9 @@ import { Request, Response, Router } from "express";
 import { body, validationResult } from "express-validator";
 import { v4 as uuidv4 } from "uuid";
 import { authenticate, AuthRequest } from "../middleware/auth";
+import { prisma } from "../lib/prisma";
 
 const router = Router();
-import { prisma } from "../lib/prisma";
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 const PAYSTACK_PUBLIC_KEY = process.env.PAYSTACK_PUBLIC_KEY;

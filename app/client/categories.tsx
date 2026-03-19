@@ -10,7 +10,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 const ALL_CATEGORIES = [
   { id: "1", name: "Electrician", icon: "flash-outline", description: "Wiring, repairs, and installations" },

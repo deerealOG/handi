@@ -15,6 +15,7 @@ import { useState } from "react";
 // ============================================
 export default function AdminBookingsTab() {
   const [filter, setFilter] = useState("all");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [sortBy, setSortBy] = useState<
     "newest" | "oldest" | "amount-high" | "amount-low"

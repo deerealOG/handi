@@ -1,7 +1,7 @@
 // app/client/(tabs)/bookings.tsx
 // Client bookings screen with real service integration
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Booking, bookingService } from "@/services";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -20,31 +20,33 @@ import {
     View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 // ========================================
 // TYPES
 // ========================================
 type BookingStatus =
   | "pending"
-  | "confirmed"
+  | "accepted"
   | "in_progress"
   | "completed"
-  | "cancelled";
+  | "cancelled"
+  | "declined";
 
 const STATUS_TABS: { key: BookingStatus | "all"; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "confirmed", label: "Active" },
+  { key: "accepted", label: "Active" },
   { key: "pending", label: "Pending" },
   { key: "completed", label: "Completed" },
 ];
 
-const STATUS_COLORS: Record<BookingStatus, { bg: string; text: string }> = {
+const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   pending: { bg: "#FEF3C7", text: "#D97706" },
-  confirmed: { bg: "#DBEAFE", text: "#1D4ED8" },
+  accepted: { bg: "#DBEAFE", text: "#1D4ED8" },
   in_progress: { bg: "#E0E7FF", text: "#4338CA" },
   completed: { bg: "#D1FAE5", text: "#059669" },
   cancelled: { bg: "#FEE2E2", text: "#DC2626" },
+  declined: { bg: "#FEE2E2", text: "#DC2626" },
 };
 
 // ========================================
@@ -64,7 +66,7 @@ export default function BookingsScreen() {
     try {
       const userId = user?.id || "user_001";
       const result = await bookingService.getBookings(userId, "client", {
-        status: activeTab === "all" ? undefined : activeTab,
+        status: activeTab === "all" ? undefined : activeTab as any,
       });
 
       if (result.success) {
@@ -318,9 +320,56 @@ export default function BookingsScreen() {
                   </Text>
                 </View>
 
+                {/* Tracking Stepper for active bookings */}
+                {(booking.status === "accepted" ||
+                  booking.status === "in_progress") && (
+                  <View style={[styles.trackingStepper, { borderTopColor: colors.border }]}>
+                    {[
+                      { key: "pending", label: "Placed" },
+                      { key: "accepted", label: "Accepted" },
+                      { key: "in_progress", label: "In Progress" },
+                      { key: "completed", label: "Completed" },
+                    ].map((s, i, arr) => {
+                      const stepOrder = ["pending", "accepted", "in_progress", "completed"];
+                      const currentIdx = stepOrder.indexOf(booking.status);
+                      const thisIdx = stepOrder.indexOf(s.key);
+                      const isActive = thisIdx <= currentIdx;
+                      const isCurrent = thisIdx === currentIdx;
+                      return (
+                        <View key={s.key} style={styles.stepperItem}>
+                          <View style={[
+                            styles.stepperDot,
+                            isActive
+                              ? { backgroundColor: colors.primary }
+                              : { backgroundColor: colors.border },
+                            isCurrent && { borderWidth: 2, borderColor: colors.primary, backgroundColor: colors.successLight },
+                          ]}>
+                            {thisIdx < currentIdx && (
+                              <Ionicons name="checkmark" size={10} color="white" />
+                            )}
+                          </View>
+                          <Text style={[
+                            styles.stepperLabel,
+                            { color: isActive ? colors.text : colors.muted },
+                            isCurrent && { fontFamily: THEME.typography.fontFamily.subheading },
+                          ]}>
+                            {s.label}
+                          </Text>
+                          {i < arr.length - 1 && (
+                            <View style={[
+                              styles.stepperLine,
+                              { backgroundColor: thisIdx < currentIdx ? colors.primary : colors.border },
+                            ]} />
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
+
                 {/* Action Buttons */}
                 <View style={styles.actionContainer}>
-                  {(booking.status === "confirmed" ||
+                  {(booking.status === "accepted" ||
                     booking.status === "in_progress") && (
                     <>
                       <TouchableOpacity
@@ -355,6 +404,15 @@ export default function BookingsScreen() {
                           styles.primaryButton,
                           { backgroundColor: colors.primary },
                         ]}
+                        onPress={() =>
+                          router.push({
+                            pathname: "/client/chat/[id]",
+                            params: {
+                              id: booking.artisanId || booking.id,
+                              name: booking.artisan?.fullName || "Artisan",
+                            },
+                          } as any)
+                        }
                       >
                         <Ionicons
                           name="chatbubble-ellipses-outline"
@@ -423,6 +481,34 @@ export default function BookingsScreen() {
                         onPress={() => handleBookAgain(booking)}
                       >
                         <Text style={styles.primaryButtonText}>Book Again</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[
+                          styles.actionButton,
+                          styles.outlineButton,
+                          { borderColor: '#FACC15' },
+                        ]}
+                        onPress={() =>
+                          router.push({
+                            pathname: "/client/reviews/rate-artisan",
+                            params: {
+                              artisanId: booking.artisanId,
+                              artisanName: booking.artisan?.fullName || "Artisan",
+                              bookingId: booking.id,
+                              skill: booking.categoryName,
+                            },
+                          } as any)
+                        }
+                      >
+                        <Ionicons name="star-outline" size={14} color="#D97706" />
+                        <Text
+                          style={[
+                            styles.outlineButtonText,
+                            { color: '#D97706', marginLeft: 4 },
+                          ]}
+                        >
+                          Review
+                        </Text>
                       </TouchableOpacity>
                     </>
                   )}
@@ -716,5 +802,40 @@ const styles = StyleSheet.create({
     color: THEME.colors.surface,
     fontFamily: THEME.typography.fontFamily.subheading,
     fontSize: THEME.typography.sizes.md,
+  },
+
+  // Tracking Stepper
+  trackingStepper: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    paddingTop: 12,
+    marginBottom: 12,
+    borderTopWidth: 1,
+  },
+  stepperItem: {
+    alignItems: "center",
+    flex: 1,
+    position: "relative",
+  },
+  stepperDot: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  stepperLabel: {
+    fontSize: 9,
+    fontFamily: THEME.typography.fontFamily.body,
+    textAlign: "center",
+  },
+  stepperLine: {
+    position: "absolute",
+    top: 9,
+    left: "60%",
+    right: "-40%",
+    height: 2,
   },
 });

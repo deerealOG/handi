@@ -19,7 +19,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     slug: "HANDI",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
+    icon: "./assets/images/handi-logo-light.png",
     scheme: "handi",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
@@ -34,7 +34,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ...config.android,
       adaptiveIcon: {
         backgroundColor: "#368951",
-        foregroundImage: "./assets/images/handi-logo.png",
+        foregroundImage: "./assets/images/handi-logo-light.png",
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,

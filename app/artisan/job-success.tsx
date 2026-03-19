@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import { Animated, Image, StyleSheet, Text, View } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 export default function JobSuccess() {
   const router = useRouter();

@@ -1,26 +1,26 @@
 // app/auth/register.tsx
-import { Button } from "@/components/Button";
-import { DecorativeBlobs } from "@/components/DecorativeBlobs";
-import { Input } from "@/components/Input";
-import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/app/components/Button";
+import { Input } from "@/app/components/components/Input";
+import { DecorativeBlobs } from "../components/DecorativeBlobs";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -35,6 +35,7 @@ export default function RegisterScreen() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async () => {
     if (!fullName || !email || !password) {

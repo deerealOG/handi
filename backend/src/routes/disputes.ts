@@ -5,9 +5,9 @@
 import { Response, Router } from "express";
 import { body, param, validationResult } from "express-validator";
 import { authenticate, AuthRequest, requireAdmin } from "../middleware/auth";
+import { prisma } from "../lib/prisma";
 
 const router = Router();
-import { prisma } from "../lib/prisma";
 
 // ================================
 // POST /api/disputes - File a dispute
@@ -74,7 +74,7 @@ router.post(
           filedById: req.user!.userId,
           reason,
           description,
-          evidence: JSON.stringify(evidence || []),
+          evidence: evidence || [],
         },
       });
 
@@ -173,7 +173,7 @@ router.get("/", authenticate, async (req: AuthRequest, res: Response) => {
 
     const enrichedDisputes = disputes.map((d) => ({
       ...d,
-      evidence: JSON.parse(d.evidence),
+      evidence: typeof d.evidence === "string" ? JSON.parse(d.evidence) : d.evidence,
       booking: bookingMap.get(d.bookingId),
     }));
 
@@ -252,7 +252,7 @@ router.get(
         success: true,
         data: {
           ...dispute,
-          evidence: JSON.parse(dispute.evidence),
+          evidence: typeof dispute.evidence === "string" ? JSON.parse(dispute.evidence) : dispute.evidence,
           booking,
           materials,
         },

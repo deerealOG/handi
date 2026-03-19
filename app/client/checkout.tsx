@@ -18,11 +18,11 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 // ── Types ────────────────────────────────────────────────────────
 type Step = "delivery" | "payment" | "review" | "success";
-type PaymentMethod = "card" | "bank" | "wallet";
+type PaymentMethod = "card" | "bank";
 
 interface DeliveryInfo {
   fullName: string;
@@ -86,7 +86,6 @@ export default function CheckoutScreen() {
     delivery.address.trim() &&
     delivery.city.trim();
   const canPayment =
-    paymentMethod === "wallet" ||
     paymentMethod === "bank" ||
     (paymentMethod === "card" &&
       card.number.trim() &&
@@ -368,11 +367,7 @@ export default function CheckoutScreen() {
                       label: "Bank Transfer",
                       icon: "business-outline" as const,
                     },
-                    {
-                      id: "wallet" as PaymentMethod,
-                      label: "Wallet",
-                      icon: "wallet-outline" as const,
-                    },
+
                   ] as const
                 ).map((m) => (
                   <TouchableOpacity
@@ -480,34 +475,7 @@ export default function CheckoutScreen() {
                 </View>
               )}
 
-              {paymentMethod === "wallet" && (
-                <View
-                  style={[
-                    styles.infoBox,
-                    { backgroundColor: colors.successLight },
-                  ]}
-                >
-                  <Text style={[styles.infoTitle, { color: colors.success }]}>
-                    HANDI Wallet
-                  </Text>
-                  <Text style={[styles.infoText, { color: colors.success }]}>
-                    Your wallet balance:{" "}
-                    <Text
-                      style={{
-                        fontFamily: THEME.typography.fontFamily.heading,
-                      }}
-                    >
-                      ₦25,000
-                    </Text>
-                  </Text>
-                  {total > 25000 && (
-                    <Text style={[styles.infoSm, { color: colors.error }]}>
-                      ⚠️ Insufficient balance. Please top up or choose another
-                      method.
-                    </Text>
-                  )}
-                </View>
-              )}
+
 
               <TouchableOpacity
                 style={[
@@ -588,9 +556,7 @@ export default function CheckoutScreen() {
                 <Text style={[styles.reviewText, { color: colors.text }]}>
                   {paymentMethod === "card"
                     ? `Debit Card ending ****${card.number.slice(-4)}`
-                    : paymentMethod === "bank"
-                      ? "Bank Transfer"
-                      : "HANDI Wallet"}
+                    : "Bank Transfer"}
                 </Text>
               </View>
 

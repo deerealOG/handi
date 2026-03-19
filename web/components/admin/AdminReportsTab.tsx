@@ -1,6 +1,6 @@
 "use client";
 import { useNotification } from "@/context/NotificationContext";
-import { Download, FileText, TrendingUp } from "lucide-react";
+import { Download } from "lucide-react";
 import { useState } from "react";
 
 // ============================================
@@ -465,7 +465,7 @@ export default function AdminReportsTab() {
                 <div key={m.month} className="text-center">
                   <div className="relative h-32 bg-gray-50 rounded-lg flex flex-col justify-end p-1">
                     <div
-                      className="bg-gradient-to-t from-purple-600 to-purple-400 rounded-sm"
+                      className="bg-linear-to-t from-purple-600 to-purple-400 rounded-sm"
                       style={{ height: `${(m.revenue / maxRev) * 100}%` }}
                     />
                   </div>

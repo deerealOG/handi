@@ -1,5 +1,5 @@
 // app/client/proceed-payment.tsx
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { bookingService, escrowService } from "@/services";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
@@ -16,7 +16,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 const BANKS = [
   { id: "1", name: "GTBank", logo: "bank" },
@@ -55,6 +55,7 @@ export default function ProceedPayment() {
   const [otp, setOtp] = useState("");
 
   // Created booking ID for success screen
+  const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
   // Animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -173,7 +174,6 @@ export default function ProceedPayment() {
       <Text style={styles.sectionTitle}>Payment Methods</Text>
       <View style={styles.methodsContainer}>
         {[
-          { id: "wallet", icon: "wallet-outline", label: "Wallet Balance", balance: "₦25,000" },
           { id: "card", icon: "card-outline", label: "Credit / Debit Card" },
           { id: "transfer", icon: "swap-horizontal-outline", label: "Bank Transfer" },
         ].map((method) => (
@@ -197,9 +197,6 @@ export default function ProceedPayment() {
             </View>
             <View style={styles.methodInfo}>
               <Text style={styles.methodLabel}>{method.label}</Text>
-              {method.balance && (
-                <Text style={styles.methodBalance}>Balance: {method.balance}</Text>
-              )}
             </View>
             <Ionicons
               name={selectedMethod === method.id ? "radio-button-on" : "radio-button-off"}
@@ -298,7 +295,7 @@ export default function ProceedPayment() {
           </View>
           <Text style={styles.confirmTitle}>Secure Payment</Text>
           <Text style={styles.confirmText}>
-            You are about to pay <Text style={styles.boldAmount}>₦{price || "5,050"}</Text> via {selectedMethod === "wallet" ? "Wallet" : "Card"}.
+            You are about to pay <Text style={styles.boldAmount}>₦{price || "5,050"}</Text> via {selectedMethod === "card" ? "Card" : "Bank Transfer"}.
           </Text>
 
           <View style={styles.divider} />

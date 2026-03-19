@@ -1,7 +1,7 @@
 // app/client/(tabs)/_layout.tsx
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 import { useAppTheme } from "@/hooks/use-app-theme";
 
@@ -61,21 +61,6 @@ export default function ClientTabs() {
         }}
       />
 
-      {/* 🛒 SHOP */}
-      <Tabs.Screen
-        name="shop"
-        options={{
-          title: "Shop",
-          tabBarIcon: ({ focused, color }) => (
-            <MaterialCommunityIcons
-              name={focused ? "shopping" : "shopping-outline"}
-              size={26}
-              color={color}
-            />
-          ),
-        }}
-      />
-
       {/* 📅 BOOKINGS */}
       <Tabs.Screen
         name="bookings"
@@ -84,6 +69,21 @@ export default function ClientTabs() {
           tabBarIcon: ({ focused, color }) => (
             <MaterialCommunityIcons
               name={focused ? "calendar-check" : "calendar-check-outline"}
+              size={26}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      {/* 🛒 SHOP */}
+      <Tabs.Screen
+        name="shop"
+        options={{
+          title: "Shop",
+          tabBarIcon: ({ focused, color }) => (
+            <MaterialCommunityIcons
+              name={focused ? "shopping" : "shopping-outline"}
               size={26}
               color={color}
             />
@@ -106,8 +106,6 @@ export default function ClientTabs() {
         }}
       />
 
-      {/* Hide the old wallet tab if it still exists as a file */}
-      <Tabs.Screen name="wallet" options={{ href: null }} />
     </Tabs>
   );
 }

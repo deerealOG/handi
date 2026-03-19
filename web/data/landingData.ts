@@ -1,19 +1,27 @@
 // Shared data and constants for the Landing Page
 import { SERVICE_CATEGORIES } from "@/data/mockApi";
 import {
+    Award,
+    Building2,
     CalendarCheck,
     CheckCircle,
+    FileText,
     Headphones,
     Home,
     Info,
+    MessageCircle,
+    RefreshCw,
     Search,
     Shield,
     ShoppingBag,
+    Siren,
+    Sparkles,
     Star,
     User,
     Users,
     Wallet,
-    Zap,
+    Wrench,
+    Zap
 } from "lucide-react";
 
 export type ClientTabId =
@@ -24,6 +32,14 @@ export type ClientTabId =
   | "deals"
   | "bookings"
   | "how-it-works"
+  | "loyalty"
+  | "maintenance"
+  | "quotes"
+  | "home-profile"
+  | "emergency"
+  | "messages"
+  | "recommendations"
+  | "trade"
   | "profile";
 
 export const CLIENT_TABS: {
@@ -37,31 +53,39 @@ export const CLIENT_TABS: {
   { id: "shop", label: "Shop", icon: ShoppingBag },
   { id: "deals", label: "Deals", icon: Zap },
   { id: "bookings", label: "Bookings", icon: CalendarCheck },
+  { id: "loyalty", label: "Rewards", icon: Award },
+  { id: "quotes", label: "Quotes", icon: FileText },
+  { id: "maintenance", label: "Plans", icon: Wrench },
+  { id: "home-profile", label: "My Home", icon: Home },
+  { id: "emergency", label: "Emergency", icon: Siren },
+  { id: "messages", label: "Messages", icon: MessageCircle },
+  { id: "recommendations", label: "For You", icon: Sparkles },
+  { id: "trade", label: "Trade", icon: Building2 },
   { id: "how-it-works", label: "How It Works", icon: Info },
   { id: "profile", label: "Profile", icon: User },
 ];
 
 export const CATEGORY_IMAGES: Record<string, string> = {
-  electrical: "/images/categories/electrician.png",
-  plumbing: "/images/categories/plumbing.jpg",
-  beauty: "/images/categories/beauty.png",
-  cleaning: "/images/categories/cleaning.png",
+  electrical: "/images/categories/electrician.webp",
+  plumbing: "/images/categories/plumbing.webp",
+  beauty: "/images/categories/beauty.webp",
+  cleaning: "/images/categories/cleaning.webp",
   construction: "/images/categories/construction.webp",
-  technology: "/images/categories/technology.jpg",
-  gardening: "/images/categories/gardening.jpg",
-  home: "/images/categories/interior-decor.jpeg",
-  automotive: "/images/categories/automotive.jpg",
-  "pest-control": "/images/categories/pest-control.jpg",
-  security: "/images/categories/technology.svg",
-  appliance: "/images/categories/electrician.png",
-  fitness: "/images/categories/beauty.png",
-  events: "/images/categories/beauty.png",
-  moving: "/images/categories/automotive.jpg",
-  mechanical: "/images/categories/mechanic.jpg",
-  interior_design: "/images/categories/interio.webp",
+  technology: "/images/categories/technology.webp",
+  gardening: "/images/categories/interior-decor.webp",
+  home: "/images/categories/interior-decor.webp",
+  automotive: "/images/categories/automotive.webp",
+  pest_control: "/images/categories/pest-control.webp",
+  security: "/images/categories/technology.webp",
+  appliance: "/images/categories/electrician.webp",
+  fitness: "/images/categories/beauty.webp",
+  events: "/images/categories/beauty.webp",
+  moving: "/images/categories/automotive.webp",
+  mechanical: "/images/categories/mechanic.webp",
+  interior_design: "/images/categories/interior-decor.webp",
 };
 
-export const CATEGORIES = SERVICE_CATEGORIES.slice(0, 8);
+export const CATEGORIES = SERVICE_CATEGORIES.slice(0, 14);
 
 export const MOCK_ACTIVE_BOOKINGS = [
   {
@@ -128,28 +152,35 @@ export const HERO_SLIDES = [
   {
     title: "Professional Services\nYou Can Trust",
     subtitle:
-      "Everyday services you don't want to miss. Book verified professionals today!",
-    cta: "Explore Now",
+      "Book verified service providers for home and business needs. Compare ratings, pricing, and availability in one place.",
+    cta: "Book a Service",
+    secondaryCta: "Browse Providers",
     href: "/services",
+    secondaryHref: "/providers",
     bg: "from-(--color-primary) to-emerald-800",
-    img: "/images/hero/hero-chef.png",
+    img: "/images/hero/hero-chef.webp",
   },
   {
-    title: "Find Trusted\nProviders Near You",
+    title: "Book Services\nin Minutes",
     subtitle:
-      "Over 5,000 verified providers within your area. Quality guaranteed.",
-    cta: "Find Providers",
-    href: "/providers",
+      "Search, compare, schedule, and pay securely with a seamless booking experience.",
+    cta: "Explore Deals",
+    secondaryCta: "How It Works",
+    href: "/deals",
+    secondaryHref: "/how-it-works",
     bg: "from-[#5f5c6d] to-[#aca9bb]",
-    img: "/images/hero/hero-electrician.png",
+    img: "/images/hero/hero-electrician.webp",
   },
   {
-    title: "Buy Home Products Online",
-    subtitle: "Shop top brands at unbeatable prices. Fast delivery guaranteed.",
-    cta: "Buy Now",
+    title: "Find Quality Products\nfor Every Job",
+    subtitle:
+      "From electrical tools to cleaning supplies, shop trusted products used by professionals.",
+    cta: "Shop Products",
+    secondaryCta: "View Categories",
     href: "/products",
+    secondaryHref: "/services",
     bg: "from-[#3b3b3b] to-[#111]",
-    img: "/images/hero/hero-products.png",
+    img: "/images/hero/hero-products.webp",
   },
 ];
 
@@ -210,26 +241,94 @@ export const TRUST_ITEMS = [
   {
     icon: Shield,
     title: "Verified Providers",
-    desc: "Every provider is ID-verified with thorough background checks.",
+    desc: "Every provider is screened and verified.",
     color: "bg-blue-50 text-blue-600",
   },
   {
     icon: Wallet,
     title: "Secure Payments",
-    desc: "End-to-end encrypted payments with escrow protection.",
+    desc: "Protected checkout with secure payment processing.",
     color: "bg-green-50 text-green-600",
   },
   {
     icon: CheckCircle,
     title: "Satisfaction Guarantee",
-    desc: "Not satisfied? Get a full refund within 48 hours.",
+    desc: "Support is available if something goes wrong.",
     color: "bg-purple-50 text-purple-600",
+  },
+];
+
+export const WHY_CHOOSE_FEATURES = [
+  {
+    icon: Shield,
+    title: "Verified Providers",
+    description: "Every provider undergoes thorough background checks and ID verification before joining the platform.",
+    color: "bg-blue-50 text-blue-600",
+  },
+  {
+    icon: Wallet,
+    title: "Secure Payments",
+    description: "End-to-end encrypted payments with escrow protection ensure your money is always safe.",
+    color: "bg-green-50 text-green-600",
   },
   {
     icon: Headphones,
     title: "24/7 Support",
-    desc: "Our dedicated team is always ready to help you.",
+    description: "Our dedicated support team is available around the clock to help you with any issues.",
     color: "bg-orange-50 text-orange-600",
+  },
+  {
+    icon: CheckCircle,
+    title: "Satisfaction Guarantee",
+    description: "Not satisfied with a service? We offer hassle-free resolution and refund support.",
+    color: "bg-purple-50 text-purple-600",
+  },
+  {
+    icon: CalendarCheck,
+    title: "Easy Scheduling",
+    description: "Book services at your convenience with flexible scheduling and instant confirmation.",
+    color: "bg-indigo-50 text-indigo-600",
+  },
+  {
+    icon: RefreshCw,
+    title: "Real-time Updates",
+    description: "Track your booking status, provider location, and get instant notifications.",
+    color: "bg-cyan-50 text-cyan-600",
+  },
+];
+
+export const TESTIMONIALS = [
+  {
+    id: "t1",
+    name: "Chioma Adeyemi",
+    avatar: "/images/avatar/avatar-1.webp",
+    service: "Electrical Repair",
+    quote: "HANDI helped me find a reliable electrician within minutes. The whole process was seamless and professional.",
+    rating: 5,
+  },
+  {
+    id: "t2",
+    name: "Emeka Obi",
+    avatar: "/images/avatar/avatar-2.webp",
+    service: "Home Cleaning",
+    quote: "I've been using HANDI for months now. The cleaning service I booked was top-notch and very affordable.",
+    rating: 5,
+  },
+  {
+    id: "t3",
+    name: "Aisha Mohammed",
+    avatar: "/images/avatar/avatar-3.webp",
+    service: "Plumbing Service",
+    quote: "Fast response, verified providers, and secure payments. HANDI is now my go-to for all home services.",
+    rating: 4,
+  },
+  {
+    id: "t4",
+    name: "Tunde Bakare",
+    avatar: "/images/avatar/avatar-4.webp",
+    service: "AC Servicing",
+    quote: "Booking an AC technician used to be stressful until I found HANDI. Now it takes just 2 minutes!",
+    rating: 5,
   },
 ];
 

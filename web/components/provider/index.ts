@@ -1,0 +1,12 @@
+export { default as BookingsTab } from "./BookingsTab";
+export { default as DashboardTab } from "./DashboardTab";
+export { default as EarningsTab } from "./EarningsTab";
+export { default as ProfileTab } from "./ProfileTab";
+export { default as ProviderDashboard } from "./ProviderDashboard";
+export { default as ServicesTab } from "./ServicesTab";
+export { default as MessagesTab } from "./MessagesTab";
+export { default as CalendarTab } from "./CalendarTab";
+export { default as ReviewsTab } from "./ReviewsTab";
+export { default as AnalyticsTab } from "./AnalyticsTab";
+export { default as SettingsTab } from "./SettingsTab";
+export { default as VendorProductsTab } from "./VendorProductsTab";

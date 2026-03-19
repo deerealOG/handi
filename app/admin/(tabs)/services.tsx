@@ -1,4 +1,4 @@
-import { ADMIN_SERVICE_CATEGORIES } from "@/constants/role-dashboard-data";
+import { ADMIN_SERVICE_CATEGORIES } from "@/app/constants/role-dashboard-data";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 export default function AdminServicesScreen() {
   const { colors } = useAppTheme();

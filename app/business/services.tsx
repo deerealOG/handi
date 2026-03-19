@@ -1,7 +1,7 @@
 // app/business/services.tsx
 // Business Service Offerings Management
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { businessService, ServiceOffering } from "@/services";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -19,7 +19,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 const SERVICE_CATEGORIES = [
   { id: 'electrical', name: 'Electrical Services', icon: 'flash' },

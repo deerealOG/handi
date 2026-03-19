@@ -26,7 +26,7 @@ export const createAccessToken = (payload: AccessTokenPayload): string => {
       userType: payload.userType,
     },
     secret,
-    { expiresIn: ACCESS_TOKEN_TTL },
+    { expiresIn: ACCESS_TOKEN_TTL as any },
   );
 };
 

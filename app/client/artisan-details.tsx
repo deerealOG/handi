@@ -4,25 +4,28 @@
 // work samples, and customer reviews. Users can also book the professional.
 // ======================================
 
-import { Button } from "@/components/Button";
-import { HeroRatingCard } from "@/components/RatingDisplay";
-import { VerificationBadge, VerificationLevel } from "@/components/VerificationBadge";
+import { Button } from "@/app/components/Button";
+import { HeroRatingCard } from "@/app/components/components/RatingDisplay";
+import {
+  VerificationBadge,
+  VerificationLevel,
+} from "@/app/components/components/VerificationBadge";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-    Dimensions,
-    Image,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  Image,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 const { width } = Dimensions.get("window");
 
@@ -82,20 +85,43 @@ export default function ArtisanDetails() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <Animated.View entering={FadeInDown.duration(800)} style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Animated.View
+          entering={FadeInDown.duration(800)}
+          style={styles.header}
+        >
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={[
+              styles.backButton,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>Profile</Text>
-          <TouchableOpacity style={[styles.favoriteButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>
+            Profile
+          </Text>
+          <TouchableOpacity
+            style={[
+              styles.favoriteButton,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
             <Ionicons name="heart-outline" size={24} color={colors.error} />
           </TouchableOpacity>
         </Animated.View>
-        
 
         {/* 👤 Profile Image */}
-        <Animated.View entering={FadeInDown.delay(200).duration(800)} style={styles.headerImageContainer}>
-          <View style={[styles.profileWrapper, { borderColor: colors.primary, backgroundColor: colors.surface }]}>
+        <Animated.View
+          entering={FadeInDown.delay(200).duration(800)}
+          style={styles.headerImageContainer}
+        >
+          <View
+            style={[
+              styles.profileWrapper,
+              { borderColor: colors.primary, backgroundColor: colors.surface },
+            ]}
+          >
             <Image
               source={require("../../assets/images/profilepicture2.jpeg")}
               style={styles.profileImage}
@@ -104,53 +130,98 @@ export default function ArtisanDetails() {
         </Animated.View>
 
         {/* 🧾 Basic Info */}
-        <Animated.View entering={FadeInDown.delay(400).duration(800)} style={styles.infoContainer}>
-          <Text style={[styles.name, { color: colors.text }]}>{artisan.name}</Text>
-          <Text style={[styles.skill, { color: colors.muted }]}>{artisan.skill}</Text>
+        <Animated.View
+          entering={FadeInDown.delay(400).duration(800)}
+          style={styles.infoContainer}
+        >
+          <Text style={[styles.name, { color: colors.text }]}>
+            {artisan.name}
+          </Text>
+          <Text style={[styles.skill, { color: colors.muted }]}>
+            {artisan.skill}
+          </Text>
 
           {/* Verification Badge */}
           <View style={styles.badgesRow}>
-            <VerificationBadge level={artisan.verificationLevel} size="medium" />
+            <VerificationBadge
+              level={artisan.verificationLevel}
+              size="medium"
+            />
             {artisan.isEmergencyAvailable && (
-              <View style={[styles.emergencyMini, { backgroundColor: colors.error + '15' }]}>
+              <View
+                style={[
+                  styles.emergencyMini,
+                  { backgroundColor: colors.error + "15" },
+                ]}
+              >
                 <Ionicons name="flash" size={12} color={colors.error} />
-                <Text style={[styles.emergencyText, { color: colors.error }]}>24/7 Available</Text>
+                <Text style={[styles.emergencyText, { color: colors.error }]}>
+                  24/7 Available
+                </Text>
               </View>
             )}
           </View>
         </Animated.View>
 
         {/* ⭐ PROMINENT Rating Card */}
-        <Animated.View entering={FadeInDown.delay(600).duration(800)} style={styles.ratingCardContainer}>
-          <HeroRatingCard rating={artisan.rating} reviewCount={artisan.reviewCount} />
+        <Animated.View
+          entering={FadeInDown.delay(600).duration(800)}
+          style={styles.ratingCardContainer}
+        >
+          <HeroRatingCard
+            rating={artisan.rating}
+            reviewCount={artisan.reviewCount}
+          />
         </Animated.View>
 
         {/* 📊 Quick Stats */}
         <Animated.View entering={FadeInDown.delay(700).duration(800)}>
-          <Text style={[styles.quickStatsSectionTitle, { color: colors.text }]}>Overview</Text>
+          <Text style={[styles.quickStatsSectionTitle, { color: colors.text }]}>
+            Overview
+          </Text>
           <View style={styles.quickStatsContainer}>
             {QUICKSTATS.map((item) => (
-              <View key={item.id} style={[styles.quickStatCard, { backgroundColor: colors.surface }]}>
+              <View
+                key={item.id}
+                style={[
+                  styles.quickStatCard,
+                  { backgroundColor: colors.surface },
+                ]}
+              >
                 <MaterialCommunityIcons
                   name={item.icon as any}
                   size={24}
                   color={colors.primary}
                 />
-                <Text style={[styles.quickStatText, { color: colors.text }]}>{item.name}</Text>
+                <Text style={[styles.quickStatText, { color: colors.text }]}>
+                  {item.name}
+                </Text>
               </View>
             ))}
           </View>
         </Animated.View>
 
         {/* 🧠 About Section */}
-        <Animated.View entering={FadeInDown.delay(800).duration(800)} style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>About</Text>
-          <Text style={[styles.description, { color: colors.muted }]}>{artisan.description}</Text>
+        <Animated.View
+          entering={FadeInDown.delay(800).duration(800)}
+          style={styles.section}
+        >
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            About
+          </Text>
+          <Text style={[styles.description, { color: colors.muted }]}>
+            {artisan.description}
+          </Text>
         </Animated.View>
 
         {/* 🖼 Work Samples */}
-        <Animated.View entering={FadeInDown.delay(900).duration(800)} style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Work Portfolio</Text>
+        <Animated.View
+          entering={FadeInDown.delay(900).duration(800)}
+          style={styles.section}
+        >
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Work Portfolio
+          </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {[1, 2, 3].map((id) => (
               <Image
@@ -164,7 +235,11 @@ export default function ArtisanDetails() {
 
         {/* 💬 Customer Reviews */}
         <Animated.View entering={FadeInDown.delay(1000).duration(800)}>
-          <Text style={[styles.customerReviewSectionTitle, { color: colors.text }]}>Reviews</Text>
+          <Text
+            style={[styles.customerReviewSectionTitle, { color: colors.text }]}
+          >
+            Reviews
+          </Text>
           <ScrollView
             ref={scrollRef}
             horizontal
@@ -173,7 +248,11 @@ export default function ArtisanDetails() {
             contentContainerStyle={{ paddingLeft: 20 }}
           >
             {reviews.map((review) => (
-              <CustomerReviewCard key={review.id} review={review} colors={colors} />
+              <CustomerReviewCard
+                key={review.id}
+                review={review}
+                colors={colors}
+              />
             ))}
           </ScrollView>
         </Animated.View>
@@ -183,12 +262,21 @@ export default function ArtisanDetails() {
       </ScrollView>
 
       {/* 🟢 Floating Book Now Button Area */}
-      <View style={[styles.bottomFloatingContainer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
+      <View
+        style={[
+          styles.bottomFloatingContainer,
+          { backgroundColor: colors.background, borderTopColor: colors.border },
+        ]}
+      >
         <View style={styles.priceContainer}>
-          <Text style={[styles.priceLabel, { color: colors.muted }]}>Starting from</Text>
-          <Text style={[styles.priceValue, { color: colors.primary }]}>{artisan.price}</Text>
+          <Text style={[styles.priceLabel, { color: colors.muted }]}>
+            Starting from
+          </Text>
+          <Text style={[styles.priceValue, { color: colors.primary }]}>
+            {artisan.price}
+          </Text>
         </View>
-        <Button 
+        <Button
           label="Book Appointment"
           onPress={() => router.push("/client/book-artisan")}
           style={styles.floatingBookButton}
@@ -205,12 +293,19 @@ export default function ArtisanDetails() {
 function CustomerReviewCard({ review, colors }: any) {
   const [expanded, setExpanded] = useState(false);
   return (
-    <View style={[styles.customerReviewCard, { width: width - 40, backgroundColor: colors.surface }]}>
+    <View
+      style={[
+        styles.customerReviewCard,
+        { width: width - 40, backgroundColor: colors.surface },
+      ]}
+    >
       <Image
         source={require("../../assets/images/profileavatar.png")}
         style={styles.avatar}
       />
-      <Text style={[styles.customerName, { color: colors.text }]}>{review.name}</Text>
+      <Text style={[styles.customerName, { color: colors.text }]}>
+        {review.name}
+      </Text>
 
       <Text
         numberOfLines={expanded ? undefined : 2}
@@ -249,7 +344,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: THEME.colors.background,
     paddingTop: 30,
-    paddingBottom:50,
+    paddingBottom: 50,
   },
 
   // --- Profile Image Wrapper ---
@@ -258,14 +353,14 @@ const styles = StyleSheet.create({
     marginTop: THEME.spacing.xl,
     marginBottom: THEME.spacing.md,
   },
-   header: {
+  header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: THEME.spacing.lg,
     marginBottom: THEME.spacing.lg,
   },
-    headerTitle: {
+  headerTitle: {
     fontSize: THEME.typography.sizes.lg,
     fontFamily: THEME.typography.fontFamily.heading,
     color: THEME.colors.text,
@@ -458,14 +553,14 @@ const styles = StyleSheet.create({
 
   // --- Bottom Floating Area ---
   bottomFloatingContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: THEME.spacing.lg,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    paddingBottom: Platform.OS === "ios" ? 40 : 24,
     borderTopWidth: 1,
     ...THEME.shadow.float,
   },
@@ -485,4 +580,3 @@ const styles = StyleSheet.create({
     marginLeft: THEME.spacing.md,
   },
 });
-

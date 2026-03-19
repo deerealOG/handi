@@ -1,7 +1,7 @@
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { THEME } from "../../../constants/theme";
+import { THEME } from "../../constants/theme";
 
 // Business-specific accent color (purple for enterprise feel)
 const BUSINESS_ACCENT = THEME.colors.business; // #8B5CF6

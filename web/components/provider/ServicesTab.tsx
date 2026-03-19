@@ -38,6 +38,9 @@ export default function ServicesTab() {
   const [newPrice, setNewPrice] = useState("");
   const [newDuration, setNewDuration] = useState("");
   const [newDescription, setNewDescription] = useState("");
+  const [newLocation, setNewLocation] = useState("");
+  const [newAvailability, setNewAvailability] = useState("");
+  const [newPolicies, setNewPolicies] = useState("");
 
   const { addToast } = useNotification();
 
@@ -90,6 +93,11 @@ export default function ServicesTab() {
       status: "active" as const,
       bookings: 0,
       rating: 0,
+      image: "",
+      duration: newDuration || "1-2 hours",
+      location: newLocation || "Remote / User Location",
+      availability: newAvailability || "Mon-Fri",
+      policies: newPolicies || "Default cancellation policy applies",
     };
     setServices((prev) => [svc, ...prev]);
     addToast({
@@ -102,6 +110,9 @@ export default function ServicesTab() {
     setNewPrice("");
     setNewDuration("");
     setNewDescription("");
+    setNewLocation("");
+    setNewAvailability("");
+    setNewPolicies("");
     setShowAddForm(false);
   };
 
@@ -303,17 +314,57 @@ export default function ServicesTab() {
               />
             </div>
           </div>
-          <div className="mb-4">
-            <label className="block text-xs font-medium text-gray-500 mb-1">
-              Description
-            </label>
-            <textarea
-              rows={3}
-              value={newDescription}
-              onChange={(e) => setNewDescription(e.target.value)}
-              placeholder="Describe your service..."
-              className="w-full px-4 py-2.5 bg-gray-50 rounded-2xl text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-700 resize-none"
-            />
+          <div className="grid sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                Location
+              </label>
+              <input
+                type="text"
+                value={newLocation}
+                onChange={(e) => setNewLocation(e.target.value)}
+                placeholder="e.g. Lagos Island"
+                className="w-full px-4 py-2.5 bg-gray-50 rounded-full text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-700"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                Availability
+              </label>
+              <input
+                type="text"
+                value={newAvailability}
+                onChange={(e) => setNewAvailability(e.target.value)}
+                placeholder="e.g. Mon-Sat, 9am-6pm"
+                className="w-full px-4 py-2.5 bg-gray-50 rounded-full text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-700"
+              />
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                Description
+              </label>
+              <textarea
+                rows={3}
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                placeholder="Describe your service..."
+                className="w-full px-4 py-2.5 bg-gray-50 rounded-2xl text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-700 resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                Policies (Cancellations, etc)
+              </label>
+              <textarea
+                rows={3}
+                value={newPolicies}
+                onChange={(e) => setNewPolicies(e.target.value)}
+                placeholder="e.g. Free cancellation up to 24hrs before..."
+                className="w-full px-4 py-2.5 bg-gray-50 rounded-2xl text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-700 resize-none"
+              />
+            </div>
           </div>
           <div className="flex gap-3">
             <button

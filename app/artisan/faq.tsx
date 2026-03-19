@@ -13,7 +13,7 @@ import {
   UIManager,
   View,
 } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 
 // Enable layout animations for Android
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {

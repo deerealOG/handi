@@ -1,55 +1,82 @@
 "use client";
 
-import AdminDashboard from "@/components/AdminDashboard";
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
-import ProviderHome from "@/components/ProviderDashboard";
-import ClientHeader from "@/components/client/ClientHeader";
-import FeaturedSection from "@/components/home/FeaturedSection";
-import HeroSection from "@/components/home/HeroSection";
-import ProvidersAndStepsSection from "@/components/home/ProvidersAndStepsSection";
-import TrustSection from "@/components/home/TrustSection";
+import AdminDashboard from "@/components/admin/AdminDashboard";
+import BookingsTab from "@/components/client/BookingsTab";
+import CartPanel from "@/components/client/CartPanel";
+import ClientMessagesTab from "@/components/client/ClientMessagesTab";
+import ClientProfileTab from "@/components/client/ClientProfileTab";
+import DealsTab from "@/components/client/DealsTab";
+import EmergencyTab from "@/components/client/EmergencyTab";
+import FindProsTab from "@/components/client/FindProsTab";
+import HomeProfileTab from "@/components/client/HomeProfileTab";
+import HomeTab from "@/components/client/HomeTab";
+import HowItWorksTab from "@/components/client/HowItWorksTab";
+import LoyaltyTab from "@/components/client/LoyaltyTab";
+import MaintenancePlansTab from "@/components/client/MaintenancePlansTab";
+import ProvidersTab from "@/components/client/ProvidersTab";
+import QuotesTab from "@/components/client/QuotesTab";
+import RecommendationsTab from "@/components/client/RecommendationsTab";
+import ShopTab from "@/components/client/ShopTab";
+import TradePurchasingTab from "@/components/client/TradePurchasingTab";
+import WishlistPanel from "@/components/client/WishlistPanel";
+import AboutSection from "@/components/landing-page/AboutSection";
+import AppDownloadSection from "@/components/landing-page/AppDownloadSection";
+import FeaturedSection from "@/components/landing-page/FeaturedSection";
+import Footer from "@/components/landing-page/Footer";
+import HeroSection from "@/components/landing-page/HeroSection";
+import Navbar from "@/components/landing-page/Navbar";
+import OfficialStoresSection from "@/components/landing-page/OfficialStoresSection";
+import ProvidersAndStepsSection from "@/components/landing-page/ProvidersAndStepsSection";
+import StepsSection from "@/components/landing-page/StepsSection";
+import TestimonialsSection from "@/components/landing-page/TestimonialsSection";
+import {
+  ProfessionalsNearYouSection,
+  StoresNearYouSection,
+  CheapProductsSection,
+  CategoriesSection,
+} from "@/components/landing-page/ExtraHomeSections";
+import ProviderHome from "@/components/provider/ProviderDashboard";
 import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
 import type { ClientTabId } from "@/data/landingData";
 import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { Suspense, lazy, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { ScrollReveal } from "@/hooks/useScrollReveal";
 
-/* ── Lazy-loaded tab content for logged-in client ── */
-const LazyFindProsTab = lazy(() => import("@/components/client/FindProsTab"));
-const LazyProvidersTab = lazy(() => import("@/components/client/ProvidersTab"));
-const LazyShopTab = lazy(() => import("@/components/client/ShopTab"));
-const LazyDealsTab = lazy(() => import("@/components/client/DealsTab"));
-const LazyBookingsTab = lazy(() => import("@/components/client/BookingsTab"));
-const LazyHowItWorksTab = lazy(
-  () => import("@/components/client/HowItWorksTab"),
-);
-const LazyClientProfileTab = lazy(
-  () => import("@/components/client/ClientProfileTab"),
-);
-const LazyCartPanel = lazy(() => import("@/components/client/CartPanel"));
-const LazyWishlistPanel = lazy(
-  () => import("@/components/client/WishlistPanel"),
-);
-const LazyHomeTab = lazy(() => import("@/components/client/HomeTab"));
+import VendorDashboard from "@/components/vendor/VendorDashboard";
 
 export default function LandingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">Loading application...</div>}>
+      <LandingPageContent />
+    </Suspense>
+  );
+}
+
+function LandingPageContent() {
   const { isLoggedIn, user: authUser, logout, updateUser } = useAuth();
-  const { isDark } = useTheme();
   const router = useRouter();
 
   // Landing page state
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // Client dashboard state
-  const [activeClientTab, setActiveClientTab] = useState<ClientTabId>("home");
-  const [clientSearchQuery, setClientSearchQuery] = useState("");
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const searchParams = useSearchParams();
+  const queryTab = (searchParams.get("tab") as ClientTabId) || "home";
+  
+  const [activeClientTab, setActiveClientTab] = useState<ClientTabId>(queryTab);
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) setActiveClientTab(tab as ClientTabId);
+  }, [searchParams]);
+
+  const [clientSearchQuery, _setClientSearchQuery] = useState("");
+  const [_showMobileMenu, _setShowMobileMenu] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showSupport, setShowSupport] = useState(false);
-  const [showTransactions, setShowTransactions] = useState(false);
+  const [_showSupport, setShowSupport] = useState(false);
+  const [_showTransactions, setShowTransactions] = useState(false);
   const [showCartPanel, setShowCartPanel] = useState(false);
   const [showWishlistPanel, setShowWishlistPanel] = useState(false);
 
@@ -57,7 +84,13 @@ export default function LandingPage() {
 
   // If logged in as provider or admin, route to their dashboards
   if (isLoggedIn && authUser) {
-    if (authUser.userType === "provider") return <ProviderHome />;
+    if (authUser.userType === "provider") {
+      // @ts-ignore - providerSubType exists on the raw profile context payload
+      if (authUser.providerSubType === "business") {
+        return <VendorDashboard />;
+      }
+      return <ProviderHome />;
+    }
     if (authUser.userType === "admin") return <AdminDashboard />;
   }
 
@@ -69,67 +102,49 @@ export default function LandingPage() {
 
   return (
     <main className="min-h-screen bg-gray-100">
-      {/* ── Navbar: Landing version for logged-out, Dashboard header for logged-in client ── */}
-      {isClient ? (
-        <ClientHeader
-          authUser={authUser}
-          activeClientTab={activeClientTab}
-          setActiveClientTab={setActiveClientTab}
-          clientSearchQuery={clientSearchQuery}
-          setClientSearchQuery={setClientSearchQuery}
-          showMobileMenu={showMobileMenu}
-          setShowMobileMenu={setShowMobileMenu}
-          setShowCartPanel={setShowCartPanel}
-          setShowWishlistPanel={setShowWishlistPanel}
-          setShowNotifications={setShowNotifications}
-          setShowLogoutConfirm={setShowLogoutConfirm}
-        />
-      ) : (
-        <Navbar />
-      )}
+      {/* ── Always use the same Navbar ── */}
+      <Navbar />
 
       {/* ── Client tab content (logged-in) ── */}
       {isClient && (
         <div className="flex-1 pb-20">
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center py-20">
-                <div className="w-8 h-8 border-3 border-gray-200 border-t-(--color-primary) rounded-full animate-spin" />
-              </div>
-            }
-          >
-            {activeClientTab === "home" && (
-              <LazyHomeTab
-                user={authUser}
-                setActiveTab={(t: string) =>
-                  setActiveClientTab(t as ClientTabId)
-                }
-                onOpenCart={() => setShowCartPanel(true)}
-              />
-            )}
-            {activeClientTab === "find-pros" && (
-              <LazyFindProsTab searchQuery={clientSearchQuery} />
-            )}
-            {activeClientTab === "providers" && <LazyProvidersTab />}
-            {activeClientTab === "shop" && (
-              <LazyShopTab onOpenCart={() => setShowCartPanel(true)} />
-            )}
-            {activeClientTab === "deals" && <LazyDealsTab />}
-            {activeClientTab === "bookings" && <LazyBookingsTab />}
-            {activeClientTab === "how-it-works" && <LazyHowItWorksTab />}
-            {activeClientTab === "profile" && (
-              <LazyClientProfileTab
-                user={authUser}
-                updateUser={updateUser}
-                logout={logout}
-                router={router}
-                onLogout={() => setShowLogoutConfirm(true)}
-                setShowNotifications={setShowNotifications}
-                setShowSupport={setShowSupport}
-                setShowTransactions={setShowTransactions}
-              />
-            )}
-          </Suspense>
+          {activeClientTab === "home" && (
+            <HomeTab
+              user={authUser}
+              setActiveTab={(t: string) => setActiveClientTab(t as ClientTabId)}
+              onOpenCart={() => setShowCartPanel(true)}
+            />
+          )}
+          {activeClientTab === "find-pros" && (
+            <FindProsTab searchQuery={clientSearchQuery} />
+          )}
+          {activeClientTab === "providers" && <ProvidersTab />}
+          {activeClientTab === "shop" && (
+            <ShopTab onOpenCart={() => setShowCartPanel(true)} />
+          )}
+          {activeClientTab === "deals" && <DealsTab />}
+          {activeClientTab === "bookings" && <BookingsTab />}
+          {activeClientTab === "loyalty" && <LoyaltyTab />}
+          {activeClientTab === "quotes" && <QuotesTab />}
+          {activeClientTab === "maintenance" && <MaintenancePlansTab />}
+          {activeClientTab === "home-profile" && <HomeProfileTab />}
+          {activeClientTab === "emergency" && <EmergencyTab />}
+          {activeClientTab === "messages" && <ClientMessagesTab />}
+          {activeClientTab === "recommendations" && <RecommendationsTab />}
+          {activeClientTab === "trade" && <TradePurchasingTab />}
+          {activeClientTab === "how-it-works" && <HowItWorksTab />}
+          {activeClientTab === "profile" && (
+            <ClientProfileTab
+              user={authUser}
+              updateUser={updateUser}
+              logout={logout}
+              router={router}
+              onLogout={() => setShowLogoutConfirm(true)}
+              setShowNotifications={setShowNotifications}
+              setShowSupport={setShowSupport}
+              setShowTransactions={setShowTransactions}
+            />
+          )}
         </div>
       )}
 
@@ -141,9 +156,43 @@ export default function LandingPage() {
             setSelectedCategory={setSelectedCategory}
             router={router}
           />
-          <TrustSection />
-          <FeaturedSection router={router} />
-          <ProvidersAndStepsSection router={router} />
+          <ScrollReveal direction="up" delay={0}>
+            <ProvidersAndStepsSection router={router} />
+          </ScrollReveal>
+          <ScrollReveal direction="left" delay={0.1}>
+            <FeaturedSection router={router} />
+          </ScrollReveal>
+          <ScrollReveal direction="right" delay={0.1}>
+            <OfficialStoresSection router={router} />
+          </ScrollReveal>
+          
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full space-y-12">
+            <ScrollReveal direction="up" delay={0}>
+              <CategoriesSection router={router} />
+            </ScrollReveal>
+            <ScrollReveal direction="left" delay={0.05}>
+              <ProfessionalsNearYouSection router={router} />
+            </ScrollReveal>
+            <ScrollReveal direction="right" delay={0.05}>
+              <StoresNearYouSection router={router} />
+            </ScrollReveal>
+            <ScrollReveal direction="up" delay={0.1}>
+              <CheapProductsSection router={router} />
+            </ScrollReveal>
+          </div>
+
+          <ScrollReveal direction="up" delay={0}>
+            <StepsSection />
+          </ScrollReveal>
+          <ScrollReveal direction="fade" delay={0.1}>
+            <AboutSection />
+          </ScrollReveal>
+          <ScrollReveal direction="up" delay={0}>
+            <AppDownloadSection />
+          </ScrollReveal>
+          <ScrollReveal direction="fade" delay={0.1}>
+            <TestimonialsSection />
+          </ScrollReveal>
         </>
       )}
 
@@ -266,14 +315,12 @@ export default function LandingPage() {
           )}
 
           {/* Cart & Wishlist Panels */}
-          <Suspense fallback={null}>
-            {showCartPanel && (
-              <LazyCartPanel onClose={() => setShowCartPanel(false)} />
-            )}
-            {showWishlistPanel && (
-              <LazyWishlistPanel onClose={() => setShowWishlistPanel(false)} />
-            )}
-          </Suspense>
+          {showCartPanel && (
+            <CartPanel onClose={() => setShowCartPanel(false)} />
+          )}
+          {showWishlistPanel && (
+            <WishlistPanel onClose={() => setShowWishlistPanel(false)} />
+          )}
         </>
       )}
     </main>

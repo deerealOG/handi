@@ -1,7 +1,7 @@
 // app/auth/forgot-password.tsx
 // Forgot password screen for HANDI app
 
-import { DecorativeBlobs } from "@/components/DecorativeBlobs";
+import { DecorativeBlobs } from "../components/DecorativeBlobs";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -17,7 +17,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { THEME } from "../../constants/theme";
+import { THEME } from "../constants/theme";
 import { authService } from "../../services";
 
 export default function ForgotPasswordScreen() {

@@ -1,5 +1,5 @@
-import { Colors } from '@/constants/theme';
-import { useTheme } from '@/context/ThemeContext';
+import { Colors } from '@/app/constants/theme';
+import { useTheme } from '@/app/context/ThemeContext';
 
 export function useAppTheme() {
   const { theme } = useTheme();

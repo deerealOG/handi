@@ -1,7 +1,7 @@
 // app/admin/(tabs)/payouts.tsx
 // Admin escrow and payout management screen
 
-import { THEME } from '@/constants/theme';
+import { THEME } from '@/app/constants/theme';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { escrowService } from '@/services';
 import { EscrowStatus, EscrowTransaction, LEGAL_DISCLAIMERS } from '@/types/legal';

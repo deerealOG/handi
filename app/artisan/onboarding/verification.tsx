@@ -1,9 +1,9 @@
 // app/artisan/onboarding/verification.tsx
 // Artisan verification onboarding flow
 
-import { TermsModal } from '@/components/legal/TermsModal';
-import { THEME } from '@/constants/theme';
-import { useAuth } from '@/context/AuthContext';
+import { TermsModal } from '@/app/components/legal/TermsModal';
+import { THEME } from '@/app/constants/theme';
+import { useAuth } from '@/app/context/AuthContext';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { legalService, verificationService } from '@/services';
 import { GovernmentID, TermsAgreement } from '@/types/legal';

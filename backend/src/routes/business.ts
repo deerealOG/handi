@@ -5,9 +5,9 @@
 import { Response, Router } from "express";
 import { body, param, validationResult } from "express-validator";
 import { authenticate, AuthRequest } from "../middleware/auth";
+import { prisma } from "../lib/prisma";
 
 const router = Router();
-import { prisma } from "../lib/prisma";
 
 // Middleware to check business owner
 const requireBusinessOwner = async (
@@ -375,15 +375,16 @@ router.patch(
   async (req: AuthRequest, res: Response) => {
     try {
       const business = (req as any).business;
+      const serviceId = req.params.serviceId as string;
       const existing = await prisma.businessServiceOffering.findUnique({
-        where: { id: req.params.serviceId },
+        where: { id: serviceId },
       });
       if (!existing || existing.businessId !== business.id) {
         return res.status(404).json({ success: false, error: "Service not found" });
       }
 
       const service = await prisma.businessServiceOffering.update({
-        where: { id: req.params.serviceId },
+        where: { id: serviceId },
         data: {
           categoryId: req.body.categoryId,
           categoryName: req.body.categoryName,
@@ -413,15 +414,16 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const business = (req as any).business;
+      const serviceId = req.params.serviceId as string;
       const service = await prisma.businessServiceOffering.findUnique({
-        where: { id: req.params.serviceId },
+        where: { id: serviceId },
       });
       if (!service || service.businessId !== business.id) {
         return res.status(404).json({ success: false, error: "Service not found" });
       }
 
       const updated = await prisma.businessServiceOffering.update({
-        where: { id: req.params.serviceId },
+        where: { id: serviceId },
         data: { isActive: !service.isActive },
       });
 
@@ -578,7 +580,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const booking = await prisma.booking.update({
-        where: { id: req.params.jobId },
+        where: { id: req.params.jobId as string },
         data: { status: "CANCELLED" },
       });
       res.json({ success: true, data: booking, message: "Job declined" });
@@ -601,7 +603,7 @@ router.patch(
     try {
       const { status } = req.body;
       const booking = await prisma.booking.update({
-        where: { id: req.params.jobId },
+        where: { id: req.params.jobId as string },
         data:
           status === "COMPLETED"
             ? {

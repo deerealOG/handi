@@ -31,6 +31,8 @@ import emergencyRoutes from "./routes/emergency";
 import maintenanceRoutes from "./routes/maintenance";
 import featuresRoutes from "./routes/features";
 import newsletterRoutes from "./routes/newsletter";
+import chatRoutes from "./routes/chat";
+import whatsappRoutes from "./routes/whatsapp";
 
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler";
@@ -94,6 +96,8 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use("/api/whatsapp", whatsappRoutes);
+
 // ================================
 // Health Check
 // ================================
@@ -156,6 +160,7 @@ app.use("/api/emergency", emergencyRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/features", featuresRoutes);
 app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/chat", chatRoutes);
 
 // ================================
 // Error Handler
@@ -168,7 +173,7 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`🚀 HANDI API running on http://localhost:${PORT}`);
   console.log(`📚 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`✅ All 18 API modules loaded`);
+  console.log(`✅ All 19 API modules loaded`);
 });
 
 export default app;

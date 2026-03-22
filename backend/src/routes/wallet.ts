@@ -190,7 +190,14 @@ router.get("/stats", authenticate, async (req: AuthRequest, res: Response) => {
 
 // ================================
 // POST /api/wallet/withdraw - Request withdrawal
+// With fraud detection + idempotency
 // ================================
+
+// Suspicious activity thresholds (bank-like protections)
+const MAX_WITHDRAWALS_PER_HOUR = 3;
+const MAX_WITHDRAWALS_PER_DAY = 5; // Auto-lock if exceeded
+const LARGE_WITHDRAWAL_THRESHOLD = 0.8; // 80% of balance
+
 router.post(
   "/withdraw",
   authenticate,
@@ -199,6 +206,7 @@ router.post(
     body("bankName").trim().notEmpty(),
     body("accountNumber").trim().isLength({ min: 10, max: 10 }),
     body("accountName").trim().notEmpty(),
+    body("idempotencyKey").optional().isString().trim(),
   ],
   async (req: AuthRequest, res: Response) => {
     try {
@@ -211,16 +219,45 @@ router.post(
         });
       }
 
-      const { amount, bankName, accountNumber, accountName } = req.body;
+      const { amount, bankName, accountNumber, accountName, idempotencyKey } =
+        req.body;
+      const userId = req.user!.userId;
+
+      // === IDEMPOTENCY CHECK ===
+      // Prevent duplicate transactions with the same key
+      if (idempotencyKey) {
+        const existing = await prisma.walletTransaction.findFirst({
+          where: {
+            wallet: { userId },
+            reference: idempotencyKey,
+          },
+        });
+        if (existing) {
+          return res.json({
+            success: true,
+            data: existing,
+            message: "Transaction already processed (idempotent)",
+          });
+        }
+      }
 
       const wallet = await prisma.wallet.findUnique({
-        where: { userId: req.user!.userId },
+        where: { userId },
       });
 
       if (!wallet) {
         return res.status(400).json({
           success: false,
           error: "Wallet not found",
+        });
+      }
+
+      // === WALLET LOCK CHECK ===
+      if (wallet.isLocked) {
+        return res.status(403).json({
+          success: false,
+          error:
+            "Your wallet has been temporarily locked due to suspicious activity. Please contact support.",
         });
       }
 
@@ -231,8 +268,119 @@ router.post(
         });
       }
 
-      // Create withdrawal transaction
+      // === SUSPICIOUS ACTIVITY DETECTION ===
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+      const [recentWithdrawals, dailyWithdrawals] = await Promise.all([
+        prisma.walletTransaction.count({
+          where: {
+            walletId: wallet.id,
+            type: "WITHDRAWAL",
+            createdAt: { gte: oneHourAgo },
+          },
+        }),
+        prisma.walletTransaction.count({
+          where: {
+            walletId: wallet.id,
+            type: "WITHDRAWAL",
+            createdAt: { gte: oneDayAgo },
+          },
+        }),
+      ]);
+
+      const flags: string[] = [];
+
+      // Rate limit: max N withdrawals per hour
+      if (recentWithdrawals >= MAX_WITHDRAWALS_PER_HOUR) {
+        flags.push("RATE_LIMIT_EXCEEDED");
+      }
+
+      // Large withdrawal: >80% of balance
+      if (amount > wallet.balance * LARGE_WITHDRAWAL_THRESHOLD) {
+        flags.push("LARGE_WITHDRAWAL");
+      }
+
+      // Auto-lock if too many daily withdrawals
+      if (dailyWithdrawals >= MAX_WITHDRAWALS_PER_DAY) {
+        flags.push("DAILY_LIMIT_EXCEEDED");
+
+        // Auto-lock the wallet
+        await prisma.wallet.update({
+          where: { id: wallet.id },
+          data: { isLocked: true },
+        });
+
+        console.warn(
+          `[SECURITY] 🚨 Wallet AUTO-LOCKED for user ${userId} — ${dailyWithdrawals} withdrawals in 24h`,
+        );
+
+        return res.status(403).json({
+          success: false,
+          error:
+            "Too many withdrawal attempts. Your wallet has been locked for security. Contact support.",
+          flags,
+        });
+      }
+
+      if (flags.includes("RATE_LIMIT_EXCEEDED")) {
+        console.warn(
+          `[SECURITY] ⚠️ Rate limit hit for user ${userId} — ${recentWithdrawals} withdrawals in 1h`,
+        );
+        return res.status(429).json({
+          success: false,
+          error:
+            "Too many withdrawal requests. Please wait before trying again.",
+          flags,
+        });
+      }
+
+      // Log warning for large withdrawals but don't block
+      if (flags.includes("LARGE_WITHDRAWAL")) {
+        console.warn(
+          `[SECURITY] ⚠️ Large withdrawal for user ${userId}: ₦${amount} (balance: ₦${wallet.balance})`,
+        );
+      }
+
+      // === DUPLICATE PENDING TRANSACTION CHECK ===
+      const pendingWithdrawal = await prisma.walletTransaction.findFirst({
+        where: {
+          walletId: wallet.id,
+          type: "WITHDRAWAL",
+          status: "PENDING",
+          amount,
+          bankName,
+          accountNumber,
+          createdAt: { gte: oneHourAgo },
+        },
+      });
+
+      if (pendingWithdrawal) {
+        return res.status(409).json({
+          success: false,
+          error:
+            "You already have a pending withdrawal for this amount. Please wait for it to complete.",
+          data: {
+            existingTransactionId: pendingWithdrawal.id,
+            reference: pendingWithdrawal.reference,
+          },
+        });
+      }
+
+      // === CREATE WITHDRAWAL TRANSACTION ===
+      const reference =
+        idempotencyKey ||
+        `WD-${uuidv4().slice(0, 8).toUpperCase()}`;
+
       const transaction = await prisma.$transaction(async (tx) => {
+        // Re-check balance inside transaction for safety
+        const freshWallet = await tx.wallet.findUnique({
+          where: { id: wallet.id },
+        });
+        if (!freshWallet || freshWallet.balance < amount) {
+          throw new Error("Insufficient balance");
+        }
+
         // Deduct from balance
         await tx.wallet.update({
           where: { id: wallet.id },
@@ -247,9 +395,9 @@ router.post(
           data: {
             walletId: wallet.id,
             type: "WITHDRAWAL",
-            amount: amount,
+            amount,
             status: "PENDING",
-            reference: `WD-${uuidv4().slice(0, 8).toUpperCase()}`,
+            reference,
             description: `Withdrawal to ${bankName} - ${accountNumber}`,
             bankName,
             accountNumber,
@@ -262,6 +410,7 @@ router.post(
         success: true,
         data: transaction,
         message: "Withdrawal request submitted",
+        ...(flags.length > 0 ? { warnings: flags } : {}),
       });
     } catch (error) {
       console.error("Withdraw error:", error);

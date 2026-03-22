@@ -151,6 +151,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
+  emailVerified?: boolean;
   phone: string;
   userType: "client" | "provider" | "admin";
   avatar?: string;

@@ -198,13 +198,13 @@ export default function ServicesTab() {
             placeholder="Search services by name or category..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-full bg-white outline-none focus:ring-2 focus:ring-(--color-primary)/30"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-md bg-white outline-none focus:ring-2 focus:ring-(--color-primary)/30"
           />
         </div>
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-          className="text-xs border border-gray-200 rounded-full px-3 py-2 bg-white text-gray-600 hover:border-(--color-primary) outline-none"
+          className="text-xs border border-gray-200 rounded-md px-3 py-2 bg-white text-gray-600 hover:border-(--color-primary) outline-none"
         >
           <option value="name">Sort: Name A-Z</option>
           <option value="price-high">Price: High → Low</option>
@@ -345,7 +345,7 @@ export default function ServicesTab() {
               <label className="block text-xs font-medium text-gray-500 mb-1">
                 Description
               </label>
-              <textarea
+              <textarea maxLength={500}
                 rows={3}
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
@@ -357,7 +357,7 @@ export default function ServicesTab() {
               <label className="block text-xs font-medium text-gray-500 mb-1">
                 Policies (Cancellations, etc)
               </label>
-              <textarea
+              <textarea maxLength={500}
                 rows={3}
                 value={newPolicies}
                 onChange={(e) => setNewPolicies(e.target.value)}

@@ -110,6 +110,10 @@ const BUDGET_FINDS = [
   { id: "bf2", name: "USB Extension Cable 2m", priceValue: 800, oldPrice: 1500, category: "Electronics" },
   { id: "bf3", name: "Microfiber Cleaning Cloth Set", priceValue: 1200, oldPrice: 2000, category: "Cleaning" },
   { id: "bf4", name: "Anti-Slip Phone Holder", priceValue: 950, oldPrice: 1800, category: "Accessories" },
+  { id: "bf5", name: "LED Desk Lamp", priceValue: 2500, oldPrice: 4000, category: "Home" },
+  { id: "bf6", name: "USB Extension Cable 2m", priceValue: 800, oldPrice: 1500, category: "Electronics" },
+  { id: "bf7", name: "Microfiber Cleaning Cloth Set", priceValue: 1200, oldPrice: 2000, category: "Cleaning" },
+  { id: "bf8", name: "Anti-Slip Phone Holder", priceValue: 950, oldPrice: 1800, category: "Accessories" },
 ];
 
 const HOW_IT_WORKS = [
@@ -117,6 +121,25 @@ const HOW_IT_WORKS = [
   { icon: "checkmark-circle" as const, title: "Choose a Provider", desc: "Compare verified providers based on ratings and reviews.", color: "#DCFCE7", textColor: "#16A34A" },
   { icon: "calendar" as const, title: "Book & Schedule", desc: "Select your date and time. Get instant confirmation.", color: "#F3E8FF", textColor: "#7C3AED" },
   { icon: "star" as const, title: "Get Service & Rate", desc: "Your provider arrives on time. Rate your experience.", color: "#FEF3C7", textColor: "#D97706" },
+];
+
+const QUICK_ACCESS = [
+  { label: "Find Pros", emoji: "👷", route: "/client/(tabs)/explore", bg: "#10B981" },
+  { label: "Services", emoji: "🛠️", route: "/client/(tabs)/explore", bg: "#22C55E" },
+  { label: "Top Rated", emoji: "⭐", route: "/client/(tabs)/explore", bg: "#F59E0B" },
+  { label: "Near You", emoji: "📍", route: "/client/(tabs)/explore", bg: "#F87171" },
+  { label: "Awoof", emoji: "🔥", route: "/client/deals", bg: "#F97316" },
+  { label: "Stores", emoji: "🏪", route: "/client/(tabs)/shop", bg: "#0EA5E9" },
+  { label: "Top Picks", emoji: "👑", route: "/client/deals", bg: "#8B5CF6" },
+  { label: "Deals", emoji: "💰", route: "/client/deals", bg: "#EAB308" },
+];
+
+const OFFICIAL_STORES = [
+  { id: "os1", name: "Samsung Nigeria", category: "Electronics", rating: 4.9, badge: "Official" },
+  { id: "os2", name: "LG Electronics", category: "Appliances", rating: 4.8, badge: "Official" },
+  { id: "os3", name: "Dangote Group", category: "Building", rating: 4.7, badge: "Official" },
+  { id: "os4", name: "Innoson Motors", category: "Automotive", rating: 4.6, badge: "Official" },
+  { id: "os5", name: "Konga Store", category: "General", rating: 4.8, badge: "Official" },
 ];
 
 // ================================
@@ -350,6 +373,21 @@ export default function ClientHome() {
           </View>
         </Animated.View>
 
+        {/* ===== QUICK ACCESS CARDS ===== */}
+        <Animated.View entering={FadeInDown.delay(350).duration(600)} style={{ marginBottom: 12 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 10, paddingBottom: 4 }}>
+            {QUICK_ACCESS.map((item) => (
+              <TouchableOpacity key={item.label} style={styles.quickAccessItem}
+                onPress={() => router.push(item.route as any)}>
+                <View style={[styles.quickAccessIcon, { backgroundColor: item.bg }]}>
+                  <Text style={{ fontSize: 22 }}>{item.emoji}</Text>
+                </View>
+                <Text style={[styles.quickAccessLabel, { color: colors.text }]} numberOfLines={1}>{item.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </Animated.View>
+
         {/* ===== RECENT BOOKINGS (matches web card style) ===== */}
         <Animated.View entering={FadeInDown.delay(400).duration(600)}>
           <SectionHeader title="Recent Bookings" onPressSeeAll={() => router.push("/client/(tabs)/bookings" as any)} colors={colors} />
@@ -462,6 +500,30 @@ export default function ClientHome() {
                 </View>
                 <View style={[styles.storeBadge, { backgroundColor: store.badge === "Premium" ? "#F3E8FF" : "#DBEAFE" }]}>
                   <Text style={[styles.storeBadgeText, { color: store.badge === "Premium" ? "#7C3AED" : "#2563EB" }]}>{store.badge}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </Animated.View>
+
+        {/* ===== OFFICIAL STORES ===== */}
+        <Animated.View entering={FadeInDown.delay(680).duration(600)}>
+          <SectionHeader title="Official Stores" onPressSeeAll={() => router.push("/client/(tabs)/shop" as any)} colors={colors} />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 12, paddingBottom: 8 }}>
+            {OFFICIAL_STORES.map((store) => (
+              <TouchableOpacity key={store.id} style={[styles.storeCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
+                onPress={() => router.push("/client/(tabs)/shop" as any)}>
+                <View style={[styles.storeIconWrap, { backgroundColor: "#DBEAFE" }]}>
+                  <Ionicons name="storefront" size={24} color="#2563EB" />
+                </View>
+                <Text style={[styles.storeName, { color: colors.text }]} numberOfLines={1}>{store.name}</Text>
+                <Text style={[styles.storeCategory, { color: colors.muted }]}>{store.category}</Text>
+                <View style={styles.storeRatingRow}>
+                  <Ionicons name="star" size={12} color="#F59E0B" />
+                  <Text style={[styles.storeRating, { color: colors.text }]}>{store.rating}</Text>
+                </View>
+                <View style={[styles.storeBadge, { backgroundColor: "#DCFCE7" }]}>
+                  <Text style={[styles.storeBadgeText, { color: "#15803D" }]}>{store.badge}</Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -686,6 +748,11 @@ const styles = StyleSheet.create({
   budgetPriceRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   budgetPrice: { fontSize: 14, fontFamily: THEME.typography.fontFamily.heading },
   budgetOldPrice: { fontSize: 11, fontFamily: THEME.typography.fontFamily.body, color: "#9CA3AF", textDecorationLine: "line-through" },
+
+  // Quick Access Cards
+  quickAccessItem: { alignItems: "center", width: 68 },
+  quickAccessIcon: { width: 52, height: 52, borderRadius: 14, justifyContent: "center", alignItems: "center", marginBottom: 4, ...THEME.shadow.base },
+  quickAccessLabel: { fontSize: 10, fontFamily: THEME.typography.fontFamily.bodyMedium, textAlign: "center" },
 
   // Sell on HANDI Banner
   sellBanner: { borderRadius: 20, padding: 20, flexDirection: "row", alignItems: "center", gap: 12 },

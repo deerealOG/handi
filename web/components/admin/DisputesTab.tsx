@@ -407,7 +407,7 @@ export default function DisputesTab() {
                 <label className="block text-xs font-medium text-gray-500 mb-1">
                   Resolution Note
                 </label>
-                <textarea
+                <textarea maxLength={500}
                   rows={3}
                   value={resolutionNote}
                   onChange={(e) => setResolutionNote(e.target.value)}
@@ -493,7 +493,7 @@ export default function DisputesTab() {
                   <label className="block text-xs font-medium text-gray-500 mb-1.5">
                     Notes
                   </label>
-                  <textarea
+                  <textarea maxLength={500}
                     rows={3}
                     value={escalateNote}
                     onChange={(e) => setEscalateNote(e.target.value)}
@@ -549,7 +549,7 @@ export default function DisputesTab() {
                   <label className="block text-xs font-medium text-gray-500 mb-1.5">
                     What information do you need?
                   </label>
-                  <textarea
+                  <textarea maxLength={500}
                     rows={4}
                     value={requestInfoNote}
                     onChange={(e) => setRequestInfoNote(e.target.value)}
@@ -605,7 +605,7 @@ export default function DisputesTab() {
                   <label className="block text-xs font-medium text-gray-500 mb-1.5">
                     Reason for Suspension <span className="text-red-500">*</span>
                   </label>
-                  <textarea
+                  <textarea maxLength={500}
                     rows={3}
                     value={suspendReason}
                     onChange={(e) => setSuspendReason(e.target.value)}
@@ -656,7 +656,7 @@ export default function DisputesTab() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search disputes by client, provider, service..."
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-sm outline-none focus:ring-2 focus:ring-purple-400"
+          className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-md text-sm outline-none focus:ring-2 focus:ring-purple-400"
         />
       </div>
 
@@ -667,7 +667,7 @@ export default function DisputesTab() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-4 py-2 rounded-md text-xs font-semibold whitespace-nowrap transition-colors ${
                 filter === f
                   ? "bg-purple-600 text-white"
                   : "bg-white text-gray-600 border border-gray-200"
@@ -690,7 +690,7 @@ export default function DisputesTab() {
           <button
             key={d.id}
             onClick={() => setSelectedDispute(d)}
-            className={`flex flex-col w-full bg-white rounded-2xl shadow-sm p-3 sm:p-5 text-left hover:shadow-md transition-shadow ${
+            className={`flex flex-col w-full bg-white rounded-md shadow-sm p-3 sm:p-5 text-left hover:shadow-md transition-shadow ${
               d.status === "open"
                 ? "border-t-4 border-t-red-400 border-x border-b border-transparent"
                 : d.status === "in-review"

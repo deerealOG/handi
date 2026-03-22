@@ -3,7 +3,8 @@
 import { useCart } from "@/context/CartContext";
 import Footer from "@/components/landing-page/Footer";
 import Navbar from "@/components/landing-page/Navbar";
-import { MOCK_PRODUCTS } from "@/data/mockApi";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { MOCK_PRODUCTS, SERVICE_CATEGORIES } from "@/data/mockApi";
 import {
     ChevronLeft,
     ChevronRight,
@@ -23,7 +24,7 @@ import { useMemo, useState } from "react";
 
 const ITEMS_PER_PAGE = 8;
 
-const CATEGORIES = [
+const PRODUCT_FILTER_CATEGORIES = [
   { value: "all", label: "All Products" },
   { value: "electrical", label: "Electrical Tools" },
   { value: "tools", label: "Power Tools" },
@@ -177,7 +178,7 @@ export default function ProductsPage() {
       <div>
         <h4 className="text-sm font-semibold text-gray-900 mb-3">Category</h4>
         <div className="space-y-2">
-          {CATEGORIES.map((cat) => (
+          {PRODUCT_FILTER_CATEGORIES.map((cat) => (
             <label
               key={cat.value}
               className="flex items-center gap-2 cursor-pointer group"
@@ -341,6 +342,7 @@ export default function ProductsPage() {
   return (
     <>
       <Navbar />
+      <Breadcrumbs />
       <main className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Page Header */}
@@ -358,6 +360,26 @@ export default function ProductsPage() {
             </div>
           </div>
 
+          {/* Category Pill Cards — identical to Services/Providers pages */}
+          <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-3 mb-6">
+            {SERVICE_CATEGORIES.slice(0, 8).map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => { setCategory(category === cat.id ? "all" : cat.id); setPage(1); }}
+                className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all cursor-pointer ${
+                  category === cat.id
+                    ? "bg-(--color-primary)/10 border-(--color-primary) shadow-sm"
+                    : "bg-white border-gray-100 hover:border-gray-200 hover:shadow-sm"
+                }`}
+              >
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gray-50 overflow-hidden relative">
+                  <Image src={cat.image} alt={cat.label} fill className="object-cover" />
+                </div>
+                <span className="text-[10px] sm:text-xs font-medium text-gray-700 text-center leading-tight">{cat.label}</span>
+              </button>
+            ))}
+          </div>
+
           {/* Search Bar */}
           <div className="flex gap-3 mb-6">
             <div className="flex-1 relative">
@@ -373,12 +395,12 @@ export default function ProductsPage() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full pl-11 pr-4 py-3 bg-white rounded-full text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent shadow-sm"
+                className="w-full pl-11 pr-4 py-3 bg-white rounded-sm text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent shadow-sm"
               />
               {search && (
                 <button
                   onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-sm cursor-pointer"
                 >
                   <X size={14} className="text-gray-400" />
                 </button>

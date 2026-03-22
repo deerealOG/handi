@@ -7,29 +7,26 @@ import Image from "next/image";
 
 export default function TestimonialsSection() {
   return (
-    <section className="mt-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <section className="max-w-7xl mx-auto mb-4 bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
       {/* SectionHeader */}
-      <div className="text-center mb-8">
-        <span className="inline-block px-3 py-1 bg-yellow-50 text-yellow-700 text-xs font-bold rounded-full mb-3">
-          Testimonials
-        </span>
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+      <div className="text-center mb-8 bg-primary flex items-center gap-2 px-4 py-2">
+        <h2 className="text-xl sm:text-2xl font-bold text-[#eceeff] dark:text-white mb-2">
           What Customers Are Saying
         </h2>
-        <p className="text-sm text-gray-500 max-w-lg mx-auto">
+        <p className="text-sm text-[#eceeff] dark:text-gray-400 max-w-lg mx-auto">
           Real stories from real customers who trust HANDI for their service needs.
         </p>
       </div>
 
       {/* Testimonial cards grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="px-4 mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {TESTIMONIALS.map((t) => (
           <div
             key={t.id}
-            className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow hover-lift flex flex-col"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow hover-lift flex flex-col"
           >
             {/* Quote */}
-            <p className="text-sm text-gray-600 leading-relaxed mb-4 flex-1 italic">
+            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-4 flex-1 italic">
               &ldquo;{t.quote}&rdquo;
             </p>
 
@@ -42,7 +39,7 @@ export default function TestimonialsSection() {
                   className={
                     i < t.rating
                       ? "text-yellow-400 fill-yellow-400"
-                      : "text-gray-200"
+                      : "text-gray-200 dark:text-gray-600"
                   }
                 />
               ))}
@@ -50,7 +47,7 @@ export default function TestimonialsSection() {
 
             {/* User info */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden shrink-0">
+              <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden shrink-0">
                 <Image
                   src={t.avatar}
                   alt={t.name}
@@ -64,10 +61,10 @@ export default function TestimonialsSection() {
                 />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">
+                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                   {t.name}
                 </p>
-                <p className="text-xs text-gray-400 truncate">{t.service}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{t.service}</p>
               </div>
             </div>
           </div>

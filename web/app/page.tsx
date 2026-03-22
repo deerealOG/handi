@@ -21,12 +21,16 @@ import TradePurchasingTab from "@/components/client/TradePurchasingTab";
 import WishlistPanel from "@/components/client/WishlistPanel";
 import AboutSection from "@/components/landing-page/AboutSection";
 import AppDownloadSection from "@/components/landing-page/AppDownloadSection";
-import FeaturedSection from "@/components/landing-page/FeaturedSection";
+import FlashDealsSection from "@/components/landing-page/FlashDealsSection";
+import RecommendedServicesSection from "@/components/landing-page/RecommendedServicesSection";
+import TrendingProductsSection from "@/components/landing-page/TrendingProductsSection";
+import PromoSection from "@/components/landing-page/PromoSection";
 import Footer from "@/components/landing-page/Footer";
 import HeroSection from "@/components/landing-page/HeroSection";
 import Navbar from "@/components/landing-page/Navbar";
 import OfficialStoresSection from "@/components/landing-page/OfficialStoresSection";
 import ProvidersAndStepsSection from "@/components/landing-page/ProvidersAndStepsSection";
+import QuickAccessCards from "@/components/landing-page/QuickAccessCards";
 import StepsSection from "@/components/landing-page/StepsSection";
 import TestimonialsSection from "@/components/landing-page/TestimonialsSection";
 import {
@@ -42,6 +46,7 @@ import { X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import { ScrollReveal } from "@/hooks/useScrollReveal";
+import UnverifiedEmailBanner from "@/components/shared/UnverifiedEmailBanner";
 
 import VendorDashboard from "@/components/vendor/VendorDashboard";
 
@@ -101,13 +106,14 @@ function LandingPageContent() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-100">
+    <main className="min-h-screen handi-bg overflow-x-hidden max-w-[100vw]">
       {/* ── Always use the same Navbar ── */}
       <Navbar />
+      <UnverifiedEmailBanner />
 
       {/* ── Client tab content (logged-in) ── */}
       {isClient && (
-        <div className="flex-1 pb-20">
+        <div className="flex-1 pb-20 w-full overflow-x-hidden">
           {activeClientTab === "home" && (
             <HomeTab
               user={authUser}
@@ -156,43 +162,69 @@ function LandingPageContent() {
             setSelectedCategory={setSelectedCategory}
             router={router}
           />
-          <ScrollReveal direction="up" delay={0}>
-            <ProvidersAndStepsSection router={router} />
-          </ScrollReveal>
-          <ScrollReveal direction="left" delay={0.1}>
-            <FeaturedSection router={router} />
-          </ScrollReveal>
-          <ScrollReveal direction="right" delay={0.1}>
-            <OfficialStoresSection router={router} />
-          </ScrollReveal>
-          
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full space-y-12">
+
+          <QuickAccessCards />
+
+          {/* All landing sections — consistent spacing */}
+          <div className="space-y-4">
             <ScrollReveal direction="up" delay={0}>
-              <CategoriesSection router={router} />
+              <section>
+                <ProvidersAndStepsSection router={router} />
+              </section>
+            </ScrollReveal>
+
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-4">
+              <ScrollReveal direction="up" delay={0}>
+                <CategoriesSection router={router} />
+              </ScrollReveal>
+              <ScrollReveal direction="left" delay={0.05}>
+                <ProfessionalsNearYouSection router={router} />
+              </ScrollReveal>
+            </section>
+
+            <ScrollReveal direction="left" delay={0.1}>
+              <RecommendedServicesSection />
+            </ScrollReveal>
+            <ScrollReveal direction="right" delay={0.1}>
+              <TrendingProductsSection />
             </ScrollReveal>
             <ScrollReveal direction="left" delay={0.05}>
-              <ProfessionalsNearYouSection router={router} />
-            </ScrollReveal>
-            <ScrollReveal direction="right" delay={0.05}>
-              <StoresNearYouSection router={router} />
+              <FlashDealsSection />
             </ScrollReveal>
             <ScrollReveal direction="up" delay={0.1}>
-              <CheapProductsSection router={router} />
+              <PromoSection />
             </ScrollReveal>
-          </div>
 
-          <ScrollReveal direction="up" delay={0}>
-            <StepsSection />
-          </ScrollReveal>
-          <ScrollReveal direction="fade" delay={0.1}>
-            <AboutSection />
-          </ScrollReveal>
-          <ScrollReveal direction="up" delay={0}>
-            <AppDownloadSection />
-          </ScrollReveal>
-          <ScrollReveal direction="fade" delay={0.1}>
-            <TestimonialsSection />
-          </ScrollReveal>
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+              <ScrollReveal direction="right" delay={0.1}>
+                <OfficialStoresSection router={router} />
+              </ScrollReveal>
+            </section>
+
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-4">
+              <ScrollReveal direction="right" delay={0.05}>
+                <StoresNearYouSection router={router} />
+              </ScrollReveal>
+              <ScrollReveal direction="up" delay={0.1}>
+                <CheapProductsSection router={router} />
+              </ScrollReveal>
+            </section>
+
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full space-y-6">
+              <ScrollReveal direction="up" delay={0}>
+                <StepsSection />
+              </ScrollReveal>
+              <ScrollReveal direction="fade" delay={0.1}>
+                <AboutSection />
+              </ScrollReveal>
+              <ScrollReveal direction="up" delay={0}>
+                <AppDownloadSection />
+              </ScrollReveal>
+              <ScrollReveal direction="fade" delay={0.1}>
+                <TestimonialsSection />
+              </ScrollReveal>
+            </section>
+          </div>
         </>
       )}
 

@@ -31,6 +31,28 @@ router.post(
       // For now we log the subscription
       const { email } = req.body;
       console.log(`📩 Newsletter subscription: ${email}`);
+      
+      const frontendUrl = process.env.FRONTEND_URL || "https://handiapp.com.ng";
+      const welcomeBody = `
+        <h2 style="color:#1f2937;margin:0 0 8px;font-size:22px;font-weight:700;">Welcome to HANDI!</h2>
+        <p style="color:#4b5563;font-size:15px;line-height:1.8;margin:0 0 20px;">
+          Thank you for subscribing to our newsletter. You'll be the first to know about new features, special deals, and exclusive offers on our platform.
+        </p>
+        <p style="color:#4b5563;font-size:15px;line-height:1.8;margin:0 0 20px;">
+          Get ready to discover the best service professionals and products near you.
+        </p>
+        <p style="text-align:center;margin:28px 0;">
+          <a href="${frontendUrl}" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:50px;font-weight:bold;font-size:15px;">Explore HANDI</a>
+        </p>
+      `;
+      const html = buildEmailTemplate(welcomeBody, "Welcome to HANDI!");
+      
+      try {
+        await sendEmail({ to: email, subject: "Welcome to the HANDI Newsletter! 🎉", html });
+      } catch(e) {
+        console.error("Failed to send welcome email:", e);
+      }
+
       res.json({ success: true, message: "Subscribed to HANDI newsletter!" });
     } catch (error) {
       console.error("Newsletter subscribe error:", error);

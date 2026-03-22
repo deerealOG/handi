@@ -401,7 +401,7 @@ export default function ClientProfileTab({
             <label className="block text-xs font-medium text-gray-500 mb-1">
               Bio
             </label>
-            <textarea
+            <textarea maxLength={500}
               value={editData.bio}
               onChange={(e) =>
                 setEditData({ ...editData, bio: e.target.value })

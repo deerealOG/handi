@@ -221,7 +221,7 @@ export default function UsersTab({ adminRole }: { adminRole: AdminRole }) {
             placeholder="Search by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-sm outline-none focus:ring-2 focus:ring-purple-400"
+            className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-md text-sm outline-none focus:ring-2 focus:ring-purple-400"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto no-scrollbar">
@@ -239,7 +239,7 @@ export default function UsersTab({ adminRole }: { adminRole: AdminRole }) {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-4 py-2 rounded-md text-xs font-semibold whitespace-nowrap transition-colors ${
                 filter === f
                   ? f === "appealed"
                     ? "bg-orange-500 text-white"
@@ -565,7 +565,7 @@ export default function UsersTab({ adminRole }: { adminRole: AdminRole }) {
                 <p className="text-xs font-semibold text-blue-800 mb-2">
                   Send Message to {selectedUser.name}
                 </p>
-                <textarea
+                <textarea maxLength={500}
                   rows={3}
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}

@@ -7,6 +7,8 @@ import LocationPrompt from "@/components/landing-page/LocationPrompt";
 import NewsletterPopup from "@/components/landing-page/NewsletterPopup";
 import NotificationToast from "@/components/landing-page/NotificationToast";
 import ScrollToTop from "@/components/ui/ScrollToTop";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
+import SupportChatWidget from "@/components/ui/SupportChatWidget";
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -93,11 +95,14 @@ export default function RootLayout({
           <CartProvider>
             <ThemeProvider>
               <NotificationProvider>
-                {children}
+                <ErrorBoundary>
+                  {children}
+                </ErrorBoundary>
                 <NotificationToast />
                 <LocationPrompt />
                 <ScrollToTop />
                 <CookieConsent />
+                <SupportChatWidget />
               </NotificationProvider>
             </ThemeProvider>
           </CartProvider>

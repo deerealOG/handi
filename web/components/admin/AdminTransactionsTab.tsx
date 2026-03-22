@@ -513,7 +513,7 @@ export default function AdminTransactionsTab() {
                     ? "🔄 Initiate Refund"
                     : "⚠️ File Chargeback"}
                 </p>
-                <textarea
+                <textarea maxLength={500}
                   placeholder="Reason for this action..."
                   value={actionReason}
                   onChange={(e) => setActionReason(e.target.value)}

@@ -53,9 +53,9 @@ import ReviewsTab from "./ReviewsTab";
 import ServicesTab from "./ServicesTab";
 import SettingsTab from "./SettingsTab";
 import VendorProductsTab from "./VendorProductsTab";
+import UnverifiedEmailBanner from "@/components/shared/UnverifiedEmailBanner";
 
 // ============================================
-// TAB CONFIGURATION
 // ============================================
 const TABS: {
   id: TabId;
@@ -254,7 +254,7 @@ export default function ProviderHome() {
                   <input
                     type="text"
                     placeholder="Search bookings, services..."
-                    className="w-full pl-9 pr-4 py-2 bg-gray-50 rounded-full text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full pl-9 pr-4 py-2 bg-gray-50 rounded-md text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
               </div>
@@ -318,6 +318,8 @@ export default function ProviderHome() {
             </div>
           </div>
         </header>
+
+        <UnverifiedEmailBanner />
 
         {/* Mobile Menu Overlay */}
         {showMobileMenu && (
@@ -637,7 +639,7 @@ export default function ProviderHome() {
                   Hours: <strong>Mon–Fri, 8AM – 6PM WAT</strong>
                 </p>
               </div>
-              <textarea
+              <textarea maxLength={500}
                 rows={3}
                 placeholder="Describe your issue..."
                 className="w-full px-4 py-2.5 bg-gray-50 rounded-xl text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500 resize-none"

@@ -364,16 +364,16 @@ export default function ServicesPage() {
     <>
       <Navbar />
       <Breadcrumbs />
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Page Header */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Browse <span className="text-primary">Services</span>
             </h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Find reliable professionals for any service you need.
-              <span className="font-medium text-gray-700 ml-1">
+              <span className="font-medium text-gray-700 dark:text-gray-300 ml-1">
                 {filtered.length} services available
               </span>
             </p>
@@ -385,16 +385,16 @@ export default function ServicesPage() {
               <button
                 key={cat.id}
                 onClick={() => { toggleCategory(cat.id); }}
-                className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all cursor-pointer ${
+                className={`flex flex-col items-center gap-1.5 p-2 rounded-md border transition-all cursor-pointer ${
                   selectedCategories.includes(cat.id)
                     ? "bg-(--color-primary)/10 border-(--color-primary) shadow-sm"
-                    : "bg-white border-gray-100 hover:border-gray-200 hover:shadow-sm"
+                    : "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-200 hover:shadow-sm"
                 }`}
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gray-50 overflow-hidden relative">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-gray-50 overflow-hidden relative">
                   <Image src={cat.image} alt={cat.label} fill className="object-cover" />
                 </div>
-                <span className="text-[10px] sm:text-xs font-medium text-gray-700 text-center leading-tight">{cat.label}</span>
+                <span className="text-[10px] sm:text-xs font-medium text-gray-700 dark:text-gray-300 text-center leading-tight">{cat.label}</span>
               </button>
             ))}
           </div>
@@ -414,12 +414,12 @@ export default function ServicesPage() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full pl-11 pr-4 py-3 bg-white rounded-full text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent shadow-sm"
+                className="w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-800 rounded-md text-sm border border-gray-200 dark:border-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent shadow-sm"
               />
               {search && (
                 <button
                   onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-sm cursor-pointer"
                 >
                   <X size={14} className="text-gray-400" />
                 </button>
@@ -442,9 +442,9 @@ export default function ServicesPage() {
           <div className="flex gap-6">
             {/* Filters Sidebar */}
             <aside className="hidden lg:block w-[280px] shrink-0">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sticky top-24">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 sticky top-24">
                 <div className="flex items-center justify-between mb-5">
-                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                     <Filter size={16} /> Filters
                   </h3>
                   {activeFilterCount > 0 && (
@@ -502,9 +502,9 @@ export default function ServicesPage() {
 
               {/* Service Grid */}
               {paginated.length === 0 ? (
-                <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-12 text-center">
                   <Search size={48} className="mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
                     No services found
                   </h3>
                   <p className="text-sm text-gray-500 mb-4">
@@ -536,7 +536,7 @@ export default function ServicesPage() {
                   {paginated.map((s) => (
                     <div
                       key={s.id}
-                      className={`bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-200 group cursor-pointer relative ${viewMode === "list" ? "flex flex-row" : "flex flex-col"}`}
+                      className={`bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-200 group cursor-pointer relative ${viewMode === "list" ? "flex flex-row" : "flex flex-col"}`}
                     >
                       {/* Wishlist */}
                       <button
@@ -596,15 +596,15 @@ export default function ServicesPage() {
                           {s.category.replace("-", " ")}
                         </span>
 
-                        <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-emerald-600 transition-colors">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-emerald-600 transition-colors">
                           {s.name}
                         </h3>
-                        <p className="text-[11px] text-gray-500 mt-0.5">
+                        <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
                           {s.provider}
                         </p>
 
                         {/* Meta row */}
-                        <div className="flex items-center gap-3 text-xs text-gray-500 mt-2">
+                        <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-2">
                           <span className="flex items-center gap-1 font-semibold text-gray-700">
                             <Star
                               size={11}
@@ -708,7 +708,7 @@ export default function ServicesPage() {
                   <Link
                     key={s.id}
                     href={`/services/${s.id}`}
-                    className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all group"
+                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all group"
                   >
                     <div className="h-28 bg-gray-200 relative overflow-hidden">
                       <Image
@@ -719,7 +719,7 @@ export default function ServicesPage() {
                       />
                     </div>
                     <div className="p-3">
-                      <p className="text-xs font-semibold text-gray-900 line-clamp-1 group-hover:text-emerald-600 transition-colors">
+                      <p className="text-xs font-semibold text-gray-900 dark:text-white line-clamp-1 group-hover:text-emerald-600 transition-colors">
                         {s.name}
                       </p>
                       <p className="text-[10px] text-gray-500 mt-0.5">

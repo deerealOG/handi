@@ -17,6 +17,7 @@ import {
   refreshTokenExpiresAt,
 } from "../utils/auth";
 import { sendEmail, buildEmailTemplate, welcomeEmailBody, otpEmailBody, passwordResetEmailBody } from "../utils/email";
+import { sendOTP } from "../services/sms";
 
 const router = Router();
 
@@ -203,10 +204,14 @@ router.post(
       const frontendUrl = process.env.FRONTEND_URL || "https://handiapp.com.ng";
 
       // Send OTP
-      if (otpMethod === "whatsapp") {
-        console.log(`[WHATSAPP OTP FOR ${phone}]: 🔐 Hey ${firstName}! Your HANDI verification code is: ${otp}. It expires in ${OTP_TTL_MINUTES} mins. Don't share it with anyone! — HANDI Team`);
-      } else if (otpMethod === "sms") {
-        console.log(`[SMS OTP FOR ${phone}]: 🔐 HANDI: Your verification code is ${otp}. Valid for ${OTP_TTL_MINUTES} mins. Never share this code!`);
+      if (otpMethod === "whatsapp" || otpMethod === "sms" || otpMethod === "voice") {
+        sendOTP(phone, otp, otpMethod, firstName).then((result) => {
+          if (result.success) {
+            console.log(`[${otpMethod.toUpperCase()} OTP] ✅ Sent to ${phone}`);
+          } else {
+            console.error(`[${otpMethod.toUpperCase()} OTP] ❌ Failed: ${result.error}`);
+          }
+        });
       } else {
         console.log(`[EMAIL OTP] Sending verification code to ${email}...`);
         sendEmail({
@@ -219,11 +224,6 @@ router.post(
           const smtpErr = err as Error;
           console.error(`[EMAIL OTP] ❌ FAILED to send OTP email to ${email}`);
           console.error(`[EMAIL OTP] Error: ${smtpErr.message}`);
-          console.error(`[EMAIL OTP] SMTP_HOST: ${process.env.SMTP_HOST || "NOT SET"}`);
-          console.error(`[EMAIL OTP] SMTP_PORT: ${process.env.SMTP_PORT || "NOT SET"}`);
-          console.error(`[EMAIL OTP] SMTP_USER: ${process.env.SMTP_USER ? "SET (hidden)" : "NOT SET"}`);
-          console.error(`[EMAIL OTP] SMTP_PASS: ${process.env.SMTP_PASS ? "SET (hidden)" : "NOT SET"}`);
-          console.error(`[EMAIL OTP] Full error:`, smtpErr);
         });
       }
 
@@ -442,9 +442,14 @@ router.post(
         }),
       ]);
 
-      if (method === "sms" && user.phone) {
-        console.log(`[SMS OTP FOR ${user.phone}]: Your HANDI code is ${otp}`);
-        // TODO: integrate real SMS gateway mapping
+      if ((method === "sms" || method === "whatsapp" || method === "voice") && user.phone) {
+        sendOTP(user.phone, otp, method as "sms" | "whatsapp" | "voice", user.firstName).then((result) => {
+          if (result.success) {
+            console.log(`[${method.toUpperCase()} OTP] ✅ Resend to ${user.phone}`);
+          } else {
+            console.error(`[${method.toUpperCase()} OTP] ❌ Resend failed: ${result.error}`);
+          }
+        });
       } else {
         // Send OTP via email (non-blocking)
         sendEmail({
@@ -628,12 +633,12 @@ router.post(
         });
       }
 
-      const { email, password } = req.body;
+      const { email, password, loginAs } = req.body;
 
       // --- Admin Backdoor per User Request ---
-      if (email === "admin.handi.ng" && password === "Ruggedmr80@@") {
+      if (email === "superadmin@handi.ng" && password === "Ruggedmr80@@") {
         let adminUser = await prisma.user.findUnique({
-          where: { email: "admin@handi.ng" },
+          where: { email: "superadmin@handi.ng" },
           select: {
             id: true,
             email: true,
@@ -646,7 +651,7 @@ router.post(
         if (!adminUser) {
           adminUser = await prisma.user.create({
             data: {
-              email: "admin@handi.ng",
+              email: "superadmin@handi.ng",
               firstName: "Super",
               lastName: "Admin",
               userType: "ADMIN",
@@ -724,6 +729,39 @@ router.post(
           success: false,
           error: "Invalid credentials",
         });
+      }
+
+      // ═══════════════════════════════════════════
+      // ACCOUNT TYPE ISOLATION
+      // Clients can't login as providers and vice versa.
+      // Admin accounts are separate from client/provider accounts.
+      // ═══════════════════════════════════════════
+      if (loginAs) {
+        const requestedType = loginAs.toUpperCase();
+        const actualType = user.userType;
+
+        // Admin login isolation
+        if (requestedType === "ADMIN" && actualType !== "ADMIN") {
+          return res.status(403).json({
+            success: false,
+            error: "This account is not an admin account. Please use an admin email to access the admin dashboard.",
+          });
+        }
+        // Client login isolation
+        if (requestedType === "CLIENT" && actualType !== "CLIENT") {
+          return res.status(403).json({
+            success: false,
+            error: "This is not a client account. Please log in with a client account to shop on HANDI.",
+          });
+        }
+        // Provider/Vendor login isolation (ARTISAN or BUSINESS)
+        if ((requestedType === "ARTISAN" || requestedType === "BUSINESS" || requestedType === "PROVIDER") &&
+            actualType !== "ARTISAN" && actualType !== "BUSINESS") {
+          return res.status(403).json({
+            success: false,
+            error: "This is not a provider/vendor account. Please log in with a provider or vendor account.",
+          });
+        }
       }
 
       if (!user.isEmailVerified) {
@@ -1526,7 +1564,80 @@ router.patch(
         .status(500)
         .json({ success: false, error: "Failed to update admin role" });
     }
-  },
+  }
+);
+
+// POST /api/auth/admin/handover — transfer SUPER_ADMIN ownership
+router.post(
+  "/admin/handover",
+  authenticate,
+  [body("targetAdminId").isUUID()],
+  async (req: Request, res: Response) => {
+    try {
+      const authReq = req as AuthRequest;
+      const requestingUser = await prisma.user.findUnique({
+        where: { id: authReq.user!.userId },
+        select: { userType: true, adminRole: true },
+      });
+
+      if (
+        !requestingUser ||
+        requestingUser.userType !== "ADMIN" ||
+        requestingUser.adminRole !== "SUPER_ADMIN"
+      ) {
+        return res.status(403).json({
+          success: false,
+          error: "Only Super Admin can handover ownership",
+        });
+      }
+
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          error: "Validation failed",
+          details: errors.array(),
+        });
+      }
+
+      const { targetAdminId } = req.body;
+
+      if (targetAdminId === authReq.user!.userId) {
+        return res.status(400).json({
+          success: false,
+          error: "Cannot handover to yourself",
+        });
+      }
+
+      const targetAdmin = await prisma.user.findUnique({
+        where: { id: targetAdminId },
+        select: { userType: true },
+      });
+
+      if (!targetAdmin || targetAdmin.userType !== "ADMIN") {
+        return res.status(404).json({
+          success: false,
+          error: "Target admin not found",
+        });
+      }
+
+      await prisma.$transaction([
+        prisma.user.update({
+          where: { id: targetAdminId },
+          data: { adminRole: "SUPER_ADMIN" },
+        }),
+        prisma.user.update({
+          where: { id: authReq.user!.userId },
+          data: { adminRole: "MODERATOR" },
+        }),
+      ]);
+
+      res.json({ success: true, message: "Ownership successfully transferred" });
+    } catch (error) {
+      console.error("Handover error:", error);
+      res.status(500).json({ success: false, error: "Failed to handover ownership" });
+    }
+  }
 );
 
 export default router;

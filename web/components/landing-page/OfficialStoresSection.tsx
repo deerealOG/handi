@@ -116,40 +116,43 @@ export default function OfficialStoresSection({
   router: any;
 }) {
   return (
-    <section className="py-16 md:py-24 bg-gray-50 border-t border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="">
+      <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider mb-4 border border-blue-200">
-              <Building2 size={14} />
-              Verified Partners
-            </div>
-            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">
+        <div className="bg-primary px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center">
+            <span className="flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#eceeff]">
               Official Stores
-            </h2>
-            <p className="text-gray-600 text-lg md:text-xl">
+              </h2>
+              <span className="text-lg text-[#eceeff]"><Building2 size={20} /></span>
+            </span>
+          </div>
+          <div className="hidden sm:flex">
+            <p className="text-sm text-[#eceeff] dark:text-[#eceeff] mt-1 px-4 py-2">
               Shop directly from verified top brands and authorized distributors. Guaranteed authentic products.
             </p>
           </div>
+          
           <button
             onClick={() => router.push("/official-stores")}
-            className="hidden sm:flex items-center gap-2 text-(--color-primary) font-bold hover:gap-3 transition-all shrink-0 cursor-pointer"
+            className="hidden sm:flex items-center gap-2 text-[#eceeff] font-bold hover:gap-3 transition-all shrink-0 cursor-pointer"
           >
             View All Stores
-            <div className="w-8 h-8 rounded-full bg-(--color-primary-light) flex items-center justify-center">
-              <ChevronRight size={18} />
+            <div className="w-8 h-8 rounded-full flex items-center justify-center">
+              <ChevronRight size={18} className="text-[#eceeff]" />
             </div>
           </button>
         </div>
 
         {/* Stores Grid */}
+        <div className="px-4 py-4">
         <ScrollSection className="snap-x snap-mandatory">
           {OFFICIAL_STORES.map((store) => (
             <div
               key={store.id}
               onClick={() => router.push(`/official-stores/${store.id}`)}
-              className="snap-start shrink-0 w-[200px] sm:w-[220px] bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group"
+              className="snap-start shrink-0 w-[200px] sm:w-[220px] bg-white dark:bg-gray-800 rounded-2xl overflow-hidden hover:shadow-md transition-all cursor-pointer group border border-gray-100 dark:border-gray-700"
             >
               {/* Header Image */}
               <div className="relative h-28 sm:h-32 w-full bg-gray-100 overflow-hidden">
@@ -168,10 +171,10 @@ export default function OfficialStoresSection({
 
               {/* Content */}
               <div className="p-3 sm:p-4">
-                <h3 className="font-bold text-sm text-gray-900 truncate group-hover:text-(--color-primary) transition-colors">
+                <h3 className="font-bold text-sm text-gray-900 dark:text-white truncate group-hover:text-(--color-primary) transition-colors">
                   {store.name}
                 </h3>
-                <p className="text-xs text-gray-500 mb-2">{store.category}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{store.category}</p>
 
                 <div className="flex items-center gap-2 text-xs mb-2">
                   <span className="flex items-center gap-0.5 text-yellow-500 font-bold">
@@ -184,7 +187,7 @@ export default function OfficialStoresSection({
                   </span>
                 </div>
 
-                <span className="text-[10px] text-gray-500 flex items-center gap-1 truncate">
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 flex items-center gap-1 truncate">
                   <MapPin size={10} className="text-gray-400 shrink-0" />
                   {store.location}
                 </span>
@@ -192,6 +195,7 @@ export default function OfficialStoresSection({
             </div>
           ))}
         </ScrollSection>
+        </div>
 
         {/* Mobile View All Button */}
         <button

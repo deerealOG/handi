@@ -13,6 +13,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import NewsletterPopup from "./NewsletterPopup";
 
 // Map footer link hrefs to client Quick Nav tab IDs
@@ -147,15 +148,15 @@ export default function Footer({
               {/* Contact Info */}
               <div className="space-y-1.5 mb-4">
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Phone size={14} className="text-emerald-400" />
+                  <Phone size={14} className="text-primary" />
                   <span>+234 800 426 3400</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Mail size={14} className="text-emerald-400" />
+                  <Mail size={14} className="text-primary" />
                   <span>support@handiapp.com.ng</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <MapPin size={14} className="text-emerald-400" />
+                  <MapPin size={14} className="text-primary" />
                   <span>Port Harcourt, Nigeria</span>
                 </div>
               </div>
@@ -220,7 +221,7 @@ export default function Footer({
                           <li key={link.label}>
                             <button
                               onClick={() => setCareersModalOpen(true)}
-                              className="text-sm text-gray-400 hover:text-emerald-400 transition-colors"
+                              className="text-sm text-gray-400 hover:text-(--color-primary) transition-colors"
                             >
                               {link.label}
                             </button>
@@ -235,7 +236,7 @@ export default function Footer({
                                 onTabChange(mappedTab);
                                 window.scrollTo({ top: 0, behavior: "smooth" });
                               }}
-                              className="text-sm text-gray-400 hover:text-emerald-400 transition-colors"
+                              className="text-sm text-gray-400 hover:text-(--color-primary) transition-colors"
                             >
                               {link.label}
                             </button>
@@ -246,7 +247,7 @@ export default function Footer({
                         <li key={link.label}>
                           <Link
                             href={link.href}
-                            className="text-sm text-gray-400 hover:text-emerald-400 transition-colors"
+                            className="text-sm text-gray-400 hover:text-(--color-primary) transition-colors"
                           >
                             {link.label}
                           </Link>
@@ -267,7 +268,7 @@ export default function Footer({
               <form onSubmit={handleSubscribeClick} className="flex flex-col gap-2">
                 <button
                   type="submit"
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors shadow-md"
+                  className="w-full bg-(--color-primary) hover:bg-(--color-primary-dark) text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors shadow-md cursor-pointer"
                 >
                   Get the Newsletter
                 </button>
@@ -313,21 +314,25 @@ export default function Footer({
           </div>
         </div>
       </footer>
-      <ComingSoonModal
-        isOpen={downloadModalOpen}
-        onClose={() => setDownloadModalOpen(false)}
-        title="Download App"
-        message="The HANDI mobile app is coming soon! We'll notify you when it's available on App Store and Google Play."
-      />
-      <ComingSoonModal
-        isOpen={careersModalOpen}
-        onClose={() => setCareersModalOpen(false)}
-        title="Careers"
-        message="We're building our careers page. Check back soon for exciting opportunities to join the HANDI team!"
-      />
-      {/* Conditionally render NewsletterPopup to force it open from the footer */}
-      {isNewsletterModalOpen && (
-        <NewsletterPopup onForceClose={() => setIsNewsletterModalOpen(false)} />
+      {typeof document !== "undefined" && createPortal(
+        <>
+          <ComingSoonModal
+            isOpen={downloadModalOpen}
+            onClose={() => setDownloadModalOpen(false)}
+            title="Download App"
+            message="The HANDI mobile app is coming soon! We'll notify you when it's available on App Store and Google Play."
+          />
+          <ComingSoonModal
+            isOpen={careersModalOpen}
+            onClose={() => setCareersModalOpen(false)}
+            title="Careers"
+            message="We're building our careers page. Check back soon for exciting opportunities to join the HANDI team!"
+          />
+          {isNewsletterModalOpen && (
+            <NewsletterPopup onForceClose={() => setIsNewsletterModalOpen(false)} />
+          )}
+        </>,
+        document.body
       )}
     </>
   );

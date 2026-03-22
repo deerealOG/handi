@@ -98,6 +98,7 @@ const buildUserFromSession = (sessionUser?: {
     firstName,
     lastName,
     email: sessionUser?.email || "",
+    emailVerified: false, // Default to false until profile loads
     phone: "",
     userType: mapUserTypeFromBackend(sessionUser?.userType || "") || "client",
   };
@@ -115,6 +116,7 @@ const buildUserFromProfile = (profile: any): User => {
     firstName: profile?.firstName || "",
     lastName: profile?.lastName || "",
     email: profile?.email || "",
+    emailVerified: profile?.emailVerified || false,
     phone: profile?.phone || "",
     userType: mappedType,
     providerSubType: profile?.providerSubType || undefined,
@@ -203,10 +205,20 @@ function AuthProviderInner({ children }: { children: React.ReactNode }) {
   ): Promise<{ success: boolean; error?: string; requires2FA?: boolean; data?: any }> => {
     try {
       // First, directly pre-flight login to see if 2FA is needed before hitting NextAuth
+      // Also sends loginAs for account type isolation
+      const loginBody: Record<string, string> = { email, password };
+      if (userType) {
+        const loginAsMap: Record<string, string> = {
+          client: "CLIENT",
+          provider: "PROVIDER",
+          admin: "ADMIN",
+        };
+        loginBody.loginAs = loginAsMap[userType] || userType.toUpperCase();
+      }
       const preFlightRes = await fetch(`${backendUrl}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(loginBody),
       });
       const preFlightPayload = await preFlightRes.json();
       
@@ -216,6 +228,11 @@ function AuthProviderInner({ children }: { children: React.ReactNode }) {
           requires2FA: true, 
           data: preFlightPayload.data 
         };
+      }
+
+      // If pre-flight failed with account type mismatch (403), return the error
+      if (!preFlightRes.ok) {
+        return { success: false, error: preFlightPayload.error || "Login failed" };
       }
 
       // If no 2FA required (or if we are bypassing using otpMode=true), use NextAuth

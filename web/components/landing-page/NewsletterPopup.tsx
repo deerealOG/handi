@@ -105,13 +105,13 @@ export default function NewsletterPopup({ onForceClose }: NewsletterPopupProps) 
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address"
                   required
-                  className="w-full pl-4 pr-12 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 rounded-xl focus:ring-2 focus:ring-(--color-primary)/20 focus:border-(--color-primary) outline-none transition-all placeholder:text-gray-400 font-medium"
+                  className="w-full pl-4 pr-12 py-3.5 bg-gray-50 border border-gray-200 text-gray-900 rounded-md focus:ring-2 focus:ring-(--color-primary)/20 focus:border-(--color-primary) outline-none transition-all placeholder:text-gray-400 font-medium"
                 />
               </div>
               <button
                 type="submit"
                 disabled={isSubscribing}
-                className="w-full py-3.5 bg-(--color-primary) text-white rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-md shadow-(--color-primary)/20 disabled:opacity-70 disabled:cursor-not-allowed transform active:scale-[0.98]"
+                className="w-full py-3.5 bg-(--color-primary) text-white rounded-md font-bold text-sm hover:opacity-90 transition-all shadow-md shadow-(--color-primary)/20 disabled:opacity-70 disabled:cursor-not-allowed transform active:scale-[0.98]"
               >
                 {isSubscribing ? "Subscribing..." : "Subscribe Now"}
               </button>

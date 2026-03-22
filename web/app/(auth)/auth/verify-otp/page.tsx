@@ -145,9 +145,7 @@ export default function VerifyOtpPage() {
             Enter the 6-digit code sent to your email to activate your account.
           </p>
         </div>
-        {/* Decorative circles */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full" />
-        <div className="absolute bottom-20 right-10 w-48 h-48 bg-white/5 rounded-full" />
+        
       </div>
 
       {/* Right Panel - Form */}

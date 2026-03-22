@@ -27,6 +27,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole>("client");
 
   // 2FA state
   const [requires2FA, setRequires2FA] = useState(false);
@@ -49,7 +50,7 @@ export default function LoginPage() {
     if (!isFormValid) return;
     setError("");
     setLoading(true);
-    const result = await login(email, password);
+    const result = await login(email, password, selectedRole);
     setLoading(false);
     
     if (result.success && result.requires2FA) {
@@ -145,6 +146,30 @@ export default function LoginPage() {
             <h1 className="text-xl lg:text-2xl font-bold text-gray-900 mb-1">Welcome Back</h1>
             <p className="text-gray-800 text-md lg:text-lg mb-5">Log in to access your dashboard.</p>
 
+            {/* Role Selector */}
+            <div className="w-full grid grid-cols-3 gap-2 mb-5">
+              {ROLE_OPTIONS.map((role) => {
+                const Icon = role.icon;
+                const isActive = selectedRole === role.key;
+                return (
+                  <button
+                    key={role.key}
+                    type="button"
+                    onClick={() => setSelectedRole(role.key)}
+                    className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                      isActive
+                        ? `${role.bg} border-current shadow-sm`
+                        : "bg-white border-gray-100 hover:border-gray-200"
+                    }`}
+                  >
+                    <Icon size={20} className={isActive ? role.color : "text-gray-400"} />
+                    <span className={`text-xs font-semibold ${isActive ? role.color : "text-gray-500"}`}>{role.label}</span>
+                    <span className="text-[9px] text-gray-400">{role.desc}</span>
+                  </button>
+                );
+              })}
+            </div>
+
              {/* Error Message */}
             {error && <div className="mb-4 w-full bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600">{error}</div>}
             {(session as { error?: string; user?: { email?: string } })?.error === "EmailNotVerified" && (
@@ -191,7 +216,7 @@ export default function LoginPage() {
                   <div className="relative">
                     <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
-                      className={`w-full pl-10 pr-4 py-3 border rounded-full text-sm outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent ${emailError ? "border-red-400" : "border-gray-200"}`} />
+                      className={`w-full pl-10 pr-4 py-3 border rounded-md text-sm outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent ${emailError ? "border-red-400" : "border-gray-200"}`} />
                   </div>
                   {emailError && <p className="mt-1 text-xs text-red-500">{emailError}</p>}
                 </div>
@@ -205,7 +230,7 @@ export default function LoginPage() {
                   <div className="relative">
                     <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password"
-                      className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-full text-sm outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent" />
+                      className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-md text-sm outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent" />
                     <button type="button" onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -215,7 +240,7 @@ export default function LoginPage() {
 
                 {/* Submit */}
                 <button type="submit" disabled={loading || !isFormValid}
-                  className="w-full py-3.5 bg-(--color-primary) text-white rounded-full font-semibold hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
+                  className="w-full py-3.5 bg-(--color-primary) text-white rounded-md font-semibold hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
                   {loading ? (
                     <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Signing in...</span>
                   ) : ("Sign In")}

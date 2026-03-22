@@ -434,7 +434,7 @@ export default function SettingsTab({
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   {policy.label}
                 </label>
-                <textarea
+                <textarea maxLength={500}
                   rows={3}
                   value={policy.value}
                   onChange={(e) => policy.setter(e.target.value)}

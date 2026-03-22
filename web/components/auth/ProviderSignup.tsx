@@ -54,7 +54,8 @@ export default function ProviderSignup({ subType = "individual" }: { subType?: "
     nin: "",
     businessRegNumber: "",
     username: "",
-    otpMethod: "email" as "email" | "sms",
+    otpMethod: "email" as "email" | "sms" | "whatsapp" | "voice",
+    bioManuallyEdited: false,
   });
 
   const [locationLoading, setLocationLoading] = useState(false);
@@ -188,8 +189,7 @@ export default function ProviderSignup({ subType = "individual" }: { subType?: "
     setLoading(false);
 
     if (result.success) {
-      const encodedEmail = encodeURIComponent(formData.email);
-      router.push(`/auth/verify-otp?email=${encodedEmail}&method=${formData.otpMethod}`);
+      router.push("/dashboard");
     } else {
       setError(result.error || "Signup failed");
     }
@@ -341,7 +341,19 @@ export default function ProviderSignup({ subType = "individual" }: { subType?: "
                 <label className="block text-sm font-medium text-gray-700 mb-1">Business Name <span className="text-red-500 ml-0.5">*</span></label>
                 <div className="relative">
                   <Building2 size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input type="text" value={formData.businessName} onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
+                  <input type="text" value={formData.businessName} onChange={(e) => {
+                    const name = e.target.value;
+                    const updates: Partial<typeof formData> = { businessName: name };
+                    // Auto-generate bio from business name if bio hasn't been manually edited
+                    if (!formData.bioManuallyEdited && name.trim()) {
+                      const cats = formData.preferredCategories
+                        .map(catId => SERVICE_CATEGORIES.find(c => c.id === catId)?.label)
+                        .filter(Boolean)
+                        .join(", ");
+                      updates.bio = `${name.trim()} is a professional service provider on HANDI${cats ? `, specializing in ${cats}` : ""}. Ready to deliver quality and reliable services.`;
+                    }
+                    setFormData({ ...formData, ...updates });
+                  }}
                     className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-(--color-primary)" placeholder="e.g. ABC Plumbing Ltd" />
                 </div>
               </div>
@@ -369,8 +381,8 @@ export default function ProviderSignup({ subType = "individual" }: { subType?: "
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-            <textarea value={formData.bio} onChange={(e) => setFormData({ ...formData, bio: e.target.value })} rows={3}
+            <label className="block text-sm font-medium text-gray-700 mb-1">Bio <span className="text-gray-400 text-xs">(auto-generated — you can edit)</span></label>
+            <textarea maxLength={500} value={formData.bio} onChange={(e) => setFormData({ ...formData, bio: e.target.value, bioManuallyEdited: true })} rows={3}
               className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-(--color-primary) resize-none" placeholder="Tell clients about your experience..." />
           </div>
 
@@ -435,14 +447,22 @@ export default function ProviderSignup({ subType = "individual" }: { subType?: "
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">How would you like to receive your OTP code?</label>
-            <div className="flex gap-4">
-               <label className="flex items-center gap-2 cursor-pointer">
-                 <input type="radio" name="otpMethod" value="email" checked={formData.otpMethod === "email"} onChange={(e) => setFormData({ ...formData, otpMethod: "email" as "email" | "sms" })} className="w-4 h-4 text-(--color-primary)" />
-                 <span className="text-sm text-gray-700">Email Address</span>
+            <div className="grid grid-cols-2 gap-3">
+               <label className="flex items-center gap-2 cursor-pointer p-2 rounded border border-gray-200 hover:border-green-300 transition-colors">
+                 <input type="radio" name="otpMethod" value="email" checked={formData.otpMethod === "email"} onChange={() => setFormData({ ...formData, otpMethod: "email" })} className="w-4 h-4 text-(--color-primary)" />
+                 <span className="text-sm text-gray-700">Email</span>
                </label>
-               <label className="flex items-center gap-2 cursor-pointer">
-                 <input type="radio" name="otpMethod" value="sms" checked={formData.otpMethod === "sms"} onChange={(e) => setFormData({ ...formData, otpMethod: "sms" as "email" | "sms" })} className="w-4 h-4 text-(--color-primary)" />
-                 <span className="text-sm text-gray-700">SMS (Phone)</span>
+               <label className="flex items-center gap-2 cursor-pointer p-2 rounded border border-gray-200 hover:border-green-300 transition-colors">
+                 <input type="radio" name="otpMethod" value="sms" checked={formData.otpMethod === "sms"} onChange={() => setFormData({ ...formData, otpMethod: "sms" })} className="w-4 h-4 text-(--color-primary)" />
+                 <span className="text-sm text-gray-700">SMS</span>
+               </label>
+               <label className="flex items-center gap-2 cursor-pointer p-2 rounded border border-gray-200 hover:border-green-300 transition-colors">
+                 <input type="radio" name="otpMethod" value="whatsapp" checked={formData.otpMethod === "whatsapp"} onChange={() => setFormData({ ...formData, otpMethod: "whatsapp" })} className="w-4 h-4 text-(--color-primary)" />
+                 <span className="text-sm text-gray-700">WhatsApp</span>
+               </label>
+               <label className="flex items-center gap-2 cursor-pointer p-2 rounded border border-gray-200 hover:border-green-300 transition-colors">
+                 <input type="radio" name="otpMethod" value="voice" checked={formData.otpMethod === "voice"} onChange={() => setFormData({ ...formData, otpMethod: "voice" })} className="w-4 h-4 text-(--color-primary)" />
+                 <span className="text-sm text-gray-700">Voice Call</span>
                </label>
             </div>
           </div>

@@ -9,9 +9,9 @@ export default function AppDownloadSection() {
 
   return (
     <>
-      <section className="bg-linear-to-br from-(--color-primary) to-emerald-700 rounded-2xl shadow-lg border-0 p-6 sm:p-8 mt-6 max-w-7xl mx-auto">
+      <section className="bg-linear-to-r from-(--color-primary) to-(--color-primary-dark) rounded-2xl border-0 p-6 sm:p-8 mt-6 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row items-center gap-5">
-          <div className="flex-1 text-center sm:text-left">
+          <div className="flex-1 text-center sm:text-left mb-4">
             <h2 className="text-lg font-bold text-white mb-1">
               Get the HANDI App
             </h2>
@@ -48,8 +48,14 @@ export default function AppDownloadSection() {
               </button>
             </div>
           </div>
-          <div className="w-32 h-32 bg-white/10 rounded-2xl flex items-center justify-center text-4xl backdrop-blur-sm">
-            📱
+          <div className="w-32 h-32 rounded-2xl flex items-center justify-center text-4xl backdrop-blur-sm mb-4">
+            <Image
+                  src="/images/handiapp-preview.webp"
+                  alt="App Download"
+                  width={135}
+                  height={200}
+                  className="h-[200px] w-auto"
+                />
           </div>
         </div>
       </section>

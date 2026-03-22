@@ -138,7 +138,7 @@ export default function EmergencyTab() {
           </div>
 
           {/* Details */}
-          <textarea
+          <textarea maxLength={500}
             rows={3}
             placeholder="Describe the emergency in detail*"
             value={form.description}

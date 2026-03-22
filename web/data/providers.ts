@@ -96,7 +96,7 @@ export const MOCK_PROVIDERS: Provider[] = [
     completedJobs: 178,
     availability: "Mon - Fri, 8am - 5pm",
     exactLocation: "7 Herbert Macaulay Way, Yaba, Lagos",
-    approxDistance: "5.4 km",
+    approxDistance: "25.4 km",
     categories: ["Plumbing"],
     specialization: "Emergency Leak Repairs & Pipe Fitting",
     policy: "Emergency call-out fee of ₦5,000 applies. Parts are charged separately. 14-day warranty on repairs.",

@@ -445,7 +445,7 @@ export default function ProfileTab({
                     className="w-full text-[10px] text-gray-400 bg-transparent border-b border-transparent hover:border-gray-300 focus:border-(--color-primary) focus:outline-none pb-0.5 transition-colors"
                     placeholder="Duration"
                   />
-                  <textarea
+                  <textarea maxLength={500}
                     value={exp.description}
                     onChange={(e) => {
                       const updated = [...user.experience];
@@ -707,7 +707,7 @@ export default function ProfileTab({
           <label className="block text-xs font-medium text-gray-500 mb-1">
             Bio
           </label>
-          <textarea
+          <textarea maxLength={500}
             defaultValue={user.bio || ""}
             disabled={!editing}
             rows={3}

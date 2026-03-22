@@ -4,16 +4,19 @@ import { STEPS } from "@/data/landingData";
 
 export default function StepsSection() {
   return (
-    <section className="mt-10 mx-auto py-6 max-w-7xl">
-      <div className="rounded-2xl p-5 sm:p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-1">How It Works</h2>
-        <p className="text-xs text-gray-500 mb-5">
-          Book a service in 4 easy steps
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <section className=" mx-auto max-w-7xl bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+      <div className="">
+        <div className="mb-4 px-4 py-2 bg-primary flex items-center gap-4">
+          <h2 className="text-xl font-bold text-[#eceeff] dark:text-white">How It Works</h2>
+          <p className="text-xs text-[#eceeff] dark:text-gray">
+            Book a service in 4 easy steps
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-4">
           {STEPS.map((step, i) => (
             <div key={i} className="relative">
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center h-full hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 text-center h-full hover:shadow-md transition-shadow">
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <span className="w-7 h-7 bg-(--color-primary) text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
                     {i + 1}
@@ -24,10 +27,10 @@ export default function StepsSection() {
                 >
                   <step.icon size={24} />
                 </div>
-                <h3 className="text-sm font-bold text-gray-900 mb-2">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2">
                   {step.title}
                 </h3>
-                <p className="text-xs text-gray-500 leading-relaxed">
+                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                   {step.description}
                 </p>
               </div>

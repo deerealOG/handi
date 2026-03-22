@@ -27,21 +27,22 @@ export default function ProvidersAndStepsSection({
   return (
     <>
       {/* Top Rated Professionals */}
-      <section className="mt-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 overflow-hidden p-4">
         <div className="mb-4">
-          <span className="inline-block px-3 py-1 bg-yellow-50 text-yellow-700 text-xs font-bold rounded-full mb-2">
+          <span className="inline-block px-3 py-1 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs font-bold rounded-full mb-2">
             Top Rated
           </span>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
             Top Rated Professionals
           </h2>
-          <p className="text-sm text-gray-500 mt-1">Trusted providers with the highest ratings and reviews.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Trusted providers with the highest ratings and reviews.</p>
         </div>
         <ScrollSection className="snap-x snap-mandatory">
           {topProviders.map((p) => (
             <div
               key={p.id}
-              className="w-[200px] max-w-[45vw] bg-white rounded-2xl shadow-sm snap-start border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden flex flex-col shrink-0"
+              className="w-[200px] max-w-[45vw] bg-white dark:bg-gray-800 rounded-2xl shadow-sm snap-start border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow relative overflow-hidden flex flex-col shrink-0"
             >
                 <div className="h-24 bg-gray-100 overflow-hidden relative">
                   {p.image ? (
@@ -57,11 +58,11 @@ export default function ProvidersAndStepsSection({
                   )}
                 </div>
                 <div className="p-3 flex flex-col flex-1 gap-1">
-                  <p className="text-sm font-semibold text-gray-900 truncate">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                     {p.name}
                   </p>
-                  <p className="text-xs text-gray-500">{p.category}</p>
-                  <p className="text-xs text-gray-700 line-clamp-2">{p.description}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{p.category}</p>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2">{p.description}</p>
                 </div>
               <div className="flex items-center justify-between mt-auto mb-2 px-3">
                 <span className="text-xs text-gray-400 flex items-center gap-1">
@@ -97,6 +98,7 @@ export default function ProvidersAndStepsSection({
             </div>
           ))}
         </ScrollSection>
+        </div>
       </section>
 
 

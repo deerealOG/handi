@@ -1,17 +1,23 @@
 "use client";
 
 import HeroSection from "@/components/landing-page/HeroSection";
+import QuickAccessCards from "@/components/landing-page/QuickAccessCards";
 
 import ProvidersAndStepsSection from "@/components/landing-page/ProvidersAndStepsSection";
-import FeaturedSection from "@/components/landing-page/FeaturedSection";
+import FlashDealsSection from "@/components/landing-page/FlashDealsSection";
+import RecommendedServicesSection from "@/components/landing-page/RecommendedServicesSection";
+import TrendingProductsSection from "@/components/landing-page/TrendingProductsSection";
+import PromoSection from "@/components/landing-page/PromoSection";
 import StepsSection from "@/components/landing-page/StepsSection";
 import AboutSection from "@/components/landing-page/AboutSection";
 import AppDownloadSection from "@/components/landing-page/AppDownloadSection";
 import TestimonialsSection from "@/components/landing-page/TestimonialsSection";
+import OfficialStoresSection from "@/components/landing-page/OfficialStoresSection";
 import {
   ProfessionalsNearYouSection,
   StoresNearYouSection,
   CheapProductsSection,
+  CategoriesSection,
 } from "@/components/landing-page/ExtraHomeSections";
 import { ScrollReveal } from "@/hooks/useScrollReveal";
 import { motion } from "framer-motion";
@@ -109,7 +115,7 @@ export default function HomeTab({
         "From electrical tools to cleaning supplies, shop trusted products used by professionals.",
       cta: "Shop Products",
       ctaAction: () => setActiveTab("shop"),
-      bg: "from-[#5f5c6d] to-[#aca9bb]",
+      bg: "from-(--color-primary) to-emerald-800",
       img: "/images/hero/hero-electrician.webp",
     },
     {
@@ -118,7 +124,7 @@ export default function HomeTab({
         "Search, compare, schedule, and pay securely with a seamless booking experience.",
       cta: "Explore Deals",
       ctaAction: () => setActiveTab("find-pros"),
-      bg: "from-[#3b3b3b] to-[#111]",
+      bg: "from-(--color-primary) to-emerald-800",
       img: "/images/hero/hero-products.webp",
     },
   ];
@@ -224,7 +230,7 @@ export default function HomeTab({
       initial={{ opacity: 0, y: 10 }} 
       animate={{ opacity: 1, y: 0 }} 
       transition={{ duration: 0.4 }} 
-      className="bg-gray-50 flex flex-col pt-6"
+      className="handi-bg flex flex-col pt-6"
     >
       <HeroSection
         selectedCategory={selectedCategory}
@@ -232,17 +238,17 @@ export default function HomeTab({
         router={router}
       />
       
-      
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-10 space-y-8">
-        {/* Inserted ProvidersAndStepsSection inside wrapper if needed, landing page does not wrap */}
-      </div>
-      
-      <ProvidersAndStepsSection router={router} />
+      <QuickAccessCards />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-4">
+        <section className="mb-4">
+          <ProvidersAndStepsSection router={router} />
+        </section>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full space-y-4">
         {/* Categories */}
-        <section>
+        <section className="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-gray-900">Categories</h2>
             <button className="text-sm text-(--color-primary) font-medium flex items-center gap-1 cursor-pointer">
@@ -267,7 +273,7 @@ export default function HomeTab({
         </section>
 
 {/* Recent Bookings */}
-      <section>
+      <section className="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-900">Recent Bookings</h2>
           <button
@@ -310,30 +316,65 @@ export default function HomeTab({
         )}
       </section>
 
-      <ScrollReveal direction="left" delay={0.05}>
-        <ProfessionalsNearYouSection router={router} />
+      <ScrollReveal direction="up" delay={0}>
+        <CategoriesSection router={router} />
       </ScrollReveal>
+      <ScrollReveal direction="left" delay={0.05}>
+        <section>
+          <ProfessionalsNearYouSection router={router} />
+        </section>
+      </ScrollReveal>
+      </div>
+
+      <ScrollReveal direction="right" delay={0.1}>
+        <OfficialStoresSection router={router} />
+      </ScrollReveal>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full space-y-4">
       <ScrollReveal direction="right" delay={0.05}>
-        <StoresNearYouSection router={router} />
+        <section>
+          <StoresNearYouSection router={router} />
+        </section>
       </ScrollReveal>
       <ScrollReveal direction="up" delay={0.1}>
-        <CheapProductsSection router={router} />
+        <section>
+          <CheapProductsSection router={router} />
+        </section>
       </ScrollReveal>
       </div>
 
       <ScrollReveal direction="up" delay={0}>
-        <FeaturedSection router={router} />
+        <RecommendedServicesSection />
       </ScrollReveal>
-      <ScrollReveal direction="fade" delay={0.1}>
-        <StepsSection />
+      <ScrollReveal direction="right" delay={0.05}>
+        <TrendingProductsSection />
       </ScrollReveal>
-      <ScrollReveal direction="up" delay={0}>
-        <AboutSection />
+      <ScrollReveal direction="left" delay={0.1}>
+        <FlashDealsSection />
       </ScrollReveal>
-      <ScrollReveal direction="fade" delay={0.1}>
-        <AppDownloadSection />
+      <ScrollReveal direction="up" delay={0.1}>
+        <PromoSection />
       </ScrollReveal>
-      <TestimonialsSection />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full space-y-6">
+        <ScrollReveal direction="fade" delay={0.1}>
+          <section>
+            <StepsSection />
+          </section>
+        </ScrollReveal>
+        <ScrollReveal direction="up" delay={0}>
+          <section>
+            <AboutSection />
+          </section>
+        </ScrollReveal>
+        <ScrollReveal direction="fade" delay={0.1}>
+          <AppDownloadSection />
+        </ScrollReveal>
+        <ScrollReveal direction="up" delay={0}>
+          <section>
+            <TestimonialsSection />
+          </section>
+        </ScrollReveal>
+      </div>
 
       {/* ===== BOOKING DETAIL MODAL ===== */}
       {selectedBooking && (

@@ -133,7 +133,7 @@ export default function VendorProductsTab() {
               <span className="text-sm text-gray-600">Requires installation?</span>
             </label>
           </div>
-          <textarea rows={3} placeholder="Product description*" value={form.description}
+          <textarea maxLength={500} rows={3} placeholder="Product description*" value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary resize-none" />
           <button onClick={handleAddProduct} disabled={submitting}

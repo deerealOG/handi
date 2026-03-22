@@ -32,7 +32,7 @@ export const PALETTE = {
     500: "#22C55E", // Bright - Success states
     600: "#16A34A", // Standard - Icons, links
     700: "#15803D", // Deep - Emphasis
-    800: "#368951", // HANDI Primary (Light Mode) ← Brand Color
+    800: "#398A4F", // HANDI Primary (Light Mode) ← Brand Color
     900: "#14532D", // Dark - Pressed states
     950: "#052E16", // Darkest - High contrast text
   },

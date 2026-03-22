@@ -616,7 +616,7 @@ function SearchPageContent() {
                 placeholder="Search services, providers, or products..."
                 value={query}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-11 pr-10 py-3 bg-gray-50 rounded-xl text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full pl-11 pr-10 py-3 bg-gray-50 rounded-md text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 autoFocus
               />
               {query && (

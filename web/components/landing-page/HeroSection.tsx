@@ -51,52 +51,107 @@ export default function HeroSection({
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="flex gap-4">
         {/* LEFT SIDEBAR */}
-        <aside className="w-52 shrink-0 hidden lg:block">
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
-              <Menu size={16} className="text-gray-600" />
-              <span className="font-semibold text-sm text-gray-900">
+        <aside className="w-56 shrink-0 hidden lg:block h-[385px] z-[9999]">
+          <div className="bg-(--color-primary) text-white rounded-xl shadow-sm h-full flex flex-col relative">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-white/20 shrink-0">
+              <Menu size={16} className="text-white" />
+              <span className="font-semibold text-sm text-white">
                 Top Categories
               </span>
             </div>
-            <nav className="divide-y divide-gray-50">
-              {SERVICE_CATEGORIES.slice(0, 7).map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() =>
-                    setSelectedCategory(
-                      selectedCategory === category.id ? null : category.id,
-                    )
+            <nav className="flex-1 flex flex-col justify-between py-1">
+              {SERVICE_CATEGORIES.slice(0, 8).map((category) => {
+                const getSubcategories = (id: string) => {
+                  switch(id) {
+                    case "electrical": return ["Wiring & Setup", "Appliance Repair", "Lighting"];
+                    case "plumbing": return ["Pipe Repairs", "Water Heater", "Drain Cleaning"];
+                    case "beauty": return ["Hair Styling", "Makeup", "Spa & Massage"];
+                    case "cleaning": return ["Home Cleaning", "Office Cleaning", "Deep Cleaning"];
+                    case "automotive": return ["Maintenance", "Engine Repair", "Tire Services"];
+                    case "construction": return ["Renovation", "Masonry", "Roofing"];
+                    case "home-improvement": return ["Painting", "Tiling", "Interior Design"];
+                    case "tech": return ["Computer Repair", "Phone Repair", "Network Setup"];
+                    default: return ["General Services", "Consultation", "Custom Request"];
                   }
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-gray-50 ${
-                    selectedCategory === category.id
-                      ? "bg-(--color-primary-light) text-(--color-primary) font-medium"
-                      : "text-gray-700"
-                  }`}
-                >
-                  <div className="w-7 h-7 rounded-full overflow-hidden shrink-0">
-                    <Image
-                      src={
-                        CATEGORY_IMAGES[category.id] ||
-                        "/images/categories/electrical.webp"
+                };
+                
+                return (
+                  <div key={category.id} className="relative group/cat flex-1 flex">
+                    <button
+                      onClick={() =>
+                        setSelectedCategory(
+                          selectedCategory === category.id ? null : category.id,
+                        )
                       }
-                      alt={category.label}
-                      width={28}
-                      height={28}
-                      className="w-full h-full object-cover"
-                    />
+                      className={`w-full flex items-center gap-3 px-4 text-sm transition-colors hover:bg-white/10 ${
+                        selectedCategory === category.id
+                          ? "bg-white/20 font-medium"
+                          : "text-white/90"
+                      }`}
+                    >
+                      <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-white/20">
+                        <Image
+                          src={
+                            CATEGORY_IMAGES[category.id] ||
+                            "/images/categories/electrical.webp"
+                          }
+                          alt={category.label}
+                          width={24}
+                          height={24}
+                          className="w-full h-full object-cover opacity-90"
+                        />
+                      </div>
+                      <span className="truncate flex-1 text-left">{category.label}</span>
+                      <ChevronRight size={14} className="text-white/50 shrink-0" />
+                    </button>
+                    {/* Flyout panel on hover */}
+                    <div className="absolute left-full top-0 pl-1 opacity-0 pointer-events-none group-hover/cat:opacity-100 group-hover/cat:pointer-events-auto transition-all duration-200 z-[9999]">
+                      <div className="bg-white rounded-xl shadow-xl border border-gray-100 border-l-4 border-l-(--color-primary) p-4 min-w-[220px]">
+                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                          {category.label}
+                        </h4>
+                        <p className="text-xs text-gray-500 mb-3">{category.description}</p>
+                        <ul className="space-y-1">
+                          {getSubcategories(category.id).map((sub, idx) => (
+                             <li key={idx}>
+                               <Link
+                                 href={`/services?q=${encodeURIComponent(sub)}`}
+                                 className="block py-1.5 px-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-(--color-primary) rounded transition-colors"
+                               >
+                                 {sub}
+                               </Link>
+                             </li>
+                          ))}
+                          <li className="pt-2 border-t border-gray-100 mt-2">
+                            <Link
+                              href={`/providers?category=${category.id}`}
+                              className="block py-1.5 px-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-(--color-primary) rounded transition-colors font-medium"
+                            >
+                              Find Providers <ArrowRight size={12} className="inline ml-1" />
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              href={`/products?category=${category.id}`}
+                              className="block py-1.5 px-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-(--color-primary) rounded transition-colors font-medium"
+                            >
+                              Shop Products <ArrowRight size={12} className="inline ml-1" />
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
-                  <span className="truncate">{category.label}</span>
-                </button>
-              ))}
+                );
+              })}
             </nav>
           </div>
         </aside>
 
         {/* CENTER - Hero Slider */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 w-full max-w-full overflow-hidden">
           {/* Mobile Search Bar */}
-          <div className="lg:hidden mb-4 relative">
+          <div className="lg:hidden mb-4 relative w-full">
             <Search
               size={18}
               className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
@@ -174,18 +229,18 @@ export default function HeroSection({
 
           {/* Hero Slider */}
           <div
-            className="relative rounded-xl overflow-hidden shadow-lg group"
+            className="relative rounded-xl overflow-hidden shadow-lg group w-full"
             onMouseEnter={() => setHeroHover(true)}
             onMouseLeave={() => setHeroHover(false)}
           >
             <div
-              className="flex transition-transform duration-700 ease-in-out"
+              className="flex transition-transform duration-700 ease-in-out w-full"
               style={{ transform: `translateX(-${currentSlide * 100}%)` }}
             >
               {HERO_SLIDES.map((slide, i) => (
                 <div
                   key={i}
-  className={`min-w-full h-auto min-h-[450px] md:min-h-0 md:h-[385px] bg-linear-to-r ${slide.bg} flex flex-col md:flex-row items-center`}
+                  className={`w-full shrink-0 min-w-full h-auto min-h-[450px] md:min-h-0 md:h-[385px] bg-linear-to-r ${slide.bg} flex flex-col md:flex-row items-center`}
                 >
                   <div className="flex-1 p-8 md:p-10 lg:p-16 flex flex-col items-center md:items-start text-center md:text-left mt-6 md:mt-0">
                     <h1 className="text-xl md:text-4xl font-bold text-white mb-3 leading-tight whitespace-pre-line">
@@ -211,8 +266,8 @@ export default function HeroSection({
                       )}
                     </div>
                   </div>
-                  <div className="md:flex md:w-64 lg:w-120 lg:h-full h-full items-end justify-center relative mt-4 md:mt-0">
-                    <div className="w-full md:h-50 lg:h-full lg:w-full h-full bg-linear-to-b from-white/10 to-transparent rounded-t-full flex flex-col relative top-0 lg:top-10">
+                  <div className="w-full md:flex md:w-64 lg:w-120 lg:h-full h-full items-end justify-center relative mt-4 md:mt-0">
+                    <div className="w-full max-w-full md:h-50 lg:h-full lg:w-full h-full bg-linear-to-b from-white/10 to-transparent rounded-t-full flex flex-col relative top-0 lg:top-10 overflow-hidden">
                       <Image
                         src={slide.img}
                         alt="Hero"

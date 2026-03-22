@@ -120,7 +120,7 @@ export default function BecomeProviderPage() {
                 key={req}
                 className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-card"
               >
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center shrink-0">
                   <span className="text-(--color-primary) text-sm">✓</span>
                 </div>
                 <span>{req}</span>
@@ -152,7 +152,7 @@ export default function BecomeProviderPage() {
             </button>
             <Link
               href="/contact"
-              className="bg-white text-gray-900 font-semibold px-8 py-4 rounded-[50px] hover:bg-gray-100 transition-colors"
+              className="bg-white text-gray-900 font-semibold px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors"
             >
               Contact Us
             </Link>

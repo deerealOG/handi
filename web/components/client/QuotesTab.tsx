@@ -103,7 +103,7 @@ export default function QuotesTab() {
               className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-(--color-primary)"
             />
           </div>
-          <textarea
+          <textarea maxLength={500}
             placeholder="Describe the work needed in detail*"
             rows={3}
             value={formData.description}

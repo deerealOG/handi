@@ -34,40 +34,47 @@ export default function DashboardTab({
 }) {
   const { addToast } = useNotification();
   
-  const stats = [
-    {
-      label: "Total Revenue",
-      value: "₦125,000",
-      trend: "+14.5%",
-      icon: TrendingUp,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
-    },
-    {
-      label: "Completed Jobs",
-      value: "45",
-      trend: "+5.2%",
-      icon: Briefcase,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-    },
-    {
-      label: "Avg Rating",
-      value: "4.8",
-      trend: "+0.2",
-      icon: Star,
-      color: "text-yellow-600",
-      bg: "bg-yellow-50",
-    },
-    {
-      label: "Pending Requests",
-      value: "2",
-      trend: "-1",
-      icon: Calendar,
-      color: "text-orange-600",
-      bg: "bg-orange-50",
-    },
-  ];
+  // Withdrawal modal state
+  const [showWithdraw, setShowWithdraw] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [withdrawBank, setWithdrawBank] = useState("GTBank - ****5678");
+  const [withdrawStep, setWithdrawStep] = useState<"amount" | "pin">("amount");
+  const [withdrawPin, setWithdrawPin] = useState("");
+  const [withdrawing, setWithdrawing] = useState(false);
+
+  const walletBalance = 125000;
+  const pendingBalance = 18500;
+  const totalEarned = 342000;
+
+  const handleWithdraw = () => {
+    if (withdrawStep === "amount") {
+      const amt = Number(withdrawAmount);
+      if (!amt || amt < 1000) {
+        addToast({ type: "error", title: "Invalid Amount", message: "Minimum withdrawal is ₦1,000." });
+        return;
+      }
+      if (amt > walletBalance) {
+        addToast({ type: "error", title: "Insufficient Balance", message: "You don't have enough funds." });
+        return;
+      }
+      setWithdrawStep("pin");
+      return;
+    }
+    // Pin verification step
+    if (withdrawPin.length < 4) {
+      addToast({ type: "error", title: "Invalid PIN", message: "Enter your 4-digit security PIN." });
+      return;
+    }
+    setWithdrawing(true);
+    setTimeout(() => {
+      setWithdrawing(false);
+      setShowWithdraw(false);
+      setWithdrawStep("amount");
+      setWithdrawAmount("");
+      setWithdrawPin("");
+      addToast({ type: "success", title: "✅ Withdrawal Submitted", message: `₦${Number(withdrawAmount).toLocaleString()} will be sent to ${withdrawBank} within 1-3 business days.` });
+    }, 1500);
+  };
 
   const pendingBookings = MOCK_BOOKINGS.filter((b) => b.status === "pending");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,27 +82,17 @@ export default function DashboardTab({
 
   const statusStyle = (status: string) => {
     switch (status) {
-      case "completed":
-        return "bg-emerald-50 text-emerald-700 ring-emerald-600/20";
-      case "pending":
-        return "bg-orange-50 text-orange-700 ring-orange-600/20";
-      case "confirmed":
-        return "bg-blue-50 text-blue-700 ring-blue-600/20";
-      case "cancelled":
-        return "bg-red-50 text-red-700 ring-red-600/20";
-      default:
-        return "bg-gray-50 text-gray-700 ring-gray-500/20";
+      case "completed": return "bg-emerald-50 text-emerald-700 ring-emerald-600/20";
+      case "pending": return "bg-orange-50 text-orange-700 ring-orange-600/20";
+      case "confirmed": return "bg-blue-50 text-blue-700 ring-blue-600/20";
+      case "cancelled": return "bg-red-50 text-red-700 ring-red-600/20";
+      default: return "bg-gray-50 text-gray-700 ring-gray-500/20";
     }
   };
 
-  // Mock bar chart data
   const chartData = [
-    { day: "Mon", value: 30 },
-    { day: "Tue", value: 45 },
-    { day: "Wed", value: 25 },
-    { day: "Thu", value: 65 },
-    { day: "Fri", value: 85 },
-    { day: "Sat", value: 55 },
+    { day: "Mon", value: 30 }, { day: "Tue", value: 45 }, { day: "Wed", value: 25 },
+    { day: "Thu", value: 65 }, { day: "Fri", value: 85 }, { day: "Sat", value: 55 },
     { day: "Sun", value: 40 },
   ];
 
@@ -114,7 +111,7 @@ export default function DashboardTab({
         <div className="flex gap-3">
           <button
             onClick={() => setActiveTab("services")}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-full text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 hover:bg-gray-100 text-sm font-medium transition-colors"
           >
             <Plus size={16} />
             New Service
@@ -124,7 +121,7 @@ export default function DashboardTab({
 
       {/* Profile Incomplete Warning */}
       {user.profileComplete === false && (
-        <div className="bg-orange-50/50 border border-orange-200/50 rounded-2xl p-5 flex items-start gap-4">
+        <div className="bg-orange-50/50 border border-orange-200/50 p-5 flex items-start gap-4">
           <div className="p-2 bg-orange-100 rounded-full text-orange-600 shrink-0">
             <AlertCircle size={24} />
           </div>
@@ -147,27 +144,64 @@ export default function DashboardTab({
 
       {/* Bento Grid layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column (Stats & Chart) */}
+        {/* Left Column (Wallet + Chart) */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Metrics Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {stats.map((stat, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.1)] transition-all duration-300"
+          {/* Wallet Card */}
+          <div className="bg-linear-to-r from-emerald-600 to-teal-700 p-6 text-white shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <CreditCard size={20} />
+                <span className="text-sm font-semibold text-white/80">Wallet Balance</span>
+              </div>
+              <button
+                onClick={() => setActiveTab("settings")}
+                className="text-xs text-white/60 hover:text-white/90 flex items-center gap-1 transition-colors"
               >
-                <div className="flex justify-between items-start mb-4">
-                  <div className={`p-2.5 rounded-xl ${stat.bg} ${stat.color}`}>
-                    <stat.icon size={20} />
-                  </div>
-                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                    stat.trend.startsWith('+') ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-                  }`}>
-                    {stat.trend}
-                  </span>
+                <Settings size={12} /> Set 2FA PIN
+              </button>
+            </div>
+            <h3 className="text-3xl font-bold mb-1">₦{walletBalance.toLocaleString()}</h3>
+            <p className="text-sm text-white/70 mb-5">Available for withdrawal</p>
+            <div className="grid grid-cols-2 gap-4 mb-5">
+              <div className="bg-white/10 backdrop-blur-sm p-3">
+                <p className="text-xs text-white/60">Pending</p>
+                <p className="text-lg font-bold">₦{pendingBalance.toLocaleString()}</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm p-3">
+                <p className="text-xs text-white/60">Total Earned</p>
+                <p className="text-lg font-bold">₦{totalEarned.toLocaleString()}</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setShowWithdraw(true); setWithdrawStep("amount"); }}
+                className="flex-1 py-2.5 bg-white text-emerald-700 text-sm font-bold hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                Withdraw Funds
+              </button>
+              <button
+                onClick={() => setActiveTab("earnings")}
+                className="px-4 py-2.5 border border-white/30 text-white text-sm font-semibold hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                View History
+              </button>
+            </div>
+          </div>
+
+          {/* Small stats row */}
+          <div className="grid grid-cols-3 gap-4">
+            {[
+              { label: "Completed Jobs", value: "45", trend: "+5.2%", icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50" },
+              { label: "Avg Rating", value: "4.8", trend: "+0.2", icon: Star, color: "text-yellow-600", bg: "bg-yellow-50" },
+              { label: "Pending Requests", value: String(pendingBookings.length), trend: "", icon: Calendar, color: "text-orange-600", bg: "bg-orange-50" },
+            ].map((stat, i) => (
+              <div key={i} className="bg-white p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                <div className="flex justify-between items-start mb-3">
+                  <div className={`p-2 rounded-xl ${stat.bg} ${stat.color}`}><stat.icon size={18} /></div>
+                  {stat.trend && <span className={`text-[10px] font-semibold px-2 py-0.5 ${stat.trend.startsWith('+') ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{stat.trend}</span>}
                 </div>
-                <p className="text-sm font-medium text-gray-500 mb-1">{stat.label}</p>
-                <h4 className="text-2xl font-bold text-gray-900 tracking-tight">{stat.value}</h4>
+                <p className="text-xs font-medium text-gray-500 mb-0.5">{stat.label}</p>
+                <h4 className="text-xl font-bold text-gray-900">{stat.value}</h4>
               </div>
             ))}
           </div>
@@ -199,7 +233,7 @@ export default function DashboardTab({
                       className="w-full max-w-[40px] bg-(--color-primary)/20 rounded-t-lg group-hover:bg-(--color-primary) transition-colors duration-300 relative overflow-hidden"
                       style={{ height: `${d.value}%` }}
                     >
-                      <div className="absolute bottom-0 w-full bg-gradient-to-t from-(--color-primary)/40 to-transparent h-full" />
+                      <div className="absolute bottom-0 w-full bg-linear-to-t from-(--color-primary)/40 to-transparent h-full" />
                     </div>
                   </div>
                   <span className="text-xs font-medium text-gray-400 group-hover:text-gray-900 transition-colors uppercase tracking-wider">{d.day}</span>
@@ -339,7 +373,7 @@ export default function DashboardTab({
       {/* Booking Detail Modal */}
       {selectedBooking && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
           onClick={() => setSelectedBooking(null)}
         >
           <div
@@ -398,6 +432,75 @@ export default function DashboardTab({
           </div>
         </div>
       )}
+
+      {/* ===== Withdrawal Modal ===== */}
+      {showWithdraw && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => { setShowWithdraw(false); setWithdrawStep("amount"); }}>
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                {withdrawStep === "amount" ? "Withdraw Funds" : "🔒 Verify 2FA PIN"}
+              </h3>
+              <button onClick={() => { setShowWithdraw(false); setWithdrawStep("amount"); }} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer">
+                <X size={18} className="text-gray-400" />
+              </button>
+            </div>
+
+            {withdrawStep === "amount" ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Amount (₦)</label>
+                  <input
+                    type="number"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    placeholder="Min. ₦1,000"
+                    className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm outline-none focus:ring-2 focus:ring-(--color-primary)"
+                  />
+                  <p className="text-[10px] text-gray-400 mt-1">Available: ₦{walletBalance.toLocaleString()}</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Bank Account</label>
+                  <select
+                    value={withdrawBank}
+                    onChange={(e) => setWithdrawBank(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm outline-none focus:ring-2 focus:ring-(--color-primary) cursor-pointer"
+                  >
+                    <option>GTBank - ****5678</option>
+                    <option>First Bank - ****1234</option>
+                    <option>UBA - ****9012</option>
+                  </select>
+                </div>
+                <button onClick={handleWithdraw} className="w-full py-3 bg-(--color-primary) text-white text-sm font-bold hover:opacity-90 transition-opacity cursor-pointer">
+                  Continue to Verification
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Enter your 4-digit security PIN to confirm withdrawal of <strong>₦{Number(withdrawAmount).toLocaleString()}</strong> to <strong>{withdrawBank}</strong>.</p>
+                <input
+                  type="password"
+                  maxLength={4}
+                  value={withdrawPin}
+                  onChange={(e) => setWithdrawPin(e.target.value.replace(/\D/g, ""))}
+                  placeholder="****"
+                  className="w-full text-center tracking-[0.5em] text-2xl py-3 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 outline-none focus:ring-2 focus:ring-(--color-primary) font-mono"
+                />
+                <p className="text-[10px] text-gray-400 text-center">Set your PIN in <button onClick={() => { setShowWithdraw(false); setActiveTab("settings"); }} className="text-(--color-primary) font-semibold hover:underline cursor-pointer">Settings → Security</button></p>
+                <div className="flex gap-3">
+                  <button onClick={() => setWithdrawStep("amount")} className="flex-1 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                    Back
+                  </button>
+                  <button onClick={handleWithdraw} disabled={withdrawing} className="flex-1 py-3 bg-(--color-primary) text-white text-sm font-bold hover:opacity-90 disabled:opacity-40 transition-opacity cursor-pointer">
+                    {withdrawing ? "Processing..." : "Confirm Withdrawal"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

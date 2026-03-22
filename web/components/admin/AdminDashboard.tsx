@@ -184,9 +184,9 @@ export default function AdminDashboard() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
       {/* ===== TOP BAR ===== */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50">
         <div className="px-4 sm:px-6">
           <div className="flex items-center justify-between h-14">
             {/* Left: Logo + Desktop sidebar toggle + role */}
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
                   value={globalSearch}
                   onChange={(e) => setGlobalSearch(e.target.value)}
                   placeholder="Search users, providers, bookings..."
-                  className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-full text-sm outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
+                  className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && globalSearch.trim()) {
                       const q = globalSearch.toLowerCase();
@@ -367,9 +367,9 @@ export default function AdminDashboard() {
       <div className="flex flex-1">
         {/* Desktop Sidebar */}
         <aside
-          className={`hidden lg:flex flex-col sticky top-14 h-[calc(100vh-3.5rem)] bg-white border-r border-gray-100 transition-all duration-200 ${sidebarOpen ? "w-56" : "w-16"}`}
+          className={`hidden lg:flex flex-col sticky top-14 h-[calc(100vh-3.5rem)] bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 transition-all duration-200 ${sidebarOpen ? "w-56" : "w-16"}`}
         >
-          <nav className="flex-1 py-3 space-y-0.5 px-2 overflow-y-auto no-scrollbar">
+          <nav className="flex-1 py-3 space-y-0.5 px-2 overflow-y-auto">
             {TABS.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -387,8 +387,8 @@ export default function AdminDashboard() {
                   title={!sidebarOpen ? tab.label : undefined}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative ${
                     isActive
-                      ? "bg-purple-50 text-purple-700 border-l-[3px] border-purple-600"
-                      : "text-gray-500 hover:bg-gray-50 hover:text-gray-700 border-l-[3px] border-transparent"
+                      ? "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-l-[3px] border-purple-600"
+                      : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200 border-l-[3px] border-transparent"
                   }`}
                 >
                   <Icon
@@ -491,7 +491,7 @@ export default function AdminDashboard() {
         )}
 
         {/* ===== TAB CONTENT ===== */}
-        <main className="flex-1 min-w-0 pb-20">
+        <main className="flex-1 min-w-0 pb-20 bg-gray-50 dark:bg-gray-950">
           {activeTab === "overview" && (
             <OverviewTab setActiveTab={setActiveTab} />
           )}
@@ -524,10 +524,10 @@ export default function AdminDashboard() {
           onClick={() => setShowLogoutConfirm(false)}
         >
           <div
-            className="bg-white rounded-2xl p-6 mx-4 max-w-sm w-full shadow-xl"
+            className="bg-white dark:bg-gray-900 rounded-2xl p-6 mx-4 max-w-sm w-full shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
               Confirm Logout
             </h3>
             <p className="text-sm text-gray-500 mb-6">

@@ -228,7 +228,7 @@ export default function HomeProfileTab() {
         {/* Notes */}
         <div>
           <label className="text-xs font-semibold text-gray-500 mb-1.5">Notes</label>
-          <textarea
+          <textarea maxLength={500}
             rows={3}
             placeholder="Any special details about your property..."
             value={form.notes}

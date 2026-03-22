@@ -222,7 +222,7 @@ export default function ServiceDetailPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Breadcrumb */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
            <Breadcrumbs 
@@ -239,7 +239,7 @@ export default function ServiceDetailPage() {
             {/* ====== LEFT COLUMN ====== */}
             <div className="space-y-6">
               {/* Service Header */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
                 {/* Image Gallery */}
                 <div className="flex gap-3 mb-5">
                   <div className="flex-1 bg-linear-to-br from-emerald-100 to-blue-50 rounded-2xl h-64 sm:h-72 flex items-center justify-center relative overflow-hidden">
@@ -303,10 +303,10 @@ export default function ServiceDetailPage() {
                     Available Now
                   </span>
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   {service.name}
                 </h1>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-4">
+                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
                   <span className="flex items-center gap-1">
                     <Star
                       size={14}
@@ -340,7 +340,7 @@ export default function ServiceDetailPage() {
                   </button>
                   <button
                     onClick={() => addToCart(service.id, "service")}
-                    className="px-6 py-3 border border-gray-200 text-gray-700 rounded-full cursor-pointer font-semibold hover:bg-gray-50 transition-colors"
+                    className="px-6 py-3 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-full cursor-pointer font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     Add to Cart
                   </button>
@@ -368,28 +368,28 @@ export default function ServiceDetailPage() {
                 ].map((t, i) => (
                   <div
                     key={i}
-                    className="bg-white rounded-2xl p-4 shadow-sm flex items-start gap-3"
+                    className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex items-start gap-3"
                   >
                     <div className="mt-0.5">{t.icon}</div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
                         {t.title}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">{t.desc}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* About This Service */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h2 className="text-lg font-bold text-gray-900 mb-3">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
                   About This Service
                 </h2>
-                <p className="text-gray-600 leading-relaxed text-sm mb-4">
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm mb-4">
                   {service.description}
                 </p>
-                <p className="text-sm text-gray-600 leading-relaxed">
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                   This professional {service.name.toLowerCase()} service is
                   delivered by experienced providers who are vetted and verified
                   by HANDI. The service includes a thorough consultation,
@@ -413,12 +413,12 @@ export default function ServiceDetailPage() {
                     { label: "Status", value: "Available", green: true },
                     { label: "Mode", value: "In-Person" },
                   ].map((d) => (
-                    <div key={d.label} className="bg-gray-50 rounded-xl p-3">
-                      <p className="text-[10px] text-gray-500 mb-0.5">
+                    <div key={d.label} className="bg-gray-50 dark:bg-gray-700 rounded-xl p-3">
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-0.5">
                         {d.label}
                       </p>
                       <p
-                        className={`text-sm font-bold ${d.green ? "text-green-600" : "text-gray-900"} capitalize`}
+                        className={`text-sm font-bold ${d.green ? "text-green-600" : "text-gray-900 dark:text-white"} capitalize`}
                       >
                         {d.value}
                       </p>
@@ -436,7 +436,7 @@ export default function ServiceDetailPage() {
                   {includedItems.map((item, i) => (
                     <div
                       key={i}
-                      className="flex items-start gap-2 text-sm text-gray-600"
+                      className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300"
                     >
                       <CheckCircle
                         size={16}
@@ -457,7 +457,7 @@ export default function ServiceDetailPage() {
                   {[1, 2, 3, 4, 5, 6].map((i) => (
                     <div
                       key={i}
-                      className="bg-linear-to-br from-gray-100 to-gray-50 rounded-xl h-28 sm:h-36 flex items-center justify-center cursor-pointer hover:shadow-md transition-shadow"
+                      className="bg-linear-to-br from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-600 rounded-xl h-28 sm:h-36 flex items-center justify-center cursor-pointer hover:shadow-md transition-shadow"
                     >
                       <span className="text-3xl opacity-30">📷</span>
                     </div>
@@ -546,15 +546,15 @@ export default function ServiceDetailPage() {
               </div>
 
               {/* Customer Reviews */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-bold text-gray-900">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                     Customer Reviews
                   </h2>
                   <select
                     value={reviewSort}
                     onChange={(e) => setReviewSort(e.target.value)}
-                    className="text-xs bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer"
+                    className="text-xs bg-gray-50 dark:bg-gray-700 dark:text-white border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 outline-none cursor-pointer"
                   >
                     <option value="recent">Most Recent</option>
                     <option value="highest">Highest Rated</option>
@@ -563,9 +563,9 @@ export default function ServiceDetailPage() {
                 </div>
 
                 {/* Rating Summary */}
-                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl mb-5">
+                <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl mb-5">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-gray-900">
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white">
                       {service.rating}
                     </p>
                     <div className="flex gap-0.5 mt-1">
@@ -629,7 +629,7 @@ export default function ServiceDetailPage() {
                             {review.name.charAt(0)}
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-gray-900">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
                               {review.name}
                             </p>
                             <p className="text-xs text-gray-500">
@@ -651,7 +651,7 @@ export default function ServiceDetailPage() {
                           ))}
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600">{review.comment}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{review.comment}</p>
                     </div>
                   ))}
                 </div>
@@ -691,8 +691,8 @@ export default function ServiceDetailPage() {
 
               {/* Similar Services */}
               {similarServices.length > 0 && (
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
-                  <h2 className="text-lg font-bold text-gray-900 mb-4">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     Similar Services
                   </h2>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -733,7 +733,7 @@ export default function ServiceDetailPage() {
             {/* ====== RIGHT COLUMN (STICKY) ====== */}
             <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
               {/* Provider Card */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
                 <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">
                   Service Provider
                 </h3>
@@ -797,7 +797,7 @@ export default function ServiceDetailPage() {
               </div>
 
               {/* Booking Panel */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
                 <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-4">
                   <Calendar size={18} className="text-primary" /> Book This
                   Service
@@ -852,7 +852,7 @@ export default function ServiceDetailPage() {
               </div>
 
               {/* Trust Badges */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm space-y-3">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 space-y-3">
                 <div className="flex items-start gap-2">
                   <Zap size={16} className="text-primary mt-0.5 shrink-0" />
                   <p className="text-xs text-gray-500">
@@ -886,9 +886,9 @@ export default function ServiceDetailPage() {
         </div>
 
         {/* Mobile Sticky CTA */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 z-40 flex items-center gap-3">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-3 z-40 flex items-center gap-3">
           <div>
-            <p className="text-lg font-bold text-gray-900">
+            <p className="text-lg font-bold text-gray-900 dark:text-white">
               ₦{service.price.toLocaleString()}
             </p>
             <p className="text-[10px] text-gray-500">Starting price</p>

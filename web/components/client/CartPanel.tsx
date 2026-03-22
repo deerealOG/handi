@@ -211,7 +211,7 @@ export default function CartPanel({ onClose }: { onClose: () => void }) {
                     />
                   </div>
 
-                  <textarea
+                  <textarea maxLength={500}
                     placeholder="Full street address..."
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}

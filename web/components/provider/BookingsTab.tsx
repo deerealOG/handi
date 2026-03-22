@@ -99,7 +99,7 @@ export default function BookingsTab() {
               placeholder="Search bookings..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-full bg-white outline-none focus:ring-2 focus:ring-(--color-primary)/30 w-48"
+              className="pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-md bg-white outline-none focus:ring-2 focus:ring-(--color-primary)/30 w-48"
             />
           </div>
           <select

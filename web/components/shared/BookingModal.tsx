@@ -44,6 +44,7 @@ const MOCK_PROVIDERS = [
     badge: "Top Rated",
     badgeColor: "bg-yellow-100 text-yellow-700",
     avatar: "S",
+    distance: 5.2,
   },
   {
     id: "p2",
@@ -55,6 +56,7 @@ const MOCK_PROVIDERS = [
     badge: "Fast Response",
     badgeColor: "bg-blue-100 text-blue-700",
     avatar: "P",
+    distance: 12.8,
   },
   {
     id: "p3",
@@ -66,6 +68,7 @@ const MOCK_PROVIDERS = [
     badge: "Recommended",
     badgeColor: "bg-green-100 text-green-700",
     avatar: "H",
+    distance: 24.5,
   },
 ];
 
@@ -279,14 +282,19 @@ export default function BookingModal({
             <p className="text-sm text-gray-500 mb-2">
               Choose a provider for <strong>{serviceName}</strong>
             </p>
-            {MOCK_PROVIDERS.map((provider) => (
+            {MOCK_PROVIDERS.map((provider) => {
+              const isTooFar = provider.distance > 20;
+
+              return (
               <div
                 key={provider.id}
-                onClick={() => setSelectedProvider(provider)}
-                className={`p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                  selectedProvider?.id === provider.id
-                    ? "border-(--color-primary) bg-(--color-primary-light) shadow-sm"
-                    : "border-gray-100 hover:border-gray-200 hover:shadow-sm"
+                onClick={() => !isTooFar && setSelectedProvider(provider)}
+                className={`p-4 rounded-2xl border-2 transition-all ${
+                  isTooFar
+                    ? "opacity-50 cursor-not-allowed border-gray-100 bg-gray-50"
+                    : selectedProvider?.id === provider.id
+                      ? "border-(--color-primary) bg-(--color-primary-light) shadow-sm cursor-pointer"
+                      : "border-gray-100 hover:border-gray-200 hover:shadow-sm cursor-pointer"
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -313,6 +321,10 @@ export default function BookingModal({
                         {provider.rating}
                       </span>
                       <span className="flex items-center gap-0.5">
+                        <MapPin size={11} />
+                        {provider.distance}km
+                      </span>
+                      <span className="flex items-center gap-0.5">
                         <Trophy size={11} />
                         {provider.completedJobs} jobs
                       </span>
@@ -325,6 +337,11 @@ export default function BookingModal({
                       <p className="text-sm font-bold text-(--color-primary)">
                         ₦{Math.round(price * provider.price).toLocaleString()}
                       </p>
+                      {isTooFar && (
+                        <span className="text-[10px] text-red-500 font-semibold px-2 py-0.5 bg-red-50 rounded-full">
+                          Too far (Max 20km)
+                        </span>
+                      )}
                       {selectedProvider?.id === provider.id && (
                         <CheckCircle
                           size={18}
@@ -335,7 +352,7 @@ export default function BookingModal({
                   </div>
                 </div>
               </div>
-            ))}
+            )})}
 
             <button
               onClick={() => {
@@ -612,7 +629,7 @@ export default function BookingModal({
                   size={16}
                   className="absolute left-3 top-3 text-gray-400"
                 />
-                <textarea
+                <textarea maxLength={500}
                   placeholder="Describe the job details or special requirements..."
                   value={formData.notes}
                   onChange={(e) =>

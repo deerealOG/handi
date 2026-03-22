@@ -18,6 +18,7 @@ import {
   ShoppingCart,
   SlidersHorizontal,
   Sun,
+  UserCircle,
   X,
 } from "lucide-react";
 import Image from "next/image";
@@ -26,14 +27,147 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import SearchFilter from "./SearchFilter";
 
-const NAV_LINKS = [
+interface SubLink {
+  label: string;
+  href: string;
+}
+interface MegaColumn {
+  title: string;
+  links: SubLink[];
+}
+interface NavItem {
+  id: string;
+  label: string;
+  href: string;
+  columns?: MegaColumn[];
+}
+
+const NAV_LINKS: NavItem[] = [
   { id: "home", label: "HOME", href: "/" },
-  { id: "shop", label: "SHOP", href: "/products" },
-  { id: "services", label: "SERVICES", href: "/services" },
-  { id: "providers", label: "PROVIDERS", href: "/providers" },
-  { id: "official-stores", label: "OFFICIAL STORES", href: "/official-stores" },
-  { id: "how-it-works", label: "HOW IT WORKS", href: "/how-it-works" },
-  { id: "deals", label: "DEALS", href: "/deals" },
+  {
+    id: "providers",
+    label: "PROVIDERS",
+    href: "/providers",
+    columns: [
+      {
+        title: "Find Providers",
+        links: [
+          { label: "Top Rated", href: "/providers?sort=rating" },
+          { label: "Near You", href: "/providers?nearby=true" },
+          { label: "Verified Pros", href: "/providers?verified=true" },
+          { label: "All Providers", href: "/providers" },
+        ],
+      },
+      {
+        title: "For Providers",
+        links: [
+          { label: "Become a Provider", href: "/become-provider" },
+          { label: "Sell on HANDI", href: "/sell-on-handi" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "services",
+    label: "SERVICES",
+    href: "/services",
+    columns: [
+      {
+        title: "Home Services",
+        links: [
+          { label: "Electrical Work", href: "/services?q=electrical" },
+          { label: "Plumbing", href: "/services?q=plumbing" },
+          { label: "Cleaning", href: "/services?q=cleaning" },
+          { label: "Painting", href: "/services?q=painting" },
+          { label: "AC & Refrigeration", href: "/services?q=ac-repair" },
+        ],
+      },
+      {
+        title: "Personal Services",
+        links: [
+          { label: "Beauty & Wellness", href: "/services?q=beauty" },
+          { label: "Catering", href: "/services?q=catering" },
+          { label: "Photography", href: "/services?q=photography" },
+          { label: "Tutoring", href: "/services?q=tutoring" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "shop",
+    label: "SHOP",
+    href: "/products",
+    columns: [
+      {
+        title: "Categories",
+        links: [
+          { label: "Electronics & Electrical", href: "/products?category=electrical" },
+          { label: "Power Tools", href: "/products?category=tools" },
+          { label: "Cleaning Supplies", href: "/products?category=cleaning" },
+          { label: "Plumbing Materials", href: "/products?category=plumbing" },
+          { label: "Beauty Products", href: "/products?category=beauty" },
+        ],
+      },
+      {
+        title: "Popular",
+        links: [
+          { label: "Best Sellers", href: "/products?sort=best-selling" },
+          { label: "Top Rated", href: "/products?sort=top-rated" },
+          { label: "New Arrivals", href: "/products?sort=newest" },
+          { label: "Deals & Discounts", href: "/products?deals=true" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "official-stores",
+    label: "OFFICIAL STORES",
+    href: "/official-stores",
+    columns: [
+      {
+        title: "Browse Stores",
+        links: [
+          { label: "All Official Stores", href: "/official-stores" },
+          { label: "Electronics Stores", href: "/official-stores?category=electronics" },
+          { label: "Home & Garden", href: "/official-stores?category=home" },
+          { label: "Tools & Hardware", href: "/official-stores?category=tools" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "how-it-works",
+    label: "HOW IT WORKS",
+    href: "/how-it-works",
+    columns: [
+      {
+        title: "Learn More",
+        links: [
+          { label: "For Clients", href: "/how-it-works#clients" },
+          { label: "For Providers", href: "/how-it-works#providers" },
+          { label: "For Vendors", href: "/how-it-works#vendors" },
+          { label: "Help Center", href: "/help" },
+          { label: "FAQ", href: "/faq" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "deals",
+    label: "DEALS",
+    href: "/deals",
+    columns: [
+      {
+        title: "Hot Deals",
+        links: [
+          { label: "Flash Deals", href: "/deals?type=flash" },
+          { label: "Clearance Sale", href: "/deals?type=clearance" },
+          { label: "Buy 1 Get 1", href: "/deals?type=bogo" },
+          { label: "Top Picks For You", href: "/deals?type=top-picks" },
+        ],
+      },
+    ],
+  },
 ];
 
 export default function Navbar() {
@@ -90,7 +224,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-[9999]">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         {/* ── Row 1: Logo + Categories Dropdown + Search + Icons ── */}
         <div className="flex items-center h-14 gap-4 justify-between ">
@@ -113,7 +247,7 @@ export default function Navbar() {
           >
             <form
               onSubmit={handleSearchSubmit}
-              className="flex items-center bg-gray-100 rounded-full px-4 py-3 gap-2 w-full"
+              className="flex items-center bg-gray-100 rounded-md px-4 py-3 gap-2 w-full"
             >
               <Search size={20} className="text-gray-400 shrink-0" />
               <input
@@ -183,11 +317,24 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/help"
-                className="flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-(--color-primary) transition-colors"
+                className="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-(--color-primary) transition-colors"
               >
                 <HelpCircle size={20} />
                 <span className="hidden lg:block">Help</span>
               </Link>
+
+              {/* Dark Mode Toggle — Desktop */}
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                title={isDark ? "Light Mode" : "Dark Mode"}
+              >
+                {isDark ? (
+                  <Sun size={20} className="text-yellow-500" />
+                ) : (
+                  <Moon size={20} className="text-gray-600" />
+                )}
+              </button>
 
               {/* Account - Auth-aware */}
               <div className="relative" ref={accountRef}>
@@ -207,7 +354,7 @@ export default function Navbar() {
                     </button>
 
                     {accountOpen && (
-                      <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-fadeIn">
+                      <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-[9999] animate-fadeIn">
                         <div className="px-4 py-2 border-b border-gray-100">
                           <p className="text-sm font-semibold text-gray-900">
                             {user?.firstName} {user?.lastName}
@@ -236,20 +383,43 @@ export default function Navbar() {
                   </>
                 ) : (
                   <div className="hidden lg:flex items-center gap-3">
-                    
-
-                    <Link
-                      href="/login"
-                      className="px-5 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-full hover:text-primary transition-colors"
-                    >
-                      Log In
-                    </Link>
-                    <Link
-                      href="/signup"
-                      className="px-5 py-2 text-sm font-semibold bg-primary text-white rounded-full hover:opacity-90 transition-opacity"
-                    >
-                      Sign Up
-                    </Link>
+                    <div className="relative group/acct">
+                      <button
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-(--color-primary) hover:opacity-90 transition-opacity cursor-pointer"
+                      >
+                        <UserCircle size={18} />
+                        Account
+                      </button>
+                      {/* Hover dropdown */}
+                      <div className="absolute right-0 top-full pt-1 opacity-0 invisible group-hover/acct:opacity-100 group-hover/acct:visible transition-all duration-200 z-[9999]">
+                        <div className="bg-white dark:bg-gray-800 rounded shadow-xl border border-gray-100 dark:border-gray-700 border-t-3 border-t-(--color-primary) min-w-[200px] p-4">
+                          <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">Welcome to HANDI</p>
+                          <Link
+                            href="/login"
+                            className="block w-full text-center py-2.5 bg-(--color-primary) text-white text-sm font-semibold hover:opacity-90 transition-opacity mb-2 rounded-md"
+                          >
+                            Log In
+                          </Link>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                            New here?{" "}
+                            <Link href="/signup" className="text-(--color-primary) font-semibold hover:underline">
+                              Sign Up
+                            </Link>
+                          </p>
+                          <div className="border-t border-gray-100 dark:border-gray-700 mt-3 pt-3 space-y-1">
+                            <Link href="/become-provider" className="block text-xs text-gray-600 dark:text-gray-400 hover:text-(--color-primary) transition-colors py-1">
+                              Become a Provider
+                            </Link>
+                            <Link href="/sell-on-handi" className="block text-xs text-gray-600 dark:text-gray-400 hover:text-(--color-primary) transition-colors py-1">
+                              Sell on HANDI
+                            </Link>
+                            <Link href="/help" className="block text-xs text-gray-600 dark:text-gray-400 hover:text-(--color-primary) transition-colors py-1">
+                              Help Center
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -279,20 +449,49 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* ── Row 2: Nav Links (Desktop) — right-aligned ── */}
-        <div className="hidden lg:flex items-center justify-start gap-6 h-10 -mb-px">
+        {/* ── Row 2: Nav Links with Mega Menu (Desktop) ── */}
+        <div className="hidden lg:flex items-center justify-start gap-0 h-10 -mb-px relative">
           {NAV_LINKS.map((link) => (
-            <Link
-              key={link.id}
-              href={link.href}
-              className={`text-xs font-semibold tracking-wide transition-colors border-b-2 pb-2 ${
-                activeLink === link.id
-                  ? "text-(--color-primary) border-(--color-primary)"
-                  : "text-gray-600 border-transparent hover:text-(--color-primary) hover:border-(--color-primary)"
-              }`}
-            >
-              {link.label}
-            </Link>
+            <div key={link.id} className="relative group/nav">
+              <Link
+                href={link.href}
+                className={`text-xs font-semibold tracking-wide transition-colors border-b-2 pb-2 px-3 block ${
+                  activeLink === link.id
+                    ? "text-(--color-primary) border-(--color-primary)"
+                    : "text-gray-600 border-transparent hover:text-(--color-primary) hover:border-(--color-primary)"
+                }`}
+              >
+                {link.label}
+              </Link>
+              {/* Mega Menu Dropdown */}
+              {link.columns && (
+                <div className="absolute left-0 top-full pt-1 opacity-0 invisible group-hover/nav:opacity-100 group-hover/nav:visible transition-all duration-200 z-[9999]">
+                  <div className="bg-white rounded-b shadow-xl border border-gray-100 border-t-3 border-t-(--color-primary) min-w-[280px] p-4">
+                    <div className={`grid gap-6 ${link.columns.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+                      {link.columns.map((col) => (
+                        <div key={col.title}>
+                          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                            {col.title}
+                          </h4>
+                          <ul className="space-y-1">
+                            {col.links.map((sub) => (
+                              <li key={sub.href}>
+                                <Link
+                                  href={sub.href}
+                                  className="block py-1.5 px-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-(--color-primary) rounded transition-colors"
+                                >
+                                  {sub.label}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </nav>

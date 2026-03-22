@@ -111,10 +111,10 @@ export default function MessagesTab() {
 
             {/* Input */}
             <div className="px-4 py-3 border-t border-gray-100 flex items-center gap-2">
-              <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+              <button className="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100 transition-colors">
                 <ImageIcon size={18} />
               </button>
-              <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+              <button className="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100 transition-colors">
                 <MapPin size={18} />
               </button>
               <input
@@ -123,11 +123,11 @@ export default function MessagesTab() {
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                className="flex-1 px-4 py-2 bg-gray-50 rounded-full text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500"
+                className="flex-1 px-4 py-2 bg-gray-50 rounded-md text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <button
                 onClick={handleSend}
-                className="p-2.5 bg-primary text-white rounded-full hover:bg-primary transition-colors cursor-pointer"
+                className="p-2.5 bg-primary text-white rounded-md hover:bg-primary transition-colors cursor-pointer"
               >
                 <Send size={16} />
               </button>

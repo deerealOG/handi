@@ -46,10 +46,10 @@
 
 :root {
   /* Brand Colors */
-  --color-primary: #245e37;
+  --color-primary: #398A4F;
   --color-primary-dark: #1d4b30;
   --color-primary-light: #e1f2e8;
-  --color-secondary: #9db541;
+  --color-secondary: #c1c466;
 
   /* Backgrounds */
   --color-background: #f4f5f7;
@@ -88,7 +88,7 @@
 
 :root.dark {
   /* Brand Colors (keep primary consistent) */
-  --color-primary: #2d7a46;
+  --color-primary: #398A4F;
   --color-primary-dark: #245e37;
   --color-primary-light: #1a3a28;
   --color-secondary: #7a9132;
@@ -120,6 +120,30 @@
 :root.dark body {
   background-color: var(--color-background);
   color: var(--color-text);
+}
+
+/* Dark mode scrollbar — WebKit browsers */
+:root.dark ::-webkit-scrollbar {
+  width: 8px;
+  background: var(--color-background);
+}
+:root.dark ::-webkit-scrollbar-thumb {
+  background: #3a3f52;
+  border-radius: 4px;
+}
+:root.dark ::-webkit-scrollbar-thumb:hover {
+  background: #4a5068;
+}
+
+/* Dark mode scrollbar — Firefox */
+:root.dark * {
+  scrollbar-color: #3a3f52 var(--color-background);
+}
+
+/* Ensure html/body never hide vertical scrollbar */
+html, body {
+  overflow-y: auto !important;
+  overflow-x: hidden;
 }
 
 :root.dark .bg-white {
@@ -832,4 +856,204 @@ select option {
 .animate-stagger-item {
   opacity: 0;
   animation: staggerSlideIn 0.3s ease-out forwards;
+}
+
+/* ============================================
+   HANDI Two-Tone Green Background
+   ============================================
+   Dark green (#398A4F) covers navbar + half of hero.
+   An upward chevron starts at mid-hero, transitioning
+   into olive/lime (#9db541) which fills the rest.
+   ============================================ */
+
+.handi-bg {
+  position: relative;
+  background: var(--color-secondary);
+  overflow-x: hidden;
+}
+
+/* Dark green top zone — covers only navbar + half hero (≈ 350px fixed) */
+.handi-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 15%;
+  background: var(--color-secondary);
+  z-index: 0;
+}
+
+
+
+/* All direct children sit above the pseudo-elements */
+.handi-bg > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* But navbar always on top of everything */
+.handi-bg > header {
+  z-index: 60;
+}
+
+/* Mobile: flatter chevron, shorter top zone */
+@media (max-width: 768px) {
+  .handi-bg::before {
+    height: 280px;
+  }
+  .handi-bg::after {
+    top: 200px;
+    height: 150px;
+    clip-path: polygon(0% 100%, 50% 15%, 100% 100%);
+  }
+}
+
+/* Dark mode */
+:root.dark .handi-bg {
+  background: linear-gradient(180deg, #1d4b30 0%, #263e1e 40%, #2a3a1e 100%);
+}
+:root.dark .handi-bg::before {
+  background: var(--color-primary-dark);
+}
+:root.dark .handi-bg::after {
+  background: #263e1e;
+}
+
+/* ============================================
+   White Card Containers (contrast on green bg)
+   Premium elevated design with brand accent
+   ============================================ */
+.handi-card {
+  background: #ffffff;
+  border-radius: 5px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 4px 16px rgba(0, 0, 0, 0.08);
+  padding-top: 0;
+  
+  z-index: 10;
+ 
+}
+
+
+
+:root.dark .handi-card {
+  background: #1e2130;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    0 4px 16px rgba(0, 0, 0, 0.3);
+  border-top-color: var(--color-primary);
+}
+
+:root.dark .handi-card h2,
+:root.dark .handi-card h3 {
+  color: #f3f4f6;
+}
+
+:root.dark .handi-card p {
+  color: #9ca3af;
+}
+
+/* Section headings that sit directly on the green bg */
+.handi-bg .section-heading-on-bg {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.handi-bg .section-subtext-on-bg {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ============================================
+   Global 5px Max Border-Radius
+   Caps all rounded corners except full-round
+   (avatars, pills, badges)
+   ============================================ */
+.rounded-sm,
+.rounded,
+.rounded-md,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl {
+  border-radius: 5px !important;
+}
+
+/* Keep full-round for circles and pills */
+.rounded-full {
+  border-radius: 9999px !important;
+}
+
+/* Cap border-radius on buttons, inputs, selects, textareas */
+button:not(.rounded-full),
+input:not(.rounded-full):not([type="radio"]):not([type="checkbox"]),
+select,
+textarea {
+  border-radius: 5px !important;
+}
+
+/* Override rounded-full on larger clickable elements (CTA buttons, links styled as buttons) */
+a.rounded-full,
+button.rounded-full {
+  border-radius: 5px !important;
+}
+
+/* Restore full-round ONLY for tiny icon buttons (< 44px) and avatar circles */
+.rounded-full:where([class*="w-8"], [class*="w-10"], [class*="w-12"], [class*="h-8"], [class*="h-10"], [class*="h-12"], [class*="p-1"], [class*="p-2"]),
+img.rounded-full,
+span.rounded-full,
+div.rounded-full {
+  border-radius: 9999px !important;
+}
+
+/* Dark mode input/search styling */
+:root.dark input,
+:root.dark select,
+:root.dark textarea {
+  background-color: #1e2130;
+  color: #e5e7eb;
+  border-color: #2d3040;
+}
+
+:root.dark input::placeholder {
+  color: #6b7280;
+}
+
+/* ============================================
+   Global Card Contrast — non-green pages
+   Makes cards/sections pop on gray-50 or white
+   backgrounds by adding subtle lift and border.
+   ============================================ */
+.page-card {
+  background: #ffffff;
+  border-radius: 5px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  padding: 1.25rem;
+}
+
+:root.dark .page-card {
+  background: #1e2130;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* ============================================
+   Z-Index Utilities for modals/overlays
+   ============================================ */
+.z-modal {
+  z-index: 9999 !important;
+}
+
+.z-dropdown {
+  z-index: 200 !important;
+}
+
+.z-overlay {
+  z-index: 9998 !important;
 }

@@ -544,7 +544,7 @@ export default function ProvidersTab({ adminRole }: { adminRole: AdminRole }) {
                 <p className="text-xs font-semibold text-blue-800 mb-2">
                   Send Message to {selectedProvider.name}
                 </p>
-                <textarea
+                <textarea maxLength={500}
                   rows={3}
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}

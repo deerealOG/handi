@@ -26,6 +26,8 @@ export default function ProvidersTab() {
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const { toggleWishlist, isInWishlist } = useCart();
 
+  const isSelectedProviderTooFar = selectedProvider?.approxDistance ? parseFloat(selectedProvider.approxDistance) > 20 : false;
+
   const filtered = MOCK_PROVIDERS.filter((p) => {
     const matchesType =
       selectedType === "All" || p.providerType === selectedType;

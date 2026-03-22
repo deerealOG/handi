@@ -160,8 +160,7 @@ export default function ClientSignup() {
     setLoading(false);
 
     if (result.success) {
-      const encodedEmail = encodeURIComponent(formData.email);
-      router.push(`/auth/verify-otp?email=${encodedEmail}&method=${formData.otpMethod}`);
+      router.push("/dashboard");
     } else {
       setError(result.error || "Signup failed");
     }

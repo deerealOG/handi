@@ -580,13 +580,13 @@ export default function DealsPage() {
                   placeholder="Enter your email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 px-5 py-3.5 bg-gray-200 border border-gray-300 rounded-full text-sm text-gray-900 placeholder-gray-500 outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+                  className="flex-1 px-5 py-3.5 bg-gray-200 border border-gray-300 rounded-md text-sm text-gray-900 placeholder-gray-500 outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
                 />
                 <button
                   onClick={() => {
                     if (email) setSubscribed(true);
                   }}
-                  className="px-8 py-3.5 bg-primary text-white rounded-full text-sm font-bold hover:bg-primary transition-colors cursor-pointer shadow-lg shadow-primary/30"
+                  className="px-8 py-3.5 bg-primary text-white rounded-md text-sm font-bold hover:bg-primary transition-colors cursor-pointer shadow-lg shadow-primary/30"
                 >
                   Subscribe
                 </button>

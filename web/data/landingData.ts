@@ -168,7 +168,7 @@ export const HERO_SLIDES = [
     secondaryCta: "How It Works",
     href: "/deals",
     secondaryHref: "/how-it-works",
-    bg: "from-[#5f5c6d] to-[#aca9bb]",
+    bg: "from-(--color-primary) to-emerald-800",
     img: "/images/hero/hero-electrician.webp",
   },
   {
@@ -179,7 +179,7 @@ export const HERO_SLIDES = [
     secondaryCta: "View Categories",
     href: "/products",
     secondaryHref: "/services",
-    bg: "from-[#3b3b3b] to-[#111]",
+    bg: "from-(--color-primary) to-emerald-800",
     img: "/images/hero/hero-products.webp",
   },
 ];
@@ -301,7 +301,7 @@ export const TESTIMONIALS = [
   {
     id: "t1",
     name: "Chioma Adeyemi",
-    avatar: "/images/avatar/avatar-1.webp",
+    avatar: "/images/providers/provider-image.svg",
     service: "Electrical Repair",
     quote: "HANDI helped me find a reliable electrician within minutes. The whole process was seamless and professional.",
     rating: 5,
@@ -309,7 +309,7 @@ export const TESTIMONIALS = [
   {
     id: "t2",
     name: "Emeka Obi",
-    avatar: "/images/avatar/avatar-2.webp",
+    avatar: "/images/providers/provider-image.svg",
     service: "Home Cleaning",
     quote: "I've been using HANDI for months now. The cleaning service I booked was top-notch and very affordable.",
     rating: 5,
@@ -317,7 +317,7 @@ export const TESTIMONIALS = [
   {
     id: "t3",
     name: "Aisha Mohammed",
-    avatar: "/images/avatar/avatar-3.webp",
+    avatar: "/images/providers/provider-image.svg",
     service: "Plumbing Service",
     quote: "Fast response, verified providers, and secure payments. HANDI is now my go-to for all home services.",
     rating: 4,
@@ -325,7 +325,7 @@ export const TESTIMONIALS = [
   {
     id: "t4",
     name: "Tunde Bakare",
-    avatar: "/images/avatar/avatar-4.webp",
+    avatar: "/images/providers/provider-image.svg",
     service: "AC Servicing",
     quote: "Booking an AC technician used to be stressful until I found HANDI. Now it takes just 2 minutes!",
     rating: 5,
